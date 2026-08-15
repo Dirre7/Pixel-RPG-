@@ -176,6 +176,7 @@ export default function App() {
     setUnlockedLoreIds(INITIAL_LORE_IDS);
 
     setGameState('overworld');
+    setShowPrologueModal(true);
     triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 2, y: 3 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS);
   };
 
@@ -899,7 +900,18 @@ export default function App() {
       {/* Story Prologue & Cinematic Modal */}
       {showPrologueModal && (
         <StoryPrologueModal
-          onClose={() => setShowPrologueModal(false)}
+          onClose={() => {
+            setShowPrologueModal(false);
+            if (currentZone) {
+              soundEngine.playMusic(currentZone.bgMusicTheme);
+            }
+          }}
+          onStartAdventure={() => {
+            setShowPrologueModal(false);
+            if (currentZone) {
+              soundEngine.playMusic(currentZone.bgMusicTheme);
+            }
+          }}
         />
       )}
 
