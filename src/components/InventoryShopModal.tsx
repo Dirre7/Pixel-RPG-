@@ -162,10 +162,10 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
     showToast(`⚔️ Compraste ${item.name} (-${item.price} G)`);
   };
 
-  // Sell Item for 50% value
+  // Sell Item for 30% value (Realistic Merchant Pawn Economy)
   const handleSellEquipment = (item: EquipmentItem) => {
     soundEngine.playSfx('buy');
-    const sellPrice = Math.floor(item.price * 0.5);
+    const sellPrice = Math.max(1, Math.floor(item.price * 0.3));
     onUpdatePlayerAndInventory(
       { ...player, gold: player.gold + sellPrice },
       { ...inventory, ownedEquipment: inventory.ownedEquipment.filter((i) => i.id !== item.id) }
@@ -505,7 +505,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                               onClick={() => handleSellEquipment(item)}
                               className="py-1 px-2 bg-slate-800 hover:bg-amber-950 hover:text-amber-400 text-slate-400 rounded text-[10px] border border-slate-700 transition"
                             >
-                              Vender ({Math.floor(item.price * 0.5)}G)
+                              Vender ({Math.max(1, Math.floor(item.price * 0.3))}G)
                             </button>
                           </div>
                         </div>

@@ -254,7 +254,7 @@ export default function App() {
       attack: classConfig.baseStats.attack,
       defense: classConfig.baseStats.defense,
       speed: classConfig.baseStats.speed,
-      gold: 100,
+      gold: 35,
       score: 0,
     };
 
@@ -825,6 +825,16 @@ export default function App() {
       setInventory(result.updatedInventory);
       triggerAutoSave(finalPlayer, result.updatedInventory, currentZoneId, playerPos, newDefeated, openedChests, completedQuests, unlockedSkillIds, finalLore);
     } else {
+      // 15% gold penalty on combat defeat (Survival RPG mechanic)
+      if (!result.won && finalPlayer.gold > 0) {
+        const penalty = Math.floor(finalPlayer.gold * 0.15);
+        if (penalty > 0) {
+          finalPlayer = {
+            ...finalPlayer,
+            gold: Math.max(0, finalPlayer.gold - penalty),
+          };
+        }
+      }
       setPlayer(finalPlayer);
       setInventory(result.updatedInventory);
       triggerAutoSave(finalPlayer, result.updatedInventory);
@@ -838,26 +848,26 @@ export default function App() {
     setGameState('overworld');
   };
 
-  // Rest at Inn
+  // Rest at Inn (Progressive Economic Cost)
   const handleHealAtInn = (freeRest = false) => {
     if (!player) return;
     const innCost = freeRest
       ? 0
       : currentZoneId === 'zone_forest'
-      ? 20
+      ? 15
       : currentZoneId === 'zone_cave'
-      ? 35
+      ? 30
       : currentZoneId === 'zone_swamp'
-      ? 50
+      ? 60
       : currentZoneId === 'zone_volcano'
-      ? 65
-      : currentZoneId === 'zone_tundra'
-      ? 80
-      : currentZoneId === 'zone_castle'
       ? 100
+      : currentZoneId === 'zone_tundra'
+      ? 160
+      : currentZoneId === 'zone_castle'
+      ? 240
       : currentZoneId === 'zone_void'
-      ? 150
-      : 250;
+      ? 380
+      : 550;
 
     if (!freeRest && player.gold < innCost) return;
 
@@ -872,28 +882,28 @@ export default function App() {
     triggerAutoSave(updatedPlayer);
   };
 
-  // Open Treasure Chest / Shrine / Fountain
+  // Open Treasure Chest / Shrine / Fountain (Balanced Gold Rewards)
   const handleOpenChest = (chestId: string): ChestLoot | null => {
     if (!player || openedChests.includes(chestId)) return null;
 
-    let baseGold = 25;
-    let variance = 15;
-    let expReward = 30;
+    let baseGold = 12;
+    let variance = 8;
+    let expReward = 25;
 
     if (currentZoneId === 'zone_cave') {
-      baseGold = 50; variance = 25; expReward = 50;
+      baseGold = 22; variance = 12; expReward = 45;
     } else if (currentZoneId === 'zone_swamp') {
-      baseGold = 75; variance = 30; expReward = 65;
+      baseGold = 35; variance = 15; expReward = 60;
     } else if (currentZoneId === 'zone_volcano') {
-      baseGold = 95; variance = 40; expReward = 80;
+      baseGold = 55; variance = 20; expReward = 75;
     } else if (currentZoneId === 'zone_tundra') {
-      baseGold = 135; variance = 50; expReward = 105;
+      baseGold = 80; variance = 25; expReward = 95;
     } else if (currentZoneId === 'zone_castle') {
-      baseGold = 180; variance = 65; expReward = 130;
+      baseGold = 110; variance = 35; expReward = 120;
     } else if (currentZoneId === 'zone_void') {
-      baseGold = 260; variance = 90; expReward = 180;
+      baseGold = 160; variance = 45; expReward = 160;
     } else if (currentZoneId === 'zone_sanctuary') {
-      baseGold = 450; variance = 150; expReward = 300;
+      baseGold = 280; variance = 70; expReward = 260;
     }
 
     const goldBonus = baseGold + Math.floor(Math.random() * variance);
