@@ -637,6 +637,26 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           </div>
         </div>
 
+        {/* EXP Bar (Next Level Progress) */}
+        <div
+          className="flex-1 min-w-[45px] sm:min-w-[75px] bg-slate-950/80 px-1 py-0.5 rounded border border-purple-900/50 hover:border-purple-500/60 transition-colors"
+          title={`EXP: ${player.exp} / ${player.maxExp} (Faltan ${Math.max(0, player.maxExp - player.exp)} EXP para Nv.${player.level + 1})`}
+        >
+          <div className="flex justify-between text-purple-300 font-bold text-[8px] sm:text-[9px]">
+            <span className="flex items-center gap-0.5">
+              <span>EXP</span>
+              <span className="text-[7px] text-purple-400 hidden lg:inline">(-{Math.max(0, player.maxExp - player.exp)})</span>
+            </span>
+            <span>{player.exp}/{player.maxExp}</span>
+          </div>
+          <div className="w-full bg-slate-800 h-1 sm:h-1.5 rounded-full overflow-hidden mt-0.5">
+            <div
+              className="bg-gradient-to-r from-purple-500 via-fuchsia-400 to-amber-300 h-full transition-all duration-300"
+              style={{ width: `${Math.min(100, Math.max(0, (player.exp / player.maxExp) * 100))}%` }}
+            />
+          </div>
+        </div>
+
         {/* Gold & Save */}
         <div className="flex items-center space-x-1 flex-shrink-0 bg-slate-950/80 px-1.5 py-0.5 rounded border border-slate-800">
           <span className="text-amber-400 font-bold text-[10px] sm:text-xs">💰 {player.gold}G</span>
