@@ -66,6 +66,7 @@ export default function App() {
   const [defeatedBosses, setDefeatedBosses] = useState<string[]>([]);
   const [openedChests, setOpenedChests] = useState<string[]>([]);
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
+  const [acceptedQuests, setAcceptedQuests] = useState<string[]>([]);
   const [defeatedEnemyCounts, setDefeatedEnemyCounts] = useState<Record<string, number>>({});
   const [unlockedSkillIds, setUnlockedSkillIds] = useState<string[]>([]);
   const [unlockedLoreIds, setUnlockedLoreIds] = useState<string[]>(INITIAL_LORE_IDS);
@@ -99,7 +100,8 @@ export default function App() {
       chests = openedChests,
       quests = completedQuests,
       skills = unlockedSkillIds,
-      lores = unlockedLoreIds
+      lores = unlockedLoreIds,
+      accepted = acceptedQuests
     ) => {
       if (!p) return;
       try {
@@ -111,6 +113,7 @@ export default function App() {
           defeatedBosses: bosses,
           openedChests: chests,
           completedQuests: quests,
+          acceptedQuests: accepted,
           unlockedSkills: skills,
           unlockedLoreIds: lores,
           playTimeSeconds: 0,
@@ -122,7 +125,7 @@ export default function App() {
         console.error('Auto-save failed:', err);
       }
     },
-    [player, inventory, currentZoneId, playerPos, defeatedBosses, openedChests, completedQuests, unlockedSkillIds, unlockedLoreIds]
+    [player, inventory, currentZoneId, playerPos, defeatedBosses, openedChests, completedQuests, acceptedQuests, unlockedSkillIds, unlockedLoreIds]
   );
 
   // Start New Game
@@ -172,12 +175,13 @@ export default function App() {
     setDefeatedBosses([]);
     setOpenedChests([]);
     setCompletedQuests([]);
+    setAcceptedQuests([]);
     setUnlockedSkillIds(lvl1Skills);
     setUnlockedLoreIds(INITIAL_LORE_IDS);
 
     setGameState('overworld');
     setShowPrologueModal(true);
-    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 2, y: 3 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS);
+    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 2, y: 3 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
   };
 
   // Start Showcase Game (Modo Creador / Todo Desbloqueado - Nivel 75 y Tier 8)
@@ -246,11 +250,12 @@ export default function App() {
     setDefeatedBosses(allBosses);
     setOpenedChests([]);
     setCompletedQuests(allQuestIds);
+    setAcceptedQuests(allQuestIds);
     setUnlockedSkillIds(allSkillIds);
     setUnlockedLoreIds(allLoreIds);
 
     setGameState('overworld');
-    triggerAutoSave(showcasePlayer, showcaseInv, 'zone_forest', { x: 5, y: 5 }, allBosses, [], allQuestIds, allSkillIds, allLoreIds);
+    triggerAutoSave(showcasePlayer, showcaseInv, 'zone_forest', { x: 5, y: 5 }, allBosses, [], allQuestIds, allSkillIds, allLoreIds, allQuestIds);
   };
 
   // Unlock all content in current session
@@ -297,11 +302,12 @@ export default function App() {
     setInventory(upgradedInv);
     setDefeatedBosses(allBosses);
     setCompletedQuests(allQuestIds);
+    setAcceptedQuests(allQuestIds);
     setUnlockedSkillIds(allSkillIds);
     setUnlockedLoreIds(allLoreIds);
     setShowSettingsModal(false);
 
-    triggerAutoSave(upgradedPlayer, upgradedInv, currentZoneId, playerPos, allBosses, openedChests, allQuestIds, allSkillIds, allLoreIds);
+    triggerAutoSave(upgradedPlayer, upgradedInv, currentZoneId, playerPos, allBosses, openedChests, allQuestIds, allSkillIds, allLoreIds, allQuestIds);
   };
 
   // Resume Saved Game
@@ -329,10 +335,19 @@ export default function App() {
     setDefeatedBosses(savedGameData.defeatedBosses || []);
     setOpenedChests(savedGameData.openedChests || []);
     setCompletedQuests(savedGameData.completedQuests || []);
+    setAcceptedQuests(savedGameData.acceptedQuests || []);
     setUnlockedSkillIds(savedGameData.unlockedSkills || []);
     setUnlockedLoreIds(savedGameData.unlockedLoreIds || INITIAL_LORE_IDS);
 
     setGameState('overworld');
+  };
+
+  // Accept Quest from NPC
+  const handleAcceptQuest = (questId: string) => {
+    if (acceptedQuests.includes(questId)) return;
+    const newAccepted = [...acceptedQuests, questId];
+    setAcceptedQuests(newAccepted);
+    triggerAutoSave(player, inventory, currentZoneId, playerPos, defeatedBosses, openedChests, completedQuests, unlockedSkillIds, unlockedLoreIds, newAccepted);
   };
 
   // Claim Quest Reward
@@ -372,7 +387,8 @@ export default function App() {
     let newAtk = player.attack;
     let newDef = player.defense;
 
-    if (newExp >= newMaxExp) {
+    // Level up loop if multiple levels earned
+    while (newExp >= newMaxExp && newLevel < 99) {
       newLevel += 1;
       newExp -= newMaxExp;
       newMaxExp = Math.floor(newMaxExp * 1.5);
@@ -400,7 +416,7 @@ export default function App() {
     };
 
     setPlayer(updatedPlayer);
-    triggerAutoSave(updatedPlayer, updatedInventory, currentZoneId, playerPos, defeatedBosses, openedChests, newCompleted);
+    triggerAutoSave(updatedPlayer, updatedInventory, currentZoneId, playerPos, defeatedBosses, openedChests, newCompleted, unlockedSkillIds, unlockedLoreIds, acceptedQuests);
   };
 
   // Start Battle Encounter
@@ -855,6 +871,7 @@ export default function App() {
           defeatedBosses={defeatedBosses}
           openedChests={openedChests}
           completedQuests={completedQuests}
+          acceptedQuests={acceptedQuests}
           defeatedEnemyCounts={defeatedEnemyCounts}
           unlockedLoreIds={unlockedLoreIds}
           onMove={(newPos) => {
@@ -869,6 +886,7 @@ export default function App() {
           onOpenLoreCodex={() => setShowLoreModal(true)}
           onHealAtInn={handleHealAtInn}
           onOpenChest={handleOpenChest}
+          onAcceptQuest={handleAcceptQuest}
           onClaimQuestReward={handleClaimQuestReward}
           onChangeZone={handleChangeZone}
           onAutoSave={() => triggerAutoSave()}

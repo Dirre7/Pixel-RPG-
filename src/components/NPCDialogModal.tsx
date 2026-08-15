@@ -23,6 +23,8 @@ interface NPCDialogModalProps {
   openedChests?: string[];
   defeatedEnemyCounts?: Record<string, number>;
   completedQuests: string[];
+  acceptedQuests?: string[];
+  onAcceptQuest?: (questId: string) => void;
   onClose: () => void;
   onClaimReward: (questId: string, gold: number, exp: number) => void;
 }
@@ -34,6 +36,8 @@ export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
   openedChests = [],
   defeatedEnemyCounts = {},
   completedQuests,
+  acceptedQuests = [],
+  onAcceptQuest,
   onClose,
   onClaimReward,
 }) => {
@@ -41,17 +45,18 @@ export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
 
   const quest = npc.quest;
   const isQuestCompleted = quest ? completedQuests.includes(quest.id) : false;
+  const isQuestAccepted = quest ? acceptedQuests.includes(quest.id) : false;
 
   // Check if quest requirements are currently fulfilled
   let canClaimQuest = false;
   let progressDescription = '';
-  if (quest && !isQuestCompleted) {
+  if (quest && !isQuestCompleted && isQuestAccepted) {
     if (quest.targetType === 'defeat_boss') {
       const bossName = String(quest.targetValue).toLowerCase();
       canClaimQuest = defeatedBosses.some((b) =>
         b.toLowerCase().includes(bossName) || bossName.includes(b.toLowerCase())
       );
-      progressDescription = canClaimQuest ? '¡Jefe derrotado!' : `Derrotar a ${quest.targetValue}`;
+      progressDescription = canClaimQuest ? '¡Jefe derrotado! Listo para entregar' : `Derrotar a ${quest.targetValue}`;
     } else if (quest.targetType === 'reach_level') {
       const targetLvl = Number(quest.targetValue);
       canClaimQuest = player.level >= targetLvl;
@@ -82,6 +87,12 @@ export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
     if (dialogPageIndex > 0) {
       setDialogPageIndex((prev) => prev - 1);
     }
+  };
+
+  const handleAccept = () => {
+    if (!quest || !onAcceptQuest) return;
+    soundEngine.playSfx('select');
+    onAcceptQuest(quest.id);
   };
 
   const handleClaim = () => {
@@ -198,20 +209,24 @@ export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
                 <div className="flex items-center gap-2">
                   <Award className="w-5 h-5 text-purple-400" />
                   <h3 className="font-bold text-purple-300 text-sm md:text-base">
-                    Misión Secundaría: {quest.title}
+                    {quest.category === 'main' ? 'Misión Principal' : 'Misión Secundaria'}: {quest.title}
                   </h3>
                 </div>
                 {isQuestCompleted ? (
                   <span className="flex items-center gap-1 text-xs bg-emerald-900/60 border border-emerald-500/50 text-emerald-300 px-2.5 py-1 rounded-full font-bold">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Completada
                   </span>
+                ) : !isQuestAccepted ? (
+                  <span className="text-xs bg-amber-500/20 border border-amber-500 text-amber-300 font-bold px-2.5 py-1 rounded-full">
+                    ✨ Disponible
+                  </span>
                 ) : canClaimQuest ? (
                   <span className="text-xs bg-amber-500 text-slate-950 font-extrabold px-2.5 py-1 rounded-full animate-pulse">
-                    ¡Lista para Reclamar!
+                    ¡Lista para Entregar!
                   </span>
                 ) : (
-                  <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full">
-                    En Progreso
+                  <span className="text-xs bg-blue-900/60 border border-blue-500 text-blue-300 px-2 py-0.5 rounded-full font-medium">
+                    ⏳ En Curso
                   </span>
                 )}
               </div>
@@ -220,25 +235,45 @@ export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
                 {quest.description}
               </p>
 
-              {/* Rewards */}
+              {/* Live progress indicator if accepted */}
+              {isQuestAccepted && !isQuestCompleted && progressDescription && (
+                <div className="p-2 bg-slate-900/80 rounded-lg border border-slate-700 text-xs font-mono text-cyan-300">
+                  Progreso actual: <span className="font-bold">{progressDescription}</span>
+                </div>
+              )}
+
+              {/* Rewards & Action Button */}
               <div className="flex items-center justify-between pt-2 border-t border-slate-700/60">
-                <div className="flex items-center gap-4 text-xs font-semibold">
+                <div className="flex items-center gap-3 text-xs font-semibold">
                   <span className="text-amber-400">💰 +{quest.rewardGold} Oro</span>
                   <span className="text-purple-300">⭐ +{quest.rewardExp} EXP</span>
+                  {quest.rewardItemName && (
+                    <span className="text-emerald-300">🎁 {quest.rewardItemName}</span>
+                  )}
                 </div>
 
                 {!isQuestCompleted && (
-                  <button
-                    onClick={handleClaim}
-                    disabled={!canClaimQuest}
-                    className={`px-4 py-2 text-xs md:text-sm font-bold rounded-xl transition shadow-lg flex items-center gap-2 ${
-                      canClaimQuest
-                        ? 'bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 shadow-amber-500/20'
-                        : 'bg-slate-700 text-slate-400 cursor-not-allowed opacity-60'
-                    }`}
-                  >
-                    <Award className="w-4 h-4" /> Reclamar Recompensa
-                  </button>
+                  <div>
+                    {!isQuestAccepted ? (
+                      <button
+                        onClick={handleAccept}
+                        className="px-4 py-2 text-xs md:text-sm font-black bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 rounded-xl shadow-lg shadow-emerald-500/20 transition transform active:scale-95 flex items-center gap-1.5"
+                      >
+                        <Award className="w-4 h-4" /> Aceptar Misión 📜
+                      </button>
+                    ) : canClaimQuest ? (
+                      <button
+                        onClick={handleClaim}
+                        className="px-4 py-2 text-xs md:text-sm font-black bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 rounded-xl shadow-lg shadow-amber-500/20 transition transform active:scale-95 flex items-center gap-1.5 animate-bounce"
+                      >
+                        <CheckCircle2 className="w-4 h-4" /> ¡Entregar Misión! 🎁
+                      </button>
+                    ) : (
+                      <span className="text-xs text-slate-400 italic">
+                        En curso (vuelve al completar)
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

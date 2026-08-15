@@ -29,6 +29,7 @@ type SfxName =
   | 'boss_roar'
   | 'flee'
   | 'chest'
+  | 'achievement'
   | 'error';
 
 class RetroSoundEngine {
@@ -246,6 +247,34 @@ class RetroSoundEngine {
           gain.connect(this.sfxGainNode);
           osc.start(start);
           osc.stop(start + 0.2);
+        });
+        break;
+      }
+
+      case 'achievement': {
+        // High-energy golden trophy chime (arpeggio + bright chord)
+        const notes = [
+          { f: 587.33, t: 0 },    // D5
+          { f: 739.99, t: 0.08 }, // F#5
+          { f: 880.00, t: 0.16 }, // A5
+          { f: 1174.66, t: 0.24 }, // D6
+          { f: 1479.98, t: 0.36 }, // F#6
+        ];
+        notes.forEach((n) => {
+          if (!this.ctx || !this.sfxGainNode) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = n.f;
+
+          const start = now + n.t;
+          gain.gain.setValueAtTime(0.4, start);
+          gain.gain.exponentialRampToValueAtTime(0.005, start + 0.35);
+
+          osc.connect(gain);
+          gain.connect(this.sfxGainNode);
+          osc.start(start);
+          osc.stop(start + 0.35);
         });
         break;
       }

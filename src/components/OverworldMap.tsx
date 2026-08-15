@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { PlayerStats, Zone, Inventory, NPC } from '../types';
-import { ZONES, areZoneMainQuestsCompleted, ALL_GAME_QUESTS, isZoneUnlocked, getZoneRequirementMessage } from '../data/gameData';
+import { ZONES, areZoneMainQuestsCompleted, ALL_GAME_QUESTS, isZoneUnlocked, getZoneRequirementMessage, GAME_ACHIEVEMENTS, getAchievementProgress } from '../data/gameData';
 import { PixelCanvas } from './PixelCanvas';
 import { PixelMapCanvas } from './PixelMapCanvas';
 import { NPCDialogModal } from './NPCDialogModal';
@@ -34,8 +34,11 @@ interface OverworldMapProps {
   defeatedBosses: string[];
   openedChests: string[];
   completedQuests: string[];
+  acceptedQuests?: string[];
   defeatedEnemyCounts?: Record<string, number>;
   unlockedLoreIds?: string[];
+  unlockedAchievements?: string[];
+  claimedAchievements?: string[];
   onMove: (newPos: { x: number; y: number }) => void;
   onStartBattle: (isBoss: boolean) => void;
   onOpenShop: () => void;
@@ -43,8 +46,10 @@ interface OverworldMapProps {
   onOpenLeaderboard: () => void;
   onOpenSettings: () => void;
   onOpenLoreCodex: () => void;
+  onOpenAchievements: () => void;
   onHealAtInn: () => void;
   onOpenChest: (chestId: string) => ChestLoot | null;
+  onAcceptQuest?: (questId: string) => void;
   onClaimQuestReward: (questId: string, gold: number, exp: number) => void;
   onChangeZone: (zoneId: string) => void;
   onAutoSave: () => void;
@@ -58,8 +63,11 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   defeatedBosses,
   openedChests,
   completedQuests,
+  acceptedQuests = [],
   defeatedEnemyCounts = {},
   unlockedLoreIds = [],
+  unlockedAchievements = [],
+  claimedAchievements = [],
   onMove,
   onStartBattle,
   onOpenShop,
@@ -67,8 +75,10 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   onOpenLeaderboard,
   onOpenSettings,
   onOpenLoreCodex,
+  onOpenAchievements,
   onHealAtInn,
   onOpenChest,
+  onAcceptQuest,
   onClaimQuestReward,
   onChangeZone,
   onAutoSave,
@@ -90,6 +100,24 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
   };
+
+  const unclaimedAchievementsCount = GAME_ACHIEVEMENTS.filter((ach) => {
+    const isClaimed = claimedAchievements.includes(ach.id);
+    if (isClaimed) return false;
+    const isUnlocked = unlockedAchievements.includes(ach.id);
+    if (isUnlocked) return true;
+    const progress = getAchievementProgress(
+      ach,
+      player,
+      inventory,
+      defeatedBosses,
+      openedChests,
+      completedQuests,
+      unlockedLoreIds,
+      defeatedEnemyCounts
+    );
+    return progress.isCompleted;
+  }).length;
 
   const isBossDefeatedInZone = defeatedBosses.includes(currentZone.boss.name);
 
@@ -508,6 +536,23 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
             <button
               onClick={() => {
                 soundEngine.playSfx('select');
+                onOpenAchievements();
+              }}
+              className="relative p-1 sm:p-1.5 bg-gradient-to-r from-amber-600/25 to-yellow-600/20 hover:from-amber-600/45 active:scale-95 text-amber-300 rounded border border-amber-500/50 shadow-md transition flex items-center gap-1 text-[11px] font-mono"
+              title="Ver Logros y Recompensas"
+            >
+              <Award className="w-3.5 h-3.5 text-yellow-400" />
+              <span className="font-bold hidden md:inline">Logros</span>
+              {unclaimedAchievementsCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-amber-500 text-[9px] font-black text-slate-950 shadow animate-bounce">
+                  {unclaimedAchievementsCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => {
+                soundEngine.playSfx('select');
                 onOpenSettings();
               }}
               className="p-1 sm:p-1.5 bg-slate-800 hover:bg-slate-700 active:scale-95 rounded border border-slate-700 text-slate-300 transition flex items-center"
@@ -856,6 +901,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           currentZone={currentZone}
           player={player}
           completedQuests={completedQuests}
+          acceptedQuests={acceptedQuests}
           openedChests={openedChests}
           defeatedBosses={defeatedBosses}
           defeatedEnemyCounts={defeatedEnemyCounts}
@@ -878,12 +924,20 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           openedChests={openedChests}
           defeatedEnemyCounts={defeatedEnemyCounts}
           completedQuests={completedQuests}
+          acceptedQuests={acceptedQuests}
+          onAcceptQuest={(questId) => {
+            if (onAcceptQuest) {
+              onAcceptQuest(questId);
+            }
+            const q = ALL_GAME_QUESTS.find((item) => item.id === questId);
+            showToast(`📜 ¡Misión Aceptada: "${q?.title || 'Nueva Misión'}"! Añadida al Diario.`);
+          }}
           onClose={() => setSelectedNpc(null)}
           onClaimReward={(questId, gold, exp) => {
             onClaimQuestReward(questId, gold, exp);
             const q = ALL_GAME_QUESTS.find((item) => item.id === questId);
             const itemSuffix = q?.rewardItemName ? ` y 🎁 ${q.rewardItemName}` : '';
-            showToast(`🎉 ¡Misión Completada! +${gold} Oro, +${exp} EXP${itemSuffix}`);
+            showToast(`🎉 ¡Misión Entregada! +${gold} Oro, +${exp} EXP${itemSuffix}`);
           }}
         />
       )}

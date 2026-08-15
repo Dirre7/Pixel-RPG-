@@ -8,6 +8,7 @@ interface QuestLogModalProps {
   currentZone: Zone;
   player: PlayerStats;
   completedQuests: string[];
+  acceptedQuests?: string[];
   openedChests: string[];
   defeatedBosses: string[];
   defeatedEnemyCounts?: Record<string, number>;
@@ -19,55 +20,62 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
   currentZone,
   player,
   completedQuests,
+  acceptedQuests = [],
   openedChests,
   defeatedBosses,
   defeatedEnemyCounts = {},
   onClaimReward,
   onClose,
 }) => {
-  const [activeTab, setActiveTab] = useState<'all' | 'main' | 'side' | 'completed'>('all');
+  const [activeTab, setActiveTab] = useState<'active' | 'main' | 'side' | 'completed'>('active');
   const [selectedZoneFilter, setSelectedZoneFilter] = useState<string>('all_zones');
   const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
 
-  // Process all 42 quests with live progress and completion status
+  // Process all quests with acceptance, live progress and completion status
   const allProcessedQuests: (NPCQuest & {
+    isAccepted: boolean;
     isCompleted: boolean;
     isReadyToClaim: boolean;
     progressText: string;
     zoneName: string;
   })[] = ALL_GAME_QUESTS.map((quest) => {
     const isCompleted = completedQuests.includes(quest.id);
+    const isAccepted = acceptedQuests.includes(quest.id);
     let isReadyToClaim = false;
-    let progressText = 'En progreso';
+    let progressText = 'No iniciada (Habla con el NPC)';
 
     const zoneUnlocked = isZoneUnlocked(quest.zoneId || 'zone_forest', defeatedBosses);
 
     if (!zoneUnlocked) {
       isReadyToClaim = false;
       progressText = '🔒 Región bloqueada. Derrota al jefe previo.';
+    } else if (isCompleted) {
+      progressText = '✅ Misión completada';
+    } else if (!isAccepted) {
+      progressText = `Disponible en ${quest.giverName || 'NPC'}`;
     } else if (quest.targetType === 'defeat_boss') {
       const bossName = String(quest.targetValue).toLowerCase();
       const isBossDefeated = defeatedBosses.some((b) =>
         b.toLowerCase().includes(bossName) || bossName.includes(b.toLowerCase())
       );
-      isReadyToClaim = isBossDefeated && !isCompleted;
-      progressText = isBossDefeated ? '¡Jefe derrotado! Listo para entregar' : `Derrotar a ${quest.targetValue} (0/1)`;
+      isReadyToClaim = isBossDefeated;
+      progressText = isBossDefeated ? '¡Jefe derrotado! Regresa al NPC para entregar' : `Derrotar a ${quest.targetValue} (0/1)`;
     } else if (quest.targetType === 'reach_level') {
       const targetLvl = Number(quest.targetValue);
-      isReadyToClaim = player.level >= targetLvl && !isCompleted;
+      isReadyToClaim = player.level >= targetLvl;
       progressText = `Nivel actual ${player.level} / Requerido ${targetLvl}`;
     } else if (quest.targetType === 'open_chests') {
       const targetCount = Number(quest.targetValue);
       const zoneChests = openedChests.filter((id) => id.startsWith(quest.zoneId || '')).length;
       const currentCount = Math.min(targetCount, zoneChests);
-      isReadyToClaim = currentCount >= targetCount && !isCompleted;
+      isReadyToClaim = currentCount >= targetCount;
       progressText = `Cofres en la región: ${currentCount} / ${targetCount}`;
     } else if (quest.targetType === 'defeat_enemies') {
       const targetCount = Number(quest.targetValue);
       const enemyKey = (quest.targetEnemyType || '').toLowerCase();
       const kills = defeatedEnemyCounts[enemyKey] || 0;
       const currentKills = Math.min(targetCount, kills);
-      isReadyToClaim = currentKills >= targetCount && !isCompleted;
+      isReadyToClaim = currentKills >= targetCount;
       progressText = `Enemigos derrotados: ${currentKills} / ${targetCount}`;
     }
 
@@ -76,6 +84,7 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
 
     return {
       ...quest,
+      isAccepted,
       isCompleted,
       isReadyToClaim,
       progressText,
@@ -83,32 +92,29 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
     };
   });
 
-  // Filter by category and zone
+  // Filter only quests the player has engaged with (accepted or completed)
   const filteredQuests = allProcessedQuests.filter((q) => {
     // Zone filter
     if (selectedZoneFilter !== 'all_zones' && q.zoneId !== selectedZoneFilter) {
       return false;
     }
 
-    // Category filter
-    if (activeTab === 'main') return q.category === 'main' && !q.isCompleted;
-    if (activeTab === 'side') return q.category === 'side' && !q.isCompleted;
+    // Category filter: Active tabs only show accepted & not completed quests
+    if (activeTab === 'active') return q.isAccepted && !q.isCompleted;
+    if (activeTab === 'main') return q.isAccepted && q.category === 'main' && !q.isCompleted;
+    if (activeTab === 'side') return q.isAccepted && q.category === 'side' && !q.isCompleted;
     if (activeTab === 'completed') return q.isCompleted;
     return true;
   });
 
   const selectedQuest =
-    allProcessedQuests.find((q) => q.id === selectedQuestId) ||
+    filteredQuests.find((q) => q.id === selectedQuestId) ||
     filteredQuests[0] ||
-    allProcessedQuests[0];
-
-  const handleClaim = (quest: typeof allProcessedQuests[0]) => {
-    soundEngine.playSfx('levelup');
-    onClaimReward(quest.id, quest.rewardGold, quest.rewardExp);
-  };
+    null;
 
   const totalCompletedCount = allProcessedQuests.filter((q) => q.isCompleted).length;
-  const readyToClaimCount = allProcessedQuests.filter((q) => q.isReadyToClaim).length;
+  const activeQuestsCount = allProcessedQuests.filter((q) => q.isAccepted && !q.isCompleted).length;
+  const readyToClaimCount = allProcessedQuests.filter((q) => q.isAccepted && q.isReadyToClaim && !q.isCompleted).length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm animate-fade-in font-mono select-none">
@@ -123,11 +129,11 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
               <h2 className="text-base sm:text-lg font-black text-amber-300 tracking-wide flex items-center gap-2">
                 <span>DIARIO DE AVENTURAS Y MISIONES</span>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-600/60 text-amber-300">
-                  {totalCompletedCount} / {ALL_GAME_QUESTS.length} Completadas
+                  {totalCompletedCount} Completadas • {activeQuestsCount} En curso
                 </span>
               </h2>
               <p className="text-[11px] text-slate-400">
-                88 Crónicas de Aethelgard: 24 Capítulos Principales y 64 Misiones Secundarias (8 Regiones)
+                Habla con los aldeanos y sabios en cada región para descubrir y aceptar misiones
               </p>
             </div>
           </div>
@@ -147,9 +153,9 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-slate-900/60 border-b border-slate-800 text-xs font-bold">
           <div className="flex space-x-1.5 overflow-x-auto pb-1 sm:pb-0">
             {[
-              { id: 'all', label: `Todas (${ALL_GAME_QUESTS.length})` },
-              { id: 'main', label: `⭐ Historia Principal (${ALL_GAME_QUESTS.filter(q => q.category === 'main').length})` },
-              { id: 'side', label: `📜 Secundarias (${ALL_GAME_QUESTS.filter(q => q.category === 'side').length})` },
+              { id: 'active', label: `⏳ En Curso (${activeQuestsCount})` },
+              { id: 'main', label: `⭐ Principales (${allProcessedQuests.filter(q => q.isAccepted && q.category === 'main' && !q.isCompleted).length})` },
+              { id: 'side', label: `📜 Secundarias (${allProcessedQuests.filter(q => q.isAccepted && q.category === 'side' && !q.isCompleted).length})` },
               { id: 'completed', label: `✅ Completadas (${totalCompletedCount})` },
             ].map((tab) => (
               <button
@@ -172,7 +178,7 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
           {/* Quick claim alert if any */}
           {readyToClaimCount > 0 && (
             <span className="text-[11px] text-amber-300 bg-amber-950/70 border border-amber-500/60 px-2.5 py-1 rounded-lg animate-pulse font-bold">
-              ✨ ¡{readyToClaimCount} recompensa(s) lista(s)!
+              ✨ ¡{readyToClaimCount} lista(s) para entregar al NPC!
             </span>
           )}
         </div>
@@ -208,8 +214,18 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
           {/* Left Column: Quest List */}
           <div className="md:col-span-5 space-y-2 overflow-y-auto max-h-[420px] pr-1">
             {filteredQuests.length === 0 ? (
-              <div className="p-6 text-center text-slate-400 text-xs bg-slate-900/40 rounded-xl border border-slate-800">
-                No hay misiones en este filtro.
+              <div className="p-6 text-center text-slate-400 text-xs bg-slate-900/40 rounded-xl border border-slate-800 space-y-2">
+                <Scroll className="w-8 h-8 text-slate-600 mx-auto" />
+                <p className="font-bold text-slate-300">
+                  {activeTab === 'completed'
+                    ? 'Aún no has completado ninguna misión.'
+                    : 'No tienes misiones activas en este registro.'}
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  {activeTab === 'completed'
+                    ? 'Cumple misiones y entrégalas a los NPCs para ganar recompensas y gloria.'
+                    : 'Explora las aldeas y habla con los NPCs para aceptar encargos y aventuras.'}
+                </p>
               </div>
             ) : (
               filteredQuests.map((quest) => {
@@ -245,7 +261,7 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
                       ) : quest.isReadyToClaim ? (
                         <span className="text-[10px] text-amber-300 font-bold animate-pulse flex items-center space-x-1">
                           <Sparkles className="w-3.5 h-3.5" />
-                          <span>¡Cobrar!</span>
+                          <span>¡Entregar!</span>
                         </span>
                       ) : (
                         <span className="text-[10px] text-sky-400 flex items-center space-x-1">
@@ -303,7 +319,7 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
                   <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800/80 space-y-2">
                     <div className="text-xs font-bold text-amber-300 flex items-center space-x-1.5">
                       <Gift className="w-4 h-4" />
-                      <span>Recompensas por Completar:</span>
+                      <span>Recompensas al Entregar:</span>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs font-bold">
                       <div className="p-2 bg-slate-900 rounded border border-slate-800 text-amber-400 flex items-center space-x-1.5">
@@ -317,7 +333,7 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
                       {selectedQuest.rewardItemName && (() => {
                         const equip = getQuestRewardEquipment(selectedQuest);
                         return (
-                          <div className="p-2.5 bg-emerald-950/40 rounded border border-emerald-500/40 text-emerald-300 text-xs font-bold flex flex-col space-y-1">
+                          <div className="p-2.5 bg-emerald-950/40 rounded border border-emerald-500/40 text-emerald-300 text-xs font-bold flex flex-col space-y-1 col-span-2">
                             <div className="flex items-center space-x-1.5 text-emerald-400">
                               <span>{equip?.icon || '🎁'}</span>
                               <span className="font-black text-amber-200">Recompensa: {selectedQuest.rewardItemName}</span>
@@ -341,32 +357,30 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
                   </div>
                 </div>
 
-                {/* Claim Button if ready */}
+                {/* Status Guidance */}
                 <div>
                   {selectedQuest.isCompleted ? (
                     <div className="w-full py-2.5 bg-slate-800 text-emerald-400 text-xs font-bold text-center rounded-lg border border-emerald-500/30 flex items-center justify-center space-x-2">
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Recompensas ya Reclamadas</span>
+                      <span>Misión Completada y Recompensas Reclamadas</span>
                     </div>
                   ) : selectedQuest.isReadyToClaim ? (
-                    <button
-                      onClick={() => handleClaim(selectedQuest)}
-                      className="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-lg shadow-lg hover:shadow-amber-500/30 active:scale-98 transition flex items-center justify-center space-x-2 animate-bounce-slow"
-                    >
+                    <div className="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-lg shadow-lg flex items-center justify-center space-x-2 animate-pulse">
                       <Sparkles className="w-4 h-4" />
-                      <span>¡Completar Misión y Reclamar Recompensas!</span>
-                    </button>
+                      <span>¡Habla con {selectedQuest.giverName} en {selectedQuest.zoneName} para entregar!</span>
+                    </div>
                   ) : (
-                    <div className="w-full py-2.5 bg-slate-950/60 text-slate-500 text-xs font-bold text-center rounded-lg border border-slate-800 flex items-center justify-center space-x-2">
-                      <Circle className="w-3.5 h-3.5" />
-                      <span>Misión en progreso...</span>
+                    <div className="w-full py-2.5 bg-slate-950/60 text-slate-400 text-xs font-bold text-center rounded-lg border border-slate-800 flex items-center justify-center space-x-2">
+                      <Circle className="w-3.5 h-3.5 text-sky-400" />
+                      <span>Misión en progreso... Cumple el objetivo y regresa con {selectedQuest.giverName}</span>
                     </div>
                   )}
                 </div>
               </>
             ) : (
-              <div className="p-8 text-center text-slate-400 text-xs">
-                Selecciona una misión para ver los detalles.
+              <div className="p-8 text-center text-slate-400 text-xs flex flex-col items-center justify-center h-full space-y-2">
+                <Scroll className="w-10 h-10 text-slate-700" />
+                <p>Selecciona una misión de la lista para ver su descripción, objetivos y recompensas.</p>
               </div>
             )}
           </div>

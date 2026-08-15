@@ -222,10 +222,44 @@ export interface GameSaveData {
   defeatedBosses: string[];
   openedChests: string[]; // "zoneId_x_y"
   completedQuests?: string[]; // questIds
+  acceptedQuests?: string[]; // questIds currently in progress
   unlockedSkills: string[];
   unlockedLoreIds?: string[];
+  unlockedAchievements?: string[]; // achievementIds
+  claimedAchievements?: string[]; // achievementIds
+  defeatedEnemyCounts?: Record<string, number>;
   playTimeSeconds: number;
   lastSavedAt: string;
+}
+
+export type AchievementCategory = 'combat' | 'exploration' | 'progression' | 'collection' | 'special';
+export type AchievementRarity = 'common' | 'rare' | 'epic' | 'legendary';
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  category: AchievementCategory;
+  rarity: AchievementRarity;
+  icon: string;
+  targetType:
+    | 'reach_level'
+    | 'defeat_enemies_total'
+    | 'defeat_boss'
+    | 'defeat_bosses_total'
+    | 'open_chests_total'
+    | 'quests_completed_total'
+    | 'lore_unlocked_total'
+    | 'gold_accumulated'
+    | 'full_equipment'
+    | 'reach_zone';
+  targetValue: number | string;
+  rewardGold: number;
+  rewardExp: number;
+  rewardConsumable?: ConsumableItem;
+  rewardEquipment?: EquipmentItem;
+  rewardTitle?: string;
+  secret?: boolean;
 }
 
 export interface LeaderboardEntry {
@@ -239,3 +273,4 @@ export interface LeaderboardEntry {
   playTimeMinutes: number;
   date: string;
 }
+

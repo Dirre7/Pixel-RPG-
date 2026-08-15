@@ -10,6 +10,7 @@ export { INITIAL_CONSUMABLES, SHOP_CONSUMABLES, SHOP_EQUIPMENT } from './itemsDa
 export { ALL_GAME_QUESTS, getQuestRewardEquipment, isZoneUnlocked, areZoneMainQuestsCompleted, getZoneRequirementMessage } from './questsData';
 export { ZONES } from './zonesData';
 export { GAME_LORE_ENTRIES } from './loreData';
+export { GAME_ACHIEVEMENTS, getAchievementProgress } from './achievementsData';
 
 export const HERO_CLASSES: Record<HeroClass, {
   name: string;
