@@ -5,7 +5,8 @@ import {
   HeroClass,
   GameSaveData,
   Enemy,
-  Zone
+  Zone,
+  Achievement
 } from './types';
 import {
   HERO_CLASSES,
@@ -16,6 +17,8 @@ import {
   SHOP_EQUIPMENT,
   ALL_GAME_QUESTS,
   GAME_LORE_ENTRIES,
+  GAME_ACHIEVEMENTS,
+  getAchievementProgress,
   getQuestRewardEquipment,
   isZoneUnlocked,
 } from './data/gameData';
@@ -27,6 +30,7 @@ import { InventoryShopModal } from './components/InventoryShopModal';
 import { LeaderboardModal } from './components/LeaderboardModal';
 import { AudioSettingsModal } from './components/AudioSettingsModal';
 import { LoreCodexModal } from './components/LoreCodexModal';
+import { AchievementsModal } from './components/AchievementsModal';
 import { StoryPrologueModal } from './components/StoryPrologueModal';
 import { BossVictoryModal, BossVictoryInfo } from './components/BossVictoryModal';
 import { soundEngine } from './utils/soundEngine';
@@ -50,8 +54,14 @@ export default function App() {
   const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showLoreModal, setShowLoreModal] = useState(false);
+  const [showAchievementsModal, setShowAchievementsModal] = useState(false);
   const [showPrologueModal, setShowPrologueModal] = useState(false);
   const [activeBossVictory, setActiveBossVictory] = useState<BossVictoryInfo | null>(null);
+  const [achievementNotification, setAchievementNotification] = useState<{
+    title: string;
+    icon: string;
+    rarity: string;
+  } | null>(null);
 
   // Player & Game State
   const [player, setPlayer] = useState<PlayerStats | null>(null);
@@ -70,6 +80,8 @@ export default function App() {
   const [defeatedEnemyCounts, setDefeatedEnemyCounts] = useState<Record<string, number>>({});
   const [unlockedSkillIds, setUnlockedSkillIds] = useState<string[]>([]);
   const [unlockedLoreIds, setUnlockedLoreIds] = useState<string[]>(INITIAL_LORE_IDS);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
+  const [claimedAchievements, setClaimedAchievements] = useState<string[]>([]);
 
   const [currentEnemy, setCurrentEnemy] = useState<Enemy | null>(null);
   const [savedGameData, setSavedGameData] = useState<GameSaveData | null>(null);
@@ -101,7 +113,10 @@ export default function App() {
       quests = completedQuests,
       skills = unlockedSkillIds,
       lores = unlockedLoreIds,
-      accepted = acceptedQuests
+      accepted = acceptedQuests,
+      achievements = unlockedAchievements,
+      claimed = claimedAchievements,
+      enemyCounts = defeatedEnemyCounts
     ) => {
       if (!p) return;
       try {
@@ -116,6 +131,9 @@ export default function App() {
           acceptedQuests: accepted,
           unlockedSkills: skills,
           unlockedLoreIds: lores,
+          unlockedAchievements: achievements,
+          claimedAchievements: claimed,
+          defeatedEnemyCounts: enemyCounts,
           playTimeSeconds: 0,
           lastSavedAt: new Date().toISOString(),
         };
@@ -125,8 +143,99 @@ export default function App() {
         console.error('Auto-save failed:', err);
       }
     },
-    [player, inventory, currentZoneId, playerPos, defeatedBosses, openedChests, completedQuests, acceptedQuests, unlockedSkillIds, unlockedLoreIds]
+    [player, inventory, currentZoneId, playerPos, defeatedBosses, openedChests, completedQuests, acceptedQuests, unlockedSkillIds, unlockedLoreIds, unlockedAchievements, claimedAchievements, defeatedEnemyCounts]
   );
+
+  // Helper: Check and trigger achievements
+  const checkAndNotifyAchievements = useCallback(
+    (
+      p = player,
+      inv = inventory,
+      bosses = defeatedBosses,
+      chests = openedChests,
+      quests = completedQuests,
+      lores = unlockedLoreIds,
+      enemyCounts = defeatedEnemyCounts,
+      unlockedAch = unlockedAchievements,
+      zId = currentZoneId
+    ) => {
+      if (!p) return;
+
+      const newlyUnlocked: string[] = [];
+      let bannerAch: Achievement | null = null;
+
+      for (const ach of GAME_ACHIEVEMENTS) {
+        if (unlockedAch.includes(ach.id) || newlyUnlocked.includes(ach.id)) continue;
+        const progress = getAchievementProgress(
+          ach,
+          p,
+          inv,
+          bosses,
+          chests,
+          quests,
+          lores,
+          enemyCounts,
+          [zId]
+        );
+        if (progress.isCompleted) {
+          newlyUnlocked.push(ach.id);
+          if (!bannerAch) {
+            bannerAch = ach;
+          }
+        }
+      }
+
+      if (newlyUnlocked.length > 0) {
+        const updated = [...unlockedAch, ...newlyUnlocked];
+        setUnlockedAchievements(updated);
+        soundEngine.playSfx('achievement');
+
+        if (bannerAch) {
+          setAchievementNotification({
+            title: bannerAch.title,
+            icon: bannerAch.icon,
+            rarity: bannerAch.rarity,
+          });
+          setTimeout(() => setAchievementNotification(null), 3800);
+        }
+
+        triggerAutoSave(
+          p,
+          inv,
+          zId,
+          playerPos,
+          bosses,
+          chests,
+          quests,
+          unlockedSkillIds,
+          lores,
+          acceptedQuests,
+          updated
+        );
+      }
+    },
+    [player, inventory, defeatedBosses, openedChests, completedQuests, unlockedLoreIds, defeatedEnemyCounts, unlockedAchievements, currentZoneId, playerPos, unlockedSkillIds, acceptedQuests, triggerAutoSave]
+  );
+
+  // Reactive check for achievements when gameplay conditions change
+  useEffect(() => {
+    if (!player || gameState === 'title') return;
+    checkAndNotifyAchievements();
+  }, [
+    player?.level,
+    player?.gold,
+    defeatedBosses.length,
+    openedChests.length,
+    completedQuests.length,
+    unlockedLoreIds.length,
+    currentZoneId,
+    inventory.equipment.weapon,
+    inventory.equipment.armor,
+    inventory.equipment.helmet,
+    inventory.equipment.boots,
+    inventory.equipment.ring,
+    defeatedEnemyCounts,
+  ]);
 
   // Start New Game
   const handleStartNewGame = (playerName: string, heroClass: HeroClass, gender: 'male' | 'female' = 'female') => {
@@ -338,8 +447,108 @@ export default function App() {
     setAcceptedQuests(savedGameData.acceptedQuests || []);
     setUnlockedSkillIds(savedGameData.unlockedSkills || []);
     setUnlockedLoreIds(savedGameData.unlockedLoreIds || INITIAL_LORE_IDS);
+    setUnlockedAchievements(savedGameData.unlockedAchievements || []);
+    setClaimedAchievements(savedGameData.claimedAchievements || []);
+    setDefeatedEnemyCounts(savedGameData.defeatedEnemyCounts || {});
 
     setGameState('overworld');
+  };
+
+  // Claim Achievement Reward
+  const handleClaimAchievementReward = (achievement: Achievement) => {
+    if (!player || claimedAchievements.includes(achievement.id)) return;
+
+    let updatedGold = player.gold + (achievement.rewardGold || 0);
+    let updatedExp = player.exp + (achievement.rewardExp || 0);
+    let updatedScore = player.score + (achievement.rewardGold || 0) * 2 + (achievement.rewardExp || 0) * 3;
+    let updatedLevel = player.level;
+    let updatedMaxExp = player.maxExp;
+    let updatedHp = player.hp;
+    let updatedMaxHp = player.maxHp;
+    let updatedMp = player.mp;
+    let updatedMaxMp = player.maxMp;
+    let updatedAttack = player.attack;
+    let updatedDefense = player.defense;
+    let updatedSpeed = player.speed;
+
+    // Check level up from EXP
+    while (updatedExp >= updatedMaxExp) {
+      updatedExp -= updatedMaxExp;
+      updatedLevel += 1;
+      updatedMaxExp = Math.round(updatedMaxExp * 1.5);
+      updatedMaxHp += 20;
+      updatedHp = updatedMaxHp;
+      updatedMaxMp += 10;
+      updatedMp = updatedMaxMp;
+      updatedAttack += 4;
+      updatedDefense += 3;
+      updatedSpeed += 1;
+    }
+
+    const updatedPlayer: PlayerStats = {
+      ...player,
+      gold: updatedGold,
+      exp: updatedExp,
+      level: updatedLevel,
+      maxExp: updatedMaxExp,
+      hp: updatedHp,
+      maxHp: updatedMaxHp,
+      mp: updatedMp,
+      maxMp: updatedMaxMp,
+      attack: updatedAttack,
+      defense: updatedDefense,
+      speed: updatedSpeed,
+      score: updatedScore,
+    };
+
+    let updatedConsumables = [...inventory.consumables];
+    let updatedOwnedEquip = [...inventory.ownedEquipment];
+
+    if (achievement.rewardConsumable) {
+      const cIdx = updatedConsumables.findIndex((c) => c.id === achievement.rewardConsumable?.id);
+      if (cIdx >= 0) {
+        updatedConsumables[cIdx] = {
+          ...updatedConsumables[cIdx],
+          quantity: updatedConsumables[cIdx].quantity + 1,
+        };
+      } else {
+        updatedConsumables.push({ ...achievement.rewardConsumable, quantity: 1 });
+      }
+    }
+
+    if (achievement.rewardEquipment) {
+      const alreadyOwned = updatedOwnedEquip.some((e) => e.id === achievement.rewardEquipment?.id);
+      if (!alreadyOwned) {
+        updatedOwnedEquip.push(achievement.rewardEquipment);
+      }
+    }
+
+    const updatedInv: Inventory = {
+      ...inventory,
+      consumables: updatedConsumables,
+      ownedEquipment: updatedOwnedEquip,
+    };
+
+    const nextClaimed = [...claimedAchievements, achievement.id];
+    setClaimedAchievements(nextClaimed);
+    setPlayer(updatedPlayer);
+    setInventory(updatedInv);
+
+    triggerAutoSave(
+      updatedPlayer,
+      updatedInv,
+      currentZoneId,
+      playerPos,
+      defeatedBosses,
+      openedChests,
+      completedQuests,
+      unlockedSkillIds,
+      unlockedLoreIds,
+      acceptedQuests,
+      unlockedAchievements,
+      nextClaimed,
+      defeatedEnemyCounts
+    );
   };
 
   // Accept Quest from NPC
@@ -874,6 +1083,8 @@ export default function App() {
           acceptedQuests={acceptedQuests}
           defeatedEnemyCounts={defeatedEnemyCounts}
           unlockedLoreIds={unlockedLoreIds}
+          unlockedAchievements={unlockedAchievements}
+          claimedAchievements={claimedAchievements}
           onMove={(newPos) => {
             setPlayerPos(newPos);
             triggerAutoSave(player, inventory, currentZoneId, newPos);
@@ -884,6 +1095,7 @@ export default function App() {
           onOpenLeaderboard={() => setShowLeaderboardModal(true)}
           onOpenSettings={() => setShowSettingsModal(true)}
           onOpenLoreCodex={() => setShowLoreModal(true)}
+          onOpenAchievements={() => setShowAchievementsModal(true)}
           onHealAtInn={handleHealAtInn}
           onOpenChest={handleOpenChest}
           onAcceptQuest={handleAcceptQuest}
@@ -902,6 +1114,40 @@ export default function App() {
           unlockedSkillIds={unlockedSkillIds}
           onBattleEnd={handleBattleEnd}
         />
+      )}
+
+      {/* Achievements & Rewards Modal */}
+      {showAchievementsModal && player && (
+        <AchievementsModal
+          player={player}
+          inventory={inventory}
+          defeatedBosses={defeatedBosses}
+          openedChests={openedChests}
+          completedQuests={completedQuests}
+          unlockedLoreIds={unlockedLoreIds}
+          defeatedEnemyCounts={defeatedEnemyCounts}
+          unlockedAchievements={unlockedAchievements}
+          claimedAchievements={claimedAchievements}
+          onClaimReward={handleClaimAchievementReward}
+          onClose={() => setShowAchievementsModal(false)}
+        />
+      )}
+
+      {/* Achievement Unlocked In-Game Toast Banner */}
+      {achievementNotification && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] pointer-events-none animate-bounce">
+          <div className="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-amber-950 via-slate-900 to-amber-950 border-2 border-amber-400 rounded-2xl shadow-2xl shadow-amber-500/20 text-slate-100">
+            <span className="text-3xl">{achievementNotification.icon}</span>
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-widest text-amber-400 font-retro flex items-center gap-1.5">
+                <span>🏆</span> ¡LOGRO DESBLOQUEADO!
+              </div>
+              <div className="text-sm font-black text-amber-200 font-retro">
+                {achievementNotification.title}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Lore Codex Modal */}
