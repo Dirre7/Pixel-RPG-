@@ -82,6 +82,7 @@ export default function App() {
   const [unlockedLoreIds, setUnlockedLoreIds] = useState<string[]>(INITIAL_LORE_IDS);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
   const [claimedAchievements, setClaimedAchievements] = useState<string[]>([]);
+  const [exploredTilesByZone, setExploredTilesByZone] = useState<Record<string, string[]>>({});
 
   const [currentEnemy, setCurrentEnemy] = useState<Enemy | null>(null);
   const [savedGameData, setSavedGameData] = useState<GameSaveData | null>(null);
@@ -93,6 +94,9 @@ export default function App() {
       if (raw) {
         const parsed: GameSaveData = JSON.parse(raw);
         setSavedGameData(parsed);
+        if (parsed.exploredTilesByZone) {
+          setExploredTilesByZone(parsed.exploredTilesByZone);
+        }
       }
     } catch (err) {
       console.error('Failed to parse save data:', err);
@@ -116,7 +120,8 @@ export default function App() {
       accepted = acceptedQuests,
       achievements = unlockedAchievements,
       claimed = claimedAchievements,
-      enemyCounts = defeatedEnemyCounts
+      enemyCounts = defeatedEnemyCounts,
+      explored = exploredTilesByZone
     ) => {
       if (!p) return;
       try {
@@ -134,6 +139,7 @@ export default function App() {
           unlockedAchievements: achievements,
           claimedAchievements: claimed,
           defeatedEnemyCounts: enemyCounts,
+          exploredTilesByZone: explored,
           playTimeSeconds: 0,
           lastSavedAt: new Date().toISOString(),
         };
@@ -143,7 +149,7 @@ export default function App() {
         console.error('Auto-save failed:', err);
       }
     },
-    [player, inventory, currentZoneId, playerPos, defeatedBosses, openedChests, completedQuests, acceptedQuests, unlockedSkillIds, unlockedLoreIds, unlockedAchievements, claimedAchievements, defeatedEnemyCounts]
+    [player, inventory, currentZoneId, playerPos, defeatedBosses, openedChests, completedQuests, acceptedQuests, unlockedSkillIds, unlockedLoreIds, unlockedAchievements, claimedAchievements, defeatedEnemyCounts, exploredTilesByZone]
   );
 
   // Helper: Check and trigger achievements
@@ -280,17 +286,18 @@ export default function App() {
     setPlayer(initialPlayerStats);
     setInventory(initialInv);
     setCurrentZoneId('zone_forest');
-    setPlayerPos({ x: 30, y: 26 });
+    setPlayerPos({ x: 88, y: 88 });
     setDefeatedBosses([]);
     setOpenedChests([]);
     setCompletedQuests([]);
     setAcceptedQuests([]);
     setUnlockedSkillIds(lvl1Skills);
     setUnlockedLoreIds(INITIAL_LORE_IDS);
+    setExploredTilesByZone({});
 
     setGameState('overworld');
     setShowPrologueModal(true);
-    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 30, y: 26 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
+    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 88, y: 88 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
   };
 
   // Start Showcase Game (Modo Creador / Todo Desbloqueado - Nivel 75 y Tier 8)
@@ -450,6 +457,7 @@ export default function App() {
     setUnlockedAchievements(savedGameData.unlockedAchievements || []);
     setClaimedAchievements(savedGameData.claimedAchievements || []);
     setDefeatedEnemyCounts(savedGameData.defeatedEnemyCounts || {});
+    setExploredTilesByZone(savedGameData.exploredTilesByZone || {});
 
     setGameState('overworld');
   };
@@ -999,11 +1007,11 @@ export default function App() {
   // Change Zone (8 Regions Support)
   const handleChangeZone = (zoneId: string) => {
     setCurrentZoneId(zoneId);
-    let defaultPos = { x: 26, y: 26 };
+    let defaultPos = { x: 75, y: 78 };
     if (zoneId === 'zone_forest') {
-      defaultPos = { x: 30, y: 26 };
+      defaultPos = { x: 88, y: 88 };
     } else if (zoneId === 'zone_sanctuary') {
-      defaultPos = { x: 75, y: 125 };
+      defaultPos = { x: 200, y: 340 };
     }
     setPlayerPos(defaultPos);
 
@@ -1085,6 +1093,29 @@ export default function App() {
           unlockedLoreIds={unlockedLoreIds}
           unlockedAchievements={unlockedAchievements}
           claimedAchievements={claimedAchievements}
+          exploredTilesByZone={exploredTilesByZone}
+          onUpdateExploredTiles={(zId, tiles) => {
+            setExploredTilesByZone((prev) => {
+              const updated = { ...prev, [zId]: tiles };
+              triggerAutoSave(
+                player,
+                inventory,
+                currentZoneId,
+                playerPos,
+                defeatedBosses,
+                openedChests,
+                completedQuests,
+                unlockedSkillIds,
+                unlockedLoreIds,
+                acceptedQuests,
+                unlockedAchievements,
+                claimedAchievements,
+                defeatedEnemyCounts,
+                updated
+              );
+              return updated;
+            });
+          }}
           onMove={(newPos) => {
             setPlayerPos(newPos);
             triggerAutoSave(player, inventory, currentZoneId, newPos);

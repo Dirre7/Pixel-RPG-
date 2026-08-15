@@ -53,6 +53,8 @@ interface OverworldMapProps {
   onClaimQuestReward: (questId: string, gold: number, exp: number) => void;
   onChangeZone: (zoneId: string) => void;
   onAutoSave: () => void;
+  exploredTilesByZone?: Record<string, string[]>;
+  onUpdateExploredTiles?: (zoneId: string, tiles: string[]) => void;
 }
 
 export const OverworldMap: React.FC<OverworldMapProps> = ({
@@ -82,6 +84,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   onClaimQuestReward,
   onChangeZone,
   onAutoSave,
+  exploredTilesByZone: initialExploredByZone = {},
+  onUpdateExploredTiles,
 }) => {
   const [interactPrompt, setInteractPrompt] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -90,11 +94,39 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   const [isQuestLogOpen, setIsQuestLogOpen] = useState(false);
   const [showMinimap, setShowMinimap] = useState(true);
   const [activeChestLoot, setActiveChestLoot] = useState<ChestLoot | null>(null);
-  const [exploredTilesByZone, setExploredTilesByZone] = useState<Record<string, Set<string>>>({});
 
-  // Reveal Fog of War on movement (radius of 8-9 tiles)
+  // Initialize Sets from saved string arrays
+  const [exploredTilesSets, setExploredTilesSets] = useState<Record<string, Set<string>>>(() => {
+    const sets: Record<string, Set<string>> = {};
+    if (initialExploredByZone) {
+      Object.entries(initialExploredByZone).forEach(([zId, arr]) => {
+        if (Array.isArray(arr)) {
+          sets[zId] = new Set<string>(arr);
+        }
+      });
+    }
+    return sets;
+  });
+
+  // Sync if initialExploredByZone updates externally
   useEffect(() => {
-    setExploredTilesByZone((prev) => {
+    if (!initialExploredByZone) return;
+    setExploredTilesSets((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      Object.entries(initialExploredByZone).forEach(([zId, arr]) => {
+        if (Array.isArray(arr) && (!next[zId] || next[zId].size < arr.length)) {
+          next[zId] = new Set<string>(arr);
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [initialExploredByZone]);
+
+  // Reveal Fog of War on movement (radius of 9 tiles)
+  useEffect(() => {
+    setExploredTilesSets((prev) => {
       const zoneSet = new Set(prev[currentZone.id] || []);
       const radius = 9;
       let changed = false;
@@ -115,13 +147,18 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         }
       }
 
-      if (!changed && prev[currentZone.id]) return prev;
+      if (!changed) return prev;
+
+      if (onUpdateExploredTiles) {
+        onUpdateExploredTiles(currentZone.id, Array.from(zoneSet));
+      }
+
       return {
         ...prev,
         [currentZone.id]: zoneSet,
       };
     });
-  }, [playerPos, currentZone.id, currentZone.mapWidth, currentZone.mapHeight]);
+  }, [playerPos, currentZone.id, currentZone.mapWidth, currentZone.mapHeight, onUpdateExploredTiles]);
 
   // Play zone background music
   useEffect(() => {
@@ -753,7 +790,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                 playerPos={playerPos}
                 openedChests={openedChests}
                 defeatedBosses={defeatedBosses}
-                exploredTiles={exploredTilesByZone[currentZone.id]}
+                exploredTiles={exploredTilesSets[currentZone.id]}
                 onMinimapClick={(targetX, targetY) => {
                   showToast(`📍 Coordenadas exploradas: [${targetX}, ${targetY}]`);
                 }}

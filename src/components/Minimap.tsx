@@ -22,14 +22,15 @@ export const Minimap: React.FC<MinimapProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [zoomMode, setZoomMode] = useState<'full' | 'radar'>('radar');
 
-  const mapW = currentZone.mapWidth || 150;
-  const mapH = currentZone.mapHeight || 150;
+  const mapW = currentZone.mapWidth || 400;
+  const mapH = currentZone.mapHeight || 400;
 
   // Calculate exploration percentage
   const explorationPercent = useMemo(() => {
     if (!exploredTiles || exploredTiles.size === 0) return 1;
     const total = mapW * mapH;
-    return Math.min(100, Math.max(1, Math.round((exploredTiles.size / total) * 100)));
+    const pct = ((exploredTiles.size / total) * 100);
+    return pct < 1 ? Number(pct.toFixed(1)) : Math.min(100, Math.round(pct));
   }, [exploredTiles, mapW, mapH]);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export const Minimap: React.FC<MinimapProps> = ({
 
     // Radar Mode vs Full Mode
     const isRadar = zoomMode === 'radar';
-    const radarRadius = 24; // 24 tiles in every direction around player in radar mode
+    const radarRadius = 32; // 32 tiles in every direction around player in radar mode
 
     const startX = isRadar ? Math.max(0, playerPos.x - radarRadius) : 0;
     const endX = isRadar ? Math.min(mapW, playerPos.x + radarRadius) : mapW;

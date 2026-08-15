@@ -228,6 +228,7 @@ export interface GameSaveData {
   unlockedAchievements?: string[]; // achievementIds
   claimedAchievements?: string[]; // achievementIds
   defeatedEnemyCounts?: Record<string, number>;
+  exploredTilesByZone?: Record<string, string[]>; // zoneId -> ["x,y", ...]
   playTimeSeconds: number;
   lastSavedAt: string;
 }

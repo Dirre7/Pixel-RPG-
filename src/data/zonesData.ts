@@ -1,32 +1,32 @@
 import { Zone } from '../types';
 import { ALL_GAME_QUESTS } from './questsData';
 import {
-  generateForest150,
-  generateCave150,
-  generateSwamp150,
-  generateVolcano150,
-  generateTundra150,
-  generateCastle150,
-  generateVoid150,
-  generatePantheon150,
+  generateForest400,
+  generateCave400,
+  generateSwamp400,
+  generateVolcano400,
+  generateTundra400,
+  generateCastle400,
+  generateVoid400,
+  generatePantheon400,
   MAP_SIZE,
-} from './worldMapGenerator150';
+} from './worldMapGenerator400';
 
 // ==============================================================================
-// 🗺️ GENERACIÓN DE MAPAS MASIVOS DE 150x150
+// 🗺️ GENERACIÓN DE MAPAS MASIVOS DE 400x400 (160.000 BALDOSAS)
 // ==============================================================================
 
-const forestWorld = generateForest150();
-const caveWorld = generateCave150();
-const swampWorld = generateSwamp150();
-const volcanoWorld = generateVolcano150();
-const tundraWorld = generateTundra150();
-const castleWorld = generateCastle150();
-const voidWorld = generateVoid150();
-const pantheonWorld = generatePantheon150();
+const forestWorld = generateForest400();
+const caveWorld = generateCave400();
+const swampWorld = generateSwamp400();
+const volcanoWorld = generateVolcano400();
+const tundraWorld = generateTundra400();
+const castleWorld = generateCastle400();
+const voidWorld = generateVoid400();
+const pantheonWorld = generatePantheon400();
 
 // ==============================================================================
-// 🌟 CONFIGURACIÓN COMPLETA DE LAS 8 REGIONES DE AETHELGARD (150x150)
+// 🌟 CONFIGURACIÓN COMPLETA DE LAS 8 REGIONES DE AETHELGARD (400x400)
 // ==============================================================================
 
 export const ZONES: Zone[] = [
@@ -47,8 +47,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_1',
         zoneId: 'zone_forest',
-        x: 30,
-        y: 25,
+        x: 87,
+        y: 84,
         name: 'Anciano Eldrin',
         title: 'Sabio de la Aldea de Roble',
         avatarStyle: 'elder',
@@ -63,8 +63,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_2',
         zoneId: 'zone_forest',
-        x: 23,
-        y: 34,
+        x: 95,
+        y: 78,
         name: 'Brom el Maestro Forjador',
         title: 'Herrero Mayor de la Aldea',
         avatarStyle: 'blacksmith',
@@ -78,8 +78,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_3',
         zoneId: 'zone_forest',
-        x: 38,
-        y: 21,
+        x: 75,
+        y: 92,
         name: 'Bardo Corin',
         title: 'Trovador de la Arboleda',
         avatarStyle: 'scout',
@@ -93,8 +93,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_4',
         zoneId: 'zone_forest',
-        x: 75,
-        y: 26,
+        x: 195,
+        y: 60,
         name: 'Thorne el Guardabosques',
         title: 'Vigilante del Gran Río',
         avatarStyle: 'knight',
@@ -108,8 +108,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_5',
         zoneId: 'zone_forest',
-        x: 122,
-        y: 84,
+        x: 312,
+        y: 240,
         name: 'Druida Elenor',
         title: 'Guardiana del Lago Sagrado',
         avatarStyle: 'wizard',
@@ -206,8 +206,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_cave_1',
         zoneId: 'zone_cave',
-        x: 25,
-        y: 23,
+        x: 75,
+        y: 78,
         name: 'Capataz Durin',
         title: 'Líder de la Expedición Minera',
         avatarStyle: 'blacksmith',
@@ -289,8 +289,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_swamp_1',
         zoneId: 'zone_swamp',
-        x: 26,
-        y: 23,
+        x: 75,
+        y: 78,
         name: 'Morgana la Alquimista',
         title: 'Bruja de la Niebla de Vael',
         avatarStyle: 'wizard',
@@ -372,8 +372,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_volcano_1',
         zoneId: 'zone_volcano',
-        x: 26,
-        y: 23,
+        x: 75,
+        y: 78,
         name: 'Ignatius el Maestro Ígneo',
         title: 'Guardián de la Forja Titánica',
         avatarStyle: 'blacksmith',
@@ -455,8 +455,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_tundra_1',
         zoneId: 'zone_tundra',
-        x: 26,
-        y: 23,
+        x: 75,
+        y: 78,
         name: 'Valkiria Astrid',
         title: 'Centinela de los Glaciares',
         avatarStyle: 'knight',
@@ -538,8 +538,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_castle_1',
         zoneId: 'zone_castle',
-        x: 27,
-        y: 25,
+        x: 75,
+        y: 80,
         name: 'Capitán Vane',
         title: 'Último Guardia de la Corona',
         avatarStyle: 'knight',
@@ -621,8 +621,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_void_1',
         zoneId: 'zone_void',
-        x: 26,
-        y: 24,
+        x: 75,
+        y: 78,
         name: 'Oráculo del Abismo',
         title: 'Espíritu de las Estrellas Olvidadas',
         avatarStyle: 'wizard',
@@ -704,8 +704,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_sanctuary_1',
         zoneId: 'zone_sanctuary',
-        x: 75,
-        y: 125,
+        x: 200,
+        y: 320,
         name: 'Ángel Serafín Uriel',
         title: 'Guardián del Sagrario Celestial',
         avatarStyle: 'knight',
