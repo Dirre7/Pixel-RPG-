@@ -90,6 +90,38 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   const [isQuestLogOpen, setIsQuestLogOpen] = useState(false);
   const [showMinimap, setShowMinimap] = useState(true);
   const [activeChestLoot, setActiveChestLoot] = useState<ChestLoot | null>(null);
+  const [exploredTilesByZone, setExploredTilesByZone] = useState<Record<string, Set<string>>>({});
+
+  // Reveal Fog of War on movement (radius of 8-9 tiles)
+  useEffect(() => {
+    setExploredTilesByZone((prev) => {
+      const zoneSet = new Set(prev[currentZone.id] || []);
+      const radius = 9;
+      let changed = false;
+
+      for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+          if (Math.hypot(dx, dy) <= radius) {
+            const tx = playerPos.x + dx;
+            const ty = playerPos.y + dy;
+            if (tx >= 0 && tx < currentZone.mapWidth && ty >= 0 && ty < currentZone.mapHeight) {
+              const key = `${tx},${ty}`;
+              if (!zoneSet.has(key)) {
+                zoneSet.add(key);
+                changed = true;
+              }
+            }
+          }
+        }
+      }
+
+      if (!changed && prev[currentZone.id]) return prev;
+      return {
+        ...prev,
+        [currentZone.id]: zoneSet,
+      };
+    });
+  }, [playerPos, currentZone.id, currentZone.mapWidth, currentZone.mapHeight]);
 
   // Play zone background music
   useEffect(() => {
@@ -721,6 +753,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                 playerPos={playerPos}
                 openedChests={openedChests}
                 defeatedBosses={defeatedBosses}
+                exploredTiles={exploredTilesByZone[currentZone.id]}
                 onMinimapClick={(targetX, targetY) => {
                   showToast(`📍 Coordenadas exploradas: [${targetX}, ${targetY}]`);
                 }}

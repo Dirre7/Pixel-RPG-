@@ -90,11 +90,17 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       const rows = currentZone.tileData.length;
       const cols = currentZone.tileData[0]?.length || 0;
 
+      // Viewport culling boundaries (only compute & draw visible tiles + safety margin)
+      const startCol = Math.max(0, Math.floor(camX / TILE_SIZE) - 2);
+      const endCol = Math.min(cols - 1, Math.ceil((camX + canvas.width) / TILE_SIZE) + 2);
+      const startRow = Math.max(0, Math.floor(camY / TILE_SIZE) - 2);
+      const endRow = Math.min(rows - 1, Math.ceil((camY + canvas.height) / TILE_SIZE) + 2);
+
       // ------------------------------------------------------------------------
       // CAPA 0: BALDOSAS DE SUELO BASE Y CAMINOS
       // ------------------------------------------------------------------------
-      for (let y = 0; y < rows; y++) {
-        for (let x = 0; x < cols; x++) {
+      for (let y = startRow; y <= endRow; y++) {
+        for (let x = startCol; x <= endCol; x++) {
           const tileType = currentZone.tileData[y][x];
           const tileCanvas = getTileCanvas(tileType === 1 ? 0 : tileType, currentZone.id, time * 2);
           ctx.drawImage(tileCanvas, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -111,7 +117,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
       const entities: RenderableEntity[] = [];
 
-      // 1. Árboles, Estructuras y Props según tileData
+      // 1. Árboles, Estructuras y Props según tileData (dentro del viewport)
       const { trunk: treeTrunk, canopy: treeCanopy } = getTreeCanvas(currentZone.id);
       const cottageRed = getCottageCanvas('red');
       const cottageBlue = getCottageCanvas('blue');
@@ -121,8 +127,8 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       const shrine = getShrineCanvas(false, time);
       const bossPortal = getShrineCanvas(true, time);
 
-      for (let y = 0; y < rows; y++) {
-        for (let x = 0; x < cols; x++) {
+      for (let y = startRow; y <= endRow; y++) {
+        for (let x = startCol; x <= endCol; x++) {
           const tileType = currentZone.tileData[y][x];
           const posX = x * TILE_SIZE;
           const posY = y * TILE_SIZE;

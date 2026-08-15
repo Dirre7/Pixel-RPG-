@@ -280,7 +280,7 @@ export default function App() {
     setPlayer(initialPlayerStats);
     setInventory(initialInv);
     setCurrentZoneId('zone_forest');
-    setPlayerPos({ x: 2, y: 3 });
+    setPlayerPos({ x: 30, y: 26 });
     setDefeatedBosses([]);
     setOpenedChests([]);
     setCompletedQuests([]);
@@ -290,7 +290,7 @@ export default function App() {
 
     setGameState('overworld');
     setShowPrologueModal(true);
-    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 2, y: 3 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
+    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 30, y: 26 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
   };
 
   // Start Showcase Game (Modo Creador / Todo Desbloqueado - Nivel 75 y Tier 8)
@@ -989,21 +989,11 @@ export default function App() {
   // Change Zone (8 Regions Support)
   const handleChangeZone = (zoneId: string) => {
     setCurrentZoneId(zoneId);
-    let defaultPos = { x: 2, y: 3 };
-    if (zoneId === 'zone_volcano') {
-      defaultPos = { x: 18, y: 4 };
-    } else if (zoneId === 'zone_swamp') {
-      defaultPos = { x: 4, y: 4 };
-    } else if (zoneId === 'zone_tundra') {
-      defaultPos = { x: 4, y: 4 };
-    } else if (zoneId === 'zone_castle') {
-      defaultPos = { x: 2, y: 3 };
-    } else if (zoneId === 'zone_void') {
-      defaultPos = { x: 4, y: 4 };
+    let defaultPos = { x: 26, y: 26 };
+    if (zoneId === 'zone_forest') {
+      defaultPos = { x: 30, y: 26 };
     } else if (zoneId === 'zone_sanctuary') {
-      defaultPos = { x: 4, y: 4 };
-    } else if (zoneId === 'zone_cave') {
-      defaultPos = { x: 2, y: 3 };
+      defaultPos = { x: 75, y: 125 };
     }
     setPlayerPos(defaultPos);
 
