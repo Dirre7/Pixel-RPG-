@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+/* Lock full-screen mobile app viewport to prevent rubber-band bounce */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: fixed;
+  overscroll-behavior: none;
+  -webkit-overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  background-color: #020617;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
+}
+
+/* Custom Pixel & Retro Game Styling */
+@layer utilities {
+  .pixelated {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* CRT Scanline Filter effect */
+.crt-overlay::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+.crt-overlay::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: radial-gradient(circle, transparent 65%, rgba(0, 0, 0, 0.45) 100%);
+  z-index: 41;
+  pointer-events: none;
+}
+
+/* Fluid Animated Health & Mana Bars */
+.bar-fill-hp {
+  background: linear-gradient(90deg, #ef4444 0%, #f87171 50%, #dc2626 100%);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bar-fill-mp {
+  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 50%, #2563eb 100%);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bar-fill-exp {
+  background: linear-gradient(90deg, #eab308 0%, #fde047 50%, #ca8a04 100%);
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Floating Combat Numbers Animation */
+@keyframes float-damage {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -24px) scale(1.25);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -40px) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -58px) scale(0.9);
+  }
+}
+
+.animate-floating-damage {
+  animation: float-damage 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Screen Shake Effect */
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-6px, 4px) rotate(-0.5deg); }
+  40% { transform: translate(6px, -4px) rotate(0.5deg); }
+  60% { transform: translate(-4px, -2px); }
+  80% { transform: translate(4px, 2px); }
+}
+
+.animate-screen-shake {
+  animation: screen-shake 0.35s ease-in-out;
+}
+
+/* Magical Pulse Glow */
+@keyframes magical-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(234, 179, 8, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.95));
+  }
+}
+
+.animate-magical-pulse {
+  animation: magical-pulse 2s infinite ease-in-out;
+}

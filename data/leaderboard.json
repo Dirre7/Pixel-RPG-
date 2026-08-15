@@ -1,0 +1,68 @@
+[
+  {
+    "id": "leg-1",
+    "name": "Eldrin el sabio",
+    "heroClass": "Mago",
+    "level": 15,
+    "score": 12500,
+    "zone": "Castillo Maldito",
+    "bossesDefeated": 4,
+    "playTimeMinutes": 45,
+    "date": "2026-08-10"
+  },
+  {
+    "id": "leg-2",
+    "name": "Valeria la Brava",
+    "heroClass": "Guerrero",
+    "level": 14,
+    "score": 10800,
+    "zone": "Castillo Maldito",
+    "bossesDefeated": 4,
+    "playTimeMinutes": 52,
+    "date": "2026-08-11"
+  },
+  {
+    "id": "leg-3",
+    "name": "ShadowK",
+    "heroClass": "Pícaro",
+    "level": 11,
+    "score": 8200,
+    "zone": "Volcán Ancestral",
+    "bossesDefeated": 3,
+    "playTimeMinutes": 38,
+    "date": "2026-08-12"
+  },
+  {
+    "id": "leg-4",
+    "name": "Aria Shield",
+    "heroClass": "Guerrero",
+    "level": 8,
+    "score": 5400,
+    "zone": "Cueva de Sombras",
+    "bossesDefeated": 2,
+    "playTimeMinutes": 25,
+    "date": "2026-08-12"
+  },
+  {
+    "id": "leg-5",
+    "name": "Pip el Novato",
+    "heroClass": "Mago",
+    "level": 5,
+    "score": 2300,
+    "zone": "Bosque Verde",
+    "bossesDefeated": 1,
+    "playTimeMinutes": 15,
+    "date": "2026-08-13"
+  },
+  {
+    "id": "lb-1786777271856-177",
+    "name": "Héroe",
+    "heroClass": "Guerrero",
+    "level": 20,
+    "score": 150,
+    "zone": "Cueva de Sombras (Minas de Eridu)",
+    "bossesDefeated": 3,
+    "playTimeMinutes": 20,
+    "date": "2026-08-15"
+  }
+]

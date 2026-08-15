@@ -1,0 +1,6 @@
+{
+  "name": "Crónicas Pixel: RPG Retro",
+  "description": "Un videojuego RPG retro de estilo pixel art y 3D anime chibi con historia épica, códice de lore de Aethelgard, batallas por turnos, habilidades desbloqueables, jefes, inventario, tienda, música chiptune, soporte para mando y clasificación global.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
