@@ -111,7 +111,6 @@ function buildMockupTown(
     }
   }
   map[cy - 2][cx - 10] = 1; map[cy + 1][cx - 10] = 1; // Árboles
-  map[cy + 2][cx - 6] = 7; // Cofre
 
   // 6. DISTRITO ESTE (Dos Casas Rojas alineadas mirando al oeste)
   map[cy - 3][cx + 7] = 5; // Casa Roja Superior
@@ -124,7 +123,6 @@ function buildMockupTown(
     }
   }
   map[cy - 1][cx + 10] = 12; map[cy + 1][cx + 10] = 12; // Rosales
-  map[cy - 2][cx + 6] = 7; map[cy + 2][cx + 6] = 7; // Cofres
 
   // 7. DISTRITO SUROESTE (El Santo Mausoleo y Cementerio)
   for (let y = cy + 7; y <= cy + 13; y++) {
@@ -147,14 +145,9 @@ function buildMockupTown(
     }
   }
 
-  // 9. DISTRITO SUR CENTRAL (Dos Grandes Casas con Patios de Cofres)
+  // 9. DISTRITO SUR CENTRAL (Dos Grandes Casas de la Aldea)
   map[cy + 8][cx - 2] = 9; // Gran Casa Azul
   map[cy + 8][cx + 2] = 5; // Gran Casa Roja
-
-  // Cofres en el patio sur
-  map[cy + 7][cx - 4] = 7; map[cy + 7][cx + 4] = 7;
-  map[cy + 11][cx - 3] = 7; map[cy + 11][cx - 1] = 7; map[cy + 11][cx + 1] = 7; map[cy + 11][cx + 3] = 7;
-  map[cy + 12][cx - 3] = 7; map[cy + 12][cx - 1] = 7; map[cy + 12][cx + 1] = 7; map[cy + 12][cx + 3] = 7;
 }
 
 /**
@@ -359,7 +352,7 @@ export function generateForest400(): {
   return {
     tileData: map,
     bossPortalPos: { x: 355, y: 355 },
-    defaultPlayerPos: { x: 100, y: 101 }, // En la plaza mayor frente a la fuente
+    defaultPlayerPos: { x: 98, y: 98 }, // En la plaza mayor frente al monumento ajardinado
   };
 }
 

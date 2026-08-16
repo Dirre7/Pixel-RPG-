@@ -73,7 +73,7 @@ export default function App() {
   });
 
   const [currentZoneId, setCurrentZoneId] = useState<string>('zone_forest');
-  const [playerPos, setPlayerPos] = useState<{ x: number; y: number }>({ x: 100, y: 101 });
+  const [playerPos, setPlayerPos] = useState<{ x: number; y: number }>({ x: 98, y: 98 });
   const [defeatedBosses, setDefeatedBosses] = useState<string[]>([]);
   const [openedChests, setOpenedChests] = useState<string[]>([]);
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
@@ -287,7 +287,7 @@ export default function App() {
     setPlayer(initialPlayerStats);
     setInventory(initialInv);
     setCurrentZoneId('zone_forest');
-    setPlayerPos({ x: 88, y: 88 });
+    setPlayerPos({ x: 98, y: 98 });
     setDefeatedBosses([]);
     setOpenedChests([]);
     setCompletedQuests([]);
@@ -298,7 +298,7 @@ export default function App() {
 
     setGameState('overworld');
     setShowPrologueModal(true);
-    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 88, y: 88 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
+    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 98, y: 98 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
   };
 
   // Start Showcase Game (Modo Creador / Todo Desbloqueado - Nivel 75 y Tier 8)
@@ -363,7 +363,7 @@ export default function App() {
     setPlayer(showcasePlayer);
     setInventory(showcaseInv);
     setCurrentZoneId('zone_forest');
-    setPlayerPos({ x: 5, y: 5 });
+    setPlayerPos({ x: 98, y: 98 });
     setDefeatedBosses(allBosses);
     setOpenedChests([]);
     setCompletedQuests(allQuestIds);
@@ -372,7 +372,7 @@ export default function App() {
     setUnlockedLoreIds(allLoreIds);
 
     setGameState('overworld');
-    triggerAutoSave(showcasePlayer, showcaseInv, 'zone_forest', { x: 5, y: 5 }, allBosses, [], allQuestIds, allSkillIds, allLoreIds, allQuestIds);
+    triggerAutoSave(showcasePlayer, showcaseInv, 'zone_forest', { x: 98, y: 98 }, allBosses, [], allQuestIds, allSkillIds, allLoreIds, allQuestIds);
   };
 
   // Unlock all content in current session
@@ -448,7 +448,7 @@ export default function App() {
     setPlayer(savedGameData.player);
     setInventory(safeInventory);
     setCurrentZoneId(savedGameData.currentZoneId || 'zone_forest');
-    setPlayerPos(savedGameData.playerPos || { x: 100, y: 101 });
+    setPlayerPos(savedGameData.playerPos || { x: 98, y: 98 });
     setDefeatedBosses(savedGameData.defeatedBosses || []);
     setOpenedChests(savedGameData.openedChests || []);
     setCompletedQuests(savedGameData.completedQuests || []);
@@ -1045,11 +1045,11 @@ export default function App() {
   // Change Zone (8 Regions Support)
   const handleChangeZone = (zoneId: string) => {
     setCurrentZoneId(zoneId);
-    let defaultPos = { x: 75, y: 78 };
+    let defaultPos = { x: 100, y: 101 };
     if (zoneId === 'zone_forest') {
-      defaultPos = { x: 88, y: 88 };
+      defaultPos = { x: 98, y: 98 };
     } else if (zoneId === 'zone_sanctuary') {
-      defaultPos = { x: 200, y: 340 };
+      defaultPos = { x: 200, y: 201 };
     }
     setPlayerPos(defaultPos);
 

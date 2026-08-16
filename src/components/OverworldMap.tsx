@@ -401,41 +401,38 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       setSafeStepsRemaining((prev) => prev - 1);
     }
 
-    // NATURAL ORGANIC COMBAT ENCOUNTERS:
-    // Safe POI tiles (Shops, Inns, Wells, Forges, Portals, Chests) are ALWAYS 100% safe.
-    const isSpecialPoiTile = [4, 5, 6, 7, 8, 9, 10, 11].includes(targetTile);
+    // COMBAT ENCOUNTERS IN THE WILD:
+    // 1. Roads, paved avenues, bridges and docks (tile 2, 15) are 100% SAFE (0% encounters).
+    // 2. All POIs, shops, forges, shrines, wells, lanterns (tile 4..11, 16..19) are 100% SAFE.
+    // 3. All town perimeters (within 18 tiles of town centers) are 100% SAFE.
+    const isPavedRoad = targetTile === 2 || targetTile === 15;
+    const isSpecialPoi = [4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19].includes(targetTile);
+    const townCenters = [
+      { x: 100, y: 100 },
+      { x: 300, y: 100 },
+      { x: 100, y: 265 },
+      { x: 200, y: 200 }
+    ];
+    const isInsideTown = townCenters.some(
+      (tc) => Math.abs(newX - tc.x) <= 18 && Math.abs(newY - tc.y) <= 18
+    );
 
-    if (!isSpecialPoiTile && safeStepsRemaining <= 0) {
+    const isSafeZone = isPavedRoad || isSpecialPoi || isInsideTown;
+
+    if (!isSafeZone && safeStepsRemaining <= 0) {
       let encounterChance = 0;
 
-      if (currentZone.id === 'zone_forest') {
-        // Village center is safe (y <= 12 on road)
-        if (targetTile === 0) {
-          encounterChance = newY >= 18 ? 0.09 : 0.06;
-        } else if (targetTile === 2 && newY > 14) {
-          encounterChance = 0.04;
-        }
-      } else if (currentZone.id === 'zone_cave') {
-        // Garrison entrance (y <= 7) is safe
-        if (newY > 7) {
-          encounterChance = targetTile === 0 ? 0.16 : 0.11;
-        }
-      } else if (currentZone.id === 'zone_volcano') {
-        // North Siege Camp (y <= 6) is safe
-        if (newY > 6) {
-          encounterChance = targetTile === 0 ? 0.18 : 0.14;
-        }
-      } else if (currentZone.id === 'zone_castle') {
-        // NW Balcony camp (y <= 4 && x <= 12) is safe
-        const isCamp = newY <= 4 && newX <= 12;
-        if (!isCamp) {
-          encounterChance = targetTile === 0 ? 0.20 : 0.15;
-        }
+      if (targetTile === 0) {
+        // Natural wilderness (grass / deep caves / wild mud)
+        encounterChance = currentZone.id === 'zone_forest' ? 0.08 : 0.12;
+      } else if (targetTile === 14) {
+        // Elite danger grounds / cursed earth
+        encounterChance = 0.22;
       }
 
       if (encounterChance > 0 && Math.random() < encounterChance) {
-        // 6 steps of grace after battle so you have room to move
-        setSafeStepsRemaining(6);
+        // 8 steps of grace after battle
+        setSafeStepsRemaining(8);
         setTimeout(() => {
           onStartBattle(false);
         }, 180);
