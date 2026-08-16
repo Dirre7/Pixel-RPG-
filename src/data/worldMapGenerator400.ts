@@ -293,28 +293,73 @@ export function generateForest400(): {
   map[135][55] = 28; // Cristal de maná gigante
   map[125][70] = 7;  // Cofre Arcano
 
-  // 5. 🌿 EL LABERINTO ENCANTADO (Centro: X: 215..295, Y: 105..185)
+  // 5. 🌿 EL LABERINTO ENCANTADO REAL (Centro: X: 215..295, Y: 105..185)
+  // Llenar todo el cuadrante con muros de setos impenetrables
   for (let y = 110; y <= 180; y++) {
     for (let x = 220; x <= 290; x++) {
-      map[y][x] = 2; // Calzada base de piedra
+      map[y][x] = 21; // Muro de seto impenetrable
     }
   }
-  // Anillos concéntricos de setos verdes
-  [0, 6, 12, 18, 24].forEach((ring) => {
-    const minX = 220 + ring;
-    const maxX = 290 - ring;
-    const minY = 110 + ring;
-    const maxY = 180 - ring;
+
+  // Pasillos tallados del laberinto (ancho de 2 baldosas para fluidez de movimiento)
+  const carveH = (y: number, x1: number, x2: number) => {
+    const minX = Math.min(x1, x2);
+    const maxX = Math.max(x1, x2);
     for (let x = minX; x <= maxX; x++) {
-      if (x !== 255) { map[minY][x] = 21; map[maxY][x] = 21; }
+      map[y][x] = 2; map[y + 1][x] = 2;
     }
+  };
+
+  const carveV = (x: number, y1: number, y2: number) => {
+    const minY = Math.min(y1, y2);
+    const maxY = Math.max(y1, y2);
     for (let y = minY; y <= maxY; y++) {
-      if (y !== 145) { map[y][minX] = 21; map[y][maxX] = 21; }
+      map[y][x] = 2; map[y][x + 1] = 2;
     }
-  });
-  map[145][255] = 8;  // Santuario en el corazón del laberinto
-  map[142][255] = 28; map[148][255] = 28; // Cristales de maná
-  map[145][258] = 7;  // Cofre del Laberinto
+  };
+
+  // Entrada única por el Sur
+  for (let y = 174; y <= 180; y++) {
+    map[y][254] = 2; map[y][255] = 2;
+  }
+
+  // Red intrincada de pasillos, bifurcaciones y desvíos falsos:
+  carveH(174, 224, 286);
+  
+  // Ala Oeste (Ruta con trampas y callejones)
+  carveV(224, 114, 174);
+  carveH(114, 224, 250);
+  carveV(248, 114, 136);
+  carveH(136, 230, 248);
+  carveV(230, 136, 166);
+  carveH(166, 230, 246);
+  carveV(244, 146, 166); // Callejón sin salida oeste con estatua
+  map[150][244] = 18;
+
+  // Ala Este (Ruta sinuosa que conecta con el centro)
+  carveV(284, 114, 174);
+  carveH(114, 258, 284);
+  carveV(260, 114, 134);
+  carveH(134, 260, 276);
+  carveV(276, 134, 166);
+  carveH(166, 254, 276);
+  carveV(266, 148, 166);
+  carveH(148, 266, 280); // Callejón este con cristal de maná
+  map[148][278] = 28;
+
+  // Pasillo de acceso final a la Cámara Central
+  carveH(124, 240, 270);
+  carveV(254, 124, 142);
+
+  // Cámara Secreta Central (9x9)
+  for (let y = 141; y <= 149; y++) {
+    for (let x = 251; x <= 259; x++) {
+      map[y][x] = 2; // Suelo de losas arcanas
+    }
+  }
+  map[145][255] = 7;  // Cofre Legendario del Laberinto
+  map[143][253] = 28; map[143][257] = 28; // Cristales de Maná
+  map[147][253] = 17; map[147][257] = 17; // Farolas Arcanas
 
   // 6. 🏴‍☠️ CALA DEL NAUFRAGIO / BARCO PIRATA VARADO (Este Medio: X: 320..385, Y: 125..185)
   for (let y = 130; y <= 180; y++) {

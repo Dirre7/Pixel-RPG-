@@ -6,7 +6,8 @@ import {
   GameSaveData,
   Enemy,
   Zone,
-  Achievement
+  Achievement,
+  EquipmentItem,
 } from './types';
 import {
   HERO_CLASSES,
@@ -922,7 +923,11 @@ export default function App() {
     let variance = 8;
     let expReward = 25;
 
-    if (currentZoneId === 'zone_cave') {
+    const isMazeChest = chestId === 'zone_forest_255_145' || chestId.includes('255_145') || chestId.includes('maze');
+
+    if (isMazeChest) {
+      baseGold = 100; variance = 1; expReward = 50;
+    } else if (currentZoneId === 'zone_cave') {
       baseGold = 22; variance = 12; expReward = 45;
     } else if (currentZoneId === 'zone_swamp') {
       baseGold = 35; variance = 15; expReward = 60;
@@ -938,7 +943,7 @@ export default function App() {
       baseGold = 280; variance = 70; expReward = 260;
     }
 
-    const goldBonus = baseGold + Math.floor(Math.random() * variance);
+    const goldBonus = isMazeChest ? 100 : (baseGold + Math.floor(Math.random() * variance));
     const expBonus = expReward;
 
     // Consumable drop
@@ -956,13 +961,31 @@ export default function App() {
     const potionName = potion?.name || 'Poción de Salud Menor';
     const potionIcon = potion?.icon || '🧪';
 
-    // Rare equipment drop chance (12%)
+    // Rare equipment drop chance (12%) or Guaranteed for Maze Chest
     let foundEquipName: string | undefined;
     let foundEquipIcon: string | undefined;
     let foundEquipRarity: string | undefined;
     const newOwnedEquipment = [...inventory.ownedEquipment];
 
-    if (Math.random() < 0.12) {
+    if (isMazeChest) {
+      const mazeAmulet: EquipmentItem = {
+        id: 'eq_amulet_maze',
+        name: 'Amuleto del Laberinto Arcano',
+        slot: 'amulet',
+        bonusAttack: 10,
+        bonusDefense: 10,
+        bonusHp: 15,
+        price: 150,
+        description: 'Reliquia mágica protegida en el corazón del laberinto encantado.',
+        icon: '📿',
+      };
+      if (!newOwnedEquipment.some((e) => e.id === 'eq_amulet_maze')) {
+        newOwnedEquipment.push(mazeAmulet);
+      }
+      foundEquipName = mazeAmulet.name;
+      foundEquipIcon = mazeAmulet.icon;
+      foundEquipRarity = 'RARO';
+    } else if (Math.random() < 0.12) {
       const candidates = SHOP_EQUIPMENT.filter((e) => !newOwnedEquipment.some((owned) => owned.id === e.id));
       if (candidates.length > 0) {
         const randomEquip = candidates[Math.floor(Math.random() * candidates.length)];

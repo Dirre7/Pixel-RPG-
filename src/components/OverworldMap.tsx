@@ -381,8 +381,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
     const targetTile = currentZone.tileData[newY]?.[newX];
 
-    // Block collision (1: Wall/Tree/Rock, 3: Water/Lava)
-    if (targetTile === 1 || targetTile === 3) {
+    // Block collision (1: Trees/Walls, 3: Water/Lava, 21: Labyrinth Hedges, 18: Pillars, 22..27: Solid Buildings)
+    const isSolidObstacle = [1, 3, 21, 18, 22, 23, 24, 26, 27].includes(targetTile);
+    if (isSolidObstacle) {
       soundEngine.playSfx('error');
       return;
     }
