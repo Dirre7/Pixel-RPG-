@@ -161,11 +161,26 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       const startRow = Math.max(0, Math.floor(camY / TILE_SIZE) - 2);
       const endRow = Math.min(rows - 1, Math.ceil((camY + canvas.height) / TILE_SIZE) + 2);
 
-      // Helper para resolver el suelo base de cualquier casilla (incluso con farolas, pilares o casas encima)
+      // Helper para resolver el suelo base de cualquier casilla (incluso con farolas, animales o plantitas encima)
       const getGroundType = (gx: number, gy: number): number => {
         if (gy < 0 || gy >= rows || gx < 0 || gx >= cols) return 0;
         const raw = currentZone.tileData[gy][gx];
-        if (raw === 0 || raw === 2 || raw === 3 || raw === 13) return raw;
+        if (raw === 0 || raw === 2 || raw === 3) return raw;
+
+        // Para casillas de huerto (13): solo si están en un gran campo de cultivo (>2 vecinos 13) es tierra arada (13); si son animales o plantas sueltas, es CÉSPED (0)!
+        if (raw === 13) {
+          let farmNeighbors = 0;
+          const offsets = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+          for (const [ox, oy] of offsets) {
+            const nx = gx + ox;
+            const ny = gy + oy;
+            if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && currentZone.tileData[ny][nx] === 13) {
+              farmNeighbors++;
+            }
+          }
+          return farmNeighbors >= 3 ? 13 : 0;
+        }
+
         // Para objetos colocados en la calle (farolas 17, pilares 18, cofres 7, puestos 9, etc.)
         let pathNeighbors = 0;
         const offsets = [[0, -1], [0, 1], [-1, 0], [1, 0]];
@@ -424,13 +439,30 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 c.drawImage(bossPortal, posX - 8, posY - 14, 48, 48);
               },
             });
+          } else if (tileType === 12) {
+            // Matorral / Flores / Vegetación silvestre
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.fillStyle = 'rgba(15, 23, 42, 0.3)';
+                c.beginPath();
+                c.ellipse(posX + 16, posY + 26, 8, 3, 0, 0, Math.PI * 2);
+                c.fill();
+                const bushCanvas = getTileCanvas(12, currentZone.id, 0);
+                c.drawImage(bushCanvas, posX, posY, 32, 32);
+              },
+            });
           } else if (tileType === 13) {
-            // Huertos con Gallinas y Vacas (Cute Fantasy) y Sacos de Grano (Pixel Crawler)
+            // Animales y Plantitas integrados sobre el césped con sombra física
             if ((x + y) % 6 === 0 && gameAssets.chicken.complete && gameAssets.chicken.naturalWidth > 0) {
               const chkFrame = Math.floor(time * 4) % 2;
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
+                  c.fillStyle = 'rgba(15, 23, 42, 0.35)';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 26, 6, 2.5, 0, 0, Math.PI * 2);
+                  c.fill();
                   c.drawImage(gameAssets.chicken, chkFrame * 32, 0, 32, 32, posX, posY, 32, 32);
                 },
               });
@@ -439,6 +471,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
+                  c.fillStyle = 'rgba(15, 23, 42, 0.35)';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 28, 14, 5, 0, 0, Math.PI * 2);
+                  c.fill();
                   c.drawImage(gameAssets.cow, cowFrame * 32, 0, 32, 32, posX - 4, posY - 4, 40, 40);
                 },
               });
@@ -447,6 +483,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
+                  c.fillStyle = 'rgba(15, 23, 42, 0.35)';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 28, 10, 4, 0, 0, Math.PI * 2);
+                  c.fill();
                   c.drawImage(gameAssets.farmProps, farmPropX, 0, 32, 32, posX, posY, 32, 32);
                 },
               });
