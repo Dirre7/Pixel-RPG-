@@ -1,5 +1,5 @@
-import { NPCQuest, EquipmentItem } from '../types';
-import { SHOP_EQUIPMENT } from './itemsData';
+import { NPCQuest, EquipmentItem, ConsumableItem } from '../types';
+import { SHOP_EQUIPMENT, SHOP_CONSUMABLES } from './itemsData';
 
 /**
  * Registry of unique equipment rewards granted by quest completion across the 8 zones
@@ -196,6 +196,7 @@ const questUniqueRegistry: Record<string, EquipmentItem> = {
 };
 
 export function getQuestRewardEquipment(quest: NPCQuest): EquipmentItem | null {
+  if (quest.rewardEquipment) return quest.rewardEquipment;
   if (!quest.rewardItemName) return null;
   const matchInShop = SHOP_EQUIPMENT.find(
     (eq) => eq.name.toLowerCase() === quest.rewardItemName?.toLowerCase()
@@ -203,6 +204,53 @@ export function getQuestRewardEquipment(quest: NPCQuest): EquipmentItem | null {
   if (matchInShop) return matchInShop;
   const matchInRegistry = questUniqueRegistry[quest.rewardItemName];
   if (matchInRegistry) return matchInRegistry;
+  return null;
+}
+
+export function getQuestRewardConsumable(quest: NPCQuest): ConsumableItem | null {
+  if (!quest.rewardItemName) return null;
+  const nameLower = quest.rewardItemName.toLowerCase().trim();
+
+  // Direct match in shop consumables
+  const matchInShop = SHOP_CONSUMABLES.find(
+    (c) => c.name.toLowerCase() === nameLower
+  );
+  if (matchInShop) return { ...matchInShop, quantity: 1 };
+
+  // Partial / semantic matching
+  if (nameLower.includes('salud mayor') || nameLower.includes('vida mayor') || nameLower.includes('hp mayor')) {
+    const item = SHOP_CONSUMABLES.find((c) => c.id === 'hp_potion_l');
+    if (item) return { ...item, quantity: 1 };
+  }
+  if (nameLower.includes('mega-poción') || nameLower.includes('mega poción') || nameLower.includes('vitalidad')) {
+    const item = SHOP_CONSUMABLES.find((c) => c.id === 'hp_potion_mega');
+    if (item) return { ...item, quantity: 1 };
+  }
+  if (nameLower.includes('celestial') || nameLower.includes('divina') || nameLower.includes('sagrada')) {
+    const item = SHOP_CONSUMABLES.find((c) => c.id === 'hp_potion_divine');
+    if (item) return { ...item, quantity: 1 };
+  }
+  if (nameLower.includes('maná mayor') || nameLower.includes('mana mayor')) {
+    const item = SHOP_CONSUMABLES.find((c) => c.id === 'mp_potion_l');
+    if (item) return { ...item, quantity: 1 };
+  }
+  if (nameLower.includes('maná menor') || nameLower.includes('mana menor') || nameLower.includes('maná pequeña') || nameLower.includes('mana pequeña') || nameLower.includes('maná') || nameLower.includes('mana')) {
+    const item = SHOP_CONSUMABLES.find((c) => c.id === 'mp_potion_s');
+    if (item) return { ...item, quantity: 1 };
+  }
+  if (nameLower.includes('elixir') || nameLower.includes('restauración') || nameLower.includes('restauracion')) {
+    const item = SHOP_CONSUMABLES.find((c) => c.id === 'elixir_restore');
+    if (item) return { ...item, quantity: 1 };
+  }
+  if (nameLower.includes('ambrosía') || nameLower.includes('ambrosia')) {
+    const item = SHOP_CONSUMABLES.find((c) => c.id === 'elixir_divine');
+    if (item) return { ...item, quantity: 1 };
+  }
+  if (nameLower.includes('salud') || nameLower.includes('vida') || nameLower.includes('pocion') || nameLower.includes('poción')) {
+    const item = SHOP_CONSUMABLES.find((c) => c.id === 'hp_potion_s');
+    if (item) return { ...item, quantity: 1 };
+  }
+
   return null;
 }
 

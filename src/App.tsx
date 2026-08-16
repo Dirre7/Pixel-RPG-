@@ -20,6 +20,7 @@ import {
   GAME_ACHIEVEMENTS,
   getAchievementProgress,
   getQuestRewardEquipment,
+  getQuestRewardConsumable,
   isZoneUnlocked,
 } from './data/gameData';
 import { ChestLoot } from './components/ChestLootModal';
@@ -575,24 +576,47 @@ export default function App() {
     setCompletedQuests(newCompleted);
 
     const questObj = ALL_GAME_QUESTS.find((q) => q.id === questId);
-    let updatedInventory = { ...inventory };
+    let updatedConsumables = [...inventory.consumables];
+    let updatedOwnedEquipment = [...inventory.ownedEquipment];
 
     if (questObj) {
+      // 1. Reward Equipment
       const rewardEquip = getQuestRewardEquipment(questObj);
       if (rewardEquip) {
-        // Add to ownedEquipment if not already present
-        const alreadyHas = updatedInventory.ownedEquipment.some(
-          (eq) => eq.name.toLowerCase() === rewardEquip.name.toLowerCase()
+        const alreadyHas = updatedOwnedEquipment.some(
+          (eq) => eq.id === rewardEquip.id || eq.name.toLowerCase() === rewardEquip.name.toLowerCase()
         );
         if (!alreadyHas) {
-          updatedInventory = {
-            ...updatedInventory,
-            ownedEquipment: [...updatedInventory.ownedEquipment, rewardEquip],
+          updatedOwnedEquipment.push(rewardEquip);
+        }
+      }
+
+      // 2. Reward Consumables / Potions
+      const rewardConsumable = getQuestRewardConsumable(questObj);
+      if (rewardConsumable) {
+        const cIdx = updatedConsumables.findIndex(
+          (c) => c.id === rewardConsumable.id || c.name.toLowerCase() === rewardConsumable.name.toLowerCase()
+        );
+        if (cIdx >= 0) {
+          updatedConsumables[cIdx] = {
+            ...updatedConsumables[cIdx],
+            quantity: updatedConsumables[cIdx].quantity + (rewardConsumable.quantity || 1),
           };
-          setInventory(updatedInventory);
+        } else {
+          updatedConsumables.push({
+            ...rewardConsumable,
+            quantity: rewardConsumable.quantity || 1,
+          });
         }
       }
     }
+
+    const updatedInventory: Inventory = {
+      ...inventory,
+      consumables: updatedConsumables,
+      ownedEquipment: updatedOwnedEquipment,
+    };
+    setInventory(updatedInventory);
 
     let newExp = player.exp + rewardExp;
     let newLevel = player.level;
@@ -918,8 +942,18 @@ export default function App() {
     const expBonus = expReward;
 
     // Consumable drop
-    const potion = inventory.consumables.find((c) => c.id.includes('hp')) || inventory.consumables[0];
-    const potionName = potion?.name || 'Poción de Salud';
+    const fallbackPotion = SHOP_CONSUMABLES.find((c) => c.id === 'hp_potion_s') || {
+      id: 'hp_potion_s',
+      name: 'Poción de Salud Menor',
+      effect: 'heal_hp' as const,
+      power: 40,
+      price: 15,
+      quantity: 1,
+      description: 'Restaura 40 HP.',
+      icon: '🧪',
+    };
+    const potion = inventory.consumables.find((c) => c.id.includes('hp')) || fallbackPotion;
+    const potionName = potion?.name || 'Poción de Salud Menor';
     const potionIcon = potion?.icon || '🧪';
 
     // Rare equipment drop chance (12%)
@@ -960,12 +994,16 @@ export default function App() {
     }
 
     // Add 1 Potion to inventory
-    const updatedConsumables = inventory.consumables.map((c) => {
-      if (c.id === (potion?.id || 'potion_hp_1')) {
-        return { ...c, quantity: c.quantity + 1 };
-      }
-      return c;
-    });
+    let updatedConsumables = [...inventory.consumables];
+    const pIdx = updatedConsumables.findIndex((c) => c.id === potion.id);
+    if (pIdx >= 0) {
+      updatedConsumables[pIdx] = {
+        ...updatedConsumables[pIdx],
+        quantity: updatedConsumables[pIdx].quantity + 1,
+      };
+    } else {
+      updatedConsumables.push({ ...potion, quantity: 1 });
+    }
 
     const updatedInventory: Inventory = {
       ...inventory,

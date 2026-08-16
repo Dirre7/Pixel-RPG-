@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { PlayerStats, Zone, Inventory, NPC } from '../types';
-import { ZONES, areZoneMainQuestsCompleted, ALL_GAME_QUESTS, isZoneUnlocked, getZoneRequirementMessage, GAME_ACHIEVEMENTS, getAchievementProgress } from '../data/gameData';
+import { ZONES, areZoneMainQuestsCompleted, ALL_GAME_QUESTS, isZoneUnlocked, getZoneRequirementMessage, GAME_ACHIEVEMENTS, getAchievementProgress, getQuestRewardEquipment } from '../data/gameData';
 import { PixelCanvas } from './PixelCanvas';
 import { PixelMapCanvas } from './PixelMapCanvas';
 import { NPCDialogModal } from './NPCDialogModal';
@@ -998,7 +998,12 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           onClaimReward={(questId, gold, exp) => {
             onClaimQuestReward(questId, gold, exp);
             const q = ALL_GAME_QUESTS.find((item) => item.id === questId);
-            const itemSuffix = q?.rewardItemName ? ` y 🎁 ${q.rewardItemName}` : '';
+            const equip = q ? getQuestRewardEquipment(q) : null;
+            const itemSuffix = q?.rewardItemName
+              ? equip
+                ? ` y ⚔️ ${q.rewardItemName} (en Mochila Equipamiento)`
+                : ` y 🧪 ${q.rewardItemName} (en Consumibles)`
+              : '';
             showToast(`🎉 ¡Misión Completada! +${gold} Oro, +${exp} EXP${itemSuffix}`);
           }}
           onClose={() => setIsQuestLogOpen(false)}
@@ -1026,7 +1031,12 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           onClaimReward={(questId, gold, exp) => {
             onClaimQuestReward(questId, gold, exp);
             const q = ALL_GAME_QUESTS.find((item) => item.id === questId);
-            const itemSuffix = q?.rewardItemName ? ` y 🎁 ${q.rewardItemName}` : '';
+            const equip = q ? getQuestRewardEquipment(q) : null;
+            const itemSuffix = q?.rewardItemName
+              ? equip
+                ? ` y ⚔️ ${q.rewardItemName} (en Mochila Equipamiento)`
+                : ` y 🧪 ${q.rewardItemName} (en Consumibles)`
+              : '';
             showToast(`🎉 ¡Misión Entregada! +${gold} Oro, +${exp} EXP${itemSuffix}`);
           }}
         />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Zone, NPCQuest, PlayerStats } from '../types';
-import { ALL_GAME_QUESTS, ZONES, isZoneUnlocked, getQuestRewardEquipment } from '../data/gameData';
+import { ALL_GAME_QUESTS, ZONES, isZoneUnlocked, getQuestRewardEquipment, getQuestRewardConsumable } from '../data/gameData';
 import { soundEngine } from '../utils/soundEngine';
 import { Scroll, CheckCircle2, Circle, Trophy, Award, Gift, Sparkles, X, Compass, MapPin } from 'lucide-react';
 
@@ -332,13 +332,14 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
                       </div>
                       {selectedQuest.rewardItemName && (() => {
                         const equip = getQuestRewardEquipment(selectedQuest);
+                        const consumable = getQuestRewardConsumable(selectedQuest);
                         return (
                           <div className="p-2.5 bg-emerald-950/40 rounded border border-emerald-500/40 text-emerald-300 text-xs font-bold flex flex-col space-y-1 col-span-2">
                             <div className="flex items-center space-x-1.5 text-emerald-400">
-                              <span>{equip?.icon || '🎁'}</span>
+                              <span>{equip?.icon || consumable?.icon || '🎁'}</span>
                               <span className="font-black text-amber-200">Recompensa: {selectedQuest.rewardItemName}</span>
                               <span className="text-[10px] text-emerald-400 font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-900/60 ml-auto">
-                                {equip?.slot || 'Accesorio'}
+                                {equip ? `Equip: ${equip.slot}` : consumable ? 'Consumible' : 'Objeto'}
                               </span>
                             </div>
                             {equip && (
@@ -348,6 +349,11 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
                                 {equip.bonusHp ? <span className="text-emerald-300 font-bold">+{equip.bonusHp} HP</span> : null}
                                 {equip.bonusMp ? <span className="text-sky-300 font-bold">+{equip.bonusMp} MP</span> : null}
                                 {equip.bonusSpeed ? <span className="text-yellow-300 font-bold">+{equip.bonusSpeed} VEL</span> : null}
+                              </div>
+                            )}
+                            {consumable && !equip && (
+                              <div className="text-[11px] text-slate-300 font-normal">
+                                {consumable.description || 'Poción o elixir para restaurar vitalidad.'}
                               </div>
                             )}
                           </div>

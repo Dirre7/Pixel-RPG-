@@ -202,6 +202,66 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
       ctx.fillStyle = '#e0f2fe';
       ctx.fillRect((phase * 4) % 12, 6, 3, 1);
     }
+  }
+  // ---------------------------------------------------------------------------
+  // 12. PARTERRE DE FLORES / JARDÍN REAL
+  // ---------------------------------------------------------------------------
+  else if (tileType === 12) {
+    ctx.fillStyle = '#15803d';
+    ctx.fillRect(0, 0, 16, 16);
+    // Flores rojas, amarillas, azules y blancas
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(3, 3, 2, 2); ctx.fillRect(11, 10, 2, 2);
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(10, 3, 2, 2); ctx.fillRect(4, 11, 2, 2);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(7, 7, 2, 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(13, 6, 1, 1); ctx.fillRect(2, 8, 1, 1);
+  }
+  // ---------------------------------------------------------------------------
+  // 13. CAMPO DE CULTIVO / TRIGO DORADO
+  // ---------------------------------------------------------------------------
+  else if (tileType === 13) {
+    ctx.fillStyle = '#78350f'; // Tierra de arado
+    ctx.fillRect(0, 0, 16, 16);
+    ctx.fillStyle = '#ca8a04'; // Trigo
+    ctx.fillRect(1, 2, 14, 2);
+    ctx.fillRect(1, 6, 14, 2);
+    ctx.fillRect(1, 10, 14, 2);
+    ctx.fillRect(1, 14, 14, 2);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(3, 2, 2, 2); ctx.fillRect(8, 6, 2, 2); ctx.fillRect(12, 10, 2, 2);
+  }
+  // ---------------------------------------------------------------------------
+  // 14. ZONA DE PELIGRO / GUARIDA ÉLITE (Tierra calcinada con runas oscuras)
+  // ---------------------------------------------------------------------------
+  else if (tileType === 14) {
+    ctx.fillStyle = '#09090b';
+    ctx.fillRect(0, 0, 16, 16);
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(1, 1, 14, 14);
+    ctx.fillStyle = '#7f1d1d'; // Runa de sangre/fuego
+    ctx.fillRect(4, 4, 8, 2);
+    ctx.fillRect(7, 2, 2, 12);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(7, 7, 2, 2);
+  }
+  // ---------------------------------------------------------------------------
+  // 15. MUELLE DE MADERA / TABLONES DE PUERTO
+  // ---------------------------------------------------------------------------
+  else if (tileType === 15) {
+    ctx.fillStyle = '#0284c7'; // Agua de fondo
+    ctx.fillRect(0, 0, 16, 16);
+    ctx.fillStyle = '#78350f'; // Pilares
+    ctx.fillRect(2, 0, 12, 16);
+    ctx.fillStyle = '#b45309'; // Tablones
+    ctx.fillRect(3, 1, 10, 3);
+    ctx.fillRect(3, 5, 10, 3);
+    ctx.fillRect(3, 9, 10, 3);
+    ctx.fillRect(3, 13, 10, 3);
+    ctx.fillStyle = '#fef08a'; // Clavos de metal
+    ctx.fillRect(4, 2, 1, 1); ctx.fillRect(11, 2, 1, 1);
   } else {
     ctx.fillStyle = '#15803d';
     ctx.fillRect(0, 0, 16, 16);

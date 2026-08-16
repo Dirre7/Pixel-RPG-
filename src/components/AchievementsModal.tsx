@@ -47,6 +47,12 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = ({
   onClose,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<'all' | AchievementCategory>('all');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
   const totalAchievements = GAME_ACHIEVEMENTS.length;
 
@@ -115,10 +121,26 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = ({
   const handleClaim = (ach: Achievement) => {
     soundEngine.playSfx('achievement');
     onClaimReward(ach);
+
+    const parts: string[] = [];
+    if (ach.rewardGold) parts.push(`+${ach.rewardGold}G`);
+    if (ach.rewardExp) parts.push(`+${ach.rewardExp} EXP`);
+    if (ach.rewardConsumable) parts.push(`🧪 ${ach.rewardConsumable.name} (en Consumibles)`);
+    if (ach.rewardEquipment) parts.push(`⚔️ ${ach.rewardEquipment.name} (en Equipamiento)`);
+    if (ach.rewardTitle) parts.push(`👑 Título: "${ach.rewardTitle}"`);
+
+    showToast(`🎉 ¡Recompensa reclamada!: ${parts.join(' | ')}`);
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6 bg-black/80 backdrop-blur-md animate-fadeIn">
+      {/* Toast Notification Banner */}
+      {toastMessage && (
+        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] bg-slate-950/95 border-2 border-amber-400 text-amber-300 font-bold px-4 py-2.5 rounded-xl shadow-2xl text-xs sm:text-sm animate-bounce text-center max-w-lg">
+          {toastMessage}
+        </div>
+      )}
+
       <div className="relative w-full max-w-5xl h-[90vh] bg-slate-900 border-2 border-amber-500/40 rounded-2xl shadow-2xl text-slate-100 overflow-hidden flex flex-col">
         {/* Top Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/40 border-b border-amber-500/30">
