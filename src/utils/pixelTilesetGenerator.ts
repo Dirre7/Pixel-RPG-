@@ -617,10 +617,11 @@ export function getStoneManorCanvas(): HTMLCanvasElement {
 }
 
 /**
- * 🍎 PUESTO DE MERCADO CON TOLDO DE RAYAS Y CARRO DE FRUTA (48x48 px)
+ * 🍎 PUESTO DE MERCADO 2.5D CON TOLDO DE RAYAS Y CAJONES DE VÍVERES (48x48 px)
  */
-export function getMarketStallCanvas(): HTMLCanvasElement {
-  const cacheKey = `market_stall_hd`;
+export function getMarketStallCanvas(stallVariant: number = 0): HTMLCanvasElement {
+  const v = stallVariant % 3;
+  const cacheKey = `market_stall_25d_${v}`;
   if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
 
   const canvas = document.createElement('canvas');
@@ -629,41 +630,89 @@ export function getMarketStallCanvas(): HTMLCanvasElement {
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
 
-  // Sombra
-  ctx.fillStyle = 'rgba(0,0,0,0.4)';
-  ctx.fillRect(4, 40, 40, 6);
+  // Sombra de contacto en el suelo
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(24, 42, 20, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-  // Mostrador de madera
+  // Barril lateral
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(4, 32, 7, 10);
   ctx.fillStyle = '#78350f';
-  ctx.fillRect(8, 24, 32, 16);
+  ctx.fillRect(5, 33, 5, 8);
+  ctx.fillStyle = '#ca8a04';
+  ctx.fillRect(5, 35, 5, 1); ctx.fillRect(5, 39, 5, 1);
+
+  // Mostrador de madera maciza en 2.5D
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(10, 24, 30, 18);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(11, 26, 28, 15);
   ctx.fillStyle = '#92400e';
-  ctx.fillRect(10, 26, 28, 12);
+  ctx.fillRect(10, 24, 30, 3); // Borde superior biselado
 
-  // Cajones de manzanas rojas y verduras verdes
+  // Cajón 1: Manzanas rojas / Pescado / Pan
   ctx.fillStyle = '#451a03';
-  ctx.fillRect(12, 24, 10, 6);
-  ctx.fillRect(26, 24, 10, 6);
-  // Manzanas
-  ctx.fillStyle = '#ef4444';
-  ctx.fillRect(13, 23, 8, 3);
-  // Verduras
-  ctx.fillStyle = '#22c55e';
-  ctx.fillRect(27, 23, 8, 3);
-
-  // Postes de soporte del toldo
-  ctx.fillStyle = '#451a03';
-  ctx.fillRect(8, 10, 3, 20);
-  ctx.fillRect(37, 10, 3, 20);
-
-  // Toldo de tela a rayas verdes y blancas
-  for (let i = 6; i <= 38; i += 8) {
-    ctx.fillStyle = '#15803d'; // Verde
-    ctx.fillRect(i, 8, 4, 12);
-    ctx.fillStyle = '#f8fafc'; // Blanco
-    ctx.fillRect(i + 4, 8, 4, 12);
+  ctx.fillRect(13, 25, 11, 7);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(14, 26, 9, 5);
+  if (v === 0) {
+    ctx.fillStyle = '#dc2626'; // Manzanas
+    ctx.fillRect(15, 25, 7, 4);
+    ctx.fillStyle = '#f87171';
+    ctx.fillRect(16, 25, 2, 2);
+  } else if (v === 1) {
+    ctx.fillStyle = '#38bdf8'; // Pescado
+    ctx.fillRect(15, 26, 7, 3);
+  } else {
+    ctx.fillStyle = '#d97706'; // Panes dorados
+    ctx.fillRect(15, 25, 7, 4);
   }
-  ctx.fillStyle = '#166534';
-  ctx.fillRect(6, 18, 36, 3);
+
+  // Cajón 2: Verduras / Naranjas / Uvas
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(26, 25, 11, 7);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(27, 26, 9, 5);
+  if (v === 0) {
+    ctx.fillStyle = '#16a34a'; // Verduras
+    ctx.fillRect(28, 25, 7, 4);
+  } else if (v === 1) {
+    ctx.fillStyle = '#ea580c'; // Naranjas
+    ctx.fillRect(28, 25, 7, 4);
+  } else {
+    ctx.fillStyle = '#9333ea'; // Uvas
+    ctx.fillRect(28, 25, 7, 4);
+  }
+
+  // Postes de madera de soporte
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(11, 10, 3, 20);
+  ctx.fillRect(36, 10, 3, 20);
+
+  // Farolillo colgante del poste
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(10, 18, 3, 4);
+
+  // Toldo de tela a rayas en 2.5D con festón ondulado
+  const stripeColor = v === 0 ? '#15803d' : v === 1 ? '#b91c1c' : '#0369a1';
+  const shadowColor = v === 0 ? '#166534' : v === 1 ? '#7f1d1d' : '#075985';
+
+  for (let i = 8; i <= 36; i += 8) {
+    ctx.fillStyle = stripeColor;
+    ctx.fillRect(i, 6, 4, 14);
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(i + 4, 6, 4, 14);
+  }
+
+  // Sombra y festón inferior del toldo
+  ctx.fillStyle = shadowColor;
+  ctx.fillRect(8, 18, 32, 4);
+  for (let i = 8; i <= 36; i += 4) {
+    ctx.fillStyle = stripeColor;
+    ctx.fillRect(i, 21, 3, 2);
+  }
 
   tileCache.set(cacheKey, canvas);
   return canvas;

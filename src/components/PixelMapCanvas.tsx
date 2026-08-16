@@ -113,7 +113,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       ctx.translate(-Math.round(camX), -Math.round(camY));
 
       const rows = currentZone.tileData.length;
-      const cols = currentZone.tileData[0]?.length || 0;
+      const cols = currentZone.tileData[0].length;
 
       // Viewport culling boundaries (only compute & draw visible tiles + safety margin)
       const startCol = Math.max(0, Math.floor(camX / TILE_SIZE) - 2);
@@ -133,7 +133,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       }
 
       // ------------------------------------------------------------------------
-      // CAPA 1 & 2: ENTIDADES Y OBSTÁCULOS (Y-SORTING PARA PROFUNDIDAD REAL)
+      // CAPA 1 & 2: ENTIDADES Y OBSTÁCULOS 2.5D (Y-SORTING PARA PROFUNDIDAD REAL)
       // ------------------------------------------------------------------------
       interface RenderableEntity {
         ySort: number;
@@ -145,10 +145,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       // 1. Árboles, Estructuras y Props según tileData (dentro del viewport)
       const { trunk: treeTrunk, canopy: treeCanopy } = getTreeCanvas(currentZone.id);
       const stoneWall = getStoneWallCanvas();
-      const cottageRed = getCottageCanvas('red');
-      const cottageBlue = getCottageCanvas('blue');
       const marketStall = getMarketStallCanvas();
-      const stoneManor = getStoneManorCanvas();
       const weaponRack = getWeaponRackCanvas();
       const chicken = getChickenCanvas(time);
       const waterWell = getWaterWellCanvas(time * 2);
@@ -230,11 +227,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 9) {
-            // Puesto de Mercado con Toldo de Rayas y Carreta de Frutas
+            // Puesto de Mercado 2.5D con Toldo a Rayas y Cajones de Víveres
+            const stallCanvas = getMarketStallCanvas((x + y) % 3);
             entities.push({
               ySort: posY + TILE_SIZE + 8,
               draw: (c) => {
-                c.drawImage(marketStall, posX - 8, posY - 12, 48, 48);
+                c.drawImage(stallCanvas, posX - 8, posY - 12, 48, 48);
               },
             });
           } else if (tileType === 10) {
