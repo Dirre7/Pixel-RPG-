@@ -443,132 +443,127 @@ export function generateForest400(): {
   }
   map[340][65] = 8; map[340][68] = 7; // Altar y Cofre de las Hadas
 
-  // 11. 🏰 LA GRAN CIUDADELA IMPERIAL / CAPITAL (Sur Central: X: 185..295, Y: 295..370)
-  // 1. Suelo base natural: Césped verde esmeralda con vegetación
-  for (let y = 296; y <= 368; y++) {
-    for (let x = 188; x <= 292; x++) {
-      map[y][x] = 0; // Hierba verde natural
+  // 11. 🏰 LA GRAN CIUDADELA IMPERIAL / CAPITAL (Sur Central: X: 198..282, Y: 298..366)
+  // 1. Suelo base natural: Césped verde esmeralda
+  for (let y = 298; y <= 366; y++) {
+    for (let x = 198; x <= 282; x++) {
+      map[y][x] = 0; // Césped natural
     }
   }
 
-  // 2. Red de Calles Adoquinadas y Caminos de Tierra (Tile 2)
+  // 2. Red de Calles Adoquinadas Proporcionales (4-5 casillas de ancho)
   // Gran Avenida Real Norte-Sur (X: 238..242)
-  for (let y = 296; y <= 368; y++) {
+  for (let y = 298; y <= 366; y++) {
     for (let x = 238; x <= 242; x++) map[y][x] = 2;
   }
-  // Gran Bulevar Transversal Este-Oeste (Y: 326..329)
-  for (let y = 326; y <= 329; y++) {
-    for (let x = 192; x <= 288; x++) map[y][x] = 2;
+  // Bulevar Transversal Este-Oeste (Y: 327..329)
+  for (let y = 327; y <= 329; y++) {
+    for (let x = 202; x <= 278; x++) map[y][x] = 2;
   }
   // Paseo Norte (Y: 302..304) y Paseo Sur (Y: 360..362)
   for (let y = 302; y <= 304; y++) {
-    for (let x = 196; x <= 284; x++) map[y][x] = 2;
+    for (let x = 202; x <= 278; x++) map[y][x] = 2;
   }
   for (let y = 360; y <= 362; y++) {
-    for (let x = 196; x <= 284; x++) map[y][x] = 2;
+    for (let x = 202; x <= 278; x++) map[y][x] = 2;
   }
-  // Callejón Artesano Oeste (X: 214..216) y Callejón Gremial Este (X: 264..266)
+  // Callejón Artesano Oeste (X: 212..214) y Callejón Gremial Este (X: 266..268)
   for (let y = 304; y <= 362; y++) {
-    map[y][214] = 2; map[y][215] = 2;
-    map[y][264] = 2; map[y][265] = 2;
+    map[y][212] = 2; map[y][213] = 2;
+    map[y][266] = 2; map[y][267] = 2;
   }
 
-  // Plazoleta Adoquinada del Gran Mercado Bazar (X: 246..258, Y: 332..356)
-  for (let y = 332; y <= 356; y++) {
-    for (let x = 246; x <= 258; x++) map[y][x] = 2;
+  // Calzada Peatonal Compacta del Gran Mercado Bazar (X: 247..257, Y: 330..356)
+  for (let y = 330; y <= 356; y++) {
+    for (let x = 247; x <= 257; x++) map[y][x] = 2;
   }
 
-  // Plazoleta de la Catedral y Atrio (X: 212..224, Y: 305..313)
+  // Atrio de la Catedral (X: 214..224, Y: 305..313)
   for (let y = 305; y <= 313; y++) {
-    for (let x = 212; x <= 224; x++) map[y][x] = 2;
+    for (let x = 214; x <= 224; x++) map[y][x] = 2;
   }
 
   // 3. Murallas Defensivas de Piedra con Torreones y Almenas
-  for (let x = 188; x <= 292; x++) {
-    if (x < 213 || (x > 217 && x < 237) || (x > 243 && x < 263) || x > 267) {
-      map[296][x] = 1; // Muralla Norte
+  for (let x = 198; x <= 282; x++) {
+    if (x < 215 || (x > 221 && x < 237) || (x > 243 && x < 263) || x > 269) {
+      map[298][x] = 1; // Muralla Norte
     }
     if (x < 237 || x > 243) {
-      map[368][x] = 1; // Muralla Sur
+      map[366][x] = 1; // Muralla Sur
     }
   }
-  for (let y = 296; y <= 368; y++) {
-    map[y][188] = 1; // Muralla Oeste
-    map[y][292] = 1; // Muralla Este
+  for (let y = 298; y <= 366; y++) {
+    map[y][198] = 1; // Muralla Oeste
+    map[y][282] = 1; // Muralla Este
   }
 
-  // 4. DISTRITO NORTE: CATEDRAL, AYUNTAMIENTO, TORRE DEL MAGO Y CASONAS NOBLES
+  // 4. DISTRITO NORTE: CATEDRAL, AYUNTAMIENTO, TORRE DEL MAGO Y MANZANAS NOBLES
   map[308][218] = 29; // Gran Templo del Sol (Catedral)
   map[306][214] = 18; map[306][222] = 18; // Estatuas de mármol del atrio
   map[312][214] = 17; map[312][222] = 17; // Farolas del atrio
 
-  map[308][242] = 31; // Gran Ayuntamiento / Casa Gremial
-  map[308][274] = 30; // Torre del Mago Arcano
-  map[306][272] = 28; map[306][276] = 28; // Cristales mágicos
+  map[308][240] = 31; // Gran Ayuntamiento / Casa Gremial
+  map[308][268] = 30; // Torre del Mago Arcano
+  map[306][266] = 28; map[306][270] = 28; // Cristales mágicos
 
-  // Casonas con jardines y vallas en el Distrito Norte
-  [202, 228, 252, 282].forEach((hx) => {
+  // Casonas con jardines en el Distrito Norte
+  [204, 228, 252, 276].forEach((hx) => {
     map[308][hx] = 5; // Casona noble
-    map[305][hx - 2] = 1; // Ciprés ornamental
     map[305][hx] = 12; // Rosales
-    map[307][hx - 2] = 15; // Valla de madera
   });
-  [202, 228, 252, 282].forEach((hx) => {
+  [204, 228, 252, 276].forEach((hx) => {
     map[318][hx] = 5;
-    map[316][hx + 2] = 1;
-    map[317][hx] = 12;
   });
 
-  // 5. PASARELA ELEVADA / ACUEDUCTO (Cruza la ciudad en Y: 324)
-  for (let x = 192; x <= 288; x += 4) {
+  // 5. GRAN PASARELA ELEVADA / ACUEDUCTO (Cruza en Y: 326 justo encima del mercado)
+  for (let x = 200; x <= 280; x += 4) {
     if (x < 236 || x > 244) {
-      map[324][x] = 33; // Pasarela elevada de madera
+      map[326][x] = 33; // Pasarela de madera
     }
   }
 
-  // 6. DISTRITO SUROESTE: GREMIO DE CURTIDORES, HUERTOS VALLADOS Y CASAS RÚSTICAS
-  map[336][204] = 34; // Gremio de Curtidores
-  map[336][210] = 5;  // Taller de confección
-  map[334][207] = 17; // Farola del gremio
+  // 6. DISTRITO SUROESTE: GREMIO DE CURTIDORES, HUERTOS VALLADOS Y CASAS
+  map[334][206] = 34; // Gremio de Curtidores
+  map[334][216] = 5;  // Taller textil
+  map[334][211] = 17; // Farola
 
-  // Huerto cercado de la ciudad con vallas, cultivos y pozo
-  for (let y = 344; y <= 356; y++) {
-    for (let x = 196; x <= 212; x++) {
-      if (x === 196 || x === 212 || y === 344 || y === 356) map[y][x] = 15; // Valla de madera
-      else map[y][x] = (x % 3 === 0) ? 13 : 0; // Bancales de zanahorias / trigo
+  // Huerto cercado con vallas de madera y cultivos
+  for (let y = 342; y <= 354; y++) {
+    for (let x = 202; x <= 218; x++) {
+      if (x === 202 || x === 218 || y === 342 || y === 354) map[y][x] = 15; // Valla de madera
+      else map[y][x] = (x % 3 === 0) ? 13 : 0; // Cultivos y césped
     }
   }
-  map[350][204] = 4; // Pozo de agua
-  map[364][202] = 5; map[364][210] = 5; // Casas rústicas con jardín
+  map[348][210] = 4; // Pozo de agua
+  map[358][206] = 5; map[358][214] = 5; // Casas del gremio
 
-  // 7. DISTRITO CENTRO-SUR: GRAN PARQUE DEL ESTANQUE Y FUENTE DE GÁRGOLA
-  map[342][229] = 32; // Gran Estanque con Fuente de Gárgola
-  map[336][225] = 12; map[336][233] = 12; map[348][225] = 12; map[348][233] = 12; // Rosales
-  map[337][229] = 18; map[347][229] = 18; // Columnas de mármol
-  map[354][224] = 5;  map[354][234] = 5;  // Casonas junto al parque
-  map[333][229] = 17; map[351][229] = 17; // Farolas del parque
-  map[335][221] = 1;  map[349][221] = 1;  // Robles del parque
+  // 7. DISTRITO CENTRO-SUR: GRAN PARQUE DEL ESTANQUE Y FUENTE DE GÁRGOLE
+  map[342][232] = 32; // Gran Estanque con Fuente de Gárgola
+  map[336][228] = 12; map[336][236] = 12; map[348][228] = 12; map[348][236] = 12; // Rosales
+  map[337][232] = 18; map[347][232] = 18; // Columnas de mármol
+  map[354][228] = 5;  map[354][236] = 5;  // Casonas junto al parque
+  map[333][232] = 17; map[351][232] = 17; // Farolas del parque
 
-  // 8. DISTRITO SURESTE: GRAN MERCADO BAZAR CONTINUO (MARBOIS DISTS)
-  // Dos filas paralelas de puestos con toldos a rayas
-  [334, 338, 342, 346, 350, 354].forEach((my) => {
-    map[my][248] = 9; // Puesto izquierdo
-    map[my][256] = 9; // Puesto derecho
-    if (my % 6 === 0) map[my][252] = 17; // Farola central
+  // 8. DISTRITO SURESTE: GRAN MERCADO BAZAR DENSO (MARBOIS DISTS)
+  // Dos filas paralelas compactas de puestos (pegadas a la calle peatonal)
+  [332, 336, 340, 344, 348, 352].forEach((my) => {
+    map[my][248] = 9; // Fila izquierda de puestos
+    map[my][256] = 9; // Fila derecha de puestos
   });
+  map[334][252] = 17; map[342][252] = 17; map[350][252] = 17; // Farolas centrales
 
-  // 9. BARRIO DE LA FORJA, BOTICA Y ALMACENES REALES (ESTE)
-  map[336][272] = 10; // Gran Forja con Chimenea
-  map[344][272] = 10; // Yunque y Armero
-  map[336][280] = 27; // Botica de Pociones
-  map[344][280] = 5;  map[352][280] = 5; // Almacenes de madera
-  map[352][272] = 5;  map[364][276] = 5; // Talleres
+  // 9. BARRIO DE LA FORJA, BOTICA Y CASAS ORIENTALES (ESTE)
+  map[334][268] = 10; // Gran Forja con Chimenea
+  map[342][268] = 10; // Yunque y Armero
+  map[334][276] = 27; // Botica de Pociones
+  map[342][276] = 5;  map[350][276] = 5; // Casonas de piedra
+  map[350][268] = 5;  map[358][272] = 5; // Talleres
 
-  // Farolas a lo largo de la Gran Avenida Real
+  // Farolas de la Gran Avenida Real
   for (let y = 300; y <= 366; y += 6) {
     map[y][237] = 17; map[y][243] = 17;
   }
-  map[364][252] = 7; map[364][272] = 7; // Cofres de suministros
+  map[362][250] = 7; map[362][270] = 7; // Cofres de la capital
 
   // 12. ⛪ CEMENTERIO GÓTICO Y CAPILLA DE PIEDRA (Sureste: X: 305..385, Y: 280..365)
   for (let y = 285; y <= 355; y++) {

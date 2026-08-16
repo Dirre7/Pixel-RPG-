@@ -27,30 +27,36 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
   // ---------------------------------------------------------------------------
   if (tileType === 0) {
     if (zoneId === 'zone_forest') {
-      // Césped verde esmeralda con matices y tréboles
-      ctx.fillStyle = '#408722';
+      // Base verde pradera cálida y suave
+      ctx.fillStyle = '#4a9b2b';
       ctx.fillRect(0, 0, 32, 32);
 
-      // Manchas tonales suaves
-      ctx.fillStyle = '#4c9e28';
+      // Manchas orgánicas de luz y sombra en la pradera
+      ctx.fillStyle = '#56ad32';
       ctx.fillRect(2, 2, 12, 12);
       ctx.fillRect(18, 18, 12, 12);
+      ctx.fillStyle = '#3c8322';
+      ctx.fillRect(16, 2, 14, 12);
+      ctx.fillRect(2, 16, 14, 14);
 
-      // Briznas de hierba fina
-      ctx.fillStyle = '#2f6619';
-      ctx.fillRect(6, 6, 2, 3);
-      ctx.fillRect(22, 8, 2, 3);
-      ctx.fillRect(12, 20, 2, 3);
-      ctx.fillRect(26, 22, 2, 3);
+      // Briznas finas de hierba viva
+      ctx.fillStyle = '#68c73c';
+      ctx.fillRect(6, 6, 2, 3); ctx.fillRect(22, 8, 2, 3);
+      ctx.fillRect(10, 22, 2, 3); ctx.fillRect(24, 20, 2, 3);
+
+      ctx.fillStyle = '#2d6318';
+      ctx.fillRect(7, 8, 2, 2); ctx.fillRect(23, 10, 2, 2);
+      ctx.fillRect(11, 24, 2, 2);
 
       // Margaritas y flores silvestres
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(14, 10, 2, 2);
-      ctx.fillStyle = '#fde047';
-      ctx.fillRect(15, 11, 1, 1);
-
-      ctx.fillStyle = '#c084fc'; // Flor lila
-      ctx.fillRect(24, 14, 2, 2);
+      if (phase % 4 === 0) {
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(14, 12, 2, 2);
+        ctx.fillStyle = '#fde047'; ctx.fillRect(15, 13, 1, 1);
+      } else if (phase % 4 === 1) {
+        ctx.fillStyle = '#f43f5e'; ctx.fillRect(24, 14, 2, 2);
+      } else if (phase % 4 === 2) {
+        ctx.fillStyle = '#38bdf8'; ctx.fillRect(12, 22, 2, 2);
+      }
     } else if (zoneId === 'zone_cave') {
       ctx.fillStyle = '#334155';
       ctx.fillRect(0, 0, 32, 32);
@@ -100,28 +106,48 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
     }
   }
   // ---------------------------------------------------------------------------
-  // 2. CALZADAS Y PLAZAS DE ADOQUINES GRIS PIZARRA CON BISEL
+  // 2. CALZADAS Y PLAZAS DE ADOQUINES MEDIEVALES CÁLIDOS (SEAMLESS 2.5D)
   // ---------------------------------------------------------------------------
   else if (tileType === 2) {
-    // Adoquines grises de sillar con biselado superior y juntas oscuras
-    ctx.fillStyle = '#2b3748'; // Junta de mortero oscura
+    // Mortero de tierra y piedra cálida continua
+    ctx.fillStyle = '#5c4e3f';
     ctx.fillRect(0, 0, 32, 32);
 
-    const drawStoneTile = (bx: number, by: number, w: number, h: number) => {
-      ctx.fillStyle = '#53657d';
-      ctx.fillRect(bx, by, w, h);
-      ctx.fillStyle = '#6b7f99';
-      ctx.fillRect(bx + 1, by + 1, w - 2, h - 2);
-      // Bisel de luz arriba a la izquierda
-      ctx.fillStyle = '#8ea1bd';
-      ctx.fillRect(bx + 1, by + 1, w - 2, 1);
-      ctx.fillRect(bx + 1, by + 1, 1, h - 2);
+    // Hiladas de adoquines cálidos con relieve (estilo aldea medieval)
+    const drawCobble = (x: number, y: number, w: number, h: number, tone: 'mid' | 'light' | 'dark' = 'mid') => {
+      ctx.fillStyle = tone === 'light' ? '#a3937f' : tone === 'dark' ? '#786957' : '#8c7d6b';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = tone === 'light' ? '#bfb09d' : tone === 'dark' ? '#948472' : '#a89885';
+      ctx.fillRect(x + 1, y + 1, w - 2, h - 2);
+      // Relieve de luz superior izquierda
+      ctx.fillStyle = '#dcd0bf';
+      ctx.fillRect(x + 1, y + 1, w - 2, 1);
+      ctx.fillRect(x + 1, y + 1, 1, h - 2);
+      // Sombra inferior derecha
+      ctx.fillStyle = '#42372c';
+      ctx.fillRect(x + 1, y + h - 1, w - 1, 1);
+      ctx.fillRect(x + w - 1, y + 1, 1, h - 1);
     };
 
-    drawStoneTile(1, 1, 14, 14);
-    drawStoneTile(17, 1, 14, 14);
-    drawStoneTile(1, 17, 14, 14);
-    drawStoneTile(17, 17, 14, 14);
+    // Fila 1
+    drawCobble(0, 0, 10, 7, 'light');
+    drawCobble(11, 0, 10, 7, 'mid');
+    drawCobble(22, 0, 10, 7, 'dark');
+
+    // Fila 2 (Desplazada)
+    drawCobble(0, 8, 14, 7, 'mid');
+    drawCobble(15, 8, 10, 7, 'light');
+    drawCobble(26, 8, 6, 7, 'mid');
+
+    // Fila 3
+    drawCobble(0, 16, 8, 7, 'dark');
+    drawCobble(9, 16, 11, 7, 'light');
+    drawCobble(21, 16, 11, 7, 'mid');
+
+    // Fila 4 (Desplazada)
+    drawCobble(0, 24, 12, 8, 'mid');
+    drawCobble(13, 24, 11, 8, 'dark');
+    drawCobble(25, 24, 7, 8, 'light');
   }
   // ---------------------------------------------------------------------------
   // 3. CANAL Y ESTANQUES DE AGUA CRISTALINA CON NENÚFARES

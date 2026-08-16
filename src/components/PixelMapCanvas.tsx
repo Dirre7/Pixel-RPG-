@@ -81,10 +81,49 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     const ctx = canvas.getContext('2d')!;
     ctx.imageSmoothingEnabled = false;
 
+    // Carga Conjunta Armonizada: Cute Fantasy + Pixel Crawler
+    const gameAssets = {
+      // Cute Fantasy Free
+      house: new Image(),
+      treeOak: new Image(),
+      chest: new Image(),
+      fences: new Image(),
+      farmLand: new Image(),
+      chicken: new Image(),
+      cow: new Image(),
+      // Pixel Crawler Free Pack
+      bonfire: new Image(),
+      furnace: new Image(),
+      anvil: new Image(),
+      alchemy: new Image(),
+      farmProps: new Image(),
+      knightIdle: new Image(),
+      wizzardIdle: new Image(),
+      rogueIdle: new Image(),
+      peasantIdle: new Image(),
+      tavernIdle: new Image(),
+    };
+    gameAssets.house.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
+    gameAssets.treeOak.src = '/Cute_Fantasy_Free/Outdoor decoration/Oak_Tree.png';
+    gameAssets.chest.src = '/Cute_Fantasy_Free/Outdoor decoration/Chest.png';
+    gameAssets.fences.src = '/Cute_Fantasy_Free/Outdoor decoration/Fences.png';
+    gameAssets.farmLand.src = '/Cute_Fantasy_Free/Tiles/FarmLand_Tile.png';
+    gameAssets.chicken.src = '/Cute_Fantasy_Free/Animals/Chicken/Chicken.png';
+    gameAssets.cow.src = '/Cute_Fantasy_Free/Animals/Cow/Cow.png';
+    gameAssets.bonfire.src = '/Pixel Crawler - Free Pack/Environment/Structures/Stations/Bonfire/Bonfire_01-Sheet.png';
+    gameAssets.furnace.src = '/Pixel Crawler - Free Pack/Environment/Structures/Stations/Furnace/Stone_01-Sheet.png';
+    gameAssets.anvil.src = '/Pixel Crawler - Free Pack/Environment/Structures/Stations/Anvil/Anvil_01-Sheet.png';
+    gameAssets.alchemy.src = '/Pixel Crawler - Free Pack/Environment/Structures/Stations/Alchemy/Alchemy_Table_01-Sheet.png';
+    gameAssets.farmProps.src = '/Pixel Crawler - Free Pack/Environment/Props/Static/Farm.png';
+    gameAssets.knightIdle.src = '/Pixel Crawler - Free Pack/Entities/Npc\'s/Knight/Idle/Idle-Sheet.png';
+    gameAssets.wizzardIdle.src = '/Pixel Crawler - Free Pack/Entities/Npc\'s/Wizzard/Idle/Idle-Sheet.png';
+    gameAssets.rogueIdle.src = '/Pixel Crawler - Free Pack/Entities/Npc\'s/Rogue/Idle/Idle-Sheet.png';
+    gameAssets.peasantIdle.src = '/Pixel Crawler - Free Pack/Entities/Npc\'s/Citizen_F/Peasant_A/Idle/Idle-Sheet.png';
+    gameAssets.tavernIdle.src = '/Pixel Crawler - Free Pack/Entities/Npc\'s/Citizen_F/Tavern_A/Idle/Idle_Side-Sheet.png';
+
     let animId: number;
     let time = 0;
-
-    const TILE_SIZE = 32; // Baldosas de 32x32 píxeles
+    const TILE_SIZE = 32;
 
     const render = () => {
       time += 0.03;
@@ -122,13 +161,19 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       const endRow = Math.min(rows - 1, Math.ceil((camY + canvas.height) / TILE_SIZE) + 2);
 
       // ------------------------------------------------------------------------
-      // CAPA 0: BALDOSAS DE SUELO BASE Y CAMINOS
+      // CAPA 0: BALDOSAS DE SUELO Y CALZADAS RICAS EN TEXTURA (SEAMLESS 2.5D)
       // ------------------------------------------------------------------------
       for (let y = startRow; y <= endRow; y++) {
         for (let x = startCol; x <= endCol; x++) {
           const tileType = currentZone.tileData[y][x];
-          const tileCanvas = getTileCanvas(tileType === 1 ? 0 : tileType, currentZone.id, time * 2);
-          ctx.drawImage(tileCanvas, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+          if (currentZone.id === 'zone_forest' && tileType === 13 && gameAssets.farmLand.complete && gameAssets.farmLand.naturalWidth > 0) {
+            // Tierra de cultivo fértil
+            ctx.drawImage(gameAssets.farmLand, 16, 16, 16, 16, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+          } else {
+            const tileCanvas = getTileCanvas(tileType === 1 ? 0 : tileType, currentZone.id, (x * 3 + y * 7) % 8);
+            ctx.drawImage(tileCanvas, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+          }
         }
       }
 
@@ -145,9 +190,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       // 1. Árboles, Estructuras y Props según tileData (dentro del viewport)
       const { trunk: treeTrunk, canopy: treeCanopy } = getTreeCanvas(currentZone.id);
       const stoneWall = getStoneWallCanvas();
-      const marketStall = getMarketStallCanvas();
       const weaponRack = getWeaponRackCanvas();
-      const chicken = getChickenCanvas(time);
       const waterWell = getWaterWellCanvas(time * 2);
       const windmill = getWindmillCanvas(time * 1.5);
       const forge = getForgeCanvas(time);
@@ -161,12 +204,24 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           const posY = y * TILE_SIZE;
 
           if (tileType === 1) {
-            // Muros de piedra en Castillo / Cueva, o Árboles frondosos en la naturaleza
+            // Muros de piedra en Castillo / Cueva, o Robles de fantasía con volumen
             if (currentZone.id === 'zone_castle' || currentZone.id === 'zone_cave') {
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
                   c.drawImage(stoneWall, posX, posY - 4, 32, 36);
+                },
+              });
+            } else if (gameAssets.treeOak.complete && gameAssets.treeOak.naturalWidth > 0) {
+              // Roble de fantasía (64x80 px con sombra de suelo)
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.fillStyle = 'rgba(15, 23, 42, 0.35)';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 28, 16, 5, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.drawImage(gameAssets.treeOak, posX - 16, posY - 48, 64, 80);
                 },
               });
             } else {
@@ -184,21 +239,30 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               ySort: posY + TILE_SIZE + 4,
               draw: (c) => {
                 c.drawImage(waterWell, posX - 16, posY - 16, 64, 64);
-                // Gallina curiosa cerca de la fuente
-                c.drawImage(chicken, posX + 36, posY + 20, 16, 16);
               },
             });
           } else if (tileType === 5) {
-            // Casas Medievales con Variedad de Estilos (Terracota, Pizarra Azul, Paja y Piedra)
-            const vIndex = (x * 7 + y * 13) % 4;
-            const houseVariant = vIndex === 0 ? 'blue' : vIndex === 1 ? 'straw' : vIndex === 2 ? 'stone' : 'red';
-            const houseCanvas = getCottageCanvas(houseVariant);
-            entities.push({
-              ySort: posY + TILE_SIZE + 10,
-              draw: (c) => {
-                c.drawImage(houseCanvas, posX - 16, posY - 24, 64, 64);
-              },
-            });
+            // Casas Medievales (Altura Completa 96x128 px con cimientos de piedra)
+            if (gameAssets.house.complete && gameAssets.house.naturalWidth > 0) {
+              entities.push({
+                ySort: posY + TILE_SIZE + 20,
+                draw: (c) => {
+                  c.fillStyle = 'rgba(15, 23, 42, 0.4)';
+                  c.fillRect(posX - 28, posY + 24, 88, 8);
+                  c.drawImage(gameAssets.house, 0, 0, 96, 128, posX - 32, posY - 96, 96, 128);
+                },
+              });
+            } else {
+              const vIndex = (x * 7 + y * 13) % 4;
+              const houseVariant = vIndex === 0 ? 'blue' : vIndex === 1 ? 'straw' : vIndex === 2 ? 'stone' : 'red';
+              const houseCanvas = getCottageCanvas(houseVariant);
+              entities.push({
+                ySort: posY + TILE_SIZE + 10,
+                draw: (c) => {
+                  c.drawImage(houseCanvas, posX - 16, posY - 24, 64, 64);
+                },
+              });
+            }
           } else if (tileType === 6) {
             // Molino de Viento con aspas
             entities.push({
@@ -211,15 +275,24 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             // Cofre del Tesoro
             const chestId = `${currentZone.id}_${x}_${y}`;
             const isOpen = openedChests.includes(chestId);
-            const chestCanvas = getChestCanvas(isOpen);
-            entities.push({
-              ySort: posY + TILE_SIZE - 4,
-              draw: (c) => {
-                c.drawImage(chestCanvas, posX + 2, posY + 4, 28, 28);
-              },
-            });
+            if (gameAssets.chest.complete && gameAssets.chest.naturalWidth > 0) {
+              entities.push({
+                ySort: posY + TILE_SIZE - 4,
+                draw: (c) => {
+                  c.drawImage(gameAssets.chest, 0, isOpen ? 16 : 0, 16, 16, posX + 4, posY + 6, 24, 24);
+                },
+              });
+            } else {
+              const chestCanvas = getChestCanvas(isOpen);
+              entities.push({
+                ySort: posY + TILE_SIZE - 4,
+                draw: (c) => {
+                  c.drawImage(chestCanvas, posX + 2, posY + 4, 28, 28);
+                },
+              });
+            }
           } else if (tileType === 8) {
-            // Santuario Ancestral / Ayuntamiento
+            // Santuario Ancestral / Altar
             entities.push({
               ySort: posY + TILE_SIZE + 8,
               draw: (c) => {
@@ -236,12 +309,21 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 10) {
-            // Forja del Herrero con Expositor de Armas
+            // Gran Forja y Yunque Pixel Crawler
             entities.push({
               ySort: posY + TILE_SIZE + 6,
               draw: (c) => {
-                c.drawImage(forge, posX - 8, posY - 12, 48, 48);
-                c.drawImage(weaponRack, posX + 28, posY + 2, 32, 32);
+                if (gameAssets.furnace.complete && gameAssets.furnace.naturalWidth > 0) {
+                  const furnaceFrame = Math.floor(time * 4) % 3;
+                  c.drawImage(gameAssets.furnace, furnaceFrame * 32, 0, 32, 32, posX - 8, posY - 8, 40, 40);
+                } else {
+                  c.drawImage(forge, posX - 8, posY - 12, 48, 48);
+                }
+                if (gameAssets.anvil.complete && gameAssets.anvil.naturalWidth > 0) {
+                  c.drawImage(gameAssets.anvil, 0, 0, 32, 32, posX + 24, posY + 4, 28, 28);
+                } else {
+                  c.drawImage(weaponRack, posX + 28, posY + 2, 32, 32);
+                }
               },
             });
           } else if (tileType === 11) {
@@ -253,12 +335,39 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 13) {
-            // Bancales de Cultivo con Gallinas merodeando en algunas casillas
-            if ((x + y) % 5 === 0) {
+            // Huertos con Gallinas y Vacas (Cute Fantasy) y Sacos de Grano (Pixel Crawler)
+            if ((x + y) % 6 === 0 && gameAssets.chicken.complete && gameAssets.chicken.naturalWidth > 0) {
+              const chkFrame = Math.floor(time * 4) % 2;
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
-                  c.drawImage(chicken, posX + 8, posY + 6, 16, 16);
+                  c.drawImage(gameAssets.chicken, chkFrame * 32, 0, 32, 32, posX, posY, 32, 32);
+                },
+              });
+            } else if ((x + y) % 9 === 0 && gameAssets.cow.complete && gameAssets.cow.naturalWidth > 0) {
+              const cowFrame = Math.floor(time * 3) % 2;
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(gameAssets.cow, cowFrame * 32, 0, 32, 32, posX - 4, posY - 4, 40, 40);
+                },
+              });
+            } else if (gameAssets.farmProps.complete && gameAssets.farmProps.naturalWidth > 0) {
+              const farmPropX = ((x * 3 + y * 5) % 4) * 32;
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(gameAssets.farmProps, farmPropX, 0, 32, 32, posX, posY, 32, 32);
+                },
+              });
+            }
+          } else if (tileType === 15) {
+            // Vallas de Madera Cute Fantasy
+            if (gameAssets.fences.complete && gameAssets.fences.naturalWidth > 0) {
+              entities.push({
+                ySort: posY + TILE_SIZE - 2,
+                draw: (c) => {
+                  c.drawImage(gameAssets.fences, 0, 0, 16, 16, posX, posY + 8, 32, 24);
                 },
               });
             }
@@ -290,14 +399,24 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 19) {
-            // Fogata de Campamento
-            const campfire = getCampfireCanvas(time);
-            entities.push({
-              ySort: posY + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(campfire, posX + 2, posY + 4, 28, 28);
-              },
-            });
+            // Hoguera Animada Pixel Crawler
+            if (gameAssets.bonfire.complete && gameAssets.bonfire.naturalWidth > 0) {
+              const fireFrame = Math.floor(time * 6) % 4;
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(gameAssets.bonfire, fireFrame * 32, 0, 32, 32, posX, posY, 32, 32);
+                },
+              });
+            } else {
+              const campfire = getCampfireCanvas(time);
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(campfire, posX + 2, posY + 4, 28, 28);
+                },
+              });
+            }
           } else if (tileType === 20) {
             // Árbol / Setas del Bosque Encantado
             const { trunk: encTrunk, canopy: encCanopy } = getEnchantedTreeCanvas();
@@ -365,14 +484,24 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 27) {
-            // Botica de Pociones
-            const apothecary = getApothecaryCanvas();
-            entities.push({
-              ySort: posY + TILE_SIZE + 10,
-              draw: (c) => {
-                c.drawImage(apothecary, posX - 12, posY - 20, 56, 56);
-              },
-            });
+            // Mesa de Alquimia y Botica Pixel Crawler
+            if (gameAssets.alchemy.complete && gameAssets.alchemy.naturalWidth > 0) {
+              const alchFrame = Math.floor(time * 3) % 4;
+              entities.push({
+                ySort: posY + TILE_SIZE + 6,
+                draw: (c) => {
+                  c.drawImage(gameAssets.alchemy, alchFrame * 48, 0, 48, 48, posX - 8, posY - 12, 48, 48);
+                },
+              });
+            } else {
+              const apothecary = getApothecaryCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE + 10,
+                draw: (c) => {
+                  c.drawImage(apothecary, posX - 12, posY - 20, 56, 56);
+                },
+              });
+            }
           } else if (tileType === 28) {
             // Cristal de Maná
             const crystal = getManaCrystalCanvas(time);
@@ -419,7 +548,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 33) {
-            // Acueducto / Pasarela Elevada
+            // Pasarela Elevada / Acueducto de Madera
             const skybridge = getSkybridgeCanvas();
             entities.push({
               ySort: posY + TILE_SIZE + 24,
@@ -440,21 +569,21 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         }
       }
 
-      // 2. Ciudadanos y Comerciantes de la Gran Capital
+      // 2. Ciudadanos y Comerciantes de la Gran Capital (Pixel Crawler Roster)
       if (currentZone.id === 'zone_forest') {
         const capitalCitizens = [
-          { name: 'Capitán Garrett (Guardia Real)', class: 'Paladín' as const, x: 240, y: 304, dir: 'down' as Direction },
-          { name: 'Archimago Thorne', class: 'Mago' as const, x: 276, y: 314, dir: 'down' as Direction },
-          { name: 'Sacerdotisa Solaria', class: 'Paladín' as const, x: 218, y: 314, dir: 'down' as Direction },
-          { name: 'Maestro Doran (Herrero Real)', class: 'Berserker' as const, x: 270, y: 338, dir: 'right' as Direction },
-          { name: 'Boticaria Elena', class: 'Mago' as const, x: 280, y: 342, dir: 'down' as Direction },
-          { name: 'Mercader Cedric (Frutas)', class: 'Pícaro' as const, x: 248, y: 332, dir: 'down' as Direction },
-          { name: 'Mercader Barnaby (Telas)', class: 'Pícaro' as const, x: 256, y: 332, dir: 'down' as Direction },
-          { name: 'Tabernero Bruno', class: 'Guerrero' as const, x: 246, y: 314, dir: 'down' as Direction },
-          { name: 'Curtidor Gareth', class: 'Arquero' as const, x: 206, y: 342, dir: 'down' as Direction },
-          { name: 'Doncella Beatrix', class: 'Arquero' as const, x: 226, y: 346, dir: 'right' as Direction },
-          { name: 'Granjero Tobías', class: 'Guerrero' as const, x: 202, y: 354, dir: 'down' as Direction },
-          { name: 'Guardia del Portal Sur', class: 'Paladín' as const, x: 240, y: 362, dir: 'up' as Direction },
+          { name: 'Capitán Garrett (Guardia Real)', class: 'Paladín' as const, x: 240, y: 304, dir: 'down' as Direction, type: 'knight' },
+          { name: 'Archimago Thorne', class: 'Mago' as const, x: 276, y: 314, dir: 'down' as Direction, type: 'wizzard' },
+          { name: 'Sacerdotisa Solaria', class: 'Paladín' as const, x: 218, y: 314, dir: 'down' as Direction, type: 'peasant' },
+          { name: 'Maestro Doran (Herrero Real)', class: 'Berserker' as const, x: 270, y: 338, dir: 'right' as Direction, type: 'peasant' },
+          { name: 'Boticaria Elena', class: 'Mago' as const, x: 280, y: 342, dir: 'down' as Direction, type: 'wizzard' },
+          { name: 'Mercader Cedric (Frutas)', class: 'Pícaro' as const, x: 248, y: 332, dir: 'down' as Direction, type: 'rogue' },
+          { name: 'Mercader Barnaby (Telas)', class: 'Pícaro' as const, x: 256, y: 332, dir: 'down' as Direction, type: 'rogue' },
+          { name: 'Tabernero Bruno', class: 'Guerrero' as const, x: 246, y: 314, dir: 'down' as Direction, type: 'tavern' },
+          { name: 'Curtidor Gareth', class: 'Arquero' as const, x: 206, y: 342, dir: 'down' as Direction, type: 'peasant' },
+          { name: 'Doncella Beatrix', class: 'Arquero' as const, x: 226, y: 346, dir: 'right' as Direction, type: 'tavern' },
+          { name: 'Granjero Tobías', class: 'Guerrero' as const, x: 202, y: 354, dir: 'down' as Direction, type: 'peasant' },
+          { name: 'Guardia del Portal Sur', class: 'Paladín' as const, x: 240, y: 362, dir: 'up' as Direction, type: 'knight' },
         ];
 
         capitalCitizens.forEach((citizen) => {
@@ -466,20 +595,35 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             const drawX = cCol * TILE_SIZE;
             const drawY = cRow * TILE_SIZE;
 
-            // Idle animation with subtle breathing
-            const sprite = getHeroSpriteCanvas(citizen.class, 'male', citizen.dir, 'idle');
-
             entities.push({
               ySort: drawY + TILE_SIZE,
               draw: (c) => {
-                // Sombra circular bien pegada a los pies
+                // Sombra circular en los pies
                 c.fillStyle = 'rgba(0, 0, 0, 0.4)';
                 c.beginPath();
                 c.ellipse(drawX + 16, drawY + 30, 8, 3, 0, 0, Math.PI * 2);
                 c.fill();
 
-                // Sprite del personaje
-                c.drawImage(sprite, drawX, drawY, 32, 32);
+                // Sprite animado del personaje según su rol oficial
+                if (citizen.type === 'knight' && gameAssets.knightIdle.complete && gameAssets.knightIdle.naturalWidth > 0) {
+                  const kFrame = Math.floor(time * 4) % 4;
+                  c.drawImage(gameAssets.knightIdle, kFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
+                } else if (citizen.type === 'wizzard' && gameAssets.wizzardIdle.complete && gameAssets.wizzardIdle.naturalWidth > 0) {
+                  const wFrame = Math.floor(time * 3) % 4;
+                  c.drawImage(gameAssets.wizzardIdle, wFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
+                } else if (citizen.type === 'rogue' && gameAssets.rogueIdle.complete && gameAssets.rogueIdle.naturalWidth > 0) {
+                  const rFrame = Math.floor(time * 4) % 4;
+                  c.drawImage(gameAssets.rogueIdle, rFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
+                } else if (citizen.type === 'peasant' && gameAssets.peasantIdle.complete && gameAssets.peasantIdle.naturalWidth > 0) {
+                  const pFrame = Math.floor(time * 3) % 4;
+                  c.drawImage(gameAssets.peasantIdle, pFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
+                } else if (citizen.type === 'tavern' && gameAssets.tavernIdle.complete && gameAssets.tavernIdle.naturalWidth > 0) {
+                  const tFrame = Math.floor(time * 3) % 4;
+                  c.drawImage(gameAssets.tavernIdle, tFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
+                } else {
+                  const sprite = getHeroSpriteCanvas(citizen.class, 'male', citizen.dir, 'idle');
+                  c.drawImage(sprite, drawX, drawY, 32, 32);
+                }
 
                 // Cartel flotante de nombre y rol
                 c.fillStyle = 'rgba(15, 23, 42, 0.85)';
