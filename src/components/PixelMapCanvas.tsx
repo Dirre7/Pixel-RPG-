@@ -292,18 +292,18 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             } else if (gameAssets.treeOak.complete && gameAssets.treeOak.naturalWidth > 0) {
-              // Roble de fantasía (64x80 px con sombra de contacto directo en las raíces)
+              // Roble de fantasía (64x80 px con sombra pegada a las raíces en Y + 14)
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
                   // Sombra elíptica pegada directamente a la base de las raíces
-                  c.fillStyle = 'rgba(15, 23, 42, 0.45)';
+                  c.fillStyle = 'rgba(15, 23, 42, 0.4)';
                   c.beginPath();
-                  c.ellipse(posX + 16, posY + 24, 14, 4, 0, 0, Math.PI * 2);
+                  c.ellipse(posX + 16, posY + 14, 13, 3.5, 0, 0, Math.PI * 2);
                   c.fill();
-                  c.fillStyle = 'rgba(15, 23, 42, 0.65)';
+                  c.fillStyle = 'rgba(15, 23, 42, 0.6)';
                   c.beginPath();
-                  c.ellipse(posX + 16, posY + 24, 8, 2.5, 0, 0, Math.PI * 2);
+                  c.ellipse(posX + 16, posY + 14, 7, 2, 0, 0, Math.PI * 2);
                   c.fill();
                   c.drawImage(gameAssets.treeOak, posX - 16, posY - 48, 64, 80);
                 },
