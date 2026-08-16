@@ -484,6 +484,202 @@ export const ZONES: Zone[] = [
         tip: '💡 CONSEJO MINERO: El Gólem de Obsidiana tiene una defensa altísima, usa daño mágico para atravesarla.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_cave_1'),
       },
+      {
+        id: 'npc_cave_miner_emerald',
+        zoneId: 'zone_cave',
+        x: 38,
+        y: 24,
+        name: 'Minero Galdor',
+        title: 'Prospector de Esmeraldas',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡Mira cómo brillan estas vetas verdes entre el musgo fosforescente!',
+          'Estas esmeraldas se forman por la presión de miles de toneladas de roca sobre el techo de la cueva.'
+        ],
+        tip: '💡 CONSEJO DE CRISTAL: Los cristales esmeralda potencian las artes curativas de viento y tierra.',
+      },
+      {
+        id: 'npc_cave_machinist',
+        zoneId: 'zone_cave',
+        x: 95,
+        y: 24,
+        name: 'Maquinista Flint',
+        title: 'Ingeniero de Vagonetas de Riel',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡Mis raíles conectan todos los cuadrantes mineros de Eridu!',
+          'Si sigues las vías hacia el este, llegarás a la Forja de Gemas y a las estalagmitas gigantes.'
+        ],
+        tip: '💡 CONSEJO DE RIELES: Los rieles te indican los túneles seguros que evitan desprendimientos.',
+      },
+      {
+        id: 'npc_cave_gemologist',
+        zoneId: 'zone_cave',
+        x: 138,
+        y: 28,
+        name: 'Gemólogo Bori',
+        title: 'Tallador de Rubíes Subterráneos',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'El calor de los túneles de venteo permite fundir y tallar gemas con una pureza inigualable.',
+          'Nuestras forjas no usan leña, sino calor geotérmico de la roca viva.'
+        ],
+        tip: '💡 CONSEJO DE GEMAS: Engarzar rubíes en tus armas añade daño de Fuego adicional.',
+      },
+      {
+        id: 'npc_cave_cryptkeeper',
+        zoneId: 'zone_cave',
+        x: 325,
+        y: 30,
+        name: 'Custodio Dwalin',
+        title: 'Guardián de la Cripta de Mithril',
+        avatarStyle: 'elder',
+        dialogue: [
+          'En estas tumbas de piedra descansan los primeros reyes enanos que excavaron Eridu.',
+          'Que tus pisadas sean silenciosas; los murciélagos espectrales anidan en las bóvedas altas.'
+        ],
+        tip: '💡 CONSEJO DE MITHRIL: Las armaduras de mithril reducen a la mitad el daño de ataques físicos pesados.',
+      },
+      {
+        id: 'npc_cave_mushroom_hermit',
+        zoneId: 'zone_cave',
+        x: 185,
+        y: 105,
+        name: 'Ermitaño Gribble',
+        title: 'Sabio de los Hongos Luminiscentes',
+        avatarStyle: 'wizard',
+        dialogue: [
+          '¡Shhh! Las esporas azules están cantando... ¡la luz de los hongos guía a las almas perdidas en la oscuridad!',
+          'Come un poco de espora azul y tu maná fluirá como el agua de los manantiales subterráneos.'
+        ],
+        tip: '💡 CONSEJO FÚNGICO: La Caverna de Hongos es un santuario natural que restaura tus energías.',
+      },
+      {
+        id: 'npc_cave_goldforeman',
+        zoneId: 'zone_cave',
+        x: 260,
+        y: 105,
+        name: 'Capataz Thrain',
+        title: 'Jefe del Filón Dorado',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡Pico y pala sin parar! Este filón de oro abastece a todo el Reino de Aethelgard.',
+          'Cuidado si vas más al este: hay nidos de murciélagos voraces merodeando en las ruinas oscuras.'
+        ],
+        tip: '💡 CONSEJO AURÍFERO: Los cofres mineros cercanos al filón contienen sacos abundantes de oro.',
+      },
+      {
+        id: 'npc_cave_stonemason',
+        zoneId: 'zone_cave',
+        x: 40,
+        y: 175,
+        name: 'Cantero Balin',
+        title: 'Maestro del Granito Cavernoso',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡El granito de estas paredes es tan duro que resiste hasta los golpes del Gólem de Piedra!',
+          'Tallamos los bloques que sostienen las bóvedas de la Ciudad Enana.'
+        ],
+        tip: '💡 CONSEJO DE CANTERÍA: Los escudos pesados de granito aumentan en un 40% tu bloqueo.',
+      },
+      {
+        id: 'npc_cave_alchemist',
+        zoneId: 'zone_cave',
+        x: 115,
+        y: 185,
+        name: 'Alquimista Ruby',
+        title: 'Erudita de la Cristalografía',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Muelo polvo de cristal azul del lago para preparar pociones de concentración pura.',
+          'Si bebes de nuestro pozo alquímico, tus sentidos se agudizarán en la oscuridad.'
+        ],
+        tip: '💡 CONSEJO ALQUÍMICO: Las pociones de maná mayor te permiten lanzar hasta 4 artes mágicas seguidas.',
+      },
+      {
+        id: 'npc_cave_lake_fisherman',
+        zoneId: 'zone_cave',
+        x: 265,
+        y: 185,
+        name: 'Pescador Nori',
+        title: 'Navegante del Lago de Cristal',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Ah del lago! Las aguas de cristal son tan transparentes que puedes ver el fondo a cien metros de profundidad.',
+          'Cruza los muelles de madera para llegar a las Cámaras de Geodas de Amatista.'
+        ],
+        tip: '💡 CONSEJO DEL LAGO: Los peces de cristal restauran salud instantáneamente sin consumir turnos de combate.',
+      },
+      {
+        id: 'npc_cave_thermal_keeper',
+        zoneId: 'zone_cave',
+        x: 180,
+        y: 270,
+        name: 'Sanadora Freya',
+        title: 'Guardiana de las Fuentes Termales',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Siente los vapores minerales... estas aguas cálidas disuelven la fatiga de las batallas más duras.',
+          'El Santuario Termal bendice a todo aventurero que se sumerja con humildad.'
+        ],
+        tip: '💡 CONSEJO TERMAL: Bañarse en las aguas termales otorga regeneración pasiva de vida durante 5 combates.',
+      },
+      {
+        id: 'npc_cave_trog_hunter',
+        zoneId: 'zone_cave',
+        x: 260,
+        y: 265,
+        name: 'Cazador Gimli',
+        title: 'Líder del Campamento de las Profundidades',
+        avatarStyle: 'scout',
+        dialogue: [
+          'Mantenemos la fogata bien alta para que las bestias de roca no se acerquen al campamento.',
+          'Hacia el este se encuentra la Guarida Maldita del Gólem de Obsidiana... no vayas solo ni desarmado.'
+        ],
+        tip: '💡 CONSEJO DE CAZA: Equipa habilidades rompe-armaduras antes de desafiar al jefe colosal.',
+      },
+      {
+        id: 'npc_cave_pump_engineer',
+        zoneId: 'zone_cave',
+        x: 115,
+        y: 330,
+        name: 'Ingeniero Kili',
+        title: 'Operador de las Bombas de Presión',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡Estas bombas impiden que las aguas subterráneas inunden los túneles inferiores de Eridu!',
+          'Engrasamos los grandes pistones y engranajes de bronce todos los días.'
+        ],
+        tip: '💡 CONSEJO DE INGENIERÍA: Las cámaras con maquinaria enana albergan cofres con piezas y planos únicos.',
+      },
+      {
+        id: 'npc_cave_deep_merchant',
+        zoneId: 'zone_cave',
+        x: 255,
+        y: 325,
+        name: 'Joyero Thorin',
+        title: 'Mercader de Adamantio y Joyas',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡Compro pepitas y gemas preciosas al mejor precio de todas las minas!',
+          'En nuestras forjas profundas trabajamos el codiciado adamantio, el metal de los dioses.'
+        ],
+        tip: '💡 CONSEJO DE ADAMANTIO: Las armas de adamantio ignoran un 30% de la armadura enemiga.',
+      },
+      {
+        id: 'npc_cave_blaster',
+        zoneId: 'zone_cave',
+        x: 45,
+        y: 372,
+        name: 'Barrenista Bomba-Boom',
+        title: 'Maestro de Explosivos del Polvorín',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡Tres, dos, uno... BOOM! ¡Nada como la dinamita enana para abrir túneles en la roca viva!',
+          'Cuidado con las chispas cerca de los barriles de pólvora negra.'
+        ],
+        tip: '💡 CONSEJO DE EXPLOSIVOS: Las bombas de mano aturden a grupos enteros de enemigos durante 1 turno.',
+      },
     ],
     enemies: [
       {

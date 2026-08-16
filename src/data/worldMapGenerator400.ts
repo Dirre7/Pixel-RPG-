@@ -603,15 +603,279 @@ export function generateCave400(): {
   map[360][360] = 11; // Portal del Gólem
   map[352][352] = 18; map[352][368] = 18; map[368][352] = 18; map[368][368] = 18;
 
-  // 6. Cofres de la Cueva
-  const caveChests = [
-    [75, 50], [95, 50], [150, 75], [225, 75],
-    [50, 150], [120, 150], [260, 150], [330, 150],
-    [75, 225], [135, 225], [275, 225], [340, 225],
-    [75, 300], [150, 300], [225, 300], [355, 300],
-    [200, 180], [200, 220], [360, 345], [360, 375]
-  ];
-  caveChests.forEach(([cx, cy]) => { map[cy][cx] = 7; });
+  // =========================================================================
+  // 1. CÁMARA DE LOS CRISTALES ESMERALDA (Noroeste Alto: X: 20..60, Y: 15..35)
+  // =========================================================================
+  for (let y = 15; y <= 35; y++) {
+    for (let x = 20; x <= 60; x++) {
+      map[y][x] = (x + y) % 3 === 0 ? 12 : 0; // Musgo fosforescente
+    }
+  }
+  map[24][38] = 5;  // Refugio de Prospección
+  map[24][48] = 19; // Fogata
+  map[24][30] = 17; // Farola
+  map[24][52] = 7;  // Cofre de Esmeraldas
+  for (let x = 38; x <= 75; x++) map[24][x] = 2; // Vía de conexión
+
+  // =========================================================================
+  // 2. TALLER DE VAGONETAS Y RIELES (Norte Central: X: 80..115, Y: 15..35)
+  // =========================================================================
+  for (let y = 15; y <= 35; y++) {
+    for (let x = 80; x <= 115; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[24][95] = 5;  // Taller de Maquinaria
+  map[24][105] = 4; // Pozo de refrigeración
+  map[24][85] = 7;  // Cofre de Herramientas
+  map[20][95] = 17;
+
+  // =========================================================================
+  // 3. TÚNEL DE VENTEO Y FORJA DE GEMAS (Norte-Noreste: X: 130..165, Y: 15..45)
+  // =========================================================================
+  for (let y = 15; y <= 45; y++) {
+    for (let x = 130; x <= 165; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[28][148] = 10; // Forja de Gemas
+  map[28][138] = 5;  // Cabaña del Gemólogo
+  map[28][158] = 7;  // Cofre de Rubíes
+  map[22][148] = 17;
+
+  // =========================================================================
+  // 4. GRAN SALA DE LAS ESTALAGMITAS GIGANTES (X: 180..230, Y: 20..50)
+  // =========================================================================
+  for (let y = 20; y <= 50; y++) {
+    for (let x = 180; x <= 230; x++) {
+      map[y][x] = 0;
+    }
+  }
+  map[35][205] = 8;  // Santuario de Cristal Antiguo
+  map[30][195] = 18; map[30][215] = 18; map[40][195] = 18; map[40][215] = 18; // Estalagmitas
+  map[35][220] = 7;  // Cofre Sagrado
+  map[35][190] = 17;
+
+  // =========================================================================
+  // 5. CRIPTA DE LOS REYES DE LA MONTAÑA (Noreste Alto: X: 300..355, Y: 15..45)
+  // =========================================================================
+  for (let y = 15; y <= 45; y++) {
+    for (let x = 300; x <= 355; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+      else if ((x + y) % 4 === 0) map[y][x] = 16; // Lápidas enanas
+    }
+  }
+  map[30][325] = 8;  // Mausoleo Real de Mithril
+  map[25][315] = 18; map[25][335] = 18; map[35][315] = 18; map[35][335] = 18;
+  map[30][340] = 7;  // Cofre Real
+  map[30][310] = 17;
+
+  // =========================================================================
+  // 6. GRAN CAVERNA DE LOS HONGOS LUMINISCENTES (Noroeste Lago: X: 150..220, Y: 75..140)
+  // =========================================================================
+  for (let y = 75; y <= 140; y++) {
+    for (let x = 150; x <= 220; x++) {
+      const d = Math.hypot((x - 185) / 32, (y - 105) / 30);
+      if (d <= 1.0) {
+        map[y][x] = (x + y) % 3 === 0 ? 12 : 0;
+      }
+    }
+  }
+  map[105][185] = 5;  // Cabaña del Ermitaño Troglodita
+  map[115][185] = 8;  // Santuario de Hongos
+  map[105][170] = 7;  // Cofre de Esporas
+  map[105][195] = 19; // Fogata Azul
+  map[95][185] = 17;
+
+  // =========================================================================
+  // 7. PUESTO MINERO DEL FILÓN DORADO (Noreste Lago: X: 235..295, Y: 80..140)
+  // =========================================================================
+  for (let y = 80; y <= 140; y++) {
+    for (let x = 235; x <= 295; x++) {
+      if (x % 6 === 0 || y % 6 === 0) map[y][x] = 2;
+    }
+  }
+  map[105][260] = 5;  // Cuartel Minero
+  map[105][275] = 9;  // Almacén de Oro
+  map[118][260] = 10; // Forja de Pepitas
+  map[118][275] = 4;  // Pozo
+  map[105][285] = 7;  // Cofre de Lingotes
+  map[100][268] = 17;
+
+  // =========================================================================
+  // 8. NIDO DE MURCIÉLAGOS Y RUINAS SUBTERRÁNEAS (Este Alto: X: 355..390, Y: 80..145)
+  // =========================================================================
+  for (let y = 80; y <= 145; y++) {
+    for (let x = 355; x <= 390; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+      else if ((x * y) % 7 === 0) map[y][x] = 14;
+    }
+  }
+  map[110][375] = 7;  // Cofre Antiguo
+  map[110][365] = 18; map[110][385] = 18;
+
+  // =========================================================================
+  // 9. CAMPAMENTO DE CANTEROS DE GRANITO (Oeste: X: 15..70, Y: 150..210)
+  // =========================================================================
+  for (let y = 150; y <= 210; y++) {
+    for (let x = 15; x <= 70; x++) {
+      if (x % 6 === 0 || y % 6 === 0) map[y][x] = 2;
+    }
+  }
+  map[175][40] = 5;  // Cabaña de Canteros
+  map[175][55] = 10; // Forja de Picos
+  map[175][30] = 4;  // Pozo de Cantera
+  map[185][60] = 7;  // Cofre de Granito
+  map[170][45] = 17;
+
+  // =========================================================================
+  // 10. LABORATORIO DE CRISTALOGRAFÍA Y ALQUIMIA (Medio-Oeste: X: 85..145, Y: 155..215)
+  // =========================================================================
+  for (let y = 155; y <= 215; y++) {
+    for (let x = 85; x <= 145; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[185][115] = 9;  // Laboratorio de Alquimia
+  map[175][115] = 8;  // Santuario de Cristal
+  map[185][125] = 4;  // Pozo de Elixires
+  map[185][105] = 7;  // Cofre Alquímico
+  map[180][115] = 17;
+
+  // =========================================================================
+  // 11. EMBARCADERO DEL LAGO SUBTERRÁNEO (Medio-Este: X: 240..295, Y: 155..215)
+  // =========================================================================
+  for (let y = 155; y <= 215; y++) {
+    for (let x = 240; x <= 295; x++) {
+      if (map[y][x] !== 3 && (x % 5 === 0 || y % 5 === 0)) map[y][x] = 2;
+    }
+  }
+  map[185][265] = 5;  // Cabaña del Pescador Cavernoso
+  map[185][250] = 15; // Muelle sobre el lago
+  map[180][250] = 17; // Farol de muelle
+  map[185][280] = 7;  // Cofre de Perlas Cavernosas
+
+  // =========================================================================
+  // 12. CÁMARA DE LAS GEODAS DE AMATISTA (Este: X: 305..355, Y: 155..215)
+  // =========================================================================
+  for (let y = 155; y <= 215; y++) {
+    for (let x = 305; x <= 355; x++) {
+      map[y][x] = 0;
+    }
+  }
+  map[185][330] = 8;  // Santuario de Amatista
+  map[178][322] = 18; map[178][338] = 18; map[192][322] = 18; map[192][338] = 18;
+  map[185][345] = 7;  // Cofre de Amatistas
+  map[185][315] = 17;
+
+  // =========================================================================
+  // 13. PASO DEL ABISMO SILENCIOSO (Extremo Este: X: 360..395, Y: 155..215)
+  // =========================================================================
+  for (let y = 155; y <= 215; y++) {
+    for (let x = 360; x <= 395; x++) {
+      map[y][x] = 2; // Calzada sobre el abismo
+    }
+  }
+  map[180][375] = 17; map[190][375] = 17;
+  map[185][385] = 7;  // Cofre del Abismo
+
+  // =========================================================================
+  // 14. FUNDICIÓN DE HIERRO NEGRO (Suroeste: X: 15..75, Y: 235..290)
+  // =========================================================================
+  for (let y = 235; y <= 290; y++) {
+    for (let x = 15; x <= 75; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[260][45] = 10; // Gran Forja de Hierro Negro
+  map[260][35] = 5;  // Barracones de Herreros
+  map[260][55] = 4;  // Pozo de Templado
+  map[260][65] = 7;  // Cofre de Hierro Negro
+  map[250][45] = 19; // Fuego de Fundición
+
+  // =========================================================================
+  // 15. SALA DE LAS FUENTES TERMALES SUBTERRÁNEAS (Sur del Lago: X: 145..215, Y: 245..295)
+  // =========================================================================
+  for (let y = 245; y <= 295; y++) {
+    for (let x = 145; x <= 215; x++) {
+      const d = Math.hypot((x - 180) / 30, (y - 270) / 22);
+      if (d <= 0.6) map[y][x] = 3; // Pozas termales
+      else if (d <= 1.0) map[y][x] = 2; // Bordes de piedra
+    }
+  }
+  map[270][180] = 8;  // Santuario de las Termas
+  map[270][160] = 4;  // Fuente Curativa
+  map[270][195] = 7;  // Cofre Termal
+  map[260][180] = 17; map[280][180] = 17;
+
+  // =========================================================================
+  // 16. CAMPAMENTO DE CAZADORES DE TROGLODITAS (Sur-Centro: X: 230..295, Y: 235..295)
+  // =========================================================================
+  for (let y = 235; y <= 295; y++) {
+    for (let x = 230; x <= 295; x++) {
+      if (x % 6 === 0 || y % 6 === 0) map[y][x] = 2;
+    }
+  }
+  map[265][260] = 5;  // Cabaña de Cazadores
+  map[265][275] = 9;  // Puesto de Trofeos
+  map[255][268] = 19; // Gran Fogata Subterránea
+  map[265][285] = 7;  // Cofre de Cazadores
+  map[265][250] = 17;
+
+  // =========================================================================
+  // 17. CÁMARA DE LOS ENGRANAJES Y BOMBAS DE AGUA (Sur-Oeste: X: 85..145, Y: 310..350)
+  // =========================================================================
+  for (let y = 310; y <= 350; y++) {
+    for (let x = 85; x <= 145; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[330][115] = 5;  // Taller de Bombas
+  map[330][128] = 10; // Forja de Engranajes
+  map[330][105] = 4;  // Pozo de Presión
+  map[330][135] = 7;  // Cofre de Engranajes
+  map[325][115] = 17;
+
+  // =========================================================================
+  // 18. POBLADO DE LOS HERREROS DE LAS PROFUNDIDADES (Sur-Centro: X: 215..275, Y: 305..345)
+  // =========================================================================
+  for (let y = 305; y <= 345; y++) {
+    for (let x = 215; x <= 275; x++) {
+      if (x % 6 === 0 || y % 6 === 0) map[y][x] = 2;
+    }
+  }
+  map[325][240] = 5;  // Vivienda Profunda 1
+  map[325][255] = 9;  // Mercado de Joyas
+  map[338][240] = 10; // Forja de Adamantio
+  map[338][255] = 4;  // Pozo Profundo
+  map[325][265] = 7;  // Cofre de Adamantio
+  map[320][248] = 17;
+
+  // =========================================================================
+  // 19. ANTIGUO POLVORÍN Y ALMACÉN DE BARRENOS (Extremo Suroeste: X: 20..75, Y: 360..385)
+  // =========================================================================
+  for (let y = 360; y <= 385; y++) {
+    for (let x = 20; x <= 75; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[372][45] = 5;  // Cabaña de Barrenistas
+  map[372][55] = 19; // Fogata
+  map[372][65] = 7;  // Cofre de Pólvora
+  map[368][45] = 17;
+
+  // =========================================================================
+  // 20. SANTUARIO DE LAS RAÍCES DE LA MONTAÑA (Fondo Sur: X: 160..230, Y: 360..385)
+  // =========================================================================
+  for (let y = 360; y <= 385; y++) {
+    for (let x = 160; x <= 230; x++) {
+      map[y][x] = 0;
+    }
+  }
+  map[372][195] = 8;  // Santuario de las Raíces
+  map[368][185] = 18; map[368][205] = 18; map[376][185] = 18; map[376][205] = 18;
+  map[372][210] = 7;  // Cofre Titánico
+  map[372][175] = 17;
 
   return {
     tileData: map,
