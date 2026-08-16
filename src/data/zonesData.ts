@@ -1558,6 +1558,271 @@ export const ZONES: Zone[] = [
         tip: '💡 CONSEJO REAL: El daño Sagrado del Paladín y Clérigo desintegra a los no-muertos.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_castle_1'),
       },
+      {
+        id: 'npc_castle_queen_gardener',
+        zoneId: 'zone_castle',
+        x: 75,
+        y: 35,
+        name: 'Jardinera Beatrice',
+        title: 'Cuidadora de los Rosales Reales',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Las rosas imperiales resisten incluso la plaga de la oscuridad.',
+          'Nuestras fuentes de mármol blanco purifican cualquier maldición que azote el cuerpo.'
+        ],
+        tip: '💡 CONSEJO REAL: Las fuentes de la realeza limpian los efectos de estado negativos.',
+      },
+      {
+        id: 'npc_castle_ambassador',
+        zoneId: 'zone_castle',
+        x: 330,
+        y: 35,
+        name: 'Lord Reginald',
+        title: 'Embajador de las Altas Cortes',
+        avatarStyle: 'elder',
+        dialogue: [
+          'Este palacio albergó a los emisarios de los siete reinos antes del gran cataclismo.',
+          'La forja de plata de este distrito produce escudos pulidos que desvían la magia oscura.'
+        ],
+        tip: '💡 CONSEJO DIPLOMÁTICO: Los escudos de plata bendecida reflejan el 30% del daño mágico.',
+      },
+      {
+        id: 'npc_castle_banker',
+        zoneId: 'zone_castle',
+        x: 150,
+        y: 135,
+        name: 'Banquero Midas',
+        title: 'Tesorero de la Corona Imperial',
+        avatarStyle: 'elder',
+        dialogue: [
+          '¡El Gran Mercado Imperial manejaba las reservas de oro de todo el continente!',
+          'En nuestros cofres aún se custodian lingotes de oro puro y gemas de la realeza.'
+        ],
+        tip: '💡 CONSEJO DE MERCADO: El equipo imperial de oro confiere bonificaciones de EXP y oro +20%.',
+      },
+      {
+        id: 'npc_castle_archmage',
+        zoneId: 'zone_castle',
+        x: 140,
+        y: 210,
+        name: 'Archimaestre Varis',
+        title: 'Rector de la Universidad Arcana',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Los libros de esta biblioteca contienen las fórmulas arcanas más poderosas jamás concebidas.',
+          'Para derrotar al General Lord Kael, debes combinar magias sagradas y elementales en armonía.'
+        ],
+        tip: '💡 CONSEJO UNIVERSITARIO: Las habilidades de Nivel 60 ignoran el 40% de la armadura enemiga.',
+      },
+      {
+        id: 'npc_castle_legion_commander',
+        zoneId: 'zone_castle',
+        x: 315,
+        y: 200,
+        name: 'Comandante Titus',
+        title: 'Mariscal de la Legión Imperial',
+        avatarStyle: 'knight',
+        dialogue: [
+          'Entrenamos a los caballeros más fieros del reino en este campo de torneos.',
+          'Nuestras armerías pesadas forjan corazas de acero valyrio impenetrables.'
+        ],
+        tip: '💡 CONSEJO MARCIAL: Las armaduras de la legión reducen a la mitad los golpes críticos recibidos.',
+      },
+      {
+        id: 'npc_castle_silk_weaver',
+        zoneId: 'zone_castle',
+        x: 160,
+        y: 280,
+        name: 'Maestra Vivienne',
+        title: 'Tejedora de la Seda Imperial',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Tejemos túnicas con hilo de seda celestial y polvo de diamante.',
+          'Nuestras vestiduras confieren una velocidad de lanzamiento de hechizos sin rival.'
+        ],
+        tip: '💡 CONSEJO DE TALLER: Las túnicas de seda permiten actuar primero en cada turno de batalla.',
+      },
+      {
+        id: 'npc_castle_royal_cryptkeeper',
+        zoneId: 'zone_castle',
+        x: 60,
+        y: 320,
+        name: 'Custodio Aurelius',
+        title: 'Guardián del Panteón de los Reyes',
+        avatarStyle: 'elder',
+        dialogue: [
+          'Aquí reposan los primeros emperadores de Aethelgard en criptas de mármol sagrado.',
+          'Los cuatro cofres imperiales contienen las reliquias de la corona... ¡cuidado con los espectros reales!'
+        ],
+        tip: '💡 CONSEJO DE CRIPTA: Tras vencer al General Lord Kael se abrirá la brecha al Vórtice del Vacío.',
+      },
+    ],
+    enemies: [
+      {
+        name: 'Caballero Caído',
+        isBoss: false,
+        hp: 850,
+        maxHp: 850,
+        attack: 145,
+        defense: 80,
+        speed: 35,
+        expReward: 520,
+        goldReward: 85,
+        spriteType: 'death_knight',
+        color: '#9333ea',
+        zoneId: 'zone_castle',
+        description: 'Antiguo paladín imperial reanimado por magia oscura.',
+      },
+      {
+        name: 'Gárgola Imperial',
+        isBoss: false,
+        hp: 950,
+        maxHp: 950,
+        attack: 160,
+        defense: 90,
+        speed: 38,
+        expReward: 620,
+        goldReward: 105,
+        spriteType: 'gargoyle',
+        color: '#7e22ce',
+        zoneId: 'zone_castle',
+        description: 'Estatua alada de piedra maldita con garras letales.',
+      },
+    ],
+    boss: {
+      name: 'General de la Muerte Lord Kael',
+      isBoss: true,
+      hp: 3500,
+      maxHp: 3500,
+      attack: 210,
+      defense: 120,
+      speed: 48,
+      expReward: 3500,
+      goldReward: 950,
+      spriteType: 'boss_death_knight',
+      color: '#6b21a8',
+      specialSkills: [
+        { name: 'Juicio del Vacío Maldito', power: 2.8, element: 'shadow' },
+        { name: 'Tajo Fantasmal de la Corona', power: 2.3, element: 'physical' },
+      ],
+      zoneId: 'zone_castle',
+      description: 'El comandante supremo de los ejércitos reales corrupto por la ambición de la inmortalidad.',
+    },
+  },
+
+  // =========================================================================
+  // 7. EL VÓRTICE DEL VACÍO (Niveles 60 a 70)
+  // =========================================================================
+  {
+    id: 'zone_void',
+    name: 'El Vórtice del Vacío',
+    description: 'Islas cósmicas flotantes sobre el abismo estelar unidas por puentes de energía.',
+    themeColor: '#ec4899',
+    bgMusicTheme: 'castle',
+    requiredLevel: 60,
+    mapWidth: MAP_SIZE,
+    mapHeight: MAP_SIZE,
+    tileData: voidWorld.tileData,
+    npcs: [
+      {
+        id: 'npc_void_1',
+        zoneId: 'zone_void',
+        x: 75,
+        y: 78,
+        name: 'Oráculo del Abismo',
+        title: 'Espíritu de las Estrellas Olvidadas',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Aquí el tiempo y el espacio pierden su forma. El Archilich Malakor canaliza el fin de la realidad.',
+          'Pisa con firmeza sobre los puentes cósmicos y purifica el Núcleo Sombrío.'
+        ],
+        tip: '💡 CONSEJO CÓSMICO: El Archilich alterna barreras de inmunidad física y mágica, usa habilidades mixtas.',
+        quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_void_1'),
+      },
+      {
+        id: 'npc_void_astrologer',
+        zoneId: 'zone_void',
+        x: 60,
+        y: 75,
+        name: 'Astrólogo Zephyr',
+        title: 'Cartógrafo de Constelaciones Perdidas',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Desde este observatorio flotante contemplo las estrellas que el Vacío devora.',
+          'El Santuario Astral de esta isla bendice con inmunidad al drenaje de energía cósmica.'
+        ],
+        tip: '💡 CONSEJO ASTRAL: Los santuarios del vacío protegen contra el estado de silencio mágico.',
+      },
+      {
+        id: 'npc_void_dark_matter',
+        zoneId: 'zone_void',
+        x: 235,
+        y: 75,
+        name: 'Alquimista Nyx',
+        title: 'Investigadora de la Materia Oscura',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Nuestras forjas dimensionales canalizan la antimateria para templar armaduras estelares.',
+          'Las fuentes de energía cósmica recargan todo tu maná instantáneamente.'
+        ],
+        tip: '💡 CONSEJO DE MATERIA OSCURA: Las armas oscuras absorben el 15% del daño infligido en vida propia.',
+      },
+      {
+        id: 'npc_void_crystal_mage',
+        zoneId: 'zone_void',
+        x: 350,
+        y: 80,
+        name: 'Mago Kaelen',
+        title: 'Custodio de los Cristales Dimensionales',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Los monolitos rúnicos de este archipiélago oriental mantienen unidas las islas del vacío.',
+          'Si un puente de energía se desvanece, las islas caerán al abismo infinito.'
+        ],
+        tip: '💡 CONSEJO DE CRISTALES: Los monolitos rúnicos incrementan el poder de hechizos un 35%.',
+      },
+      {
+        id: 'npc_void_time_weaver',
+        zoneId: 'zone_void',
+        x: 70,
+        y: 230,
+        name: 'Tejedora Chronia',
+        title: 'Señora del Espacio-Tiempo',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'El tiempo fluye en círculos en este enclave occidental.',
+          'Nuestras runas permiten a los hechiceros ejecutar dos turnos consecutivos en combate.'
+        ],
+        tip: '💡 CONSEJO TEMPORAL: La habilidad Parada de Tiempo te otorga ventaja absoluta de iniciativa.',
+      },
+      {
+        id: 'npc_void_singularity_guard',
+        zoneId: 'zone_void',
+        x: 205,
+        y: 195,
+        name: 'Guardián Voiden',
+        title: 'Centinela de la Singularidad Central',
+        avatarStyle: 'knight',
+        dialogue: [
+          'Esta es la Gran Plaza Central del Vórtice. El agujero negro absorbe toda la materia circundante.',
+          'Los dos cofres de la singularidad contienen armaduras del vacío impenetrable.'
+        ],
+        tip: '💡 CONSEJO DE SINGULARIDAD: Las corazas del vacío anulan todo el daño de elemento Sombra.',
+      },
+      {
+        id: 'npc_void_shadow_hunter',
+        zoneId: 'zone_void',
+        x: 230,
+        y: 295,
+        name: 'Cazador Raven',
+        title: 'Comandante del Bastión de Sombras',
+        avatarStyle: 'scout',
+        dialogue: [
+          'Damos caza a las aberraciones y segadores dimensionales que emergen del horizonte.',
+          'Hacia el sur se extiende la Gran Calzada que conduce al Templo del Archilich Malakor.'
+        ],
+        tip: '💡 CONSEJO DE BASTIÓN: Derrotar a Malakor abre el portal sagrado al Sagrario de los Antiguos.',
+      },
     ],
     enemies: [
       {
@@ -1723,6 +1988,76 @@ export const ZONES: Zone[] = [
         ],
         tip: '💡 CONSEJO DIVINO: Usa tus habilidades de Nivel 70 y 80 con pociones de elixir completo.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_sanctuary_1'),
+      },
+      {
+        id: 'npc_sanctuary_eternity_angel',
+        zoneId: 'zone_sanctuary',
+        x: 45,
+        y: 55,
+        name: 'Ángel Lumiel',
+        title: 'Custodio del Jardín de la Eternidad',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'En este jardín sagrado crecen las flores de luz pura que alimentan a los dioses.',
+          'La fuente sagrada restaura toda herida física y espiritual al instante.'
+        ],
+        tip: '💡 CONSEJO CELESTIAL: Las flores de luz aumentan todas tus estadísticas un 20% de forma permanente.',
+      },
+      {
+        id: 'npc_sanctuary_celestial_watch',
+        zoneId: 'zone_sanctuary',
+        x: 350,
+        y: 45,
+        name: 'Centinela Helios',
+        title: 'Vigía del Amanecer Eterno',
+        avatarStyle: 'knight',
+        dialogue: [
+          'Desde esta atalaya dorada se contempla el nacimiento de todas las realidades y constelaciones.',
+          'El cofre celestial de esta cumbre contiene el Escudo del Sol Invencible.'
+        ],
+        tip: '💡 CONSEJO SOLAR: Los escudos sagrados otorgan 50% de resistencia a toda la magia.',
+      },
+      {
+        id: 'npc_sanctuary_hero_champion',
+        zoneId: 'zone_sanctuary',
+        x: 100,
+        y: 170,
+        name: 'Paladín Roland',
+        title: 'Héroe Ascendido del Panteón',
+        avatarStyle: 'knight',
+        dialogue: [
+          'Llegué aquí tras mil batallas en el mundo mortal. Los dioses me acogieron en sus terrazas doradas.',
+          'Para desafiar a Cronos, debes estar preparado para resistir sus ataques de tiempo que envejecen el alma.'
+        ],
+        tip: '💡 CONSEJO DE CAMPEÓN: Equipa accesorios con inmunidad a muerte súbita y parada temporal.',
+      },
+      {
+        id: 'npc_sanctuary_youth_healer',
+        zoneId: 'zone_sanctuary',
+        x: 100,
+        y: 270,
+        name: 'Náyade Amara',
+        title: 'Espíritu de la Juventud Eterna',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Las aguas doradas de estas fuentes brotan directamente del manantial de la creación.',
+          'Bebe de su néctar y purifica tu cuerpo antes de ascender la Gran Calzada hacia el trono de Cronos.'
+        ],
+        tip: '💡 CONSEJO DE NÉCTAR: La Fuente de la Juventud revive y recupera al 100% todo tu poder.',
+      },
+      {
+        id: 'npc_sanctuary_pantheon_gatekeeper',
+        zoneId: 'zone_sanctuary',
+        x: 100,
+        y: 350,
+        name: 'Themis la Justiciera',
+        title: 'Custodia de las Puertas del Panteón',
+        avatarStyle: 'elder',
+        dialogue: [
+          'Pisas el umbral del final de tu odisea. Los cuatro cofres divinos guardan los tesoros definitivos del juego.',
+          '¡Que la luz de los Antiguos guíe tu espada hacia la victoria final!'
+        ],
+        tip: '💡 CONSEJO FINAL: Derrotar a Cronos completa la historia y desbloquea el Rango de Héroe Omnipotente.',
       },
     ],
     enemies: [

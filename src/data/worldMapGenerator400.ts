@@ -1619,7 +1619,7 @@ export function generateCastle400(): {
     for (let y = 10; y < MAP_SIZE - 10; y++) map[y][i] = 2;
   }
 
-  // Gran Plaza Imperial
+  // Gran Plaza Imperial Central
   for (let y = 65; y <= 100; y++) {
     for (let x = 65; x <= 100; x++) map[y][x] = 2;
   }
@@ -1629,19 +1629,117 @@ export function generateCastle400(): {
   map[85][85] = 4;  // Gran Fuente Imperial
   map[75][95] = 8;  // Santuario Real
 
-  // Salón del Trono Imperial y Necrópolis
+  // Salón del Trono Imperial
   for (let y = 330; y <= 375; y++) {
     for (let x = 330; x <= 375; x++) map[y][x] = 2;
   }
-  map[355][355] = 11;
+  map[355][355] = 11; // Portal del Emperador Corrupto
 
-  const castleChests = [
-    [75, 50], [95, 50], [150, 75], [225, 75],
-    [50, 150], [120, 150], [260, 150], [330, 150],
-    [75, 225], [135, 225], [275, 225], [340, 225],
-    [75, 300], [150, 300], [225, 300], [355, 300]
-  ];
-  castleChests.forEach(([cx, cy]) => { map[cy][cx] = 7; });
+  // =========================================================================
+  // 1. JARDINES REALES DE LA REINA (Noroeste: X: 30..130, Y: 20..50)
+  // =========================================================================
+  for (let y = 20; y <= 50; y++) {
+    for (let x = 30; x <= 130; x++) {
+      if ((x + y) % 3 === 0) map[y][x] = 12; // Flores reales
+      else if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[35][75] = 4;  // Fuente de Mármol Real
+  map[35][95] = 7;  // Cofre de la Reina
+  map[30][75] = 17; map[40][75] = 17;
+
+  // =========================================================================
+  // 2. BARRIO DE LOS PALACIOS Y EMBAJADAS (Franja en L: X: 190..380, Y: 20..190)
+  // =========================================================================
+  for (let y = 20; y <= 190; y++) {
+    for (let x = 190; x <= 380; x++) {
+      if ((y <= 65 && x >= 190) || (x >= 320 && y <= 190)) {
+        if (x % 6 === 0 || y % 6 === 0) map[y][x] = 2;
+      }
+    }
+  }
+  map[35][240] = 5;  // Palacio 1
+  map[35][330] = 5;  // Embajada Real
+  map[120][355] = 9; // Consulado
+  map[75][355] = 10; // Forja de Plata
+  map[35][370] = 7;  // Cofre de Embajadas
+  map[30][240] = 17; map[120][350] = 17;
+
+  // =========================================================================
+  // 3. GRAN MERCADO IMPERIAL DE ORO Y JOYAS (Medio-Alto: X: 35..260, Y: 110..160)
+  // =========================================================================
+  for (let y = 110; y <= 160; y++) {
+    for (let x = 35; x <= 260; x++) {
+      if (x % 6 === 0 || y % 6 === 0) map[y][x] = 2;
+    }
+  }
+  map[135][75] = 9;  // Joyería Imperial
+  map[135][150] = 9; // Banco de la Corona
+  map[135][225] = 9; // Lonja de Seda
+  map[135][110] = 5; // Taberna Noble
+  map[135][185] = 4; // Fuente de Oro
+  map[135][240] = 7; // Cofre del Mercado
+  map[130][150] = 17; map[140][150] = 17;
+
+  // =========================================================================
+  // 4. DISTRITO RESIDENCIAL Y UNIVERSIDAD ARCANA (Centro: X: 20..230, Y: 180..240)
+  // =========================================================================
+  for (let y = 180; y <= 240; y++) {
+    for (let x = 20; x <= 230; x++) {
+      if (x % 6 === 0 || y % 6 === 0) map[y][x] = 2;
+    }
+  }
+  map[210][60] = 5;  // Residencia de Sabios
+  map[210][140] = 8; // Universidad Arcana
+  map[210][200] = 5; // Biblioteca Real
+  map[210][175] = 7; // Cofre de Pergaminos
+  map[205][140] = 17;
+
+  // =========================================================================
+  // 5. CAMPO DE TORNEOS Y CUARTEL DE LA LEGIÓN (Franja L: X: 260..380, Y: 165..280)
+  // =========================================================================
+  for (let y = 165; y <= 280; y++) {
+    for (let x = 260; x <= 380; x++) {
+      if ((x >= 260 && y >= 220) || (x >= 320 && y >= 165)) {
+        if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+      }
+    }
+  }
+  map[200][315] = 5;  // Cuartel de la Legión
+  map[245][315] = 10; // Armería Pesada
+  map[200][350] = 7;  // Cofre de Armas
+  map[195][315] = 17;
+
+  // =========================================================================
+  // 6. DISTRITO DE ARTESANOS Y TEJEDORES (Centro-Sur: X: 120..255, Y: 250..310)
+  // =========================================================================
+  for (let y = 250; y <= 310; y++) {
+    for (let x = 120; x <= 255; x++) {
+      if (x % 6 === 0 || y % 6 === 0) map[y][x] = 2;
+    }
+  }
+  map[280][160] = 5;  // Taller de Tejedores
+  map[280][220] = 5;  // Taller de Orfebres
+  map[280][190] = 4;  // Pozo
+  map[280][240] = 7;  // Cofre de Artesanos
+  map[275][190] = 17;
+
+  // =========================================================================
+  // 7. GRAN NECRÓPOLIS Y CATACUMBAS IMPERIALES (Franja L: X: 20..275, Y: 260..385)
+  // =========================================================================
+  for (let y = 260; y <= 385; y++) {
+    for (let x = 20; x <= 275; x++) {
+      if ((x <= 100 && y >= 260) || (y >= 320 && x <= 275)) {
+        if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+        else if ((x + y) % 4 === 0) map[y][x] = 16; // Lápidas imperiales
+      }
+    }
+  }
+  map[320][60] = 8;   // Mausoleo de los Primeros Reyes
+  map[355][150] = 8;  // Panteón de los Héroes
+  map[355][230] = 8;  // Cripta Imperial
+  // 4 Cofres Imperiales
+  map[340][40] = 7; map[340][110] = 7; map[340][180] = 7; map[340][250] = 7;
 
   return {
     tileData: map,
@@ -1661,9 +1759,22 @@ export function generateVoid400(): {
   const map: number[][] = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill(1)); // Todo vacío
 
   const platforms = [
-    [75, 75, 24], [190, 75, 20], [310, 75, 20],
-    [75, 190, 20], [190, 190, 26], [310, 190, 20],
-    [75, 310, 20], [190, 310, 20], [355, 355, 28]
+    // 1. Observatorio Noroeste
+    [75, 75, 28],
+    // 2. Laboratorio Materia Oscura
+    [235, 75, 28],
+    // 3. Archipiélago Cristales Este
+    [355, 120, 30],
+    // 4. Tejedores Espacio-Tiempo Oeste
+    [75, 230, 28],
+    // 5. Gran Plaza Singularidad Centro
+    [205, 195, 34],
+    // 6. Ecos Perdidos Sureste
+    [355, 285, 26],
+    // 7. Bastión Sombras Sur-Centro
+    [230, 295, 26],
+    // 8. Templo de Malakor
+    [355, 355, 32]
   ];
 
   platforms.forEach(([px, py, rad]) => {
@@ -1671,32 +1782,47 @@ export function generateVoid400(): {
       for (let x = px - rad; x <= px + rad; x++) {
         if (x > 3 && x < MAP_SIZE - 4 && y > 3 && y < MAP_SIZE - 4) {
           if (Math.hypot(x - px, y - py) <= rad) {
-            map[y][x] = 2;
+            map[y][x] = 2; // Calzada astral
           }
         }
       }
     }
   });
 
-  // Puentes cósmicos
+  // Gran Calzada del Horizonte de Sucesos (Sur completo)
+  for (let y = 345; y <= 370; y++) {
+    for (let x = 20; x <= 380; x++) {
+      map[y][x] = 2;
+    }
+  }
+
+  // Puentes cósmicos que conectan las islas
   for (let x = 75; x <= 355; x++) {
-    map[75][x] = 2; map[190][x] = 2; map[310][x] = 2;
+    map[75][x] = 2; map[195][x] = 2; map[295][x] = 2;
   }
   for (let y = 75; y <= 355; y++) {
-    map[y][75] = 2; map[y][190] = 2; map[y][310] = 2;
+    map[y][75] = 2; map[y][205] = 2; map[y][355] = 2;
   }
 
-  // Templo de Malakor
-  map[355][355] = 11;
-  map[75][75] = 4;
-  map[70][75] = 5;
-  map[80][75] = 8;
-
-  const voidChests = [
-    [190, 75], [310, 75], [75, 190], [190, 190],
-    [310, 190], [75, 310], [190, 310], [310, 310]
-  ];
-  voidChests.forEach(([cx, cy]) => { map[cy][cx] = 7; });
+  // Estructuras en cada isla
+  // Isla 1: Observatorio
+  map[75][75] = 8; map[60][75] = 5; map[95][75] = 7;
+  // Isla 2: Laboratorio Materia Oscura
+  map[75][235] = 5; map[75][255] = 10; map[90][235] = 4; map[75][270] = 7;
+  // Isla 3: Cristales Este
+  map[80][350] = 8; map[160][350] = 5; map[80][365] = 7; map[160][365] = 7;
+  // Isla 4: Tejedores Oeste
+  map[230][70] = 8; map[190][70] = 5; map[230][90] = 7;
+  // Isla 5: Singularidad Centro
+  map[195][205] = 8; map[195][170] = 7; map[195][240] = 7;
+  // Isla 6: Ecos Perdidos
+  map[285][350] = 8; map[285][365] = 7;
+  // Isla 7: Bastión Sombras
+  map[295][230] = 5; map[295][250] = 7;
+  // Isla 8: Templo de Malakor
+  map[355][355] = 11; map[355][340] = 4; map[355][370] = 8;
+  // 4 Cofres del Horizonte
+  map[360][60] = 7; map[360][140] = 7; map[360][220] = 7; map[360][300] = 7;
 
   return {
     tileData: map,
@@ -1723,22 +1849,69 @@ export function generatePantheon400(): {
     }
   }
 
-  // Gran Calzada de Oro Divina (10 baldosas de ancho)
+  // Gran Calzada de Oro Divina Central (14 baldosas de ancho)
   for (let y = 20; y < MAP_SIZE - 20; y++) {
-    for (let x = 195; x <= 205; x++) {
+    for (let x = 193; x <= 207; x++) {
       map[y][x] = 2;
     }
   }
 
-  // Gran Altar de Cronos
-  for (let y = 60; y <= 100; y++) {
-    for (let x = 175; x <= 225; x++) {
+  // Gran Templo Celestial de Cronos (X: 140..260, Y: 15..120)
+  for (let y = 15; y <= 120; y++) {
+    for (let x = 140; x <= 260; x++) {
       map[y][x] = 2;
     }
   }
-  map[80][200] = 11;
-  map[340][200] = 4;
-  map[320][200] = 8;
+  map[80][200] = 11;  // Altar de Cronos
+  map[75][175] = 4;   // Fuente Divina Oeste
+  map[75][225] = 4;   // Fuente Divina Este
+  map[50][200] = 8;   // Santuario del Tiempo
+  map[95][200] = 8;
+
+  // Jardines de la Eternidad (Noroeste: X: 10..85, Y: 15..100)
+  for (let y = 15; y <= 100; y++) {
+    for (let x = 10; x <= 85; x++) {
+      map[y][x] = (x + y) % 3 === 0 ? 12 : 2;
+    }
+  }
+  map[55][45] = 4; map[75][45] = 8; map[55][65] = 7;
+
+  // Atalaya Celestial (Noreste: X: 315..385, Y: 15..75)
+  for (let y = 15; y <= 75; y++) {
+    for (let x = 315; x <= 385; x++) {
+      map[y][x] = 2;
+    }
+  }
+  map[45][350] = 8; map[45][365] = 7;
+
+  // =========================================================================
+  // TERRAZAS HORIZONTALES FLANQUEANDO LA CALZADA DE ORO
+  // =========================================================================
+  // Nivel 1: Terrazas de los Héroes Ascendidos (Y: 130..210)
+  for (let y = 130; y <= 210; y++) {
+    for (let x = 15; x <= 185; x++) map[y][x] = 2;
+    for (let x = 215; x <= 380; x++) map[y][x] = 2;
+  }
+  map[170][100] = 8; map[170][300] = 8;
+  map[170][50] = 7; map[170][350] = 7;
+
+  // Nivel 2: Fuentes de la Juventud Eterna y Jardines del Olimpo (Y: 230..310)
+  for (let y = 230; y <= 310; y++) {
+    for (let x = 15; x <= 185; x++) map[y][x] = (x + y) % 3 === 0 ? 12 : 2;
+    for (let x = 215; x <= 380; x++) map[y][x] = (x + y) % 3 === 0 ? 12 : 2;
+  }
+  map[270][100] = 4; map[270][300] = 4;
+  map[270][50] = 8; map[270][350] = 8;
+  map[270][150] = 7; map[270][250] = 7;
+
+  // Nivel 3: Puerta del Panteón y Patios Celestiales (Y: 315..385)
+  for (let y = 315; y <= 385; y++) {
+    for (let x = 15; x <= 185; x++) map[y][x] = 2;
+    for (let x = 215; x <= 380; x++) map[y][x] = 2;
+  }
+  map[350][100] = 8; map[350][300] = 8;
+  // 4 Cofres de los Dioses
+  map[350][60] = 7; map[350][140] = 7; map[350][260] = 7; map[350][340] = 7;
 
   return {
     tileData: map,
