@@ -47,8 +47,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_1',
         zoneId: 'zone_forest',
-        x: 87,
-        y: 84,
+        x: 100,
+        y: 98,
         name: 'Anciano Eldrin',
         title: 'Sabio de la Aldea de Roble',
         avatarStyle: 'elder',
@@ -63,8 +63,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_2',
         zoneId: 'zone_forest',
-        x: 95,
-        y: 78,
+        x: 96,
+        y: 92,
         name: 'Brom el Maestro Forjador',
         title: 'Herrero Mayor de la Aldea',
         avatarStyle: 'blacksmith',
@@ -78,8 +78,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_3',
         zoneId: 'zone_forest',
-        x: 75,
-        y: 92,
+        x: 97,
+        y: 108,
         name: 'Bardo Corin',
         title: 'Trovador de la Arboleda',
         avatarStyle: 'scout',
@@ -93,8 +93,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_4',
         zoneId: 'zone_forest',
-        x: 195,
-        y: 60,
+        x: 100,
+        y: 83,
         name: 'Thorne el Guardabosques',
         title: 'Vigilante del Gran Río',
         avatarStyle: 'knight',
