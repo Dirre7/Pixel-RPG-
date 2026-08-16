@@ -33,6 +33,7 @@ import {
   getMageTowerCanvas,
   getGreatHallCanvas,
   getGargoyleFountainCanvas,
+  getSquarePlazaFountainCanvas,
   getSkybridgeCanvas,
   getLeatherworkersGuildCanvas,
 } from '../utils/pixelTilesetGenerator';
@@ -160,19 +161,82 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       const startRow = Math.max(0, Math.floor(camY / TILE_SIZE) - 2);
       const endRow = Math.min(rows - 1, Math.ceil((camY + canvas.height) / TILE_SIZE) + 2);
 
+      // Helper para resolver el suelo base de cualquier casilla (incluso con farolas, pilares o casas encima)
+      const getGroundType = (gx: number, gy: number): number => {
+        if (gy < 0 || gy >= rows || gx < 0 || gx >= cols) return 0;
+        const raw = currentZone.tileData[gy][gx];
+        if (raw === 0 || raw === 2 || raw === 3 || raw === 13) return raw;
+        // Para objetos colocados en la calle (farolas 17, pilares 18, cofres 7, puestos 9, etc.)
+        let pathNeighbors = 0;
+        const offsets = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+        for (const [ox, oy] of offsets) {
+          const nx = gx + ox;
+          const ny = gy + oy;
+          if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
+            const nType = currentZone.tileData[ny][nx];
+            if (nType === 2 || nType === 9 || nType === 33) pathNeighbors++;
+          }
+        }
+        return pathNeighbors >= 2 ? 2 : 0;
+      };
+
       // ------------------------------------------------------------------------
-      // CAPA 0: BALDOSAS DE SUELO Y CALZADAS RICAS EN TEXTURA (SEAMLESS 2.5D)
+      // CAPA 0: BALDOSAS DE SUELO Y CALZADAS CON AUTOTILING ORGÁNICO (SEAMLESS 2.5D)
       // ------------------------------------------------------------------------
       for (let y = startRow; y <= endRow; y++) {
         for (let x = startCol; x <= endCol; x++) {
-          const tileType = currentZone.tileData[y][x];
+          const groundType = getGroundType(x, y);
+          const drawPosX = x * TILE_SIZE;
+          const drawPosY = y * TILE_SIZE;
 
-          if (currentZone.id === 'zone_forest' && tileType === 13 && gameAssets.farmLand.complete && gameAssets.farmLand.naturalWidth > 0) {
+          if (currentZone.id === 'zone_forest' && groundType === 13 && gameAssets.farmLand.complete && gameAssets.farmLand.naturalWidth > 0) {
             // Tierra de cultivo fértil
-            ctx.drawImage(gameAssets.farmLand, 16, 16, 16, 16, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            ctx.drawImage(gameAssets.farmLand, 16, 16, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
           } else {
-            const tileCanvas = getTileCanvas(tileType === 1 ? 0 : tileType, currentZone.id, (x * 3 + y * 7) % 8);
-            ctx.drawImage(tileCanvas, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            const tileCanvas = getTileCanvas(groundType, currentZone.id, (x * 3 + y * 7) % 8);
+            ctx.drawImage(tileCanvas, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+          }
+
+          // TRANSICIÓN ORGÁNICA DE BORDES (BITING GRASS EDGES SOBRE CAMINOS)
+          if (currentZone.id === 'zone_forest' && groundType === 2) {
+            const topGrass = y > 0 && getGroundType(x, y - 1) === 0;
+            const bottomGrass = y < rows - 1 && getGroundType(x, y + 1) === 0;
+            const leftGrass = x > 0 && getGroundType(x - 1, y) === 0;
+            const rightGrass = x < cols - 1 && getGroundType(x + 1, y) === 0;
+
+            if (topGrass) {
+              ctx.fillStyle = '#2d6318'; ctx.fillRect(drawPosX, drawPosY + 3, 32, 2);
+              ctx.fillStyle = '#4a9b2b'; ctx.fillRect(drawPosX, drawPosY, 32, 3);
+              ctx.fillStyle = '#56ad32';
+              ctx.fillRect(drawPosX + 2, drawPosY + 2, 4, 3);
+              ctx.fillRect(drawPosX + 10, drawPosY + 1, 5, 4);
+              ctx.fillRect(drawPosX + 18, drawPosY + 2, 5, 3);
+              ctx.fillRect(drawPosX + 26, drawPosY + 1, 4, 4);
+            }
+            if (bottomGrass) {
+              ctx.fillStyle = '#2d6318'; ctx.fillRect(drawPosX, drawPosY + 27, 32, 2);
+              ctx.fillStyle = '#4a9b2b'; ctx.fillRect(drawPosX, drawPosY + 29, 32, 3);
+              ctx.fillStyle = '#56ad32';
+              ctx.fillRect(drawPosX + 4, drawPosY + 26, 5, 3);
+              ctx.fillRect(drawPosX + 14, drawPosY + 27, 4, 3);
+              ctx.fillRect(drawPosX + 22, drawPosY + 26, 5, 4);
+            }
+            if (leftGrass) {
+              ctx.fillStyle = '#2d6318'; ctx.fillRect(drawPosX + 3, drawPosY, 2, 32);
+              ctx.fillStyle = '#4a9b2b'; ctx.fillRect(drawPosX, drawPosY, 3, 32);
+              ctx.fillStyle = '#56ad32';
+              ctx.fillRect(drawPosX + 2, drawPosY + 3, 3, 4);
+              ctx.fillRect(drawPosX + 1, drawPosY + 12, 4, 5);
+              ctx.fillRect(drawPosX + 2, drawPosY + 21, 3, 5);
+            }
+            if (rightGrass) {
+              ctx.fillStyle = '#2d6318'; ctx.fillRect(drawPosX + 27, drawPosY, 2, 32);
+              ctx.fillStyle = '#4a9b2b'; ctx.fillRect(drawPosX + 29, drawPosY, 3, 32);
+              ctx.fillStyle = '#56ad32';
+              ctx.fillRect(drawPosX + 26, drawPosY + 5, 3, 4);
+              ctx.fillRect(drawPosX + 27, drawPosY + 15, 3, 4);
+              ctx.fillRect(drawPosX + 26, drawPosY + 24, 4, 4);
+            }
           }
         }
       }
@@ -234,13 +298,23 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 4) {
-            // Gran Fuente Monumental
-            entities.push({
-              ySort: posY + TILE_SIZE + 4,
-              draw: (c) => {
-                c.drawImage(waterWell, posX - 16, posY - 16, 64, 64);
-              },
-            });
+            // Fuente de la Plaza Central o Pozos de Agua en las esquinas
+            if (x === 252 && y === 340) {
+              const centralFountain = getSquarePlazaFountainCanvas(time);
+              entities.push({
+                ySort: posY + TILE_SIZE + 10,
+                draw: (c) => {
+                  c.drawImage(centralFountain, posX - 12, posY - 14, 56, 56);
+                },
+              });
+            } else {
+              entities.push({
+                ySort: posY + TILE_SIZE + 4,
+                draw: (c) => {
+                  c.drawImage(waterWell, posX - 16, posY - 16, 64, 64);
+                },
+              });
+            }
           } else if (tileType === 5) {
             // Casas Medievales (Altura Completa 96x128 px con cimientos de piedra)
             if (gameAssets.house.complete && gameAssets.house.naturalWidth > 0) {
@@ -300,8 +374,24 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 9) {
-            // Puesto de Mercado 2.5D con Toldo a Rayas y Cajones de Víveres
-            const stallCanvas = getMarketStallCanvas((x + y) % 3);
+            // Puesto de Mercado 2.5D con Colores Exactos de la Referencia
+            let stallVariant = (x + y) % 3;
+            if (x === 248) {
+              if (y === 330 || y === 333 || y === 336) stallVariant = 1; // Rojo
+              else if (y === 344 || y === 347) stallVariant = 2; // Azul
+            } else if (x === 249) {
+              if (y === 330 || y === 333 || y === 336) stallVariant = 0; // Verde
+              else if (y === 344) stallVariant = 1; // Rojo
+              else if (y === 347) stallVariant = 0; // Verde
+              else if (y === 350) stallVariant = 1; // Rojo
+            } else if (x === 255) {
+              if (y === 330) stallVariant = 1; // Rojo
+              else if (y === 333 || y === 336) stallVariant = 2; // Azul
+              else if (y === 344) stallVariant = 1; // Rojo
+              else if (y === 347) stallVariant = 0; // Verde
+              else if (y === 350) stallVariant = 2; // Azul
+            }
+            const stallCanvas = getMarketStallCanvas(stallVariant);
             entities.push({
               ySort: posY + TILE_SIZE + 8,
               draw: (c) => {
@@ -381,12 +471,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 17) {
-            // Farola de Camino / Linterna
+            // Farola de Camino con Farol Forjado y Halo Cálido
             const lamp = getStreetLampCanvas(time);
             entities.push({
-              ySort: posY + TILE_SIZE,
+              ySort: posY + TILE_SIZE + 4,
               draw: (c) => {
-                c.drawImage(lamp, posX + 4, posY - 2, 24, 36);
+                c.drawImage(lamp, posX - 8, posY - 20, 48, 56);
               },
             });
           } else if (tileType === 18) {

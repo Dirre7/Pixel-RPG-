@@ -544,26 +544,86 @@ export function generateForest400(): {
   map[354][228] = 5;  map[354][236] = 5;  // Casonas junto al parque
   map[333][232] = 17; map[351][232] = 17; // Farolas del parque
 
-  // 8. DISTRITO SURESTE: GRAN MERCADO BAZAR DENSO (MARBOIS DISTS)
-  // Dos filas paralelas compactas de puestos (pegadas a la calle peatonal)
-  [332, 336, 340, 344, 348, 352].forEach((my) => {
-    map[my][248] = 9; // Fila izquierda de puestos
-    map[my][256] = 9; // Fila derecha de puestos
-  });
-  map[334][252] = 17; map[342][252] = 17; map[350][252] = 17; // Farolas centrales
-
-  // 9. BARRIO DE LA FORJA, BOTICA Y CASAS ORIENTALES (ESTE)
-  map[334][268] = 10; // Gran Forja con Chimenea
-  map[342][268] = 10; // Yunque y Armero
-  map[334][276] = 27; // Botica de Pociones
-  map[342][276] = 5;  map[350][276] = 5; // Casonas de piedra
-  map[350][268] = 5;  map[358][272] = 5; // Talleres
-
-  // Farolas de la Gran Avenida Real
-  for (let y = 300; y <= 366; y += 6) {
-    map[y][237] = 17; map[y][243] = 17;
+  // 8. DISTRITO CENTRAL: GRAN CALZADA DEL MERCADO BAZAR (RÉPLICA EXACTA DE REFERENCIA)
+  // Calzada de adoquines principal (X: 247..257, Y: 322..360)
+  for (let y = 322; y <= 360; y++) {
+    for (let x = 247; x <= 257; x++) {
+      map[y][x] = 2; // Suelo de adoquines
+    }
   }
-  map[362][250] = 7; map[362][270] = 7; // Cofres de la capital
+
+  // Setos verticales de árboles enmarcando la calzada (X: 246 y X: 258)
+  for (let y = 324; y <= 358; y++) {
+    map[y][246] = 1; // Hilera de árboles izquierda
+    map[y][258] = 1; // Hilera de árboles derecha
+  }
+
+  // Fuente Central Monumental en el corazón del bulevar
+  map[340][252] = 4;
+
+  // Farolas alineadas en el eje central norte-sur
+  map[324][252] = 17;
+  map[332][252] = 17;
+  map[348][252] = 17;
+  map[356][252] = 17;
+
+  // Pozos de agua en las 4 esquinas de la calzada
+  map[323][247] = 4;
+  map[323][257] = 4;
+  map[357][247] = 4;
+  map[357][257] = 4;
+
+  // PUESTOS DE MERCADO (FLANCO IZQUIERDO - EN PAREJAS)
+  map[330][248] = 9; map[330][249] = 9; // Toldo Rojo + Toldo Verde
+  map[333][248] = 9; map[333][249] = 9; // Toldo Rojo + Toldo Verde
+  map[336][248] = 9; map[336][249] = 9; // Toldo Rojo + Toldo Verde
+  map[344][248] = 9; map[344][249] = 9; // Toldo Azul + Toldo Rojo
+  map[347][248] = 9; map[347][249] = 9; // Toldo Azul + Toldo Verde
+  map[350][249] = 9;                     // Toldo Rojo
+
+  // PUESTOS DE MERCADO (FLANCO DERECHO)
+  map[330][255] = 9; // Toldo Rojo
+  map[333][255] = 9; // Toldo Azul
+  map[336][255] = 9; // Toldo Azul
+  map[344][255] = 9; // Toldo Rojo
+  map[347][255] = 9; // Toldo Verde
+  map[350][255] = 9; // Toldo Azul
+
+  // JARDÍN IZQUIERDO (X: 240..245, Y: 324..358)
+  for (let y = 324; y <= 358; y++) {
+    for (let x = 240; x <= 245; x++) {
+      map[y][x] = 0; // Hierba
+    }
+  }
+  map[326][243] = 18; // Columna clásica
+  map[332][241] = 17; map[344][241] = 17; // Farolas del jardín
+  map[349][242] = 13; map[349][243] = 13; map[350][242] = 13; map[350][243] = 13; // Parche de tierra
+  map[328][242] = 1; map[334][243] = 1; map[340][242] = 1; map[346][243] = 1; map[352][242] = 1; // Árboles
+
+  // CORRAL DERECHO CON VALLAS Y VACA (X: 259..272, Y: 324..358)
+  for (let y = 324; y <= 358; y++) {
+    for (let x = 259; x <= 272; x++) {
+      map[y][x] = 0; // Hierba
+    }
+  }
+  // Vallas del corral cerrado (X: 263..268, Y: 332..337)
+  for (let y = 332; y <= 337; y++) {
+    for (let x = 263; x <= 268; x++) {
+      if (x === 263 || x === 268 || y === 332 || y === 337) map[y][x] = 15;
+    }
+  }
+  map[334][266] = 13; // Casilla de pasto para la vaca
+  map[335][267] = 3;  // Abrevadero de agua
+  map[334][264] = 1;  // Árbol junto al corral
+  map[340][267] = 18; // Columna de mármol
+  map[348][264] = 18; // Columna de mármol
+  map[348][265] = 19; // Brasero / Hoguera
+  // Arboleda compacta inferior derecha
+  for (let y = 350; y <= 355; y++) {
+    for (let x = 264; x <= 268; x++) {
+      map[y][x] = 1;
+    }
+  }
 
   // 12. ⛪ CEMENTERIO GÓTICO Y CAPILLA DE PIEDRA (Sureste: X: 305..385, Y: 280..365)
   for (let y = 285; y <= 355; y++) {

@@ -890,26 +890,59 @@ export function getShrineCanvas(isBoss: boolean = false, time: number = 0): HTML
  */
 export function getStreetLampCanvas(time: number = 0): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
-  canvas.width = 24;
-  canvas.height = 36;
+  canvas.width = 48;
+  canvas.height = 56;
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
 
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  // Sombra elíptica realista anclada al suelo
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
   ctx.beginPath();
-  ctx.ellipse(12, 32, 6, 2, 0, 0, Math.PI * 2);
+  ctx.ellipse(24, 48, 8, 3, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(11, 8, 2, 24);
-  ctx.fillRect(9, 30, 6, 2);
+  // Halo de luz dorada en el suelo
+  const glow = ctx.createRadialGradient(24, 48, 2, 24, 48, 22);
+  glow.addColorStop(0, 'rgba(253, 224, 71, 0.22)');
+  glow.addColorStop(0.5, 'rgba(251, 191, 36, 0.08)');
+  glow.addColorStop(1, 'rgba(251, 191, 36, 0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(24, 48, 22, 0, Math.PI * 2);
+  ctx.fill();
 
+  // Base de hierro forjado con remaches
   ctx.fillStyle = '#0f172a';
-  ctx.fillRect(8, 4, 8, 8);
+  ctx.fillRect(20, 46, 8, 3);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(21, 45, 6, 2);
+
+  // Poste de hierro esbelto
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(23, 18, 2, 28);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(23, 18, 1, 28); // Brillo metálico izquierdo
+
+  // Soporte ornamental superior
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(20, 16, 8, 2);
+  ctx.fillRect(21, 14, 6, 2);
+
+  // Farol de bronce y cristal con luz cálida
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(19, 6, 10, 8);
   ctx.fillStyle = '#fde047';
-  ctx.fillRect(9, 5, 6, 6);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(11, 7, 2, 2);
+  ctx.fillRect(20, 7, 8, 6);
+
+  // Llama interior titilante
+  const flicker = Math.sin(time * 8) * 0.5 + 0.5;
+  ctx.fillStyle = flicker > 0.4 ? '#ffffff' : '#fef08a';
+  ctx.fillRect(22, 9, 4, 3);
+
+  // Caperuza del farol y remate
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(18, 4, 12, 2);
+  ctx.fillRect(23, 2, 2, 2);
 
   return canvas;
 }
@@ -1640,6 +1673,88 @@ export function getGargoyleFountainCanvas(time: number = 0): HTMLCanvasElement {
   ctx.fillStyle = '#e0f2fe';
   ctx.fillRect(30, 36, 4, 12);
   ctx.fillRect(28, 44, 8, 4);
+
+  return canvas;
+}
+
+/**
+ * ⛲ FUENTE DE AGUA OCTOGONAL DE LA PLAZA CENTRAL (56x56 px)
+ * Réplica exacta de la plaza central con brocal de sillar, estanque azul y surtidor de piedra
+ */
+export function getSquarePlazaFountainCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 56;
+  canvas.height = 56;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra de contacto en el suelo
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(28, 50, 24, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Brocal exterior de sillares de piedra gris clara (con esquinas achaflanadas)
+  ctx.fillStyle = '#334155'; // Sombra exterior
+  ctx.beginPath();
+  ctx.roundRect(4, 8, 48, 42, 8);
+  ctx.fill();
+
+  ctx.fillStyle = '#64748b'; // Cuerpo del brocal
+  ctx.beginPath();
+  ctx.roundRect(5, 9, 46, 40, 7);
+  ctx.fill();
+
+  ctx.fillStyle = '#94a3b8'; // Bisel superior
+  ctx.beginPath();
+  ctx.roundRect(6, 10, 44, 38, 6);
+  ctx.fill();
+
+  ctx.fillStyle = '#cbd5e1'; // Luz en la coronación
+  ctx.beginPath();
+  ctx.roundRect(7, 10, 42, 4, 2);
+  ctx.fill();
+
+  // Estanque interior de agua cristalina azul
+  ctx.fillStyle = '#0369a1';
+  ctx.beginPath();
+  ctx.roundRect(11, 15, 34, 28, 4);
+  ctx.fill();
+
+  ctx.fillStyle = '#0284c7';
+  ctx.beginPath();
+  ctx.roundRect(13, 17, 30, 24, 3);
+  ctx.fill();
+
+  // Ondas animadas de agua
+  const ripple = Math.sin(time * 5) * 2;
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(16 + ripple, 22, 10, 2);
+  ctx.fillRect(30 - ripple, 32, 10, 2);
+  ctx.fillStyle = '#7dd3fc';
+  ctx.fillRect(22, 26 + ripple * 0.5, 12, 2);
+
+  // Pedestal central de piedra
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(23, 18, 10, 16);
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(24, 19, 8, 14);
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(25, 20, 6, 12);
+
+  // Columna y surtidor superior
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(26, 14, 4, 6);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillRect(27, 14, 2, 6);
+
+  // Chorro y espuma de agua
+  const splash = Math.sin(time * 10) * 1.5;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(27, 10 + splash * 0.5, 2, 4);
+  ctx.fillStyle = '#e0f2fe';
+  ctx.fillRect(25, 13, 6, 2);
+  ctx.fillRect(24, 15, 8, 2);
 
   return canvas;
 }
