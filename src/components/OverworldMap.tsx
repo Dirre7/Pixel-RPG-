@@ -501,9 +501,6 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         case 'CONFIRM':
           if (interactPrompt) {
             handleInteract();
-          } else {
-            soundEngine.playSfx('select');
-            onStartBattle(false); // Practice encounter option
           }
           break;
         case 'CANCEL':
