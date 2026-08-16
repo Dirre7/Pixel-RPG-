@@ -9,6 +9,7 @@ interface MinimapProps {
   defeatedBosses: string[];
   exploredTiles?: Set<string>;
   onMinimapClick?: (x: number, y: number) => void;
+  isCreatorMode?: boolean;
 }
 
 export const Minimap: React.FC<MinimapProps> = ({
@@ -18,6 +19,7 @@ export const Minimap: React.FC<MinimapProps> = ({
   defeatedBosses,
   exploredTiles,
   onMinimapClick,
+  isCreatorMode = false,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [zoomMode, setZoomMode] = useState<'full' | 'radar'>('radar');
@@ -27,11 +29,12 @@ export const Minimap: React.FC<MinimapProps> = ({
 
   // Calculate exploration percentage
   const explorationPercent = useMemo(() => {
+    if (isCreatorMode) return 100;
     if (!exploredTiles || exploredTiles.size === 0) return 1;
     const total = mapW * mapH;
     const pct = ((exploredTiles.size / total) * 100);
     return pct < 1 ? Number(pct.toFixed(1)) : Math.min(100, Math.round(pct));
-  }, [exploredTiles, mapW, mapH]);
+  }, [exploredTiles, mapW, mapH, isCreatorMode]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -63,7 +66,7 @@ export const Minimap: React.FC<MinimapProps> = ({
         const px = (x - startX) * cellW;
         const py = (y - startY) * cellH;
         const tileKey = `${x},${y}`;
-        const isExplored = !exploredTiles || exploredTiles.has(tileKey);
+        const isExplored = isCreatorMode || !exploredTiles || exploredTiles.has(tileKey);
 
         if (!isExplored) {
           // Fog of War (Dark unexplored mist)

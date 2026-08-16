@@ -786,8 +786,15 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                 openedChests={openedChests}
                 defeatedBosses={defeatedBosses}
                 exploredTiles={exploredTilesSets[currentZone.id]}
+                isCreatorMode={player.level >= 75}
                 onMinimapClick={(targetX, targetY) => {
-                  showToast(`📍 Coordenadas exploradas: [${targetX}, ${targetY}]`);
+                  if (player.level >= 75) {
+                    onMove({ x: targetX, y: targetY });
+                    soundEngine.playSfx('select');
+                    showToast(`⚡ Teletransporte Creador: [${targetX}, ${targetY}]`);
+                  } else {
+                    showToast(`📍 Coordenadas exploradas: [${targetX}, ${targetY}]`);
+                  }
                 }}
               />
             </div>
