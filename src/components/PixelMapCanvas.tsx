@@ -7,6 +7,10 @@ import {
   getStoneWallCanvas,
   getChestCanvas,
   getCottageCanvas,
+  getStoneManorCanvas,
+  getMarketStallCanvas,
+  getWeaponRackCanvas,
+  getChickenCanvas,
   getWindmillCanvas,
   getWaterWellCanvas,
   getForgeCanvas,
@@ -127,6 +131,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       const stoneWall = getStoneWallCanvas();
       const cottageRed = getCottageCanvas('red');
       const cottageBlue = getCottageCanvas('blue');
+      const marketStall = getMarketStallCanvas();
+      const stoneManor = getStoneManorCanvas();
+      const weaponRack = getWeaponRackCanvas();
+      const chicken = getChickenCanvas(time);
       const waterWell = getWaterWellCanvas(time * 2);
       const windmill = getWindmillCanvas(time * 1.5);
       const forge = getForgeCanvas(time);
@@ -158,15 +166,17 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 4) {
-            // Gran Fuente Monumental / Pozo de Piedra
+            // Gran Fuente Monumental
             entities.push({
               ySort: posY + TILE_SIZE + 4,
               draw: (c) => {
                 c.drawImage(waterWell, posX - 16, posY - 16, 64, 64);
+                // Gallina curiosa cerca de la fuente
+                c.drawImage(chicken, posX + 36, posY + 20, 16, 16);
               },
             });
           } else if (tileType === 5) {
-            // Casita de Aldea / Taberna de Madera
+            // Casa Medieval de Entramado de Madera (Fachwerk)
             entities.push({
               ySort: posY + TILE_SIZE + 10,
               draw: (c) => {
@@ -193,27 +203,28 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 8) {
-            // Santuario Ancestral
+            // Santuario Ancestral / Ayuntamiento
             entities.push({
-              ySort: posY + TILE_SIZE,
+              ySort: posY + TILE_SIZE + 8,
               draw: (c) => {
                 c.drawImage(shrine, posX - 8, posY - 14, 48, 48);
               },
             });
           } else if (tileType === 9) {
-            // Puesto de Mercado / Tienda Azul
+            // Puesto de Mercado con Toldo de Rayas y Carreta de Frutas
             entities.push({
-              ySort: posY + TILE_SIZE + 10,
+              ySort: posY + TILE_SIZE + 8,
               draw: (c) => {
-                c.drawImage(cottageBlue, posX - 16, posY - 24, 64, 64);
+                c.drawImage(marketStall, posX - 8, posY - 12, 48, 48);
               },
             });
           } else if (tileType === 10) {
-            // Forja del Herrero
+            // Forja del Herrero con Expositor de Armas
             entities.push({
               ySort: posY + TILE_SIZE + 6,
               draw: (c) => {
                 c.drawImage(forge, posX - 8, posY - 12, 48, 48);
+                c.drawImage(weaponRack, posX + 28, posY + 2, 32, 32);
               },
             });
           } else if (tileType === 11) {
@@ -224,6 +235,16 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 c.drawImage(bossPortal, posX - 8, posY - 14, 48, 48);
               },
             });
+          } else if (tileType === 13) {
+            // Bancales de Cultivo con Gallinas merodeando en algunas casillas
+            if ((x + y) % 5 === 0) {
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(chicken, posX + 8, posY + 6, 16, 16);
+                },
+              });
+            }
           } else if (tileType === 16) {
             // Lápida de Cementerio
             const tombstone = getGraveyardCanvas();

@@ -73,7 +73,7 @@ export default function App() {
   });
 
   const [currentZoneId, setCurrentZoneId] = useState<string>('zone_forest');
-  const [playerPos, setPlayerPos] = useState<{ x: number; y: number }>({ x: 100, y: 112 });
+  const [playerPos, setPlayerPos] = useState<{ x: number; y: number }>({ x: 100, y: 101 });
   const [defeatedBosses, setDefeatedBosses] = useState<string[]>([]);
   const [openedChests, setOpenedChests] = useState<string[]>([]);
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
@@ -448,7 +448,7 @@ export default function App() {
     setPlayer(savedGameData.player);
     setInventory(safeInventory);
     setCurrentZoneId(savedGameData.currentZoneId || 'zone_forest');
-    setPlayerPos(savedGameData.playerPos || { x: 100, y: 112 });
+    setPlayerPos(savedGameData.playerPos || { x: 100, y: 101 });
     setDefeatedBosses(savedGameData.defeatedBosses || []);
     setOpenedChests(savedGameData.openedChests || []);
     setCompletedQuests(savedGameData.completedQuests || []);
