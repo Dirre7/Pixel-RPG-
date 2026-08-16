@@ -176,6 +176,216 @@ export const ZONES: Zone[] = [
         ],
         tip: '💡 CONSEJO DE CRIPTA: En los cementerios antiguos las magias Sagradas de Luz causan daño crítico masivo.',
       },
+      {
+        id: 'npc_forest_waterfall',
+        zoneId: 'zone_forest',
+        x: 175,
+        y: 20,
+        name: 'Explorador Torvald',
+        title: 'Vigía de las Cascadas del Norte',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡El aire aquí arriba es puro y revitalizante! Desde este mirador se domina todo el curso del Gran Río de Aethelgard.',
+          'Las aguas nacen en los glaciares del norte y alimentan todas las aldeas del reino.'
+        ],
+        tip: '💡 CONSEJO DE VIGÍA: Descansar junto a las fogatas restaura tu espíritu antes de largas expediciones.',
+      },
+      {
+        id: 'npc_forest_lumberjack',
+        zoneId: 'zone_forest',
+        x: 260,
+        y: 20,
+        name: 'Leñador Gunnar',
+        title: 'Maestro del Aserradero Norteño',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡Hola, viajero! Cortamos robles ancestrales para reforzar los puentes y murallas de la capital.',
+          'Cuidado si sigues hacia el este: los trasgos merodean cerca de las ruinas del jefe.'
+        ],
+        tip: '💡 CONSEJO DE MADERA: Los almacenes de leña suelen esconder cofres con provisiones útiles.',
+      },
+      {
+        id: 'npc_forest_hermit',
+        zoneId: 'zone_forest',
+        x: 125,
+        y: 38,
+        name: 'Ermitaño Oakhaven',
+        title: 'Sabio de las Flores Silvestres',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Pocos aventureros encuentran este sendero floral entre la granja y la capital.',
+          'Las flores de este claro poseen esencias calmantes que ahuyentan a las fieras salvajes.'
+        ],
+        tip: '💡 CONSEJO FLORAL: Los parterres de flores marcan zonas seguras libres de emboscadas enemigas.',
+      },
+      {
+        id: 'npc_forest_grovelady',
+        zoneId: 'zone_forest',
+        x: 28,
+        y: 140,
+        name: 'Anciana Maeve',
+        title: 'Matriarca de la Arboleda Vieja',
+        avatarStyle: 'elder',
+        dialogue: [
+          'Nuestra aldea occidental es pacífica y antigua. Vivimos en armonía con los espíritus del bosque.',
+          'Bebe agua de nuestro pozo comunal para seguir tu camino con energía renovada.'
+        ],
+        tip: '💡 CONSEJO DE ALDEA: Cada pueblo del reino cuenta con fuentes y pozos gratuitos para curarte.',
+      },
+      {
+        id: 'npc_forest_instructor',
+        zoneId: 'zone_forest',
+        x: 70,
+        y: 148,
+        name: 'Instructor Vaelen',
+        title: 'Capitán de Instrucción de la Guardia',
+        avatarStyle: 'knight',
+        dialogue: [
+          '¡Firmeza en la empuñadura y vista al blanco! Aquí entrenamos a los nuevos reclutas del rey.',
+          'Un buen guerrero practica sus artes de combate antes de adentrarse en territorio hostil.'
+        ],
+        tip: '💡 CONSEJO DE INSTRUCCIÓN: Combina ataques físicos y mágicos para vencer las defensas de los monstruos.',
+      },
+      {
+        id: 'npc_forest_scoutleader',
+        zoneId: 'zone_forest',
+        x: 105,
+        y: 175,
+        name: 'Capitana Kaelen',
+        title: 'Líder de Batidores de la Arboleda',
+        avatarStyle: 'scout',
+        dialogue: [
+          'Patrullamos este corredor central para mantener los caminos despejados de bandidos y lobos.',
+          'Si sigues el camino de piedra hacia el este, llegarás al Gran Parque Real.'
+        ],
+        tip: '💡 CONSEJO DE BATIDOR: Las carreteras adoquinadas te permiten orientarte con facilidad en el mapa.',
+      },
+      {
+        id: 'npc_forest_ferryman',
+        zoneId: 'zone_forest',
+        x: 188,
+        y: 118,
+        name: 'Barquero Charon',
+        title: 'Guardián del Embarcadero Fluvial',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Bienvenido al meandro central del río! Los muelles de madera resisten las corrientes más bravas.',
+          'Nuestras redes a menudo recogen cofres y tesoros arrastrados por las aguas.'
+        ],
+        tip: '💡 CONSEJO FLUVIAL: Los muelles de madera te permiten cruzar sobre aguas profundas.',
+      },
+      {
+        id: 'npc_forest_gatherer',
+        zoneId: 'zone_forest',
+        x: 260,
+        y: 105,
+        name: 'Recolectora Liora',
+        title: 'Hortelana de la Fruta Silvestre',
+        avatarStyle: 'wizard',
+        dialogue: [
+          '¡Nuestros huertos producen las bayas y manzanas más dulces de todo el continente!',
+          'Hacia el sur verás los grandes muelles del lago y la isla mística.'
+        ],
+        tip: '💡 CONSEJO DE HUERTO: Los alimentos y pociones son vitales para aguantar los combates de jefes.',
+      },
+      {
+        id: 'npc_forest_merchant',
+        zoneId: 'zone_forest',
+        x: 345,
+        y: 148,
+        name: 'Mercader Darius',
+        title: 'Comerciante del Asentamiento Este',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Saludos, distinguido cliente! Este asentamiento oriental es la última parada antes de las tierras salvajes.',
+          'Aquí acuden los viajeros a pertrecharse antes de retar a los monstruos del cuadrante este.'
+        ],
+        tip: '💡 CONSEJO COMERCIAL: Guardar oro te permitirá comprar armaduras y espadas superiores en la tienda.',
+      },
+      {
+        id: 'npc_forest_stonemason',
+        zoneId: 'zone_forest',
+        x: 55,
+        y: 215,
+        name: 'Maestro Cantero Brann',
+        title: 'Jefe de la Cantera Occidental',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡De esta cantera se extrajeron las piedras que construyeron las murallas de la capital!',
+          'En nuestra forja pequeña templamos picos y herramientas resistentes como el diamante.'
+        ],
+        tip: '💡 CONSEJO DE CANTERA: Las zonas con forjas son ideales para reparar tu equipamiento.',
+      },
+      {
+        id: 'npc_forest_bard_river',
+        zoneId: 'zone_forest',
+        x: 175,
+        y: 215,
+        name: 'Juglar Lysander',
+        title: 'Trovador del Mirador del Río',
+        avatarStyle: 'scout',
+        dialogue: [
+          '🎵 "Bajo la luna plateada, las aguas del río cantan la balada del héroe prometido..." 🎵',
+          '¡Toma asiento en este merendero floral y disfruta de la brisa del agua cristalina!'
+        ],
+        tip: '💡 CONSEJO DE JUGAR: La música y las historias aumentan la puntuación y el rango de tu héroe.',
+      },
+      {
+        id: 'npc_forest_alchemist',
+        zoneId: 'zone_forest',
+        x: 112,
+        y: 250,
+        name: 'Alquimista Selene',
+        title: 'Erudita del Jardín Místico',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Este círculo de menhires canaliza la energía telúrica de la tierra.',
+          'Las flores mágicas que crecen aquí se utilizan para preparar los elixires más poderosos.'
+        ],
+        tip: '💡 CONSEJO ALQUÍMICO: Visita el Santuario Místico para recibir bendiciones mágicas.',
+      },
+      {
+        id: 'npc_forest_southguard',
+        zoneId: 'zone_forest',
+        x: 115,
+        y: 355,
+        name: 'Centinela Rorik',
+        title: 'Guardián del Paso Fronterizo Sur',
+        avatarStyle: 'knight',
+        dialogue: [
+          '¡Alto en nombre del reino! Este puesto protege el paso meridional frente a las criaturas de las ciénagas.',
+          'Mantén tu espada afilada si te adentras en los bosques del sur.'
+        ],
+        tip: '💡 CONSEJO FRONTERIZO: Los puestos de avanzada cuentan con cofres de armamento de emergencia.',
+      },
+      {
+        id: 'npc_forest_miller',
+        zoneId: 'zone_forest',
+        x: 235,
+        y: 355,
+        name: 'Molinero Tobías',
+        title: 'Custodio del Molino Fluvial Sur',
+        avatarStyle: 'scout',
+        dialogue: [
+          'La fuerza de las corrientes fluviales mueve la gran rueda de nuestro molino día y noche.',
+          'Al este de aquí verás el campamento de exploradores que vigila la frontera de las tierras calcinadas.'
+        ],
+        tip: '💡 CONSEJO DE MOLINO: Los molinos fluviales aprovechan el agua para generar harina y suministros.',
+      },
+      {
+        id: 'npc_forest_explorer',
+        zoneId: 'zone_forest',
+        x: 340,
+        y: 372,
+        name: 'Explorador Bran',
+        title: 'Vigía de las Tierras Calcinadas',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Cuidado si das un paso más hacia el norte! Las Tierras Calcinadas están llenas de fuego y bestias élite.',
+          'Solo los guerreros más experimentados se atreven a reclamar los cofres de la bestia.'
+        ],
+        tip: '💡 CONSEJO DE EXPEDICIÓN: Equípate con armas de elemento Hielo o Agua para enfrentarte al fuego élite.',
+      },
     ],
     enemies: [
       {
