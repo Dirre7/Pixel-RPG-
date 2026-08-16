@@ -431,8 +431,8 @@ export function getWaterWellCanvas(animPhase: number = 0): HTMLCanvasElement {
  * 🏡 CASA MEDIEVAL DE ENTRAMADO DE MADERA (FACHWERK) (tiles 5 y 9 - 64x64 px)
  * Con barriles de roble, pila de leña y ventana con luz cálida
  */
-export function getCottageCanvas(roofColor: 'red' | 'blue' = 'red'): HTMLCanvasElement {
-  const cacheKey = `cottage_fachwerk_${roofColor}`;
+export function getCottageCanvas(styleVariant: 'red' | 'blue' | 'straw' | 'stone' = 'red'): HTMLCanvasElement {
+  const cacheKey = `cottage_variety_${styleVariant}`;
   if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
 
   const canvas = document.createElement('canvas');
@@ -449,26 +449,34 @@ export function getCottageCanvas(roofColor: 'red' | 'blue' = 'red'): HTMLCanvasE
   ctx.fillStyle = '#475569';
   ctx.fillRect(8, 46, 48, 8);
 
-  // Fachada de estuco blanco
-  ctx.fillStyle = '#f1f5f9';
+  // Fachada
+  const wallColor = styleVariant === 'stone' ? '#64748b' : styleVariant === 'straw' ? '#fef3c7' : '#f1f5f9';
+  ctx.fillStyle = wallColor;
   ctx.fillRect(8, 22, 48, 24);
 
   // Vigas de madera oscura (Entramado Fachwerk)
-  ctx.fillStyle = '#451a03';
-  // Vigas perimetrales
-  ctx.fillRect(8, 22, 4, 32);
-  ctx.fillRect(52, 22, 4, 32);
-  ctx.fillRect(8, 22, 48, 3);
-  ctx.fillRect(8, 44, 48, 3);
-  // Vigas cruzadas en X
-  ctx.beginPath();
-  ctx.moveTo(12, 25); ctx.lineTo(24, 44);
-  ctx.moveTo(24, 25); ctx.lineTo(12, 44);
-  ctx.moveTo(40, 25); ctx.lineTo(52, 44);
-  ctx.moveTo(52, 25); ctx.lineTo(40, 44);
-  ctx.strokeStyle = '#451a03';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  if (styleVariant !== 'stone') {
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(8, 22, 4, 32);
+    ctx.fillRect(52, 22, 4, 32);
+    ctx.fillRect(8, 22, 48, 3);
+    ctx.fillRect(8, 44, 48, 3);
+    // Vigas cruzadas en X
+    ctx.beginPath();
+    ctx.moveTo(12, 25); ctx.lineTo(24, 44);
+    ctx.moveTo(24, 25); ctx.lineTo(12, 44);
+    ctx.moveTo(40, 25); ctx.lineTo(52, 44);
+    ctx.moveTo(52, 25); ctx.lineTo(40, 44);
+    ctx.strokeStyle = '#451a03';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  } else {
+    // Sillar de piedra
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(16, 26, 8, 4);
+    ctx.fillRect(36, 34, 8, 4);
+    ctx.fillRect(20, 40, 8, 4);
+  }
 
   // Puerta de madera
   ctx.fillStyle = '#451a03';
@@ -486,10 +494,18 @@ export function getCottageCanvas(roofColor: 'red' | 'blue' = 'red'): HTMLCanvasE
   ctx.fillStyle = '#451a03';
   ctx.fillRect(17, 29, 1, 6); ctx.fillRect(15, 31, 6, 1);
 
-  // Tejado a dos aguas con tejas de terracota
-  const rMain = roofColor === 'red' ? '#a44e2b' : '#336699';
-  const rDark = roofColor === 'red' ? '#6b2d15' : '#1e3e5c';
-  const rLight = roofColor === 'red' ? '#c46942' : '#4d88bf';
+  // Tejado a dos aguas según estilo
+  let rMain = '#a44e2b';
+  let rDark = '#6b2d15';
+  let rLight = '#c46942';
+
+  if (styleVariant === 'blue') {
+    rMain = '#1d4ed8'; rDark = '#1e3a8a'; rLight = '#3b82f6';
+  } else if (styleVariant === 'straw') {
+    rMain = '#d97706'; rDark = '#92400e'; rLight = '#fbbf24';
+  } else if (styleVariant === 'stone') {
+    rMain = '#475569'; rDark = '#1e293b'; rLight = '#64748b';
+  }
 
   ctx.fillStyle = rDark;
   ctx.beginPath();
@@ -501,7 +517,7 @@ export function getCottageCanvas(roofColor: 'red' | 'blue' = 'red'): HTMLCanvasE
   ctx.moveTo(6, 22); ctx.lineTo(32, 6); ctx.lineTo(58, 22);
   ctx.fill();
 
-  // Líneas de tejas
+  // Líneas de tejas / paja
   ctx.fillStyle = rLight;
   ctx.fillRect(14, 16, 36, 2);
   ctx.fillRect(20, 11, 24, 2);
@@ -512,13 +528,23 @@ export function getCottageCanvas(roofColor: 'red' | 'blue' = 'red'): HTMLCanvasE
   ctx.fillStyle = '#64748b';
   ctx.fillRect(43, 4, 8, 3);
 
-  // Barriles de roble apilados al lateral
-  ctx.fillStyle = '#451a03';
-  ctx.fillRect(52, 44, 8, 10);
-  ctx.fillStyle = '#78350f';
-  ctx.fillRect(53, 45, 6, 8);
-  ctx.fillStyle = '#ca8a04';
-  ctx.fillRect(52, 47, 8, 1); ctx.fillRect(52, 51, 8, 1);
+  // Barriles de roble apilados o pila de leña
+  if (styleVariant === 'straw') {
+    // Leña apilada
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(52, 46, 8, 6);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(53, 47, 6, 4);
+  } else {
+    // Barriles
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(52, 44, 8, 10);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(53, 45, 6, 8);
+    ctx.fillStyle = '#ca8a04';
+    ctx.fillRect(53, 47, 6, 1);
+    ctx.fillRect(53, 50, 6, 1);
+  }
 
   tileCache.set(cacheKey, canvas);
   return canvas;
@@ -1352,3 +1378,265 @@ export function getApothecaryCanvas(): HTMLCanvasElement {
 
   return canvas;
 }
+
+/**
+ * ⛪ GRAN TEMPLO DEL SOL / CATEDRAL MONUMENTAL (64x80 px)
+ * Gran fachada gótica con vidrieras de rosetón, tejado azul pizarra y estatuas
+ */
+export function getTempleOfSunCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64; canvas.height = 80;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(4, 70, 56, 8);
+
+  // Muros de sillar de piedra
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(10, 28, 44, 48);
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(12, 30, 40, 44);
+
+  // Tejado gótico empinado azul pizarra
+  ctx.fillStyle = '#1e3a8a';
+  ctx.beginPath();
+  ctx.moveTo(6, 30); ctx.lineTo(32, 4); ctx.lineTo(58, 30);
+  ctx.fill();
+
+  ctx.fillStyle = '#3b82f6';
+  ctx.beginPath();
+  ctx.moveTo(10, 30); ctx.lineTo(32, 8); ctx.lineTo(54, 30);
+  ctx.fill();
+
+  // Gran Rosetón de Vidriera Solar
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath(); ctx.arc(32, 28, 10, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#f59e0b';
+  ctx.beginPath(); ctx.arc(32, 28, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(31, 22, 2, 12); ctx.fillRect(26, 27, 12, 2);
+
+  // Gran Portal Arqueado con columnas
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath(); ctx.arc(32, 60, 8, Math.PI, 0); ctx.fill();
+  ctx.fillRect(24, 60, 16, 14);
+
+  // Puertas de roble con herrajes dorados
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(26, 62, 12, 12);
+  ctx.fillStyle = '#eab308';
+  ctx.fillRect(31, 66, 2, 4);
+
+  // Vidrieras laterales ojivales
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(16, 44, 4, 12);
+  ctx.fillRect(44, 44, 4, 12);
+
+  return canvas;
+}
+
+/**
+ * 🔮 TORRE DEL MAGO / AGUJA ARCANA (48x80 px)
+ * Torreón cilíndrico de piedra con tejado cónico púrpura y orbe mágico giratorio
+ */
+export function getMageTowerCanvas(animPhase: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 48; canvas.height = 80;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(4, 70, 40, 8);
+
+  // Torre cilíndrica de mampostería
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(10, 24, 28, 52);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(12, 26, 24, 48);
+
+  // Ventanas arcanas luminiscentes
+  const glow = (Math.sin(animPhase * 3) + 1) * 0.5;
+  ctx.fillStyle = glow > 0.5 ? '#c084fc' : '#9333ea';
+  ctx.fillRect(22, 38, 4, 8);
+  ctx.fillRect(22, 54, 4, 8);
+
+  // Tejado cónico de mago (Púrpura)
+  ctx.fillStyle = '#581c87';
+  ctx.beginPath();
+  ctx.moveTo(6, 24); ctx.lineTo(24, 4); ctx.lineTo(42, 24);
+  ctx.fill();
+
+  ctx.fillStyle = '#7e22ce';
+  ctx.beginPath();
+  ctx.moveTo(10, 24); ctx.lineTo(24, 7); ctx.lineTo(38, 24);
+  ctx.fill();
+
+  // Orbe mágico flotante en la cúspide
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath(); ctx.arc(24, 3, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#e0f2fe';
+  ctx.beginPath(); ctx.arc(23, 2, 2, 0, Math.PI * 2); ctx.fill();
+
+  return canvas;
+}
+
+/**
+ * 🏛️ GRAN AYUNTAMIENTO / CASA GREMIAL (80x64 px)
+ * Edificio monumental de dos plantas con vigas entramadas, estandartes y chimeneas
+ */
+export function getGreatHallCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 80; canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(4, 56, 72, 8);
+
+  // Primera Planta: Muro de piedra
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(8, 32, 64, 28);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(10, 34, 60, 24);
+
+  // Segunda Planta: Entramado de madera noble
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(6, 16, 68, 18);
+  ctx.fillStyle = '#451a03'; // Vigas de madera
+  ctx.fillRect(6, 16, 68, 3);
+  ctx.fillRect(6, 31, 68, 3);
+  ctx.fillRect(6, 16, 4, 18);
+  ctx.fillRect(70, 16, 4, 18);
+  ctx.fillRect(26, 16, 4, 18);
+  ctx.fillRect(50, 16, 4, 18);
+
+  // Tejado señorial a dos aguas
+  ctx.fillStyle = '#7c2d12';
+  ctx.beginPath();
+  ctx.moveTo(2, 16); ctx.lineTo(40, 2); ctx.lineTo(78, 16);
+  ctx.fill();
+
+  // Estandarte real colgante
+  ctx.fillStyle = '#b91c1c';
+  ctx.fillRect(36, 20, 8, 12);
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(39, 23, 2, 6);
+
+  // Puerta de doble hoja
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(34, 42, 12, 18);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(36, 50, 2, 2); ctx.fillRect(42, 50, 2, 2);
+
+  return canvas;
+}
+
+/**
+ * ⛲ GRAN ESTANQUE CON FUENTE DE GÁRGOLA (64x64 px)
+ */
+export function getGargoyleFountainCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64; canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Bordillo exterior de mármol
+  ctx.fillStyle = '#64748b';
+  ctx.beginPath(); ctx.roundRect(4, 4, 56, 56, 12); ctx.fill();
+  ctx.fillStyle = '#94a3b8';
+  ctx.beginPath(); ctx.roundRect(6, 6, 52, 52, 10); ctx.fill();
+
+  // Agua cristalina animada
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(10, 10, 44, 44);
+  const wave = Math.sin(time * 4) * 2;
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(14 + wave, 16, 20, 4);
+  ctx.fillRect(30 - wave, 32, 18, 4);
+
+  // Pedestal central con gárgola de piedra
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(24, 20, 16, 24);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(26, 22, 12, 20);
+
+  // Chorro de agua que cae
+  ctx.fillStyle = '#e0f2fe';
+  ctx.fillRect(30, 36, 4, 12);
+  ctx.fillRect(28, 44, 8, 4);
+
+  return canvas;
+}
+
+/**
+ * 🌉 PASARELA ELEVADA / ACUEDUCTO DE MADERA (64x32 px)
+ */
+export function getSkybridgeCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64; canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.fillRect(4, 26, 56, 6);
+
+  // Postes de madera de soporte
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(8, 8, 6, 20);
+  ctx.fillRect(50, 8, 6, 20);
+
+  // Arco / puente superior
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(2, 6, 60, 8);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(2, 8, 60, 4);
+
+  // Barandilla de madera
+  ctx.fillStyle = '#b45309';
+  ctx.fillRect(2, 2, 60, 3);
+  for (let x = 6; x < 60; x += 8) {
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(x, 2, 2, 6);
+  }
+
+  return canvas;
+}
+
+/**
+ * 🛡️ GREMIO DE CURTIDORES / SASTRERÍA (64x64 px)
+ */
+export function getLeatherworkersGuildCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64; canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(4, 52, 56, 8);
+
+  // Fachada
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(8, 22, 48, 34);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(10, 24, 44, 30);
+
+  // Tejado marrón
+  ctx.fillStyle = '#92400e';
+  ctx.beginPath();
+  ctx.moveTo(4, 22); ctx.lineTo(32, 6); ctx.lineTo(60, 22);
+  ctx.fill();
+
+  // Pieles de cuero secándose colgadas
+  ctx.fillStyle = '#d97706';
+  ctx.fillRect(14, 32, 8, 12);
+  ctx.fillRect(26, 32, 8, 12);
+
+  // Puerta
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(42, 38, 10, 16);
+
+  return canvas;
+}
+

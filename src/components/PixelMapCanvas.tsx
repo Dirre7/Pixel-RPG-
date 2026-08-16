@@ -29,6 +29,12 @@ import {
   getLighthouseCanvas,
   getChurchCanvas,
   getApothecaryCanvas,
+  getTempleOfSunCanvas,
+  getMageTowerCanvas,
+  getGreatHallCanvas,
+  getGargoyleFountainCanvas,
+  getSkybridgeCanvas,
+  getLeatherworkersGuildCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -186,11 +192,14 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 5) {
-            // Casa Medieval de Entramado de Madera (Fachwerk)
+            // Casas Medievales con Variedad de Estilos (Terracota, Pizarra Azul, Paja y Piedra)
+            const vIndex = (x * 7 + y * 13) % 4;
+            const houseVariant = vIndex === 0 ? 'blue' : vIndex === 1 ? 'straw' : vIndex === 2 ? 'stone' : 'red';
+            const houseCanvas = getCottageCanvas(houseVariant);
             entities.push({
               ySort: posY + TILE_SIZE + 10,
               draw: (c) => {
-                c.drawImage(cottageRed, posX - 16, posY - 24, 64, 64);
+                c.drawImage(houseCanvas, posX - 16, posY - 24, 64, 64);
               },
             });
           } else if (tileType === 6) {
@@ -375,11 +384,122 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 c.drawImage(crystal, posX + 4, posY - 4, 24, 36);
               },
             });
+          } else if (tileType === 29) {
+            // Gran Templo del Sol (Catedral)
+            const temple = getTempleOfSunCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE + 16,
+              draw: (c) => {
+                c.drawImage(temple, posX - 16, posY - 40, 64, 80);
+              },
+            });
+          } else if (tileType === 30) {
+            // Torre del Mago
+            const mageTower = getMageTowerCanvas(time);
+            entities.push({
+              ySort: posY + TILE_SIZE + 16,
+              draw: (c) => {
+                c.drawImage(mageTower, posX - 8, posY - 40, 48, 80);
+              },
+            });
+          } else if (tileType === 31) {
+            // Gran Ayuntamiento / Casa Gremial
+            const greatHall = getGreatHallCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE + 14,
+              draw: (c) => {
+                c.drawImage(greatHall, posX - 24, posY - 24, 80, 64);
+              },
+            });
+          } else if (tileType === 32) {
+            // Gran Estanque con Fuente de Gárgola
+            const gargoyleFountain = getGargoyleFountainCanvas(time);
+            entities.push({
+              ySort: posY + TILE_SIZE + 10,
+              draw: (c) => {
+                c.drawImage(gargoyleFountain, posX - 16, posY - 16, 64, 64);
+              },
+            });
+          } else if (tileType === 33) {
+            // Acueducto / Pasarela Elevada
+            const skybridge = getSkybridgeCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE + 24,
+              draw: (c) => {
+                c.drawImage(skybridge, posX - 16, posY - 10, 64, 32);
+              },
+            });
+          } else if (tileType === 34) {
+            // Gremio de Curtidores
+            const leatherGuild = getLeatherworkersGuildCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE + 12,
+              draw: (c) => {
+                c.drawImage(leatherGuild, posX - 16, posY - 24, 64, 64);
+              },
+            });
           }
         }
       }
 
-      // 2. Cofres del tesoro registrados en currentZone.chests (si no están ya en tileData)
+      // 2. Ciudadanos y Comerciantes de la Gran Capital
+      if (currentZone.id === 'zone_forest') {
+        const capitalCitizens = [
+          { name: 'Capitán Garrett (Guardia Real)', class: 'Paladín' as const, x: 240, y: 304, dir: 'down' as Direction },
+          { name: 'Archimago Thorne', class: 'Mago' as const, x: 276, y: 314, dir: 'down' as Direction },
+          { name: 'Sacerdotisa Solaria', class: 'Paladín' as const, x: 218, y: 314, dir: 'down' as Direction },
+          { name: 'Maestro Doran (Herrero Real)', class: 'Berserker' as const, x: 270, y: 338, dir: 'right' as Direction },
+          { name: 'Boticaria Elena', class: 'Mago' as const, x: 280, y: 342, dir: 'down' as Direction },
+          { name: 'Mercader Cedric (Frutas)', class: 'Pícaro' as const, x: 248, y: 332, dir: 'down' as Direction },
+          { name: 'Mercader Barnaby (Telas)', class: 'Pícaro' as const, x: 256, y: 332, dir: 'down' as Direction },
+          { name: 'Tabernero Bruno', class: 'Guerrero' as const, x: 246, y: 314, dir: 'down' as Direction },
+          { name: 'Curtidor Gareth', class: 'Arquero' as const, x: 206, y: 342, dir: 'down' as Direction },
+          { name: 'Doncella Beatrix', class: 'Arquero' as const, x: 226, y: 346, dir: 'right' as Direction },
+          { name: 'Granjero Tobías', class: 'Guerrero' as const, x: 202, y: 354, dir: 'down' as Direction },
+          { name: 'Guardia del Portal Sur', class: 'Paladín' as const, x: 240, y: 362, dir: 'up' as Direction },
+        ];
+
+        capitalCitizens.forEach((citizen) => {
+          const cCol = citizen.x;
+          const cRow = citizen.y;
+
+          // Only render if in viewport
+          if (cCol >= startCol - 2 && cCol <= endCol + 2 && cRow >= startRow - 2 && cRow <= endRow + 2) {
+            const drawX = cCol * TILE_SIZE;
+            const drawY = cRow * TILE_SIZE;
+
+            // Idle animation with subtle breathing
+            const sprite = getHeroSpriteCanvas(citizen.class, 'male', citizen.dir, 'idle');
+
+            entities.push({
+              ySort: drawY + TILE_SIZE,
+              draw: (c) => {
+                // Sombra circular bien pegada a los pies
+                c.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                c.beginPath();
+                c.ellipse(drawX + 16, drawY + 30, 8, 3, 0, 0, Math.PI * 2);
+                c.fill();
+
+                // Sprite del personaje
+                c.drawImage(sprite, drawX, drawY, 32, 32);
+
+                // Cartel flotante de nombre y rol
+                c.fillStyle = 'rgba(15, 23, 42, 0.85)';
+                c.beginPath();
+                c.roundRect(drawX - 24, drawY - 14, 80, 12, 4);
+                c.fill();
+
+                c.fillStyle = '#fde047';
+                c.font = 'bold 8px monospace';
+                c.textAlign = 'center';
+                c.fillText(citizen.name.split(' ')[0], drawX + 16, drawY - 5);
+              },
+            });
+          }
+        });
+      }
+
+      // 3. Cofres del tesoro registrados en currentZone.chests (si no están ya en tileData)
       if (currentZone.chests) {
         currentZone.chests.forEach((chest) => {
           if (currentZone.tileData[chest.y]?.[chest.x] !== 7) {
@@ -398,7 +518,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         });
       }
 
-      // 3. NPCs con marcadores de misión flotantes
+      // 4. NPCs fijos con marcadores de misión flotantes
       if (currentZone.npcs) {
         currentZone.npcs.forEach((npc) => {
           const nX = npc.x * TILE_SIZE;
