@@ -74,71 +74,72 @@ export const Minimap: React.FC<MinimapProps> = ({
 
         const tile = currentZone.tileData[y]?.[x] ?? 0;
 
-        if (tile === 1) {
-          // Forest / Wall Boundary
-          ctx.fillStyle = currentZone.id === 'zone_forest' ? '#0d4a22' : '#1e293b';
-        } else if (tile === 2) {
-          // Cobblestone / Dirt Road / Bridge
-          ctx.fillStyle = '#b45309';
-        } else if (tile === 3) {
+        if (tile === 3) {
           // River / Water / Lava
           ctx.fillStyle = currentZone.id === 'zone_volcano' ? '#ea580c' : '#0284c7';
-        } else if (tile === 4 || tile === 9) {
-          // Market Shop / Cottage
-          ctx.fillStyle = '#9333ea';
-        } else if (tile === 5) {
-          // Tavern / Inn
-          ctx.fillStyle = '#f59e0b';
-        } else if (tile === 6) {
-          // Boss Portal
-          ctx.fillStyle = '#dc2626';
-        } else if (tile === 7) {
-          // Chest
-          const isOpened = openedChests.includes(`${currentZone.id}_${x}_${y}`);
-          ctx.fillStyle = isOpened ? '#475569' : '#fde047';
-        } else if (tile === 8) {
-          // Shrine / Sanctuary
-          ctx.fillStyle = '#10b981';
-        } else if (tile === 10) {
-          // Water Well / Fountain
-          ctx.fillStyle = '#38bdf8';
-        } else if (tile === 11) {
-          // Blacksmith Forge
-          ctx.fillStyle = '#f97316';
-        } else if (tile === 12) {
-          // Flower Garden / Royal Park
-          ctx.fillStyle = '#ec4899';
-        } else if (tile === 13) {
-          // Wheat Field / Farm
-          ctx.fillStyle = '#ca8a04';
-        } else if (tile === 14) {
-          // Danger Zone / Elite Lair
-          ctx.fillStyle = '#7f1d1d';
-        } else if (tile === 15) {
-          // Wooden Dock
-          ctx.fillStyle = '#d97706';
-        } else if (tile === 16) {
-          // Graveyard / Tombstone
-          ctx.fillStyle = '#64748b';
-        } else if (tile === 17) {
-          // Street Lamp
-          ctx.fillStyle = '#fef08a';
-        } else if (tile === 18) {
-          // Ruined Columns
-          ctx.fillStyle = '#94a3b8';
-        } else if (tile === 19) {
-          // Campfire
-          ctx.fillStyle = '#ea580c';
+        } else if (tile === 2 || tile === 15) {
+          // Roads / Cobblestone / Bridges / Docks
+          if (currentZone.id === 'zone_cave' || currentZone.id === 'zone_castle') {
+            ctx.fillStyle = '#475569';
+          } else if (currentZone.id === 'zone_volcano') {
+            ctx.fillStyle = '#3f3f46';
+          } else if (currentZone.id === 'zone_tundra') {
+            ctx.fillStyle = '#94a3b8';
+          } else if (currentZone.id === 'zone_sanctuary') {
+            ctx.fillStyle = '#fef08a';
+          } else {
+            ctx.fillStyle = '#b45309';
+          }
+        } else if (tile === 1) {
+          // Dense forest trees / cave rock walls
+          if (currentZone.id === 'zone_forest') ctx.fillStyle = '#0f5128';
+          else if (currentZone.id === 'zone_cave') ctx.fillStyle = '#0f172a';
+          else if (currentZone.id === 'zone_swamp') ctx.fillStyle = '#143820';
+          else if (currentZone.id === 'zone_volcano') ctx.fillStyle = '#09090b';
+          else if (currentZone.id === 'zone_tundra') ctx.fillStyle = '#94a3b8';
+          else if (currentZone.id === 'zone_castle') ctx.fillStyle = '#1e293b';
+          else if (currentZone.id === 'zone_void') ctx.fillStyle = '#05050a';
+          else ctx.fillStyle = '#eab308';
         } else {
-          // Natural Grass / Ground
-          ctx.fillStyle = currentZone.id === 'zone_forest' ? '#14532d' : '#0f172a';
+          // Suelo base limpio y homogéneo del bioma (sin ruido de flores/props)
+          if (currentZone.id === 'zone_forest') ctx.fillStyle = '#15803d';
+          else if (currentZone.id === 'zone_cave') ctx.fillStyle = '#1e293b';
+          else if (currentZone.id === 'zone_swamp') ctx.fillStyle = '#1c1917';
+          else if (currentZone.id === 'zone_volcano') ctx.fillStyle = '#18181b';
+          else if (currentZone.id === 'zone_tundra') ctx.fillStyle = '#f1f5f9';
+          else if (currentZone.id === 'zone_castle') ctx.fillStyle = '#334155';
+          else if (currentZone.id === 'zone_void') ctx.fillStyle = '#0f0e17';
+          else ctx.fillStyle = '#ffffff';
         }
 
         ctx.fillRect(px, py, cellW + 0.5, cellH + 0.5);
       }
     }
 
-    // 2. Draw Discovered NPCs
+    // 2. Draw Discovered Chests (Tile 7 o currentZone.chests)
+    for (let y = startY; y < endY; y++) {
+      for (let x = startX; x < endX; x++) {
+        if (currentZone.tileData[y]?.[x] === 7) {
+          const isRevealed = !exploredTiles || exploredTiles.has(`${x},${y}`);
+          if (isRevealed) {
+            const isOpened = openedChests.includes(`${currentZone.id}_${x}_${y}`);
+            const cx = (x - startX) * cellW + cellW / 2;
+            const cy = (y - startY) * cellH + cellH / 2;
+            ctx.fillStyle = isOpened ? '#64748b' : '#eab308';
+            ctx.beginPath();
+            ctx.arc(cx, cy, Math.max(2.5, cellW * 0.7), 0, Math.PI * 2);
+            ctx.fill();
+            if (!isOpened) {
+              ctx.strokeStyle = '#fef08a';
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          }
+        }
+      }
+    }
+
+    // 3. Draw Discovered NPCs
     if (currentZone.npcs) {
       currentZone.npcs.forEach((npc) => {
         if (npc.x >= startX && npc.x < endX && npc.y >= startY && npc.y < endY) {
@@ -149,29 +150,28 @@ export const Minimap: React.FC<MinimapProps> = ({
 
             ctx.fillStyle = '#fbbf24';
             ctx.beginPath();
-            ctx.arc(nx, ny, Math.max(3, cellW * 0.9), 0, Math.PI * 2);
+            ctx.arc(nx, ny, Math.max(3.5, cellW * 0.9), 0, Math.PI * 2);
             ctx.fill();
             ctx.strokeStyle = '#78350f';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1.2;
             ctx.stroke();
           }
         }
       });
     }
 
-    // 3. Draw Discovered Boss Portal
+    // 4. Draw Discovered Boss Portal (Tile 11 o 6)
     if (currentZone.tileData) {
-      // Find boss portal
       for (let y = startY; y < endY; y++) {
         for (let x = startX; x < endX; x++) {
-          if (currentZone.tileData[y]?.[x] === 6) {
+          if (currentZone.tileData[y]?.[x] === 11 || currentZone.tileData[y]?.[x] === 6) {
             const isRevealed = !exploredTiles || exploredTiles.has(`${x},${y}`);
             if (isRevealed) {
               const bx = (x - startX) * cellW + cellW / 2;
               const by = (y - startY) * cellH + cellH / 2;
               ctx.fillStyle = '#ef4444';
               ctx.beginPath();
-              ctx.arc(bx, by, Math.max(4, cellW * 1.2), 0, Math.PI * 2);
+              ctx.arc(bx, by, Math.max(4.5, cellW * 1.3), 0, Math.PI * 2);
               ctx.fill();
               ctx.strokeStyle = '#fca5a5';
               ctx.lineWidth = 1.5;
