@@ -381,9 +381,22 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
     const targetTile = currentZone.tileData[newY]?.[newX];
 
-    // Block collision (1: Trees/Walls, 3: Water/Lava, 21: Labyrinth Hedges, 18: Pillars, 22..27: Solid Buildings)
-    const isSolidObstacle = [1, 3, 21, 18, 22, 23, 24, 26, 27].includes(targetTile);
-    if (isSolidObstacle) {
+    // Block collision (1: Trees/Walls, 3: Water/Lava, 5: Houses, 6: Windmill, 8: Shrine, 10: Forge, 15: Fences, 18: Pillars, 21: Hedges, 22..34: Guilds/Towers/Castles)
+    const isDirectSolid = [1, 3, 5, 6, 8, 10, 15, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34].includes(targetTile);
+
+    // Verificar si el jugador intenta entrar en el volumen 3x3 de una casa (tile 5)
+    let isInsideHouseVolume = false;
+    for (let hy = newY; hy <= newY + 2; hy++) {
+      for (let hx = newX - 1; hx <= newX + 1; hx++) {
+        if (currentZone.tileData[hy]?.[hx] === 5) {
+          isInsideHouseVolume = true;
+          break;
+        }
+      }
+      if (isInsideHouseVolume) break;
+    }
+
+    if (isDirectSolid || isInsideHouseVolume) {
       soundEngine.playSfx('error');
       return;
     }

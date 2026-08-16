@@ -292,13 +292,18 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             } else if (gameAssets.treeOak.complete && gameAssets.treeOak.naturalWidth > 0) {
-              // Roble de fantasía (64x80 px con sombra de suelo)
+              // Roble de fantasía (64x80 px con sombra de contacto directo en las raíces)
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
-                  c.fillStyle = 'rgba(15, 23, 42, 0.35)';
+                  // Sombra elíptica pegada directamente a la base de las raíces
+                  c.fillStyle = 'rgba(15, 23, 42, 0.45)';
                   c.beginPath();
-                  c.ellipse(posX + 16, posY + 28, 16, 5, 0, 0, Math.PI * 2);
+                  c.ellipse(posX + 16, posY + 24, 14, 4, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.fillStyle = 'rgba(15, 23, 42, 0.65)';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 24, 8, 2.5, 0, 0, Math.PI * 2);
                   c.fill();
                   c.drawImage(gameAssets.treeOak, posX - 16, posY - 48, 64, 80);
                 },
@@ -331,13 +336,20 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 5) {
-            // Casas Medievales (Altura Completa 96x128 px con cimientos de piedra)
+            // Casas Medievales (Altura Completa 96x128 px con sombra de contacto pegada a la madera)
             if (gameAssets.house.complete && gameAssets.house.naturalWidth > 0) {
               entities.push({
                 ySort: posY + TILE_SIZE + 20,
                 draw: (c) => {
-                  c.fillStyle = 'rgba(15, 23, 42, 0.4)';
-                  c.fillRect(posX - 28, posY + 24, 88, 8);
+                  // Sombra de contacto directamente en la línea inferior de la madera (Y + 20)
+                  const hShadow = c.createRadialGradient(posX + 16, posY + 20, 6, posX + 16, posY + 20, 42);
+                  hShadow.addColorStop(0, 'rgba(15, 23, 42, 0.65)');
+                  hShadow.addColorStop(0.5, 'rgba(15, 23, 42, 0.3)');
+                  hShadow.addColorStop(1, 'rgba(15, 23, 42, 0)');
+                  c.fillStyle = hShadow;
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 20, 42, 6, 0, 0, Math.PI * 2);
+                  c.fill();
                   c.drawImage(gameAssets.house, 0, 0, 96, 128, posX - 32, posY - 96, 96, 128);
                 },
               });

@@ -537,12 +537,54 @@ export function generateForest400(): {
   map[348][210] = 4; // Pozo de agua
   map[358][206] = 5; map[358][214] = 5; // Casas del gremio
 
-  // 7. DISTRITO CENTRO-SUR: GRAN PARQUE DEL ESTANQUE Y FUENTE DE GÁRGOLE
-  map[342][232] = 32; // Gran Estanque con Fuente de Gárgola
-  map[336][228] = 12; map[336][236] = 12; map[348][228] = 12; map[348][236] = 12; // Rosales
-  map[337][232] = 18; map[347][232] = 18; // Columnas de mármol
-  map[354][228] = 5;  map[354][236] = 5;  // Casonas junto al parque
-  map[333][232] = 17; map[351][232] = 17; // Farolas del parque
+  // 7. DISTRITO RESIDENCIAL: PASEO VERTICAL ENTRE CASAS Y CERCADO (RÉPLICA EXACTA IMAGEN 1 EN [232, 351])
+  for (let y = 336; y <= 360; y++) {
+    for (let x = 218; x <= 246; x++) {
+      map[y][x] = 0; // Pradera de hierba limpia
+    }
+  }
+
+  // Calle peatonal vertical de adoquines entre las dos casas (X: 232..233, Y: 345..358)
+  for (let y = 345; y <= 358; y++) {
+    map[y][232] = 2;
+    map[y][233] = 2;
+  }
+
+  // Casas Medievales Flanqueando la Calle Peatonal
+  map[350][227] = 5; // Casa Izquierda (Mirando al paseo)
+  map[350][238] = 5; // Casa Derecha (Mirando al paseo)
+
+  // Hilera Horizontal de Vallas de Madera detrás de las casas (Y: 344, X: 221..243)
+  for (let x = 221; x <= 243; x++) {
+    if (x !== 232 && x !== 233) {
+      map[344][x] = 15; // Valla de madera
+    }
+  }
+  // Valla vertical del cercado superior derecho
+  map[341][243] = 15; map[342][243] = 15; map[343][243] = 15;
+
+  // Zona de Granja y Pasto Superior (Y: 338..343)
+  map[340][228] = 13; // Gallina en la pradera
+  map[340][239] = 13; // Vaca pastando en el cercado superior
+  map[340][232] = 13; map[340][233] = 13; // Sacos y cajas de víveres
+  map[342][231] = 18; map[342][236] = 18; // Columnas de mármol del patio superior
+
+  // Patio Inferior y Accesos: Columnas y Almacén
+  map[355][228] = 18; // Columna patio izquierdo
+  map[355][237] = 18; // Columna patio derecho
+  map[355][244] = 18; // Columna entrada este
+  map[360][221] = 19; // Brasero esquina suroeste
+
+  // Árboles enmarcando exclusivamente los laterales y la parte superior
+  [
+    [221, 338], [225, 338], [230, 338], [236, 338], [242, 338],
+    [221, 346], [224, 346], [221, 351], [224, 355], [221, 358],
+    [230, 346], [235, 346], // Árboles entre casas y vallas
+    [241, 346], [244, 346], [241, 351], [244, 351], [241, 355], [244, 358],
+    [230, 354], [235, 354]
+  ].forEach(([ax, ay]) => {
+    map[ay][ax] = 1;
+  });
 
   // 8. DISTRITO CENTRAL: GRAN CALZADA DEL MERCADO BAZAR (RÉPLICA EXACTA DE REFERENCIA)
   // Calzada de adoquines principal (X: 247..257, Y: 322..360)
