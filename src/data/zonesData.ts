@@ -1042,6 +1042,174 @@ export const ZONES: Zone[] = [
         tip: '💡 CONSEJO DE FUEGO: Usa habilidades de elemento Hielo o Sagrado para infligir daño crítico en el volcán.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_volcano_1'),
       },
+      {
+        id: 'npc_volcano_crater_scout',
+        zoneId: 'zone_volcano',
+        x: 35,
+        y: 30,
+        name: 'Vigía Kael',
+        title: 'Observador del Cráter Superior',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡El humo del cráter arde con fuerza hoy! El río de lava corre directamente hacia la Gran Calzada.',
+          'Nuestras cabañas de basalto negro están reforzadas para resistir la lluvia de cenizas.'
+        ],
+        tip: '💡 CONSEJO DE CRÁTER: En los pozos térmicos del norte puedes enfriar y forjar armas incandescentes.',
+      },
+      {
+        id: 'npc_volcano_master_foundry',
+        zoneId: 'zone_volcano',
+        x: 140,
+        y: 25,
+        name: 'Maestro Vulkan',
+        title: 'Gran Fundidor de Ignis',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡Canalizamos el magma volcánico directamente a través de las calzadas de piedra para alimentar nuestras forjas!',
+          'El acero de titanio forjado aquí no se quiebra ni bajo la fuerza de un dragón colosal.'
+        ],
+        tip: '💡 CONSEJO DE FUNDICIÓN: Las armas de titanio ígneo causan un 40% de daño continuo por quemadura.',
+      },
+      {
+        id: 'npc_volcano_ash_sentinel',
+        zoneId: 'zone_volcano',
+        x: 365,
+        y: 40,
+        name: 'Centinela Ragnor',
+        title: 'Vigía de las Cenizas Ardientes',
+        avatarStyle: 'knight',
+        dialogue: [
+          'Desde esta atalaya rocosa vigilamos el espacio aéreo del volcán. Los dragones menores surcan los cielos.',
+          'Mantén tu escudo arriba; los proyectiles de lava caen sin previo aviso.'
+        ],
+        tip: '💡 CONSEJO DE VIGÍA: El elemento Hielo ralentiza la velocidad de los monstruos de fuego a la mitad.',
+      },
+      {
+        id: 'npc_volcano_high_blacksmith',
+        zoneId: 'zone_volcano',
+        x: 70,
+        y: 130,
+        name: 'Herrero Brann',
+        title: 'Armero del Barrio Alto',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          'Nuestras forjas del oeste templan espadas de magma con una aleación secreta de azufre y obsidiana.',
+          'Si sigues la avenida de basalto hacia el sur, llegarás a la Plaza Central y a la Taberna de la Brasa.'
+        ],
+        tip: '💡 CONSEJO DE AVENIDA: La gran calzada de basalto occidental te permite cruzar el mapa de norte a sur sin pisar lava.',
+      },
+      {
+        id: 'npc_volcano_innkeeper',
+        zoneId: 'zone_volcano',
+        x: 55,
+        y: 220,
+        name: 'Tabernero Gorim',
+        title: 'Patrón de la Taberna de la Brasa',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡Pasa y refréscate con un hidromiel helado de montaña! Aquí descansan los aventureros más intrépidos.',
+          'Nuestro pozo de agua fría se alimenta de nieves glaciares canalizadas bajo tierra.'
+        ],
+        tip: '💡 CONSEJO DE TABERNA: El descanso completo en la posada cura todas las quemaduras y restaura 100% de PS.',
+      },
+      {
+        id: 'npc_volcano_obsidian_mason',
+        zoneId: 'zone_volcano',
+        x: 55,
+        y: 320,
+        name: 'Cantero Harek',
+        title: 'Maestro de la Obsidiana',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          'La obsidiana es vidrio volcánico afilado como una navaja. Tallamos puntas de flecha y dagas mortíferas.',
+          'Los cofres del bastión sur contienen gemas y lingotes preciosos extraídos de la roca fundida.'
+        ],
+        tip: '💡 CONSEJO DE OBSIDIANA: Las dagas de obsidiana tienen una probabilidad de crítico aumentada en un 35%.',
+      },
+      {
+        id: 'npc_volcano_pyro_alchemist',
+        zoneId: 'zone_volcano',
+        x: 130,
+        y: 130,
+        name: 'Alquimista Zarek',
+        title: 'Erudito Piroclástico',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Destilo azufre puro y sales de lava para preparar elixires de inmunidad al fuego.',
+          'El Santuario de Fuego Purificador bendice a los guerreros con resistencia piroclástica permanente.'
+        ],
+        tip: '💡 CONSEJO PIROCLÁSTICO: Las pociones ignífugas absorben el 50% de todo el daño de fuego entrante.',
+      },
+      {
+        id: 'npc_volcano_viaduct_guard',
+        zoneId: 'zone_volcano',
+        x: 170,
+        y: 150,
+        name: 'Capitán Torin',
+        title: 'Comandante del Gran Viaducto',
+        avatarStyle: 'knight',
+        dialogue: [
+          '¡Este viaducto es la maravilla arquitectónica de los Titanes! Cruza en diagonal sobre el mar de magma ardiente.',
+          'Los puestos de control intermedios están equipados con fogatas y cofres de suministros.'
+        ],
+        tip: '💡 CONSEJO DEL VIADUCTO: El viaducto conecta directamente el norte con el corazón del volcán.',
+      },
+      {
+        id: 'npc_volcano_ruby_gemologist',
+        zoneId: 'zone_volcano',
+        x: 330,
+        y: 160,
+        name: 'Gemóloga Pyra',
+        title: 'Talladora del Rubí de Sangre',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'En esta cúpula de geodas crecen los rubíes volcánicos más puros de todo el reino.',
+          'Las formaciones de cuarzo de fuego amplifican la magia elemental de los hechiceros.'
+        ],
+        tip: '💡 CONSEJO DE GEMAS: Engarzar rubíes volcánicos añade +30 de ataque de fuego a cualquier arma.',
+      },
+      {
+        id: 'npc_volcano_bridge_sentinel',
+        zoneId: 'zone_volcano',
+        x: 275,
+        y: 225,
+        name: 'Centinela Vane',
+        title: 'Guardián del Puente de Fuego',
+        avatarStyle: 'knight',
+        dialogue: [
+          '¡Alto! Al sur de este puente se extienden los dominios del Dragón Ignis y sus bestias salamandra.',
+          'Asegúrate de llevar pociones de salud abundantes antes de cruzar hacia la caldera.'
+        ],
+        tip: '💡 CONSEJO DEL PUENTE: Las armas de hielo causan congelación, haciendo perder turnos al enemigo.',
+      },
+      {
+        id: 'npc_volcano_salamander_tamer',
+        zoneId: 'zone_volcano',
+        x: 150,
+        y: 280,
+        name: 'Domador Rex',
+        title: 'Criador de Salamandras de Magma',
+        avatarStyle: 'scout',
+        dialogue: [
+          'Criamos salamandras gigantes capaces de nadar en lava pura.',
+          'Con sus escamas caídas forjamos las corazas más resistentes al fuego del continente.'
+        ],
+        tip: '💡 CONSEJO DE CRIADOR: Las corazas de salamandra reflejan el 20% del daño recibido hacia el atacante.',
+      },
+      {
+        id: 'npc_volcano_dragon_cryptkeeper',
+        zoneId: 'zone_volcano',
+        x: 315,
+        y: 295,
+        name: 'Custodio Ignar',
+        title: 'Guardián del Bastión de Dragones',
+        avatarStyle: 'elder',
+        dialogue: [
+          'Aquí reposan los antiguos dragones de los Titanes en la Cripta de Ceniza.',
+          'Los tres cofres titánicos contienen armaduras legendarias custodiadas por llamas milenarias.'
+        ],
+        tip: '💡 CONSEJO DE DRAGONES: Derrotar al Dragón Infernal Ignis abre el portal hacia los Picos Helados de Frostfall.',
+      },
     ],
     enemies: [
       {

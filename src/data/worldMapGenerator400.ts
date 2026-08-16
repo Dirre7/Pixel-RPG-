@@ -1230,13 +1230,173 @@ export function generateVolcano400(): {
   }
   map[360][360] = 11;
 
-  const volcanoChests = [
-    [75, 50], [95, 50], [150, 75], [225, 75],
-    [50, 150], [120, 150], [260, 150], [330, 150],
-    [75, 225], [135, 225], [275, 225], [340, 225],
-    [75, 300], [150, 300], [225, 300], [355, 300]
-  ];
-  volcanoChests.forEach(([cx, cy]) => { map[cy][cx] = 7; });
+  // =========================================================================
+  // 1. PUESTO DEL CRÁTER SUPERIOR (Noroeste: X: 15..75, Y: 15..60)
+  // =========================================================================
+  for (let y = 15; y <= 60; y++) {
+    for (let x = 15; x <= 75; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[30][35] = 5;  // Cabaña de Basalto 1
+  map[30][55] = 5;  // Cabaña de Basalto 2
+  map[42][45] = 10; // Forja del Cráter
+  map[42][35] = 4;  // Pozo Térmico
+  map[20][45] = 7;  // Cofre del Cráter
+  map[30][30] = 17; map[30][60] = 17;
+
+  // =========================================================================
+  // 2. GRAN CALZADA DE BASALTO Y FUNDICIÓN SUPERIOR (Norte: X: 105..325, Y: 15..65)
+  // =========================================================================
+  for (let y = 15; y <= 65; y++) {
+    for (let x = 105; x <= 325; x++) {
+      if (y === 28 || y === 45 || x % 20 === 0) map[y][x] = 2;
+    }
+  }
+  map[25][140] = 5;  // Taller de Fundición 1
+  map[25][215] = 5;  // Taller de Fundición 2
+  map[25][290] = 9;  // Almacén de Lingotes Ígneos
+  map[38][140] = 10; // Forja Colosal de Lava
+  map[38][290] = 10; // Forja de Titanio
+  map[38][215] = 4;  // Pozo de Enfriamiento
+  map[25][310] = 7;  // Cofre de la Fundición
+  map[28][160] = 17; map[28][200] = 17; map[28][240] = 17; map[28][280] = 17;
+
+  // =========================================================================
+  // 3. ATALAYA DE LAS CENIZAS ARDIENTES (Noreste: X: 340..395, Y: 20..115)
+  // =========================================================================
+  for (let y = 20; y <= 115; y++) {
+    for (let x = 340; x <= 395; x++) {
+      if (x % 6 === 0 || y % 6 === 0) map[y][x] = 2;
+    }
+  }
+  map[40][365] = 5;  // Atalaya de Cenizas
+  map[80][365] = 5;  // Refugio de Guardia
+  map[60][365] = 19; // Gran Fuego de Ascuas
+  map[40][375] = 7;  // Cofre de Cenizas
+  map[35][365] = 17; map[85][365] = 17;
+
+  // =========================================================================
+  // 4. GRAN AVENIDA DE BASALTO OCCIDENTAL (Oeste: X: 20..95, Y: 100..375)
+  // =========================================================================
+  for (let y = 100; y <= 375; y++) {
+    for (let x = 20; x <= 95; x++) {
+      if (x === 55 || y % 18 === 0) map[y][x] = 2;
+    }
+  }
+  // Barrio Alto (Y: 130)
+  map[130][55] = 5; map[130][70] = 10; map[130][40] = 4; map[130][80] = 7;
+  // Plaza Central (Y: 220)
+  map[220][55] = 5; map[220][70] = 9; map[220][40] = 4; map[220][80] = 7; map[215][55] = 17;
+  // Bastión Minero del Sur (Y: 320)
+  map[320][55] = 5; map[320][70] = 10; map[320][40] = 19; map[320][80] = 7;
+
+  // =========================================================================
+  // 5. LABORATORIO PIROCLÁSTICO DE AZUFRE (Centro-Noroeste: X: 105..185, Y: 95..165)
+  // =========================================================================
+  for (let y = 95; y <= 165; y++) {
+    for (let x = 105; x <= 185; x++) {
+      if ((x + y) % 3 === 0) map[y][x] = 14;
+      else if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[130][145] = 8;  // Santuario de Fuego Purificador
+  map[130][130] = 5;  // Laboratorio de Azufre
+  map[130][160] = 7;  // Cofre de Azufre
+  map[125][145] = 17;
+
+  // =========================================================================
+  // 6. GRAN VIADUCTO CENTRAL SOBRE EL MAR DE MAGMA (Diagonal: X: 125..290, Y: 110..245)
+  // =========================================================================
+  for (let i = 0; i <= 140; i++) {
+    const vx = 135 + i;
+    const vy = 115 + Math.round(i * 0.85);
+    for (let dy = -2; dy <= 2; dy++) {
+      for (let dx = -2; dx <= 2; dx++) {
+        map[vy + dy][vx + dx] = 2; // Calzada ignífuga reforzada
+      }
+    }
+    if (i % 25 === 0) map[vy - 3][vx] = 17;
+  }
+  map[150][170] = 5;  // Puesto de Control 1
+  map[200][240] = 5;  // Puesto de Control 2
+  map[175][205] = 19; // Gran Fuego Titánico
+  map[165][205] = 8;  // Santuario del Viaducto
+  map[150][180] = 7; map[200][250] = 7; // Cofres del Viaducto
+
+  // =========================================================================
+  // 7. CÁMARA DE LAS GEODAS DE RUBÍ Y CRISTAL (Centro-Este: X: 305..385, Y: 120..205)
+  // =========================================================================
+  for (let y = 120; y <= 205; y++) {
+    for (let x = 305; x <= 385; x++) {
+      map[y][x] = 0;
+    }
+  }
+  map[160][345] = 8;  // Santuario de Rubí
+  map[160][330] = 5;  // Cabaña de Gemólogos
+  map[152][338] = 18; map[152][352] = 18; map[168][338] = 18; map[168][352] = 18; // Columnas
+  map[160][360] = 7;  // Cofre de Rubíes
+  map[155][345] = 17;
+
+  // =========================================================================
+  // 8. PUESTO DE GUARDIA DEL PUENTE DE FUEGO (Medio-Este: X: 245..305, Y: 205..250)
+  // =========================================================================
+  for (let y = 205; y <= 250; y++) {
+    for (let x = 245; x <= 305; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[225][275] = 5;  // Cuartel de Guardia
+  map[235][275] = 19; // Fogata
+  map[225][285] = 7;  // Cofre de Armas
+  map[220][275] = 17;
+
+  // =========================================================================
+  // 9. POBLADO DE LOS DOMADORES DE SALAMANDRAS (Suroeste: X: 120..230, Y: 245..330)
+  // =========================================================================
+  for (let y = 245; y <= 330; y++) {
+    for (let x = 120; x <= 230; x++) {
+      if (x % 6 === 0 || y % 6 === 0) map[y][x] = 2;
+    }
+  }
+  map[280][150] = 5;  // Cabaña de Domadores
+  map[280][185] = 9;  // Puesto de Escamas de Dragón
+  map[295][150] = 10; // Forja de Corazas
+  map[295][185] = 4;  // Pozo
+  map[280][200] = 7;  // Cofre de Salamandras
+  map[275][168] = 17;
+
+  // =========================================================================
+  // 10. BASTIÓN DE LA GUARDIA DE DRAGONES Y CRIPTA (Sureste: X: 255..380, Y: 255..345)
+  // =========================================================================
+  for (let y = 255; y <= 345; y++) {
+    for (let x = 255; x <= 380; x++) {
+      const d = Math.hypot((x - 315) / 55, (y - 295) / 40);
+      if (d <= 0.8) {
+        map[y][x] = (x + y) % 3 === 0 ? 14 : 2;
+      } else if (d <= 1.0) {
+        if ((x * y) % 5 === 0) map[y][x] = 16; // Lápidas de dragones
+      }
+    }
+  }
+  map[295][315] = 8;  // Gran Mausoleo de Ceniza
+  map[285][305] = 18; map[285][325] = 18; map[305][305] = 18; map[305][325] = 18;
+  map[295][300] = 19; map[295][330] = 19; // Fuegos de dragón
+  // 3 Cofres Titánicos
+  map[295][280] = 7; map[280][350] = 7; map[310][350] = 7;
+
+  // =========================================================================
+  // 11. SANTUARIO DEL CORAZÓN DEL TITÁN (Fondo Sur: X: 125..220, Y: 345..390)
+  // =========================================================================
+  for (let y = 345; y <= 390; y++) {
+    for (let x = 125; x <= 220; x++) {
+      map[y][x] = 0;
+    }
+  }
+  map[370][170] = 8;  // Santuario del Corazón del Titán
+  map[365][160] = 18; map[365][180] = 18; map[375][160] = 18; map[375][180] = 18;
+  map[370][185] = 7;  // Cofre Ancestral
+  map[370][155] = 17;
 
   return {
     tileData: map,
