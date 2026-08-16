@@ -232,6 +232,108 @@ export function generateForest400(): {
   buildMockupTown(map, 300, 100);
   buildMockupTown(map, 100, 265);
 
+  // =========================================================================
+  // 🗺️ 8 POIS Y MAZMORRAS EN LAS 7 ZONAS MARCADAS
+  // =========================================================================
+
+  // 1. 🏹 Campamento de los Cazadores Reales (X: 30..65, Y: 40..65)
+  for (let y = 44; y <= 60; y++) {
+    for (let x = 36; x <= 60; x++) {
+      if (x % 4 === 0 || y % 4 === 0) map[y][x] = 2;
+    }
+  }
+  map[50][45] = 5; map[50][52] = 5; // Cabañas
+  map[52][48] = 19; // Gran hoguera
+  map[48][48] = 10; // Forja/Armero
+  map[54][45] = 17; map[54][52] = 17; // Farolas
+  map[52][42] = 7; map[52][55] = 7; // Cofres
+
+  // 2. 🌾 El Valle de los Molinos de Viento (X: 130..185, Y: 40..65)
+  for (let y = 44; y <= 62; y++) {
+    for (let x = 135; x <= 180; x++) {
+      if (x % 3 === 0) map[y][x] = 13; // Bancales de trigo
+      if (y % 4 === 0) map[y][x] = 2;  // Caminos
+    }
+  }
+  map[48][140] = 6; map[48][158] = 6; map[48][175] = 6; // 3 Molinos Gigantes
+  map[56][150] = 5; map[56][165] = 9; // Granero y Tienda
+  map[56][158] = 4; // Pozo de riego
+  map[50][158] = 7; map[58][140] = 7; // Cofres
+
+  // 3. 🔮 Santuario Megalítico de los Antiguos (X: 340..385, Y: 40..65)
+  for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 6) {
+    const px = Math.round(362 + Math.cos(angle) * 12);
+    const py = Math.round(52 + Math.sin(angle) * 9);
+    map[py][px] = 18; // Columnas en círculo tipo Stonehenge
+    map[py][px - 1] = 12; // Flores arcanas
+  }
+  map[52][362] = 8; // Altar Central
+  map[50][360] = 17; map[50][364] = 17; map[54][362] = 7; // Cofre arcano
+
+  // 4. 🪓 Aserradero y Fuerte de los Leñadores (X: 25..65, Y: 90..115)
+  for (let y = 92; y <= 112; y++) {
+    for (let x = 32; x <= 62; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[98][40] = 5; map[98][52] = 9; // Cabañas
+  map[104][40] = 10; map[104][52] = 5; // Forja y almacén
+  map[101][46] = 19; map[96][46] = 4; // Fogata y pozo
+  map[106][46] = 7; map[98][36] = 7; // Cofres
+
+  // 5. 🪦 Gran Necrópolis y Cripta de los Reyes (X: 90..115, Y: 180..220)
+  for (let y = 185; y <= 215; y++) {
+    for (let x = 88; x <= 112; x++) {
+      if (x === 88 || x === 112 || y === 185 || y === 215) map[y][x] = 1; // Muralla
+      else if (x % 4 === 0 || y % 4 === 0) map[y][x] = 2;
+    }
+  }
+  map[200][100] = 8; // Mausoleo de los Reyes
+  for (let y = 190; y <= 210; y += 4) {
+    map[y][92] = 16; map[y][96] = 16; map[y][104] = 16; map[y][108] = 16;
+  }
+  map[195][100] = 18; map[205][100] = 18; map[200][96] = 17; map[200][104] = 17;
+  map[200][90] = 7; map[200][110] = 7; // Cofres del Panteón
+
+  // 6. ⚓ Puerto Pesquero y Embarcadero del Este (X: 345..385, Y: 180..215)
+  for (let y = 188; y <= 212; y++) {
+    for (let x = 350; x <= 382; x++) {
+      if (x % 4 === 0 || y % 4 === 0) map[y][x] = 2;
+    }
+  }
+  map[195][356] = 5; map[195][370] = 9; // Cabañas portuarias
+  map[205][356] = 5; map[205][370] = 4; // Taberna y pozo
+  map[200][363] = 15; map[200][364] = 15; map[200][365] = 15; // Muelle de madera
+  map[198][363] = 17; map[202][363] = 17;
+  map[205][375] = 7; map[195][350] = 7; // Cofres
+
+  // 7. 🧪 Arboleda Oculta de la Alquimista (X: 25..65, Y: 320..355)
+  for (let y = 325; y <= 350; y++) {
+    for (let x = 30; x <= 60; x++) {
+      if ((x + y) % 3 === 0) map[y][x] = 12; // Setas y hierbas
+    }
+  }
+  map[338][45] = 5; map[338][52] = 9; // Cabaña y Laboratorio
+  map[334][48] = 19; map[342][48] = 19; // Calderos humeantes
+  map[338][48] = 4; // Pozo de esencias
+  map[340][40] = 7; map[340][56] = 7; // Cofres
+
+  // 8. 🏰 Ruinas de la Ciudadela Perdida (Gran Mazmorra) (X: 180..300, Y: 300..365)
+  for (let y = 305; y <= 360; y++) {
+    for (let x = 185; x <= 295; x++) {
+      // Murallas exteriores y patios interiores
+      if (x === 185 || x === 295 || y === 305 || y === 360) map[y][x] = 1;
+      else if (x % 6 === 0 || y % 6 === 0) map[y][x] = 2; // Galerías de losas
+      else if ((x + y) % 5 === 0) map[y][x] = 14; // Tierra calcinada / peligro
+      else if ((x * y) % 7 === 0) map[y][x] = 18; // Columnas rotas
+    }
+  }
+  // Patio de Armas de la Ciudadela
+  map[332][240] = 8;  // Santuario de los Titanes
+  map[325][220] = 10; map[325][260] = 10; // Forjas arcanas
+  map[340][220] = 19; map[340][260] = 19; // Grandes piras de fuego
+  map[332][210] = 7; map[332][270] = 7; map[315][240] = 7; map[350][240] = 7; // 4 Cofres Legendarios
+
   // Portal del Dragón Primigenio (X: 355, Y: 355)
   for (let y = 348; y <= 362; y++) {
     for (let x = 348; x <= 362; x++) {
