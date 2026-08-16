@@ -974,8 +974,8 @@ export function getChestCanvas(isOpen: boolean = false): HTMLCanvasElement {
 }
 
 /**
- * 🌳 ÁRBOL DEL BOSQUE ENCANTADO (64x64 px)
- * Tronco índigo/violeta con copa resplandeciente turquesa y magenta
+ * 🌳 ÁRBOL DEL BOSQUE ENCANTADO (64x64 px - HD 16-Bit Retro Art)
+ * Tronco retorcido de corteza índigo/violeta con frondosa copa de robles místicos en capas púrpura y turquesa
  */
 export function getEnchantedTreeCanvas(): { trunk: HTMLCanvasElement; canopy: HTMLCanvasElement } {
   const trunk = document.createElement('canvas');
@@ -983,32 +983,73 @@ export function getEnchantedTreeCanvas(): { trunk: HTMLCanvasElement; canopy: HT
   const tCtx = trunk.getContext('2d')!;
   tCtx.imageSmoothingEnabled = false;
 
-  tCtx.fillStyle = 'rgba(0,0,0,0.3)';
-  tCtx.fillRect(6, 26, 36, 6);
+  // Sombra proyectada en el suelo
+  tCtx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+  tCtx.beginPath();
+  tCtx.ellipse(24, 28, 18, 6, 0, 0, Math.PI * 2);
+  tCtx.fill();
 
-  tCtx.fillStyle = '#312e81'; // Índigo oscuro
-  tCtx.fillRect(18, 4, 12, 24);
-  tCtx.fillStyle = '#4338ca'; // Púrpura brillante
-  tCtx.fillRect(20, 6, 8, 20);
-  tCtx.fillStyle = '#6366f1';
-  tCtx.fillRect(22, 8, 3, 16);
+  // Tronco retorcido místico
+  tCtx.fillStyle = '#1e1b4b'; // Índigo profundo
+  tCtx.fillRect(16, 6, 16, 22);
+  tCtx.fillRect(12, 22, 6, 8); // Raíz izquierda
+  tCtx.fillRect(30, 22, 6, 8); // Raíz derecha
+
+  // Vetas y textura de corteza
+  tCtx.fillStyle = '#312e81';
+  tCtx.fillRect(18, 8, 12, 18);
+  tCtx.fillStyle = '#4338ca';
+  tCtx.fillRect(20, 10, 4, 14);
+  tCtx.fillRect(26, 12, 3, 10);
+  tCtx.fillStyle = '#818cf8'; // Reflejo mágico en la corteza
+  tCtx.fillRect(21, 14, 2, 6);
 
   const canopy = document.createElement('canvas');
   canopy.width = 64; canopy.height = 64;
   const cCtx = canopy.getContext('2d')!;
   cCtx.imageSmoothingEnabled = false;
 
-  // Copa mágica degradada turquesa / fucsia
-  cCtx.fillStyle = '#0f766e';
-  cCtx.beginPath(); cCtx.arc(32, 32, 28, 0, Math.PI * 2); cCtx.fill();
-  cCtx.fillStyle = '#06b6d4';
-  cCtx.beginPath(); cCtx.arc(30, 30, 24, 0, Math.PI * 2); cCtx.fill();
-  cCtx.fillStyle = '#67e8f9';
-  cCtx.beginPath(); cCtx.arc(28, 26, 18, 0, Math.PI * 2); cCtx.fill();
-  cCtx.fillStyle = '#ec4899'; // Toque de magia fucsia
-  cCtx.beginPath(); cCtx.arc(38, 24, 10, 0, Math.PI * 2); cCtx.fill();
-  cCtx.fillStyle = '#f472b6';
-  cCtx.beginPath(); cCtx.arc(36, 22, 6, 0, Math.PI * 2); cCtx.fill();
+  // 1. Sombra de la copa
+  cCtx.fillStyle = '#0f172a';
+  cCtx.beginPath();
+  cCtx.arc(32, 36, 26, 0, Math.PI * 2);
+  cCtx.fill();
+
+  // 2. Capa base oscura púrpura/índigo
+  cCtx.fillStyle = '#3b0764';
+  cCtx.beginPath();
+  cCtx.arc(32, 32, 24, 0, Math.PI * 2);
+  cCtx.arc(22, 28, 16, 0, Math.PI * 2);
+  cCtx.arc(42, 28, 16, 0, Math.PI * 2);
+  cCtx.arc(32, 18, 16, 0, Math.PI * 2);
+  cCtx.fill();
+
+  // 3. Bloques de follaje medio amatista / violeta
+  cCtx.fillStyle = '#6b21a8';
+  cCtx.beginPath();
+  cCtx.arc(26, 24, 14, 0, Math.PI * 2);
+  cCtx.arc(38, 22, 14, 0, Math.PI * 2);
+  cCtx.arc(32, 30, 14, 0, Math.PI * 2);
+  cCtx.fill();
+
+  // 4. Luces superiores fucsia y turquesa místico
+  cCtx.fillStyle = '#9333ea';
+  cCtx.beginPath();
+  cCtx.arc(24, 18, 10, 0, Math.PI * 2);
+  cCtx.arc(36, 16, 10, 0, Math.PI * 2);
+  cCtx.fill();
+
+  // Toques de brillo turquesa y flores mágicas
+  cCtx.fillStyle = '#38bdf8';
+  cCtx.fillRect(20, 14, 4, 3);
+  cCtx.fillRect(34, 12, 4, 3);
+  cCtx.fillRect(28, 22, 3, 3);
+
+  cCtx.fillStyle = '#f472b6'; // Esporas fucsias luminiscentes
+  cCtx.fillRect(16, 24, 2, 2);
+  cCtx.fillRect(44, 20, 2, 2);
+  cCtx.fillRect(30, 10, 2, 2);
+  cCtx.fillRect(38, 28, 2, 2);
 
   return { trunk, canopy };
 }

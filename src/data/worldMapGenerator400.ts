@@ -285,13 +285,35 @@ export function generateForest400(): {
   // 4. 🍄 EL BOSQUE ENCANTADO (Oeste Superior: X: 20..95, Y: 95..165)
   for (let y = 100; y <= 160; y++) {
     for (let x = 25; x <= 90; x++) {
-      if ((x + y) % 4 === 0) map[y][x] = 20; // Árboles mágicos azul/violeta & setas
-      else if ((x * y) % 7 === 0) map[y][x] = 18; // Arcos de piedra en ruinas
+      const val = prng(x, y, 777);
+      if (val < 0.16) {
+        map[y][x] = 20; // Árbol místico índigo/púrpura
+      } else if (val < 0.22) {
+        map[y][x] = 28; // Cristal de maná brillante
+      }
     }
   }
-  map[130][55] = 8;  // Santuario Místico
-  map[135][55] = 28; // Cristal de maná gigante
-  map[125][70] = 7;  // Cofre Arcano
+
+  // Claro Mágico de las Setas Gigantes (X: 42..65, Y: 112..128)
+  for (let y = 114; y <= 126; y++) {
+    for (let x = 44; x <= 62; x++) {
+      if ((x + y) % 3 === 0) map[y][x] = 12; // Flores místicas
+      else if ((x * y) % 5 === 0) map[y][x] = 28; // Cristales
+    }
+  }
+  map[120][52] = 8;  // Santuario Místico del Bosque
+  map[120][56] = 7;  // Cofre Arcano del Bosque
+  map[116][52] = 17; map[124][52] = 17;
+
+  // Ruinas de Arcos de Piedra y Musgo (X: 30..45, Y: 140..152)
+  for (let x = 32; x <= 44; x += 4) {
+    map[142][x] = 18; map[150][x] = 18;
+  }
+  map[146][38] = 19; // Fogata feérica
+
+  // Entrada de la Caverna Secreta (X: 72, Y: 135)
+  map[135][72] = 18; map[135][73] = 18; map[135][74] = 18;
+  map[136][73] = 7; // Cofre de la Caverna
 
   // 5. 🌿 EL LABERINTO ENCANTADO REAL (Centro: X: 215..295, Y: 105..185)
   // Llenar todo el cuadrante con muros de setos impenetrables
