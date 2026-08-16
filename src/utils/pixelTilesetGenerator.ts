@@ -972,3 +972,342 @@ export function getChestCanvas(isOpen: boolean = false): HTMLCanvasElement {
 
   return canvas;
 }
+
+/**
+ * 🌳 ÁRBOL DEL BOSQUE ENCANTADO (64x64 px)
+ * Tronco índigo/violeta con copa resplandeciente turquesa y magenta
+ */
+export function getEnchantedTreeCanvas(): { trunk: HTMLCanvasElement; canopy: HTMLCanvasElement } {
+  const trunk = document.createElement('canvas');
+  trunk.width = 48; trunk.height = 36;
+  const tCtx = trunk.getContext('2d')!;
+  tCtx.imageSmoothingEnabled = false;
+
+  tCtx.fillStyle = 'rgba(0,0,0,0.3)';
+  tCtx.fillRect(6, 26, 36, 6);
+
+  tCtx.fillStyle = '#312e81'; // Índigo oscuro
+  tCtx.fillRect(18, 4, 12, 24);
+  tCtx.fillStyle = '#4338ca'; // Púrpura brillante
+  tCtx.fillRect(20, 6, 8, 20);
+  tCtx.fillStyle = '#6366f1';
+  tCtx.fillRect(22, 8, 3, 16);
+
+  const canopy = document.createElement('canvas');
+  canopy.width = 64; canopy.height = 64;
+  const cCtx = canopy.getContext('2d')!;
+  cCtx.imageSmoothingEnabled = false;
+
+  // Copa mágica degradada turquesa / fucsia
+  cCtx.fillStyle = '#0f766e';
+  cCtx.beginPath(); cCtx.arc(32, 32, 28, 0, Math.PI * 2); cCtx.fill();
+  cCtx.fillStyle = '#06b6d4';
+  cCtx.beginPath(); cCtx.arc(30, 30, 24, 0, Math.PI * 2); cCtx.fill();
+  cCtx.fillStyle = '#67e8f9';
+  cCtx.beginPath(); cCtx.arc(28, 26, 18, 0, Math.PI * 2); cCtx.fill();
+  cCtx.fillStyle = '#ec4899'; // Toque de magia fucsia
+  cCtx.beginPath(); cCtx.arc(38, 24, 10, 0, Math.PI * 2); cCtx.fill();
+  cCtx.fillStyle = '#f472b6';
+  cCtx.beginPath(); cCtx.arc(36, 22, 6, 0, Math.PI * 2); cCtx.fill();
+
+  return { trunk, canopy };
+}
+
+/**
+ * 🍄 SETAS GIGANTES DEL BOSQUE ENCANTADO (32x32 px)
+ */
+export function getEnchantedMushroomCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32; canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.fillRect(4, 26, 24, 4);
+
+  // Seta 1 (Cyan)
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillRect(8, 16, 4, 12);
+  ctx.fillStyle = '#06b6d4';
+  ctx.beginPath(); ctx.arc(10, 16, 8, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = '#a5f3fc';
+  ctx.fillRect(8, 12, 2, 2); ctx.fillRect(12, 14, 2, 2);
+
+  // Seta 2 (Fucsia/Violeta)
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(20, 14, 4, 14);
+  ctx.fillStyle = '#d946ef';
+  ctx.beginPath(); ctx.arc(22, 14, 9, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = '#fae8ff';
+  ctx.fillRect(19, 10, 2, 2); ctx.fillRect(24, 12, 2, 2);
+
+  return canvas;
+}
+
+/**
+ * 🌿 SETO VERDE DEL LABERINTO ENCANTADO (32x32 px)
+ */
+export function getLabyrinthHedgeCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32; canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = '#14532d'; // Verde bosque profundo
+  ctx.fillRect(0, 0, 32, 32);
+  ctx.fillStyle = '#16a34a'; // Verde vibrante
+  ctx.fillRect(2, 2, 28, 28);
+  ctx.fillStyle = '#22c55e'; // Iluminación superior
+  ctx.fillRect(4, 4, 24, 12);
+  ctx.fillStyle = '#86efac';
+  ctx.fillRect(6, 6, 8, 4); ctx.fillRect(18, 6, 8, 4);
+
+  return canvas;
+}
+
+/**
+ * 💎 CRISTAL DE MANÁ ARCANO (24x36 px)
+ */
+export function getManaCrystalCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 24; canvas.height = 36;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.fillRect(4, 30, 16, 4);
+
+  const glow = (Math.sin(time * 3) + 1) * 0.5;
+  ctx.fillStyle = glow > 0.5 ? '#38bdf8' : '#0284c7';
+  ctx.beginPath();
+  ctx.moveTo(12, 4); ctx.lineTo(20, 24); ctx.lineTo(12, 32); ctx.lineTo(4, 24);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = '#e0f2fe';
+  ctx.beginPath();
+  ctx.moveTo(12, 6); ctx.lineTo(16, 22); ctx.lineTo(12, 28); ctx.lineTo(10, 22);
+  ctx.closePath();
+  ctx.fill();
+
+  return canvas;
+}
+
+/**
+ * 🏴‍☠️ GALEÓN NAUFRAGADO EN LA ARENA (64x54 px)
+ */
+export function getShipwreckCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64; canvas.height = 54;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra sobre arena
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.fillRect(6, 42, 52, 8);
+
+  // Casco de madera podrida
+  ctx.fillStyle = '#451a03';
+  ctx.beginPath();
+  ctx.moveTo(8, 30); ctx.lineTo(56, 30); ctx.lineTo(48, 46); ctx.lineTo(16, 46);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(12, 32, 40, 10);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(14, 34, 36, 4);
+
+  // Mástiles partidos
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(24, 8, 4, 26);
+  ctx.fillRect(42, 14, 4, 20);
+
+  // Velas rotas
+  ctx.fillStyle = '#e2e8f0';
+  ctx.beginPath();
+  ctx.moveTo(24, 10); ctx.lineTo(12, 22); ctx.lineTo(24, 20);
+  ctx.fill();
+
+  return canvas;
+}
+
+/**
+ * 🍇 VIÑEDO DE ESPALDERA CON UVAS (32x32 px)
+ */
+export function getVineyardCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32; canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Postes de madera
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(2, 6, 3, 24);
+  ctx.fillRect(27, 6, 3, 24);
+  ctx.fillStyle = '#94a3b8'; // Alambres
+  ctx.fillRect(5, 10, 22, 1);
+  ctx.fillRect(5, 20, 22, 1);
+
+  // Hojas de parra
+  ctx.fillStyle = '#15803d';
+  ctx.fillRect(4, 8, 24, 14);
+  ctx.fillStyle = '#22c55e';
+  ctx.fillRect(6, 9, 20, 8);
+
+  // Racimos de uvas moradas
+  ctx.fillStyle = '#7e22ce';
+  ctx.fillRect(8, 18, 4, 6); ctx.fillRect(16, 18, 4, 6); ctx.fillRect(24, 18, 4, 6);
+  ctx.fillStyle = '#a855f7';
+  ctx.fillRect(9, 19, 2, 3); ctx.fillRect(17, 19, 2, 3); ctx.fillRect(25, 19, 2, 3);
+
+  return canvas;
+}
+
+/**
+ * 🔭 OBSERVATORIO ASTRONÓMICO (48x54 px)
+ */
+export function getObservatoryCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 48; canvas.height = 54;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(4, 46, 40, 6);
+
+  // Torre de piedra
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(10, 24, 28, 24);
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(12, 26, 24, 20);
+
+  // Cúpula
+  ctx.fillStyle = '#334155';
+  ctx.beginPath(); ctx.arc(24, 24, 16, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = '#0ea5e9';
+  ctx.beginPath(); ctx.arc(24, 24, 13, Math.PI, 0); ctx.fill();
+
+  // Telescopio de latón dorado
+  ctx.fillStyle = '#eab308';
+  ctx.beginPath();
+  ctx.moveTo(24, 18); ctx.lineTo(42, 6); ctx.lineTo(44, 9); ctx.lineTo(26, 21);
+  ctx.fill();
+
+  return canvas;
+}
+
+/**
+ * 🌊 FARO COSTERO BLANCO Y ROJO (36x64 px)
+ */
+export function getLighthouseCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 36; canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(4, 56, 28, 6);
+
+  // Torre cónica a franjas rojas y blancas
+  ctx.fillStyle = '#ef4444';
+  ctx.beginPath();
+  ctx.moveTo(10, 20); ctx.lineTo(26, 20); ctx.lineTo(30, 58); ctx.lineTo(6, 58);
+  ctx.fill();
+
+  ctx.fillStyle = '#f8fafc'; // Franja blanca media
+  ctx.fillRect(8, 30, 20, 14);
+
+  // Linterna superior
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(10, 14, 16, 6);
+  ctx.fillStyle = '#fef08a'; // Foco luminoso
+  ctx.fillRect(12, 8, 12, 8);
+
+  // Tejado cónico
+  ctx.fillStyle = '#dc2626';
+  ctx.beginPath();
+  ctx.moveTo(8, 8); ctx.lineTo(18, 0); ctx.lineTo(28, 8);
+  ctx.fill();
+
+  return canvas;
+}
+
+/**
+ * ⛪ IGLESIA / CAPILLA GÓTICA DE PIEDRA (64x64 px)
+ */
+export function getChurchCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64; canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(4, 54, 56, 8);
+
+  // Cuerpo principal de piedra
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(12, 24, 40, 32);
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(14, 26, 36, 28);
+
+  // Tejado a dos aguas
+  ctx.fillStyle = '#475569';
+  ctx.beginPath();
+  ctx.moveTo(8, 24); ctx.lineTo(32, 8); ctx.lineTo(56, 24);
+  ctx.fill();
+
+  // Campanario
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(26, 0, 12, 16);
+  ctx.fillStyle = '#eab308'; // Campana de bronce
+  ctx.fillRect(30, 8, 4, 6);
+
+  // Cruz dorada
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(31, -4, 2, 8); ctx.fillRect(29, -2, 6, 2);
+
+  // Ventana ojival de vidriera
+  ctx.fillStyle = '#0284c7';
+  ctx.beginPath(); ctx.arc(32, 36, 6, Math.PI, 0); ctx.fill();
+  ctx.fillRect(26, 36, 12, 8);
+
+  return canvas;
+}
+
+/**
+ * 🧪 BOTICA DE POCIONES Y ALQUIMIA (56x56 px)
+ */
+export function getApothecaryCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 56; canvas.height = 56;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(4, 46, 48, 8);
+
+  // Fachada
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(8, 20, 40, 28);
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(10, 22, 36, 24);
+
+  // Tejado morado alquímico
+  ctx.fillStyle = '#581c87';
+  ctx.beginPath();
+  ctx.moveTo(4, 20); ctx.lineTo(28, 4); ctx.lineTo(52, 20);
+  ctx.fill();
+
+  // Cartel colgante de Poción
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(44, 22, 8, 2);
+  ctx.fillStyle = '#c084fc';
+  ctx.fillRect(46, 24, 6, 8);
+
+  // Puerta de roble
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(22, 32, 12, 16);
+
+  return canvas;
+}

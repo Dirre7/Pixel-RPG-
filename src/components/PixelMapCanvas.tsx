@@ -19,6 +19,16 @@ import {
   getGraveyardCanvas,
   getRuinedPillarCanvas,
   getCampfireCanvas,
+  getEnchantedTreeCanvas,
+  getEnchantedMushroomCanvas,
+  getLabyrinthHedgeCanvas,
+  getManaCrystalCanvas,
+  getShipwreckCanvas,
+  getVineyardCanvas,
+  getObservatoryCanvas,
+  getLighthouseCanvas,
+  getChurchCanvas,
+  getApothecaryCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -279,6 +289,90 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
                 c.drawImage(campfire, posX + 2, posY + 4, 28, 28);
+              },
+            });
+          } else if (tileType === 20) {
+            // Árbol / Setas del Bosque Encantado
+            const { trunk: encTrunk, canopy: encCanopy } = getEnchantedTreeCanvas();
+            const mushroom = getEnchantedMushroomCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(encTrunk, posX - 8, posY, 48, 36);
+                c.drawImage(encCanopy, posX - 16, posY - 36, 64, 64);
+                c.drawImage(mushroom, posX + 16, posY + 16, 24, 24);
+              },
+            });
+          } else if (tileType === 21) {
+            // Seto Verde del Laberinto Encantado
+            const hedge = getLabyrinthHedgeCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(hedge, posX, posY, 32, 32);
+              },
+            });
+          } else if (tileType === 22) {
+            // Barco Pirata Naufragado
+            const shipwreck = getShipwreckCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE + 10,
+              draw: (c) => {
+                c.drawImage(shipwreck, posX - 16, posY - 14, 64, 54);
+              },
+            });
+          } else if (tileType === 23) {
+            // Faro Costero
+            const lighthouse = getLighthouseCanvas(time);
+            entities.push({
+              ySort: posY + TILE_SIZE + 14,
+              draw: (c) => {
+                c.drawImage(lighthouse, posX - 2, posY - 32, 36, 64);
+              },
+            });
+          } else if (tileType === 24) {
+            // Capilla / Iglesia Gótica
+            const church = getChurchCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE + 12,
+              draw: (c) => {
+                c.drawImage(church, posX - 16, posY - 24, 64, 64);
+              },
+            });
+          } else if (tileType === 25) {
+            // Viñedo de Uvas
+            const vineyard = getVineyardCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(vineyard, posX, posY, 32, 32);
+              },
+            });
+          } else if (tileType === 26) {
+            // Observatorio Astronómico
+            const observatory = getObservatoryCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE + 8,
+              draw: (c) => {
+                c.drawImage(observatory, posX - 8, posY - 18, 48, 54);
+              },
+            });
+          } else if (tileType === 27) {
+            // Botica de Pociones
+            const apothecary = getApothecaryCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE + 10,
+              draw: (c) => {
+                c.drawImage(apothecary, posX - 12, posY - 20, 56, 56);
+              },
+            });
+          } else if (tileType === 28) {
+            // Cristal de Maná
+            const crystal = getManaCrystalCanvas(time);
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(crystal, posX + 4, posY - 4, 24, 36);
               },
             });
           }
