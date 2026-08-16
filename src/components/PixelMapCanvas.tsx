@@ -452,15 +452,11 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 12) {
-            // Matorral / Flores / Vegetación silvestre
+            // Seto de Jardín y Rosales Esculpidos (Estilo Follaje Oak Tree 2.5D)
+            const bushCanvas = getTileCanvas(12, currentZone.id, (x * 3 + y * 7) % 3);
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.fillStyle = 'rgba(15, 23, 42, 0.3)';
-                c.beginPath();
-                c.ellipse(posX + 16, posY + 26, 8, 3, 0, 0, Math.PI * 2);
-                c.fill();
-                const bushCanvas = getTileCanvas(12, currentZone.id, 0);
                 c.drawImage(bushCanvas, posX, posY, 32, 32);
               },
             });

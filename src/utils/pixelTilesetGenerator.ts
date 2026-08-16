@@ -197,35 +197,85 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
     ctx.fillRect(0, 0, 32, 32);
 
     // Arbusto redondeado denso
-    ctx.fillStyle = '#1b4332';
+    // ---------------------------------------------------------------------------
+    // 12. SETOS Y ROSALES DE JARDÍN (ESTILO FOLLAJE OAK TREE 2.5D)
+    // ---------------------------------------------------------------------------
+    // Sombra de contacto en el suelo
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
     ctx.beginPath();
-    ctx.arc(16, 16, 13, 0, Math.PI * 2);
+    ctx.ellipse(16, 27, 13, 4, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = '#2d6a4f';
+    // Racimo base de follaje profundo (Silueta exterior con lóbulos festoneados)
+    ctx.fillStyle = '#14532d'; // Sombra de contorno
     ctx.beginPath();
-    ctx.arc(16, 14, 11, 0, Math.PI * 2);
+    ctx.arc(9, 17, 7, 0, Math.PI * 2);
+    ctx.arc(23, 17, 7, 0, Math.PI * 2);
+    ctx.arc(16, 12, 9, 0, Math.PI * 2);
+    ctx.arc(16, 19, 8, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = '#40916c';
+    // Capa de follaje verde oscuro
+    ctx.fillStyle = '#166534';
     ctx.beginPath();
-    ctx.arc(14, 11, 6, 0, Math.PI * 2);
+    ctx.arc(9, 16, 6.5, 0, Math.PI * 2);
+    ctx.arc(23, 16, 6.5, 0, Math.PI * 2);
+    ctx.arc(16, 11, 8, 0, Math.PI * 2);
+    ctx.arc(16, 18, 7, 0, Math.PI * 2);
     ctx.fill();
 
-    // Bayas rojas maduras
-    const drawBerry = (bx: number, by: number) => {
-      ctx.fillStyle = '#b91c1c';
-      ctx.fillRect(bx, by, 3, 3);
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(bx, by, 2, 2);
-      ctx.fillStyle = '#fca5a5';
-      ctx.fillRect(bx, by, 1, 1);
+    // Capa de follaje medio (Volumen principal)
+    ctx.fillStyle = '#15803d';
+    ctx.beginPath();
+    ctx.arc(9, 15, 5.5, 0, Math.PI * 2);
+    ctx.arc(23, 15, 5.5, 0, Math.PI * 2);
+    ctx.arc(16, 10, 7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Capa de luz verde viva
+    ctx.fillStyle = '#22c55e';
+    ctx.beginPath();
+    ctx.arc(9, 14, 4.5, 0, Math.PI * 2);
+    ctx.arc(23, 14, 4.5, 0, Math.PI * 2);
+    ctx.arc(16, 9, 5.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Toques de brillo superior en las copas de las hojas
+    ctx.fillStyle = '#4ade80';
+    ctx.fillRect(8, 10, 4, 3);
+    ctx.fillRect(20, 10, 4, 3);
+    ctx.fillRect(14, 5, 5, 3);
+
+    ctx.fillStyle = '#86efac';
+    ctx.fillRect(9, 10, 2, 1);
+    ctx.fillRect(21, 10, 2, 1);
+    ctx.fillRect(15, 5, 3, 1);
+
+    // Pequeñas rosas y capullos de flores integrados
+    const drawRose = (rx: number, ry: number) => {
+      ctx.fillStyle = '#991b1b'; // Sombra de pétalo
+      ctx.fillRect(rx - 1, ry, 5, 4);
+      ctx.fillStyle = '#dc2626'; // Pétalo principal
+      ctx.fillRect(rx, ry, 3, 3);
+      ctx.fillStyle = '#f87171'; // Brillo superior
+      ctx.fillRect(rx + 1, ry, 2, 1);
+      ctx.fillStyle = '#fef08a'; // Pistilo central
+      ctx.fillRect(rx + 1, ry + 1, 1, 1);
     };
 
-    drawBerry(8, 10);
-    drawBerry(20, 9);
-    drawBerry(12, 18);
-    drawBerry(21, 19);
+    if (animPhase % 3 === 0) {
+      drawRose(8, 14);
+      drawRose(21, 13);
+      drawRose(15, 18);
+    } else if (animPhase % 3 === 1) {
+      drawRose(12, 11);
+      drawRose(22, 16);
+      drawRose(9, 18);
+    } else {
+      drawRose(16, 12);
+      drawRose(7, 16);
+      drawRose(23, 15);
+    }
   }
   // ---------------------------------------------------------------------------
   // 13. BANCALES DE CULTIVO CON ZANAHORIAS Y TRIGO
@@ -1220,7 +1270,7 @@ export function getEnchantedMushroomCanvas(): HTMLCanvasElement {
 }
 
 /**
- * 🌿 SETO VERDE DEL LABERINTO ENCANTADO (32x32 px)
+ * 🌿 SETO VERDE DEL LABERINTO ENCANTADO (32x32 px - ESTILO OAK TREE)
  */
 export function getLabyrinthHedgeCanvas(): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
@@ -1228,14 +1278,47 @@ export function getLabyrinthHedgeCanvas(): HTMLCanvasElement {
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
 
-  ctx.fillStyle = '#14532d'; // Verde bosque profundo
-  ctx.fillRect(0, 0, 32, 32);
-  ctx.fillStyle = '#16a34a'; // Verde vibrante
-  ctx.fillRect(2, 2, 28, 28);
-  ctx.fillStyle = '#22c55e'; // Iluminación superior
-  ctx.fillRect(4, 4, 24, 12);
+  // Sombra base
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 28, 14, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Contorno lobulado
+  ctx.fillStyle = '#14532d';
+  ctx.beginPath();
+  ctx.arc(8, 16, 8, 0, Math.PI * 2);
+  ctx.arc(24, 16, 8, 0, Math.PI * 2);
+  ctx.arc(16, 12, 10, 0, Math.PI * 2);
+  ctx.arc(16, 20, 9, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Follaje verde medio
+  ctx.fillStyle = '#15803d';
+  ctx.beginPath();
+  ctx.arc(8, 15, 6.5, 0, Math.PI * 2);
+  ctx.arc(24, 15, 6.5, 0, Math.PI * 2);
+  ctx.arc(16, 11, 8.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Luces esmeralda
+  ctx.fillStyle = '#22c55e';
+  ctx.beginPath();
+  ctx.arc(8, 14, 5, 0, Math.PI * 2);
+  ctx.arc(24, 14, 5, 0, Math.PI * 2);
+  ctx.arc(16, 10, 6.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Brillos superiores en las hojas
+  ctx.fillStyle = '#4ade80';
+  ctx.fillRect(6, 10, 5, 3);
+  ctx.fillRect(20, 10, 5, 3);
+  ctx.fillRect(13, 6, 6, 3);
+
   ctx.fillStyle = '#86efac';
-  ctx.fillRect(6, 6, 8, 4); ctx.fillRect(18, 6, 8, 4);
+  ctx.fillRect(7, 10, 3, 1);
+  ctx.fillRect(21, 10, 3, 1);
+  ctx.fillRect(14, 6, 4, 1);
 
   return canvas;
 }
