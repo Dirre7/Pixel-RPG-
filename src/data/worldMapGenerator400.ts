@@ -1448,13 +1448,145 @@ export function generateTundra400(): {
   }
   map[75][355] = 11;
 
-  const tundraChests = [
-    [75, 50], [95, 50], [150, 75], [225, 75],
-    [50, 150], [120, 150], [260, 150], [330, 150],
-    [75, 225], [135, 225], [275, 225], [340, 225],
-    [75, 300], [150, 300], [225, 300], [355, 300]
-  ];
-  tundraChests.forEach(([cx, cy]) => { map[cy][cx] = 7; });
+  // =========================================================================
+  // 1. MIRADOR DE LOS VENTISQUEROS DEL NORTE (Noroeste: X: 15..75, Y: 15..65)
+  // =========================================================================
+  for (let y = 15; y <= 65; y++) {
+    for (let x = 15; x <= 75; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[30][35] = 5;  // Refugio de Montaña 1
+  map[30][55] = 5;  // Refugio de Montaña 2
+  map[45][45] = 10; // Forja Ártica
+  map[45][35] = 4;  // Pozo de Nieve
+  map[20][45] = 7;  // Cofre de Hielo Puro
+  map[30][30] = 17; map[30][60] = 17;
+
+  // =========================================================================
+  // 2. ATALAYA DE LOS GLACIARES ETERNOS (Noreste: X: 340..395, Y: 15..65)
+  // =========================================================================
+  for (let y = 15; y <= 65; y++) {
+    for (let x = 340; x <= 395; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[35][365] = 5;  // Atalaya Glaciar
+  map[50][365] = 19; // Fogata de Escarcha
+  map[35][375] = 7;  // Cofre de Vigías
+  map[30][365] = 17;
+
+  // =========================================================================
+  // 3. GRAN VALLE GLACIAR DE LOS MAMUTS (Norte: X: 110..325, Y: 15..85)
+  // =========================================================================
+  for (let y = 15; y <= 85; y++) {
+    for (let x = 110; x <= 325; x++) {
+      if (y === 30 || y === 55 || x % 20 === 0) map[y][x] = 2;
+      else if (x >= 180 && x <= 250 && y >= 35 && y <= 50) map[y][x] = 3; // Lago helado
+    }
+  }
+  map[30][150] = 5;  // Cabaña Comunal 1
+  map[30][220] = 5;  // Cabaña Comunal 2
+  map[30][290] = 9;  // Lonja del Valle
+  map[45][150] = 6;  // Molino de Viento de Nieve
+  map[45][220] = 4;  // Pozo
+  map[30][310] = 7;  // Cofre del Valle Glaciar
+  map[30][170] = 17; map[30][250] = 17;
+
+  // =========================================================================
+  // 4. RUTA DE LOS CLANES DEL INVIERNO (Oeste: X: 15..105, Y: 110..385)
+  // =========================================================================
+  for (let y = 110; y <= 385; y++) {
+    for (let x = 15; x <= 105; x++) {
+      if (x === 55 || y % 18 === 0) map[y][x] = 2;
+    }
+  }
+  // Aserradero de Pinos (Y: 140)
+  map[140][55] = 5; map[140][70] = 5; map[140][40] = 4; map[140][80] = 7;
+  // Pueblo del Fiordo (Y: 230)
+  map[230][55] = 5; map[230][70] = 10; map[230][40] = 4; map[230][80] = 7; map[225][55] = 17;
+  // Bastión del Invierno (Y: 330)
+  map[330][55] = 5; map[330][70] = 10; map[330][40] = 19; map[330][80] = 7;
+
+  // =========================================================================
+  // 5. CAMINO DE LOS SANTUARIOS DE ESCARCHA (Este: X: 315..395, Y: 105..380)
+  // =========================================================================
+  for (let y = 105; y <= 380; y++) {
+    for (let x = 315; x <= 395; x++) {
+      if (x === 355 || y % 18 === 0) map[y][x] = 2;
+    }
+  }
+  // Talladores de Hielo (Y: 150)
+  map[150][355] = 5; map[150][370] = 9; map[150][380] = 7;
+  // Puesto de Trineos (Y: 240)
+  map[240][355] = 5; map[240][370] = 19; map[240][380] = 7; map[235][355] = 17;
+  // Altar del Viento Polar (Y: 330)
+  map[330][355] = 8; map[325][345] = 18; map[325][365] = 18; map[335][345] = 18; map[335][365] = 18; map[330][380] = 7;
+
+  // =========================================================================
+  // 6. MESETA DE LOS CRISTALES DE NIEVE (Diagonal 1: X: 125..200, Y: 130..190)
+  // =========================================================================
+  for (let y = 130; y <= 190; y++) {
+    for (let x = 125; x <= 200; x++) {
+      if ((x + y) % 3 === 0) map[y][x] = 12; // Flores de escarcha
+      else if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+    }
+  }
+  map[160][160] = 8;  // Santuario de Escarcha
+  map[160][145] = 5;  // Cabaña de Nieve
+  map[160][175] = 7;  // Cofre de Zafiros
+  map[155][160] = 17;
+
+  // =========================================================================
+  // 7. PASO DEL DESFILADERO DE LAS AVALANCHAS (Diagonal 2: X: 125..265, Y: 150..250)
+  // =========================================================================
+  for (let i = 0; i <= 100; i++) {
+    const vx = 135 + i;
+    const vy = 160 + Math.round(i * 0.75);
+    for (let dy = -2; dy <= 2; dy++) {
+      for (let dx = -2; dx <= 2; dx++) {
+        map[vy + dy][vx + dx] = 2;
+      }
+    }
+    if (i % 25 === 0) map[vy - 3][vx] = 17;
+  }
+  map[185][165] = 5;  // Puesto de Control 1
+  map[225][225] = 5;  // Puesto de Control 2
+  map[205][195] = 19; // Gran Fogata Ártica
+  map[185][180] = 7;  // Cofre del Desfiladero
+
+  // =========================================================================
+  // 8. GRAN LAGO DE HIELO AZUL Y BARCO CONGELADO (Diagonal 3: X: 135..305, Y: 200..320)
+  // =========================================================================
+  for (let y = 200; y <= 320; y++) {
+    for (let x = 135; x <= 305; x++) {
+      const d = Math.hypot((x - 220) / 70, (y - 260) / 45);
+      if (d <= 0.8) {
+        map[y][x] = 3; // Lago helado puro
+      } else if (d <= 1.0) {
+        if (x % 5 === 0 || y % 5 === 0) map[y][x] = 15; // Tablones sobre hielo
+      }
+    }
+  }
+  map[250][180] = 5;  // Iglú / Cabaña de Hielo 1
+  map[290][250] = 5;  // Iglú / Cabaña de Hielo 2
+  map[270][215] = 4;  // Pozo de Agua Pura
+  map[260][200] = 7;  // Cofre del Barco Congelado
+  map[240][180] = 17; map[280][250] = 17;
+
+  // =========================================================================
+  // 9. RUINAS DEL TEMPLO DE LA TORMENTA GLACIAR (Diagonal 4: X: 140..310, Y: 290..385)
+  // =========================================================================
+  for (let y = 290; y <= 385; y++) {
+    for (let x = 140; x <= 310; x++) {
+      if (x % 5 === 0 || y % 5 === 0) map[y][x] = 2;
+      else if ((x + y) % 4 === 0) map[y][x] = 16; // Lápidas rúnicas
+    }
+  }
+  map[340][225] = 8;  // Gran Mausoleo de la Tormenta
+  map[330][215] = 18; map[330][235] = 18; map[350][215] = 18; map[350][235] = 18; // Columnas de hielo
+  // 4 Cofres Árticos
+  map[320][170] = 7; map[320][280] = 7; map[365][170] = 7; map[365][280] = 7;
 
   return {
     tileData: map,

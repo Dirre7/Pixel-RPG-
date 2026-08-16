@@ -1293,6 +1293,188 @@ export const ZONES: Zone[] = [
         tip: '💡 CONSEJO GLACIAL: Las magias de Fuego causan daño doble sobre los gigantes de hielo.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_tundra_1'),
       },
+      {
+        id: 'npc_tundra_wind_scout',
+        zoneId: 'zone_tundra',
+        x: 35,
+        y: 30,
+        name: 'Explorador Einar',
+        title: 'Vigía del Ventisquero Norte',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡El viento polar azota con fuerza en estas cumbres! Las chimeneas de nuestras cabañas no se apagan nunca.',
+          'Si caminas sobre la nieve endurecida podrás evitar las trampas de hielo fino.'
+        ],
+        tip: '💡 CONSEJO DE VENTISQUERO: Las capas de piel de oso reducen en un 50% el daño por congelación.',
+      },
+      {
+        id: 'npc_tundra_ice_sentinel',
+        zoneId: 'zone_tundra',
+        x: 365,
+        y: 35,
+        name: 'Centinela Gunnar',
+        title: 'Guardián de los Glaciares Eternos',
+        avatarStyle: 'knight',
+        dialogue: [
+          'Desde esta atalaya vigilo las murallas de la Fortaleza del Titán Ymir.',
+          'Solo aquellos armados con llamas vivientes pueden derretir las defensas de escarcha del titán.'
+        ],
+        tip: '💡 CONSEJO DE FORTALEZA: Las armas imbuidas con fuego rompen los escudos glaciares de Ymir.',
+      },
+      {
+        id: 'npc_tundra_mammoth_hunter',
+        zoneId: 'zone_tundra',
+        x: 150,
+        y: 30,
+        name: 'Maestro Cazador Bjorn',
+        title: 'Rastreador del Gran Valle Glaciar',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Rastreamos mamuts lanudos y lobos del cero absoluto por todo este valle blanco!',
+          'En nuestro molino de nieve procesamos harina de líquenes para alimentar a las aldeas nórdicas.'
+        ],
+        tip: '💡 CONSEJO DE CAZA: Los lobos árticos son vulnerables a ataques físicos cargados.',
+      },
+      {
+        id: 'npc_tundra_lumberjack',
+        zoneId: 'zone_tundra',
+        x: 55,
+        y: 140,
+        name: 'Leñador Leif',
+        title: 'Cortador de Pinos Nevados',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          'La madera de pino nevado es densa y flexible, ideal para construir arcos largos y mástiles de barcos.',
+          'Nuestras fogatas de resina arden sin humo incluso a treinta grados bajo cero.'
+        ],
+        tip: '💡 CONSEJO DE PINO: Los arcos de pino nevado tienen un 20% más de alcance y velocidad.',
+      },
+      {
+        id: 'npc_tundra_tavernkeeper',
+        zoneId: 'zone_tundra',
+        x: 55,
+        y: 230,
+        name: 'Tabernera Sigrid',
+        title: 'Patrona del Fiordo Helado',
+        avatarStyle: 'wizard',
+        dialogue: [
+          '¡Bienvenido al Fiordo, viajero! Siéntate junto al fuego y bebe un cuerno de hidromiel caliente.',
+          'Nuestra forja nórdica templa hachas de guerra capaces de quebrar bloques de hielo milenario.'
+        ],
+        tip: '💡 CONSEJO DE FIORDO: El hidromiel de Frostfall incrementa la fuerza física durante 3 combates.',
+      },
+      {
+        id: 'npc_tundra_winter_blacksmith',
+        zoneId: 'zone_tundra',
+        x: 55,
+        y: 330,
+        name: 'Herrero Torvald',
+        title: 'Armero del Acero Glacial',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          'Forjamos acero endurecido al hielo. Nuestras espadas conservan un filo helado que congela las heridas.',
+          'En el bastión sur descansan los campeones que defienden la frontera de la Ciudadela Imperial.'
+        ],
+        tip: '💡 CONSEJO DE FORJA: Las espadas de acero glacial ralentizan la velocidad de los enemigos en un 25%.',
+      },
+      {
+        id: 'npc_tundra_ice_sculptor',
+        zoneId: 'zone_tundra',
+        x: 355,
+        y: 150,
+        name: 'Escultor Einar',
+        title: 'Artesano del Hielo Puro',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Esculpo gemas y dagas directamente de bloques de hielo azul transparente.',
+          'El hielo de estas cordilleras orientales nunca se derrite, pues está imbuido de magia ártica.'
+        ],
+        tip: '💡 CONSEJO DE ESCULTURA: Las dagas de hielo puro aumentan el daño crítico mágico en un 40%.',
+      },
+      {
+        id: 'npc_tundra_sled_master',
+        zoneId: 'zone_tundra',
+        x: 355,
+        y: 240,
+        name: 'Maestro Sven',
+        title: 'Guía de Trineos de Montaña',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Mis trineos tirados por perros nórdicos abastecen de pescado y pieles a todas las cumbres!',
+          'Hacia el sur se erige el Altar del Viento Polar, donde los antiguos rezaban para aplacar las tormentas.'
+        ],
+        tip: '💡 CONSEJO DE TRINEOS: Los puestos de suministros cuentan con alimentos de curación rápida.',
+      },
+      {
+        id: 'npc_tundra_polar_druid',
+        zoneId: 'zone_tundra',
+        x: 355,
+        y: 330,
+        name: 'Druida Freydis',
+        title: 'Sacerdotisa del Viento Polar',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'El viento polar susurra los secretos de los dioses nórdicos.',
+          'El Altar de Escarcha confiere bendiciones de inmunidad a las ventiscas y heladas.'
+        ],
+        tip: '💡 CONSEJO POLAR: Meditar en los altares de hielo restaura completamente la energía de maná.',
+      },
+      {
+        id: 'npc_tundra_crystal_gatherer',
+        zoneId: 'zone_tundra',
+        x: 145,
+        y: 160,
+        name: 'Recolectora Ingrid',
+        title: 'Hortelana de las Flores de Nieve',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'En esta meseta crecen las rarísimas flores de escarcha. Sus pétalos brillan con destellos de zafiro.',
+          'Con ellos elaboramos ungüentos que descongelan miembros entumecidos en segundos.'
+        ],
+        tip: '💡 CONSEJO BOTÁNICO: Las flores de escarcha son ingredientes vitales para elixires legendarios.',
+      },
+      {
+        id: 'npc_tundra_pass_ranger',
+        zoneId: 'zone_tundra',
+        x: 165,
+        y: 185,
+        name: 'Guardabosques Olaf',
+        title: 'Vigilante del Paso de las Avalanchas',
+        avatarStyle: 'knight',
+        dialogue: [
+          '¡Pisa con cuidado en el desfiladero! El eco de un grito fuerte puede provocar una avalancha de nieve.',
+          'Nuestros puentes de piedra reforzada están anclados a la roca viva para mayor seguridad.'
+        ],
+        tip: '💡 CONSEJO DEL PASO: Las calzadas reforzadas te guían a través de los abismos sin peligro.',
+      },
+      {
+        id: 'npc_tundra_lake_fisher',
+        zoneId: 'zone_tundra',
+        x: 180,
+        y: 250,
+        name: 'Pescador Ragnar',
+        title: 'Navegante del Gran Lago de Hielo Azul',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡El lago está tan congelado que podemos caminar, patinar y construir iglús sobre su superficie!',
+          'Aquel barco atrapado en el hielo era un drakkar mercante... su bodega aún esconde un cofre valioso.'
+        ],
+        tip: '💡 CONSEJO DE HIELO: Los tablones de madera sobre hielo azul te otorgan tracción y velocidad.',
+      },
+      {
+        id: 'npc_tundra_storm_cryptkeeper',
+        zoneId: 'zone_tundra',
+        x: 225,
+        y: 340,
+        name: 'Custodio Ylva',
+        title: 'Guardián del Templo de la Tormenta Glaciar',
+        avatarStyle: 'elder',
+        dialogue: [
+          'En este templo reposan los Gigantes de Escarcha de la era primigenia.',
+          'Los cuatro cofres árticos contienen reliquias de zafiro custodiadas por columnas de hielo eterno.'
+        ],
+        tip: '💡 CONSEJO DE TEMPLO: Tras derrotar al Titán Ymir, se abrirá la puerta hacia la Ciudadela Imperial.',
+      },
     ],
     enemies: [
       {
