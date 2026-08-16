@@ -10,6 +10,10 @@ import {
   getWaterWellCanvas,
   getForgeCanvas,
   getShrineCanvas,
+  getStreetLampCanvas,
+  getGraveyardCanvas,
+  getRuinedPillarCanvas,
+  getCampfireCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -207,6 +211,42 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
                 c.drawImage(bossPortal, posX, posY - 8, 32, 40);
+              },
+            });
+          } else if (tileType === 16) {
+            // Lápida de Cementerio
+            const tombstone = getGraveyardCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(tombstone, posX + 8, posY + 10, 16, 20);
+              },
+            });
+          } else if (tileType === 17) {
+            // Farola de Camino / Antorcha
+            const lamp = getStreetLampCanvas(time);
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(lamp, posX + 8, posY + 4, 16, 28);
+              },
+            });
+          } else if (tileType === 18) {
+            // Columna de Ruina Clásica
+            const pillar = getRuinedPillarCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(pillar, posX + 6, posY, 20, 32);
+              },
+            });
+          } else if (tileType === 19) {
+            // Fogata de Campamento
+            const campfire = getCampfireCanvas(time);
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(campfire, posX + 6, posY + 8, 20, 20);
               },
             });
           }

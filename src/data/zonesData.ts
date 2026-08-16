@@ -108,8 +108,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_5',
         zoneId: 'zone_forest',
-        x: 312,
-        y: 240,
+        x: 310,
+        y: 236,
         name: 'Druida Elenor',
         title: 'Guardiana del Lago Sagrado',
         avatarStyle: 'wizard',
@@ -119,6 +119,62 @@ export const ZONES: Zone[] = [
         ],
         tip: '💡 CONSEJO DEL LAGO: Este santuario concede bendiciones permanentes de maná.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_side_forest_2'),
+      },
+      {
+        id: 'npc_forest_farmer',
+        zoneId: 'zone_forest',
+        x: 35,
+        y: 35,
+        name: 'Granjero Barnaby',
+        title: 'Maestro de los Campos Dorados',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Bienvenido a la Granja Real del Noroeste! Nuestros molinos de viento procesan el mejor trigo del reino.',
+          'Si exploras los campos, encontrarás cofres ocultos entre las cosechas y pozos de agua fresca.'
+        ],
+        tip: '💡 CONSEJO DE GRANJA: Los molinos de viento son puntos de referencia visibles en el minimapa.',
+      },
+      {
+        id: 'npc_forest_hunter',
+        zoneId: 'zone_forest',
+        x: 45,
+        y: 335,
+        name: 'Cazador Silas',
+        title: 'Líder del Campamento Forestal',
+        avatarStyle: 'scout',
+        dialogue: [
+          'Este es el campamento de cazadores y druidas del Suroeste. Mantente cerca de las fogatas por la noche.',
+          'Hacia el Este se extienden las Tierras Calcinadas donde habitan bestias alfa extremadamente peligrosas.'
+        ],
+        tip: '💡 CONSEJO DE CAZA: En las Tierras Calcinadas encontrarás cofres dorados custodiados por fuego.',
+      },
+      {
+        id: 'npc_forest_fisherman',
+        zoneId: 'zone_forest',
+        x: 248,
+        y: 235,
+        name: 'Capitán Finn',
+        title: 'Pescador Mayor de los Muelles',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Ah del barco, aventurero! Los muelles del este están conectados con la Isla del Lago Sagrado.',
+          'Cruza el puente de piedra central para visitar el templo de la Druida Elenor.'
+        ],
+        tip: '💡 CONSEJO DE PUERTO: Los tablones de madera te permiten caminar sobre el agua con seguridad.',
+      },
+      {
+        id: 'npc_forest_gravedigger',
+        zoneId: 'zone_forest',
+        x: 150,
+        y: 300,
+        name: 'Enterrador Mortis',
+        title: 'Custodio de la Cripta de los Reyes',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          'Pisas el suelo sagrado del Cementerio Antiguo. Los antiguos monarcas descansan en estos mausoleos.',
+          'Los ladrones de tumbas suelen dejar cofres con reliquias entre las lápidas de piedra.'
+        ],
+        tip: '💡 CONSEJO DE CRIPTA: En los cementerios antiguos las magias Sagradas de Luz causan daño crítico masivo.',
       },
     ],
     enemies: [

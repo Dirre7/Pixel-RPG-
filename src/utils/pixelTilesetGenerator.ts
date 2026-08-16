@@ -671,3 +671,135 @@ export function getChestCanvas(isOpen: boolean): HTMLCanvasElement {
   tileCache.set(cacheKey, canvas);
   return canvas;
 }
+
+/**
+ * 🏮 Genera una Farola de Camino / Poste con Farol (16x28)
+ */
+export function getStreetLampCanvas(timePhase: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 16;
+  canvas.height = 28;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.fillRect(4, 25, 8, 3);
+
+  // Poste de madera / forja
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(7, 6, 2, 20);
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(6, 4, 4, 3);
+  ctx.fillRect(5, 7, 6, 2);
+
+  // Farol con luz parpadeante
+  const flicker = Math.sin(timePhase * 6) * 1.5;
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(5, 9, 6, 6);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(6, 10 + flicker * 0.5, 4, 4);
+
+  return canvas;
+}
+
+/**
+ * 🪦 Genera una Lápida de Cementerio / Cruz de Piedra (16x20)
+ */
+export function getGraveyardCanvas(): HTMLCanvasElement {
+  const cacheKey = 'graveyard_tombstone';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 16;
+  canvas.height = 20;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.fillRect(2, 17, 12, 3);
+
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(4, 4, 8, 14);
+  ctx.beginPath();
+  ctx.arc(8, 5, 4, Math.PI, 0);
+  ctx.fill();
+
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(5, 5, 6, 12);
+  ctx.fillStyle = '#1e293b'; // Cruz grabada
+  ctx.fillRect(7, 7, 2, 6);
+  ctx.fillRect(5, 9, 6, 2);
+
+  // Musgo
+  ctx.fillStyle = '#15803d';
+  ctx.fillRect(4, 14, 2, 3);
+
+  tileCache.set(cacheKey, canvas);
+  return canvas;
+}
+
+/**
+ * 🏛️ Genera una Columna de Ruina Clásica (20x32)
+ */
+export function getRuinedPillarCanvas(): HTMLCanvasElement {
+  const cacheKey = 'ruined_pillar';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 20;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.fillRect(2, 28, 16, 4);
+
+  // Base y fuste
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(3, 24, 14, 6);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillRect(5, 6, 10, 20);
+  ctx.fillStyle = '#64748b'; // Grietas
+  ctx.fillRect(7, 12, 2, 4);
+  ctx.fillRect(11, 18, 3, 2);
+
+  // Capitel roto
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(4, 2, 12, 5);
+
+  tileCache.set(cacheKey, canvas);
+  return canvas;
+}
+
+/**
+ * 🔥 Genera una Fogata de Campamento Encendida (20x20)
+ */
+export function getCampfireCanvas(timePhase: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 20;
+  canvas.height = 20;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Piedras en círculo
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(4, 14, 12, 4);
+  ctx.fillRect(3, 10, 4, 6);
+  ctx.fillRect(13, 10, 4, 6);
+
+  // Leños
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(6, 12, 8, 3);
+
+  // Llamas animadas
+  const flick = Math.sin(timePhase * 10) * 2;
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(7, 6 + flick, 6, 8);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(8, 4 + flick, 4, 6);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(9, 6 + flick, 2, 3);
+
+  return canvas;
+}

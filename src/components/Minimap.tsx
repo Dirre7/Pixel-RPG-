@@ -105,6 +105,30 @@ export const Minimap: React.FC<MinimapProps> = ({
         } else if (tile === 11) {
           // Blacksmith Forge
           ctx.fillStyle = '#f97316';
+        } else if (tile === 12) {
+          // Flower Garden / Royal Park
+          ctx.fillStyle = '#ec4899';
+        } else if (tile === 13) {
+          // Wheat Field / Farm
+          ctx.fillStyle = '#ca8a04';
+        } else if (tile === 14) {
+          // Danger Zone / Elite Lair
+          ctx.fillStyle = '#7f1d1d';
+        } else if (tile === 15) {
+          // Wooden Dock
+          ctx.fillStyle = '#d97706';
+        } else if (tile === 16) {
+          // Graveyard / Tombstone
+          ctx.fillStyle = '#64748b';
+        } else if (tile === 17) {
+          // Street Lamp
+          ctx.fillStyle = '#fef08a';
+        } else if (tile === 18) {
+          // Ruined Columns
+          ctx.fillStyle = '#94a3b8';
+        } else if (tile === 19) {
+          // Campfire
+          ctx.fillStyle = '#ea580c';
         } else {
           // Natural Grass / Ground
           ctx.fillStyle = currentZone.id === 'zone_forest' ? '#14532d' : '#0f172a';
