@@ -763,6 +763,202 @@ export const ZONES: Zone[] = [
         tip: '💡 CONSEJO ALQUÍMICO: Las bendiciones sagradas disipan el veneno y fortalecen tu velocidad.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_swamp_1'),
       },
+      {
+        id: 'npc_swamp_scout_high',
+        zoneId: 'zone_swamp',
+        x: 35,
+        y: 30,
+        name: 'Explorador Corvus',
+        title: 'Vigía de las Ciénagas Altas',
+        avatarStyle: 'scout',
+        dialogue: [
+          'Desde esta plataforma elevada se divisa la espesa niebla tóxica que cubre el valle.',
+          'Camina siempre por las pasarelas de madera: el fango profundo atrapa y devora a los incautos.'
+        ],
+        tip: '💡 CONSEJO DE PASARELAS: Las tablas de madera te aíslan del daño por ácido de las aguas estancadas.',
+      },
+      {
+        id: 'npc_swamp_stilt_hermit',
+        zoneId: 'zone_swamp',
+        x: 160,
+        y: 25,
+        name: 'Ermitaño Bogdan',
+        title: 'Guardián de la Calzada de Palafitos',
+        avatarStyle: 'elder',
+        dialogue: [
+          'Llevo cincuenta años viviendo sobre estas estacas de roble pantanoso.',
+          'Nuestras casas flotantes resisten las crecidas de las aguas venenosas en época de lluvias.'
+        ],
+        tip: '💡 CONSEJO LACUSTRE: En los palafitos del norte encontrarás pozos de agua pura purificada.',
+      },
+      {
+        id: 'npc_swamp_witch_morgana_hut',
+        zoneId: 'zone_swamp',
+        x: 245,
+        y: 88,
+        name: 'Bruja Baba Yuliana',
+        title: 'Boticaria del Caldero Verde',
+        avatarStyle: 'wizard',
+        dialogue: [
+          '¡Ji, ji, ji! Remuevo ojos de serpiente y raíces de sauce para crear los mejores antídotos de Vael.',
+          'Toma un trago de mi pócima humeante y no temerás a las toxinas de la Gorgona.'
+        ],
+        tip: '💡 CONSEJO BOTICARIO: Los fuegos verdes ahuyentan a las serpientes e insectos del pantano.',
+      },
+      {
+        id: 'npc_swamp_eel_fisherman',
+        zoneId: 'zone_swamp',
+        x: 285,
+        y: 120,
+        name: 'Pescador Silas',
+        title: 'Patrón de los Muelles de Anguilas',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Las anguilas eléctricas de este lago producen una carne deliciosa si sabes limpiarlas sin electrocutarte!',
+          'Hacia el sur verás la gran Isla de los Sauces Sagrados.'
+        ],
+        tip: '💡 CONSEJO PESQUERO: Los muelles de madera te permiten navegar y pescar en aguas tóxicas sin riesgo.',
+      },
+      {
+        id: 'npc_swamp_village_chief',
+        zoneId: 'zone_swamp',
+        x: 68,
+        y: 185,
+        name: 'Jefa Nimue',
+        title: 'Matriarca de la Aldea de Vael',
+        avatarStyle: 'wizard',
+        dialogue: [
+          '¡Bienvenido a la Gran Aldea de Vael! Nuestro pueblo es el refugio más seguro en todo el pantano.',
+          'Visita nuestra forja de bronce y descansa en la Taberna del Fango antes de tu viaje.'
+        ],
+        tip: '💡 CONSEJO DE ALDEA: Las armas de bronce forjadas con calor del pantano poseen afinidad de Veneno.',
+      },
+      {
+        id: 'npc_swamp_blacksmith',
+        zoneId: 'zone_swamp',
+        x: 85,
+        y: 185,
+        name: 'Herrero Torgar',
+        title: 'Forjador del Bronce Pantanoso',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡El bronce de ciénaga se templa con lodo rico en azufre! El filo nunca se desafila ni se oxida.',
+          'Si me traes escamas de basilisco, forjaré una cota impenetrable.'
+        ],
+        tip: '💡 CONSEJO DE FORJA: Las cotas de escamas de reptil confieren inmunidad total al veneno.',
+      },
+      {
+        id: 'npc_swamp_druid_island',
+        zoneId: 'zone_swamp',
+        x: 190,
+        y: 185,
+        name: 'Druida Elara',
+        title: 'Custodia de los Sauces Sagrados',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Los sauces llorones absorben el veneno del suelo y lo transforman en savia de luz.',
+          'El Santuario Espectral de este islote otorga bendiciones de regeneración de maná permanente.'
+        ],
+        tip: '💡 CONSEJO DRUÍDICO: Meditar en el santuario de la isla aumenta tu afinidad elemental un 25%.',
+      },
+      {
+        id: 'npc_swamp_basilisk_hunter',
+        zoneId: 'zone_swamp',
+        x: 265,
+        y: 175,
+        name: 'Cazador Drake',
+        title: 'Rastreador de Basiliscos',
+        avatarStyle: 'knight',
+        dialogue: [
+          '¡Nunca mires fijamente a los ojos de un basilisco o la Gorgona! Su mirada petrifica en un instante.',
+          'Llevamos antorchas encendidas para deslumbrar a los reptiles de las ciénagas.'
+        ],
+        tip: '💡 CONSEJO DE CAZA: Equipa escudos pulidos para reflejar el rayo de petrificación de la Gorgona.',
+      },
+      {
+        id: 'npc_swamp_tar_gatherer',
+        zoneId: 'zone_swamp',
+        x: 330,
+        y: 165,
+        name: 'Recolector Jarek',
+        title: 'Maestro de la Brea y Turba',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          'La brea del pantano se usa para calafatear barcos e impermeabilizar las casas de madera.',
+          'También es un combustible excelente que arde incluso bajo la lluvia torrencial.'
+        ],
+        tip: '💡 CONSEJO DE BREA: Las bombas de brea prenden fuego prolongado sobre los monstruos acuáticos.',
+      },
+      {
+        id: 'npc_swamp_watchman',
+        zoneId: 'zone_swamp',
+        x: 375,
+        y: 185,
+        name: 'Vigía Valen',
+        title: 'Centinela del Horizonte Tóxico',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Mantente alerta! Al este de esta atalaya las aguas hierven con gases pútridos.',
+          'Solo los guerreros con protecciones mágicas se adentran más allá de este punto.'
+        ],
+        tip: '💡 CONSEJO DE ATALAYA: Los puestos fronterizos marcan los límites del mapa explorable.',
+      },
+      {
+        id: 'npc_swamp_herbalist',
+        zoneId: 'zone_swamp',
+        x: 125,
+        y: 240,
+        name: 'Botánica Mirabel',
+        title: 'Cultivadora del Huerto Flotante',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Cultivo raíces de loto negro en estas parcelas de agua. Sus extractos curan las fiebres del pantano.',
+          'El suelo húmedo produce cosechas fértiles durante todo el año.'
+        ],
+        tip: '💡 CONSEJO BOTÁNICO: Las hierbas de loto negro restauran 150 puntos de salud de golpe.',
+      },
+      {
+        id: 'npc_swamp_poacher',
+        zoneId: 'zone_swamp',
+        x: 205,
+        y: 270,
+        name: 'Furtivo Vane',
+        title: 'Cazador de Sombras',
+        avatarStyle: 'scout',
+        dialogue: [
+          'Oculto mi cabaña entre los cañaverales. Nadie me molesta aquí.',
+          'He dejado varios cofres de provisiones escondidos cerca de la Necrópolis... si eres valiente, ve a buscarlos.'
+        ],
+        tip: '💡 CONSEJO FURTIVO: Las trampas de caza inmovilizan a los enemigos rápidos durante el primer turno.',
+      },
+      {
+        id: 'npc_swamp_necro_crypt',
+        zoneId: 'zone_swamp',
+        x: 290,
+        y: 290,
+        name: 'Custodio Malakor',
+        title: 'Guardián de la Necrópolis Sumergida',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Pisas las criptas anegadas de la antigua dinastía de Vael. Las almas errantes flotan sobre el fango.',
+          'Los cuatro cofres malditos contienen reliquias arcanas custodiadas por fuegos fatuos.'
+        ],
+        tip: '💡 CONSEJO DE NECRÓPOLIS: Los ataques de elemento Sagrado o Fuego causan daño x2 a los muertos vivientes.',
+      },
+      {
+        id: 'npc_swamp_canoeman',
+        zoneId: 'zone_swamp',
+        x: 85,
+        y: 370,
+        name: 'Canotero Charon Jr.',
+        title: 'Barquero de Aguas Negras',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Suban a bordo! Mis canoas de cedro navegan por los canales más oscuros del sur.',
+          'Al este verás el Santuario de las Brumas Eternas, un lugar de paz y bendición en medio de la podredumbre.'
+        ],
+        tip: '💡 CONSEJO DE CANOA: Las fogatas junto al embarcadero restauran todo tu maná de forma gratuita.',
+      },
     ],
     enemies: [
       {
