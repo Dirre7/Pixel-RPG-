@@ -4,6 +4,7 @@ import { getHeroSpriteCanvas, Direction, AnimationState } from '../utils/pixelSp
 import {
   getTileCanvas,
   getTreeCanvas,
+  getStoneWallCanvas,
   getChestCanvas,
   getCottageCanvas,
   getWindmillCanvas,
@@ -123,9 +124,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
       // 1. Árboles, Estructuras y Props según tileData (dentro del viewport)
       const { trunk: treeTrunk, canopy: treeCanopy } = getTreeCanvas(currentZone.id);
+      const stoneWall = getStoneWallCanvas();
       const cottageRed = getCottageCanvas('red');
       const cottageBlue = getCottageCanvas('blue');
-      const waterWell = getWaterWellCanvas();
+      const waterWell = getWaterWellCanvas(time * 2);
       const windmill = getWindmillCanvas(time * 1.5);
       const forge = getForgeCanvas(time);
       const shrine = getShrineCanvas(false, time);
@@ -138,32 +140,41 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           const posY = y * TILE_SIZE;
 
           if (tileType === 1) {
-            // Árbol / Obstáculo
-            entities.push({
-              ySort: posY + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(treeTrunk, posX, posY + 8, TILE_SIZE, 24);
-                c.drawImage(treeCanopy, posX - 4, posY - 20, TILE_SIZE + 8, TILE_SIZE + 8);
-              },
-            });
+            // Muros de piedra en Castillo / Cueva, o Árboles frondosos en la naturaleza
+            if (currentZone.id === 'zone_castle' || currentZone.id === 'zone_cave') {
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(stoneWall, posX, posY - 4, 32, 36);
+                },
+              });
+            } else {
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(treeTrunk, posX - 8, posY, 48, 36);
+                  c.drawImage(treeCanopy, posX - 16, posY - 36, 64, 64);
+                },
+              });
+            }
           } else if (tileType === 4) {
-            // Pozo de Agua Dulce
+            // Gran Fuente Monumental / Pozo de Piedra
             entities.push({
-              ySort: posY + TILE_SIZE,
+              ySort: posY + TILE_SIZE + 4,
               draw: (c) => {
-                c.drawImage(waterWell, posX + 2, posY + 2, 28, 30);
+                c.drawImage(waterWell, posX - 16, posY - 16, 64, 64);
               },
             });
           } else if (tileType === 5) {
-            // Casita de Aldea / Taberna
+            // Casita de Aldea / Taberna de Madera
             entities.push({
-              ySort: posY + TILE_SIZE + 8,
+              ySort: posY + TILE_SIZE + 10,
               draw: (c) => {
-                c.drawImage(cottageRed, posX - 8, posY - 16, 48, 48);
+                c.drawImage(cottageRed, posX - 16, posY - 24, 64, 64);
               },
             });
           } else if (tileType === 6) {
-            // Molino de Viento
+            // Molino de Viento con aspas
             entities.push({
               ySort: posY + TILE_SIZE + 12,
               draw: (c) => {
@@ -171,14 +182,14 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 7) {
-            // Cofre del Tesoro en tileData
+            // Cofre del Tesoro
             const chestId = `${currentZone.id}_${x}_${y}`;
             const isOpen = openedChests.includes(chestId);
             const chestCanvas = getChestCanvas(isOpen);
             entities.push({
               ySort: posY + TILE_SIZE - 4,
               draw: (c) => {
-                c.drawImage(chestCanvas, posX + 4, posY + 8, 24, 24);
+                c.drawImage(chestCanvas, posX + 2, posY + 4, 28, 28);
               },
             });
           } else if (tileType === 8) {
@@ -186,23 +197,23 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(shrine, posX, posY - 8, 32, 40);
+                c.drawImage(shrine, posX - 8, posY - 14, 48, 48);
               },
             });
           } else if (tileType === 9) {
-            // Puesto de Mercado / Casita Azul
+            // Puesto de Mercado / Tienda Azul
             entities.push({
-              ySort: posY + TILE_SIZE + 8,
+              ySort: posY + TILE_SIZE + 10,
               draw: (c) => {
-                c.drawImage(cottageBlue, posX - 8, posY - 16, 48, 48);
+                c.drawImage(cottageBlue, posX - 16, posY - 24, 64, 64);
               },
             });
           } else if (tileType === 10) {
             // Forja del Herrero
             entities.push({
-              ySort: posY + TILE_SIZE + 4,
+              ySort: posY + TILE_SIZE + 6,
               draw: (c) => {
-                c.drawImage(forge, posX - 2, posY - 4, 36, 36);
+                c.drawImage(forge, posX - 8, posY - 12, 48, 48);
               },
             });
           } else if (tileType === 11) {
@@ -210,7 +221,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(bossPortal, posX, posY - 8, 32, 40);
+                c.drawImage(bossPortal, posX - 8, posY - 14, 48, 48);
               },
             });
           } else if (tileType === 16) {
@@ -219,16 +230,16 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(tombstone, posX + 8, posY + 10, 16, 20);
+                c.drawImage(tombstone, posX + 4, posY + 4, 24, 28);
               },
             });
           } else if (tileType === 17) {
-            // Farola de Camino / Antorcha
+            // Farola de Camino / Linterna
             const lamp = getStreetLampCanvas(time);
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(lamp, posX + 8, posY + 4, 16, 28);
+                c.drawImage(lamp, posX + 4, posY - 2, 24, 36);
               },
             });
           } else if (tileType === 18) {
@@ -237,7 +248,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(pillar, posX + 6, posY, 20, 32);
+                c.drawImage(pillar, posX + 4, posY - 2, 24, 36);
               },
             });
           } else if (tileType === 19) {
@@ -246,7 +257,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(campfire, posX + 6, posY + 8, 20, 20);
+                c.drawImage(campfire, posX + 2, posY + 4, 28, 28);
               },
             });
           }
