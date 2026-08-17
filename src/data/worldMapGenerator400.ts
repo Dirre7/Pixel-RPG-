@@ -282,38 +282,58 @@ export function generateForest400(): {
   }
   map[40][325] = 28; map[42][328] = 28; map[44][325] = 28; // Cristales de cuarzo
 
-  // 4. 🍄 EL BOSQUE ENCANTADO (Oeste Superior: X: 20..95, Y: 95..165)
-  for (let y = 100; y <= 160; y++) {
-    for (let x = 25; x <= 90; x++) {
-      const val = prng(x, y, 777);
-      if (val < 0.16) {
-        map[y][x] = 20; // Árbol místico índigo/púrpura
-      } else if (val < 0.22) {
-        map[y][x] = 28; // Cristal de maná brillante
+  // 4. 🍄 EL BOSQUE ENCANTADO Y CLARO FEÉRICO (Oeste Secluido: X: 32..80, Y: 112..160)
+  // Limpiar área de transición para que la carretera principal en Y: 96..105 sea 100% transitable y limpia
+  for (let y = 96; y <= 106; y++) {
+    for (let x = 20; x <= 95; x++) {
+      if (map[y][x] === 20 || map[y][x] === 28) map[y][x] = 0; // Pradera normal
+    }
+  }
+
+  // Corona perimetral de árboles púrpuras místicos (Fae Trees)
+  for (let y = 112; y <= 158; y++) {
+    for (let x = 32; x <= 80; x++) {
+      const distFromCenter = Math.hypot((x - 56) / 22, (y - 135) / 20);
+      if (distFromCenter >= 0.75 && distFromCenter <= 1.05) {
+        if (prng(x, y, 777) < 0.6) {
+          map[y][x] = 20; // Árbol místico púrpura en el anillo exterior
+        }
+      } else if (distFromCenter < 0.75) {
+        map[y][x] = 0; // Claro central de césped místico
       }
     }
   }
 
-  // Claro Mágico de las Setas Gigantes (X: 42..65, Y: 112..128)
-  for (let y = 114; y <= 126; y++) {
-    for (let x = 44; x <= 62; x++) {
-      if ((x + y) % 3 === 0) map[y][x] = 12; // Flores místicas
-      else if ((x * y) % 5 === 0) map[y][x] = 28; // Cristales
+  // Senda de Adoquines Místicos de acceso desde el norte (X: 56, Y: 106..124)
+  for (let y = 106; y <= 124; y++) {
+    map[y][56] = 2;
+  }
+
+  // Estanque sagrado de aguas cristalinas en el centro del claro (X: 53..59, Y: 133..137)
+  for (let y = 133; y <= 137; y++) {
+    for (let x = 53; x <= 59; x++) {
+      map[y][x] = 3; // Agua pura
     }
   }
-  map[120][52] = 8;  // Santuario Místico del Bosque
-  map[120][56] = 7;  // Cofre Arcano del Bosque
-  map[116][52] = 17; map[124][52] = 17;
 
-  // Ruinas de Arcos de Piedra y Musgo (X: 30..45, Y: 140..152)
-  for (let x = 32; x <= 44; x += 4) {
-    map[142][x] = 18; map[150][x] = 18;
-  }
-  map[146][38] = 19; // Fogata feérica
+  // Santuario Místico y Cofre Arcano
+  map[126][56] = 8; // Altar sagrado
+  map[144][56] = 7; // Cofre arcano
+  map[124][54] = 17; map[124][58] = 17; // Farolas de luz feérica
 
-  // Entrada de la Caverna Secreta (X: 72, Y: 135)
-  map[135][72] = 18; map[135][73] = 18; map[135][74] = 18;
-  map[136][73] = 7; // Cofre de la Caverna
+  // Círculo Sagrado de Geodas de Cristal de Maná Arcano (Sinfonía simétrica alrededor del santuario)
+  map[126][50] = 28; map[126][62] = 28;
+  map[135][48] = 28; map[135][64] = 28;
+  map[144][50] = 28; map[144][62] = 28;
+
+  // Setas gigantes mágicas enmarcando el santuario
+  map[128][52] = 23; map[128][60] = 23;
+  map[142][52] = 23; map[142][60] = 23;
+  map[135][51] = 12; map[135][61] = 12; // Rosales mágicos
+
+  // Entrada de la Caverna Secreta (X: 74, Y: 135)
+  map[135][74] = 18; map[135][75] = 18;
+  map[136][75] = 7; // Cofre de la Caverna
 
   // 5. 🌿 EL LABERINTO ENCANTADO REAL (Centro: X: 215..295, Y: 105..185)
   // Llenar todo el cuadrante con muros de setos impenetrables

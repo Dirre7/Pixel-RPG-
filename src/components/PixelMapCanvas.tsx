@@ -556,15 +556,13 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 20) {
-            // Árbol / Setas del Bosque Encantado
+            // Árbol del Bosque Encantado (Follaje Púrpura 2.5D)
             const { trunk: encTrunk, canopy: encCanopy } = getEnchantedTreeCanvas();
-            const mushroom = getEnchantedMushroomCanvas();
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
                 c.drawImage(encTrunk, posX - 8, posY, 48, 36);
                 c.drawImage(encCanopy, posX - 16, posY - 36, 64, 64);
-                c.drawImage(mushroom, posX + 16, posY + 16, 24, 24);
               },
             });
           } else if (tileType === 21) {
@@ -641,12 +639,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 28) {
-            // Cristal de Maná
+            // Geoda de Cristales de Maná Arcano
             const crystal = getManaCrystalCanvas(time);
             entities.push({
-              ySort: posY + TILE_SIZE,
+              ySort: posY + TILE_SIZE + 2,
               draw: (c) => {
-                c.drawImage(crystal, posX + 4, posY - 4, 24, 36);
+                c.drawImage(crystal, posX + 2, posY - 8, 28, 40);
               },
             });
           } else if (tileType === 29) {

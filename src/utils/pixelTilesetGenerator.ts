@@ -1208,8 +1208,7 @@ export function getChestCanvas(isOpen: boolean = false): HTMLCanvasElement {
 }
 
 /**
- * 🌳 ÁRBOL DEL BOSQUE ENCANTADO (64x64 px - HD 16-Bit Retro Art)
- * Tronco retorcido de corteza índigo/violeta con frondosa copa de robles místicos en capas púrpura y turquesa
+ * 🌳 ÁRBOL DEL BOSQUE ENCANTADO (64x80 px - ESTILO OAK TREE FOLLAJE VIOLETA 2.5D)
  */
 export function getEnchantedTreeCanvas(): { trunk: HTMLCanvasElement; canopy: HTMLCanvasElement } {
   const trunk = document.createElement('canvas');
@@ -1220,70 +1219,75 @@ export function getEnchantedTreeCanvas(): { trunk: HTMLCanvasElement; canopy: HT
   // Sombra proyectada en el suelo
   tCtx.fillStyle = 'rgba(15, 23, 42, 0.4)';
   tCtx.beginPath();
-  tCtx.ellipse(24, 28, 18, 6, 0, 0, Math.PI * 2);
+  tCtx.ellipse(24, 24, 14, 4, 0, 0, Math.PI * 2);
   tCtx.fill();
 
-  // Tronco retorcido místico
+  // Tronco de madera mística plateada / índigo
   tCtx.fillStyle = '#1e1b4b'; // Índigo profundo
-  tCtx.fillRect(16, 6, 16, 22);
-  tCtx.fillRect(12, 22, 6, 8); // Raíz izquierda
-  tCtx.fillRect(30, 22, 6, 8); // Raíz derecha
+  tCtx.fillRect(18, 4, 12, 22);
+  tCtx.fillRect(14, 18, 6, 8); // Raíz izquierda
+  tCtx.fillRect(28, 18, 6, 8); // Raíz derecha
 
-  // Vetas y textura de corteza
+  // Vetas y corteza mágica
   tCtx.fillStyle = '#312e81';
-  tCtx.fillRect(18, 8, 12, 18);
+  tCtx.fillRect(20, 6, 8, 18);
   tCtx.fillStyle = '#4338ca';
-  tCtx.fillRect(20, 10, 4, 14);
-  tCtx.fillRect(26, 12, 3, 10);
-  tCtx.fillStyle = '#818cf8'; // Reflejo mágico en la corteza
-  tCtx.fillRect(21, 14, 2, 6);
+  tCtx.fillRect(21, 8, 3, 14);
+  tCtx.fillStyle = '#818cf8'; // Runas brillantes en la corteza
+  tCtx.fillRect(22, 12, 2, 6);
 
   const canopy = document.createElement('canvas');
   canopy.width = 64; canopy.height = 64;
   const cCtx = canopy.getContext('2d')!;
   cCtx.imageSmoothingEnabled = false;
 
-  // 1. Sombra de la copa
-  cCtx.fillStyle = '#0f172a';
+  // 1. Sombra exterior
+  cCtx.fillStyle = '#1e1035';
   cCtx.beginPath();
-  cCtx.arc(32, 36, 26, 0, Math.PI * 2);
+  cCtx.arc(32, 34, 24, 0, Math.PI * 2);
   cCtx.fill();
 
-  // 2. Capa base oscura púrpura/índigo
+  // 2. Capa base festoneada púrpura oscura
   cCtx.fillStyle = '#3b0764';
   cCtx.beginPath();
-  cCtx.arc(32, 32, 24, 0, Math.PI * 2);
-  cCtx.arc(22, 28, 16, 0, Math.PI * 2);
-  cCtx.arc(42, 28, 16, 0, Math.PI * 2);
+  cCtx.arc(18, 30, 14, 0, Math.PI * 2);
+  cCtx.arc(46, 30, 14, 0, Math.PI * 2);
+  cCtx.arc(32, 20, 18, 0, Math.PI * 2);
+  cCtx.arc(32, 36, 16, 0, Math.PI * 2);
+  cCtx.fill();
+
+  // 3. Follaje medio amatista
+  cCtx.fillStyle = '#6b21a8';
+  cCtx.beginPath();
+  cCtx.arc(18, 28, 12, 0, Math.PI * 2);
+  cCtx.arc(46, 28, 12, 0, Math.PI * 2);
   cCtx.arc(32, 18, 16, 0, Math.PI * 2);
   cCtx.fill();
 
-  // 3. Bloques de follaje medio amatista / violeta
-  cCtx.fillStyle = '#6b21a8';
-  cCtx.beginPath();
-  cCtx.arc(26, 24, 14, 0, Math.PI * 2);
-  cCtx.arc(38, 22, 14, 0, Math.PI * 2);
-  cCtx.arc(32, 30, 14, 0, Math.PI * 2);
-  cCtx.fill();
-
-  // 4. Luces superiores fucsia y turquesa místico
+  // 4. Luces esmeralda y violeta místico
   cCtx.fillStyle = '#9333ea';
   cCtx.beginPath();
-  cCtx.arc(24, 18, 10, 0, Math.PI * 2);
-  cCtx.arc(36, 16, 10, 0, Math.PI * 2);
+  cCtx.arc(18, 26, 9, 0, Math.PI * 2);
+  cCtx.arc(46, 26, 9, 0, Math.PI * 2);
+  cCtx.arc(32, 16, 12, 0, Math.PI * 2);
   cCtx.fill();
 
-  // Toques de brillo turquesa y flores mágicas
-  cCtx.fillStyle = '#38bdf8';
-  cCtx.fillRect(20, 14, 4, 3);
-  cCtx.fillRect(34, 12, 4, 3);
-  cCtx.fillRect(28, 22, 3, 3);
+  // 5. Brillos en la coronación de las hojas
+  cCtx.fillStyle = '#c084fc';
+  cCtx.fillRect(14, 18, 8, 4);
+  cCtx.fillRect(40, 18, 8, 4);
+  cCtx.fillRect(26, 8, 12, 5);
 
-  cCtx.fillStyle = '#f472b6'; // Esporas fucsias luminiscentes
-  cCtx.fillRect(16, 24, 2, 2);
-  cCtx.fillRect(44, 20, 2, 2);
-  cCtx.fillRect(30, 10, 2, 2);
-  cCtx.fillRect(38, 28, 2, 2);
+  cCtx.fillStyle = '#f0abfc'; // Brillo feérico superior
+  cCtx.fillRect(16, 18, 4, 2);
+  cCtx.fillRect(42, 18, 4, 2);
+  cCtx.fillRect(28, 8, 8, 2);
+
+  // Esporas mágicas celestes luminosas
+  cCtx.fillStyle = '#38bdf8';
+  cCtx.fillRect(18, 22, 2, 2);
+  cCtx.fillRect(44, 24, 2, 2);
+  cCtx.fillRect(32, 14, 2, 2);
 
   return { trunk, canopy };
 }
@@ -1374,29 +1378,87 @@ export function getLabyrinthHedgeCanvas(): HTMLCanvasElement {
 }
 
 /**
- * 💎 CRISTAL DE MANÁ ARCANO (24x36 px)
+ * 💎 GEODA DE CRISTALES DE MANÁ ARCANO (28x40 px)
  */
 export function getManaCrystalCanvas(time: number = 0): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
-  canvas.width = 24; canvas.height = 36;
+  canvas.width = 28; canvas.height = 40;
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
 
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
-  ctx.fillRect(4, 30, 16, 4);
-
-  const glow = (Math.sin(time * 3) + 1) * 0.5;
-  ctx.fillStyle = glow > 0.5 ? '#38bdf8' : '#0284c7';
+  // Aura luminiscente mágica pulsante
+  const pulse = (Math.sin(time * 3) + 1) * 0.5;
+  const aura = ctx.createRadialGradient(14, 22, 2, 14, 22, 16);
+  aura.addColorStop(0, `rgba(56, 189, 248, ${0.4 + pulse * 0.3})`);
+  aura.addColorStop(0.6, `rgba(14, 165, 233, ${0.15 + pulse * 0.15})`);
+  aura.addColorStop(1, 'rgba(14, 165, 233, 0)');
+  ctx.fillStyle = aura;
   ctx.beginPath();
-  ctx.moveTo(12, 4); ctx.lineTo(20, 24); ctx.lineTo(12, 32); ctx.lineTo(4, 24);
-  ctx.closePath();
+  ctx.ellipse(14, 22, 14, 14, 0, 0, Math.PI * 2);
   ctx.fill();
 
+  // Sombra de contacto en el suelo
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+  ctx.beginPath();
+  ctx.ellipse(14, 36, 12, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Pedestal / Roca base de sillar oscuro
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(4, 30, 20, 6);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(6, 29, 16, 5);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(7, 29, 6, 3);
+
+  // Cristal Central Alto
+  ctx.fillStyle = '#0369a1'; // Sombra posterior
+  ctx.beginPath();
+  ctx.moveTo(14, 6); ctx.lineTo(19, 22); ctx.lineTo(14, 32); ctx.lineTo(9, 22);
+  ctx.fill();
+
+  ctx.fillStyle = '#0284c7'; // Cara izquierda oscura
+  ctx.beginPath();
+  ctx.moveTo(14, 6); ctx.lineTo(9, 22); ctx.lineTo(14, 32);
+  ctx.fill();
+
+  ctx.fillStyle = '#38bdf8'; // Cara derecha iluminada
+  ctx.beginPath();
+  ctx.moveTo(14, 6); ctx.lineTo(19, 22); ctx.lineTo(14, 32);
+  ctx.fill();
+
+  ctx.fillStyle = '#7dd3fc'; // Faceta frontal biselada
+  ctx.beginPath();
+  ctx.moveTo(14, 8); ctx.lineTo(16, 22); ctx.lineTo(14, 30); ctx.lineTo(12, 22);
+  ctx.fill();
+
+  ctx.fillStyle = '#ffffff'; // Destello blanco en la arista
+  ctx.fillRect(13, 8, 2, 6);
+  ctx.fillRect(14, 14, 1, 8);
+
+  // Cristal Lateral Izquierdo Pequeño
+  ctx.fillStyle = '#0284c7';
+  ctx.beginPath();
+  ctx.moveTo(7, 16); ctx.lineTo(10, 24); ctx.lineTo(6, 32); ctx.lineTo(4, 26);
+  ctx.fill();
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.moveTo(7, 16); ctx.lineTo(10, 24); ctx.lineTo(7, 30);
+  ctx.fill();
   ctx.fillStyle = '#e0f2fe';
+  ctx.fillRect(7, 18, 1, 4);
+
+  // Cristal Lateral Derecho Pequeño
+  ctx.fillStyle = '#0284c7';
   ctx.beginPath();
-  ctx.moveTo(12, 6); ctx.lineTo(16, 22); ctx.lineTo(12, 28); ctx.lineTo(10, 22);
-  ctx.closePath();
+  ctx.moveTo(21, 16); ctx.lineTo(24, 26); ctx.lineTo(22, 32); ctx.lineTo(18, 24);
   ctx.fill();
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.moveTo(21, 16); ctx.lineTo(24, 26); ctx.lineTo(21, 30);
+  ctx.fill();
+  ctx.fillStyle = '#e0f2fe';
+  ctx.fillRect(21, 18, 1, 4);
 
   return canvas;
 }
