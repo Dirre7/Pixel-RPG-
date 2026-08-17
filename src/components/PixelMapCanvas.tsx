@@ -120,6 +120,9 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       furnitureSheet2: new Image(),
       shrinesSheet: new Image(),
       sawtableAnim: new Image(),
+      gardenTiles: new Image(),
+      fairyProps: new Image(),
+      libraryTiles: new Image(),
     };
     gameAssets.house.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
     gameAssets.customHouses.src = '/houses.png';
@@ -150,6 +153,9 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     gameAssets.furnitureSheet2.src = '/Furniture Pack/Sheets/furniture-2-24x24-5x5-sheet.png';
     gameAssets.shrinesSheet.src = '/Furniture Pack/Sheets/shrines-altars-24x24-5x4-sheet.png';
     gameAssets.sawtableAnim.src = '/Furniture Pack/Animated/sawtable-30x30-Sheet.png';
+    gameAssets.gardenTiles.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Garden Environment/Assets/Tiles.png';
+    gameAssets.fairyProps.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Fairy Forest 1.7/Assets/Props.png';
+    gameAssets.libraryTiles.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Library/Assets/Tiles.png';
 
     let animId: number;
     let time = 0;
@@ -989,11 +995,57 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           }
-          if (93 >= startCol - 2 && 93 <= endCol + 2 && 109 >= startRow - 2 && 109 <= endRow + 2) {
+        }
+
+        // E. FASE 1: JARDINES URBANOS, BIBLIOTECA Y BOSQUE FEÉRICO (PIXEL CRAWLER)
+        // 1. Jardines Urbanos: Cipreses Esculpidos y Nenúfares
+        if (gameAssets.gardenTiles.complete && gameAssets.gardenTiles.naturalWidth > 0) {
+          // Cipreses en las esquinas de los bulevares
+          const cypresses = [{ x: 97, y: 94 }, { x: 103, y: 94 }];
+          cypresses.forEach(({ x, y }) => {
+            if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+              entities.push({
+                ySort: y * TILE_SIZE + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(gameAssets.gardenTiles, 155, 275, 35, 105, x * TILE_SIZE - 2, y * TILE_SIZE - 40, 24, 72);
+                },
+              });
+            }
+          });
+        }
+
+        // 2. Biblioteca Arcano: Gran Librería de Caoba y Mesa de Estudio
+        if (gameAssets.libraryTiles.complete && gameAssets.libraryTiles.naturalWidth > 0) {
+          if (110 >= startCol - 2 && 110 <= endCol + 2 && 88 >= startRow - 2 && 88 <= endRow + 2) {
             entities.push({
-              ySort: 109 * TILE_SIZE + TILE_SIZE,
+              ySort: 88 * TILE_SIZE + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(gameAssets.shrinesSheet, 72, 48, 24, 24, 93 * TILE_SIZE + 4, 109 * TILE_SIZE + 4, 24, 24);
+                c.drawImage(gameAssets.libraryTiles, 265, 340, 60, 65, 110 * TILE_SIZE - 4, 88 * TILE_SIZE + 2, 40, 44);
+              },
+            });
+          }
+        }
+
+        // 3. Claros del Bosque Esmeralda: Flores de Luz Feérica y Rocas Rúnicas
+        if (gameAssets.fairyProps.complete && gameAssets.fairyProps.naturalWidth > 0) {
+          // Flores Feéricas Gigantes
+          const fairyBlooms = [{ x: 84, y: 100 }, { x: 116, y: 100 }];
+          fairyBlooms.forEach(({ x, y }) => {
+            if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+              entities.push({
+                ySort: y * TILE_SIZE + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(gameAssets.fairyProps, 325, 0, 45, 60, x * TILE_SIZE - 4, y * TILE_SIZE - 12, 40, 48);
+                },
+              });
+            }
+          });
+          // Roca Rúnica con Ojo Arcano
+          if (96 >= startCol - 2 && 96 <= endCol + 2 && 110 >= startRow - 2 && 110 <= endRow + 2) {
+            entities.push({
+              ySort: 110 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.fairyProps, 195, 360, 45, 50, 96 * TILE_SIZE, 110 * TILE_SIZE - 8, 32, 40);
               },
             });
           }
