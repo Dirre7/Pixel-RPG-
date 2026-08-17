@@ -688,15 +688,13 @@ export function generateForest400(): {
   }
   map[360][360] = 11; map[356][360] = 17; map[364][360] = 17; map[360][356] = 7;
 
-  // DENSE SCATTER PASS EN LA NATURALEZA (Árboles, flores, cultivos, sin columnas aleatorias)
+  // DENSE SCATTER PASS EN LA NATURALEZA (Bosque puro y limpio: solo robles y flores silvestres)
   for (let y = 4; y < MAP_SIZE - 4; y++) {
     for (let x = 4; x < MAP_SIZE - 4; x++) {
       if (map[y][x] === 0) {
         const val = prng(x, y, 101);
-        if (val < 0.28) map[y][x] = 1;
-        else if (val < 0.38) map[y][x] = 12;
-        else if (val < 0.42) map[y][x] = 13;
-        else if (val < 0.44) map[y][x] = 19;
+        if (val < 0.28) map[y][x] = 1;      // Roble de fantasía
+        else if (val < 0.36) map[y][x] = 12; // Matorral silvestre / Rosas
       }
     }
   }
