@@ -60,11 +60,11 @@ function buildMockupTown(
 
   // Parterre Norte de la Glorieta
   map[cy - 2][cx] = 12; map[cy - 3][cx] = 12;
-  map[cy - 3][cx - 1] = 18; map[cy - 3][cx + 1] = 18;
+  map[cy - 3][cx - 1] = 17; map[cy - 3][cx + 1] = 17; // Farolas de forja iluminando la fuente
 
   // Parterre Sur de la Glorieta
   map[cy + 2][cx] = 12; map[cy + 3][cx] = 12;
-  map[cy + 3][cx - 1] = 18; map[cy + 3][cx + 1] = 18;
+  map[cy + 3][cx - 1] = 17; map[cy + 3][cx + 1] = 17; // Farolas de forja iluminando la fuente
 
   // Parterres Laterales
   map[cy][cx - 2] = 12; map[cy][cx - 3] = 12;
@@ -78,7 +78,7 @@ function buildMockupTown(
   map[cy - 8][cx - 1] = 9; // Casa Central Azul
 
   // Franjas de jardín/cultivo a los lados de la casa norte
-  map[cy - 11][cx - 3] = 18; map[cy - 10][cx - 3] = 12; map[cy - 9][cx - 3] = 12; map[cy - 8][cx - 3] = 18;
+  map[cy - 11][cx - 3] = 12; map[cy - 10][cx - 3] = 12; map[cy - 9][cx - 3] = 12; map[cy - 8][cx - 3] = 12;
   map[cy - 11][cx + 3] = 7;  map[cy - 10][cx + 3] = 13; map[cy - 9][cx + 3] = 13; map[cy - 8][cx + 3] = 7;
 
   // Manzana Residencial Noroeste (Césped, Estanque, Árboles)
@@ -567,12 +567,12 @@ export function generateForest400(): {
   map[340][228] = 13; // Gallina en la pradera
   map[340][239] = 13; // Vaca pastando en el cercado superior
   map[340][232] = 13; map[340][233] = 13; // Sacos y cajas de víveres
-  map[342][231] = 18; map[342][236] = 18; // Columnas de mármol del patio superior
+  map[342][231] = 12; map[342][236] = 12; // Rosales decorativos
 
-  // Patio Inferior y Accesos: Columnas y Almacén
-  map[355][228] = 18; // Columna patio izquierdo
-  map[355][237] = 18; // Columna patio derecho
-  map[355][244] = 18; // Columna entrada este
+  // Patio Inferior y Accesos: Farolas y Almacén
+  map[355][228] = 17; // Farola patio izquierdo
+  map[355][237] = 17; // Farola patio derecho
+  map[355][244] = 17; // Farola entrada este
   map[360][221] = 19; // Brasero esquina suroeste
 
   // Árboles enmarcando exclusivamente los laterales y la parte superior
@@ -637,7 +637,6 @@ export function generateForest400(): {
       map[y][x] = 0; // Hierba
     }
   }
-  map[326][243] = 18; // Columna clásica
   map[332][241] = 17; map[344][241] = 17; // Farolas del jardín
   map[349][242] = 13; map[349][243] = 13; map[350][242] = 13; map[350][243] = 13; // Parche de tierra
   map[328][242] = 1; map[334][243] = 1; map[340][242] = 1; map[346][243] = 1; map[352][242] = 1; // Árboles
@@ -657,8 +656,6 @@ export function generateForest400(): {
   map[334][266] = 13; // Casilla de pasto para la vaca
   map[335][267] = 3;  // Abrevadero de agua
   map[334][264] = 1;  // Árbol junto al corral
-  map[340][267] = 18; // Columna de mármol
-  map[348][264] = 18; // Columna de mármol
   map[348][265] = 19; // Brasero / Hoguera
   // Arboleda compacta inferior derecha
   for (let y = 350; y <= 355; y++) {
@@ -683,7 +680,7 @@ export function generateForest400(): {
   }
   map[325][335] = 7; // Cofre gótico
 
-  // Portal del Dragón Primigenio (X: 360, Y: 360)
+  // Portal del Dragón Primigenio (X: 360, Y: 360) - Círculo Ceremonial de Columnas de Mármol
   for (let y = 352; y <= 368; y++) {
     for (let x = 352; x <= 368; x++) {
       map[y][x] = (x === 352 || x === 368 || y === 352 || y === 368) ? 18 : 2;
@@ -691,7 +688,7 @@ export function generateForest400(): {
   }
   map[360][360] = 11; map[356][360] = 17; map[364][360] = 17; map[360][356] = 7;
 
-  // DENSE SCATTER PASS EN LA NATURALEZA
+  // DENSE SCATTER PASS EN LA NATURALEZA (Árboles, flores, cultivos, sin columnas aleatorias)
   for (let y = 4; y < MAP_SIZE - 4; y++) {
     for (let x = 4; x < MAP_SIZE - 4; x++) {
       if (map[y][x] === 0) {
@@ -700,7 +697,6 @@ export function generateForest400(): {
         else if (val < 0.38) map[y][x] = 12;
         else if (val < 0.42) map[y][x] = 13;
         else if (val < 0.44) map[y][x] = 19;
-        else if (val < 0.46) map[y][x] = 18;
       }
     }
   }

@@ -528,12 +528,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 18) {
-            // Columna de Ruina Clásica
+            // Columna Monumental de Mármol Clásico con Hiedra (28x44 px)
             const pillar = getRuinedPillarCanvas();
             entities.push({
-              ySort: posY + TILE_SIZE,
+              ySort: posY + TILE_SIZE + 4,
               draw: (c) => {
-                c.drawImage(pillar, posX + 4, posY - 2, 24, 36);
+                c.drawImage(pillar, posX + 2, posY - 10, 28, 44);
               },
             });
           } else if (tileType === 19) {

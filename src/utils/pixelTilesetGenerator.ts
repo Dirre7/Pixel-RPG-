@@ -1027,27 +1027,77 @@ export function getGraveyardCanvas(): HTMLCanvasElement {
 }
 
 /**
- * 🏛️ COLUMNA DE RUINA CLÁSICA (24x36 px)
+ * 🏛️ COLUMNA MONUMENTAL DE MÁRMOL CLÁSICO CON HIEDRA (28x44 px)
  */
 export function getRuinedPillarCanvas(): HTMLCanvasElement {
+  const cacheKey = 'classical_marble_column_25d';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
-  canvas.width = 24;
-  canvas.height = 36;
+  canvas.width = 28;
+  canvas.height = 44;
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
 
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
-  ctx.fillRect(2, 30, 20, 4);
+  // Sombra de contacto en el suelo
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+  ctx.beginPath();
+  ctx.ellipse(14, 39, 12, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
 
+  // Pedestal inferior de sillar de piedra con molduras
+  ctx.fillStyle = '#334155'; // Base oscura
+  ctx.fillRect(4, 34, 20, 6);
+  ctx.fillStyle = '#64748b'; // Bisel inferior
+  ctx.fillRect(5, 34, 18, 5);
+  ctx.fillStyle = '#94a3b8'; // Moldura intermedia
+  ctx.fillRect(6, 31, 16, 3);
+  ctx.fillStyle = '#cbd5e1'; // Luz en la repisa del pedestal
+  ctx.fillRect(6, 31, 16, 1);
+
+  // Fuste de columna cilíndrica estriada (Cuerpo)
+  ctx.fillStyle = '#475569'; // Sombra lateral izquierda
+  ctx.fillRect(8, 11, 2, 20);
+  ctx.fillStyle = '#94a3b8'; // Cuerpo principal de mármol
+  ctx.fillRect(10, 11, 8, 20);
+  ctx.fillStyle = '#cbd5e1'; // Franja iluminada
+  ctx.fillRect(11, 11, 4, 20);
+  ctx.fillStyle = '#f1f5f9'; // Reflejo de luz frontal
+  ctx.fillRect(12, 11, 2, 20);
+  ctx.fillStyle = '#334155'; // Sombra lateral derecha
+  ctx.fillRect(18, 11, 2, 20);
+
+  // Estrías verticales del mármol
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(10, 11, 1, 20);
+  ctx.fillRect(14, 11, 1, 20);
+  ctx.fillRect(17, 11, 1, 20);
+
+  // Hiedra trepadora sutil en la columna
+  ctx.fillStyle = '#14532d';
+  ctx.fillRect(8, 26, 3, 3); ctx.fillRect(9, 21, 2, 2); ctx.fillRect(17, 28, 2, 3);
+  ctx.fillStyle = '#22c55e';
+  ctx.fillRect(8, 26, 2, 2); ctx.fillRect(9, 21, 1, 1); ctx.fillRect(17, 28, 1, 2);
+
+  // Capitel jónico/corintio superior con volutas labradas
+  ctx.fillStyle = '#334155'; // Sombra bajo el capitel
+  ctx.fillRect(6, 9, 16, 2);
+  ctx.fillStyle = '#64748b'; // Cuerpo del capitel
+  ctx.fillRect(5, 6, 18, 4);
+  ctx.fillStyle = '#94a3b8'; // Relieve frontal
+  ctx.fillRect(6, 6, 16, 3);
+  ctx.fillStyle = '#cbd5e1'; // Coronación superior
+  ctx.fillRect(4, 3, 20, 3);
+  ctx.fillStyle = '#f8fafc'; // Brillo en la cornisa
+  ctx.fillRect(5, 3, 18, 1);
+
+  // Volutas en los extremos del capitel
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(4, 5, 2, 2); ctx.fillRect(22, 5, 2, 2);
   ctx.fillStyle = '#cbd5e1';
-  ctx.fillRect(6, 8, 12, 22);
-  ctx.fillStyle = '#e2e8f0';
-  ctx.fillRect(8, 8, 3, 22); ctx.fillRect(13, 8, 3, 22);
+  ctx.fillRect(5, 5, 1, 1); ctx.fillRect(22, 5, 1, 1);
 
-  ctx.fillStyle = '#94a3b8';
-  ctx.fillRect(4, 4, 16, 4);
-  ctx.fillRect(4, 28, 16, 4);
-
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
