@@ -39,6 +39,7 @@ import {
   getWoodenFenceCanvas,
   getFarmCropCanvas,
   getWaterTroughCanvas,
+  getWoodenBenchCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -101,6 +102,13 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       anvil: new Image(),
       alchemy: new Image(),
       farmProps: new Image(),
+      cooking: new Image(),
+      sawmill: new Image(),
+      workbench: new Image(),
+      furniture: new Image(),
+      tools: new Image(),
+      resources: new Image(),
+      esoteric: new Image(),
       knightIdle: new Image(),
       wizzardIdle: new Image(),
       rogueIdle: new Image(),
@@ -119,6 +127,13 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     gameAssets.anvil.src = '/Pixel Crawler - Free Pack/Environment/Structures/Stations/Anvil/Anvil_01-Sheet.png';
     gameAssets.alchemy.src = '/Pixel Crawler - Free Pack/Environment/Structures/Stations/Alchemy/Alchemy_Table_01-Sheet.png';
     gameAssets.farmProps.src = '/Pixel Crawler - Free Pack/Environment/Props/Static/Farm.png';
+    gameAssets.cooking.src = '/Pixel Crawler - Free Pack/Environment/Structures/Stations/Cooking Station/Cooking Station.png';
+    gameAssets.sawmill.src = '/Pixel Crawler - Free Pack/Environment/Structures/Stations/Sawmill/Base.png';
+    gameAssets.workbench.src = '/Pixel Crawler - Free Pack/Environment/Structures/Stations/Workbench/Workbench.png';
+    gameAssets.furniture.src = '/Pixel Crawler - Free Pack/Environment/Props/Static/Furniture.png';
+    gameAssets.tools.src = '/Pixel Crawler - Free Pack/Environment/Props/Static/Tools.png';
+    gameAssets.resources.src = '/Pixel Crawler - Free Pack/Environment/Props/Static/Resources.png';
+    gameAssets.esoteric.src = '/Pixel Crawler - Free Pack/Environment/Props/Static/Esoteric.png';
     gameAssets.knightIdle.src = '/Pixel Crawler - Free Pack/Entities/Npc\'s/Knight/Idle/Idle-Sheet.png';
     gameAssets.wizzardIdle.src = '/Pixel Crawler - Free Pack/Entities/Npc\'s/Wizzard/Idle/Idle-Sheet.png';
     gameAssets.rogueIdle.src = '/Pixel Crawler - Free Pack/Entities/Npc\'s/Rogue/Idle/Idle-Sheet.png';
@@ -702,9 +717,17 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         }
       }
 
-      // 2. Ciudadanos y Comerciantes de la Gran Capital (Pixel Crawler Roster)
+      // 2. Ciudadanos, Guardias y Decoraciones Estructuradas de la Ciudad de Roble
       if (currentZone.id === 'zone_forest') {
-        const capitalCitizens = [
+        // A. GUARDIAS REALES DE LAS 4 PUERTAS Y CIUDADANOS
+        const townCitizens = [
+          // Guardias de las 4 Puertas de la Ciudad de Roble
+          { name: 'Guardia Real (Puerta Norte)', class: 'Paladín' as const, x: 100, y: 86, dir: 'down' as Direction, type: 'knight' },
+          { name: 'Guardia Real (Puerta Sur)', class: 'Paladín' as const, x: 100, y: 114, dir: 'up' as Direction, type: 'knight' },
+          { name: 'Guardia Real (Puerta Oeste)', class: 'Paladín' as const, x: 86, y: 100, dir: 'right' as Direction, type: 'knight' },
+          { name: 'Guardia Real (Puerta Este)', class: 'Paladín' as const, x: 114, y: 100, dir: 'left' as Direction, type: 'knight' },
+
+          // Ciudadanos de la Gran Capital (Sureste)
           { name: 'Capitán Garrett (Guardia Real)', class: 'Paladín' as const, x: 240, y: 304, dir: 'down' as Direction, type: 'knight' },
           { name: 'Archimago Thorne', class: 'Mago' as const, x: 276, y: 314, dir: 'down' as Direction, type: 'wizzard' },
           { name: 'Sacerdotisa Solaria', class: 'Paladín' as const, x: 218, y: 314, dir: 'down' as Direction, type: 'peasant' },
@@ -716,14 +739,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           { name: 'Curtidor Gareth', class: 'Arquero' as const, x: 206, y: 342, dir: 'down' as Direction, type: 'peasant' },
           { name: 'Doncella Beatrix', class: 'Arquero' as const, x: 226, y: 346, dir: 'right' as Direction, type: 'tavern' },
           { name: 'Granjero Tobías', class: 'Guerrero' as const, x: 202, y: 354, dir: 'down' as Direction, type: 'peasant' },
-          { name: 'Guardia del Portal Sur', class: 'Paladín' as const, x: 240, y: 362, dir: 'up' as Direction, type: 'knight' },
         ];
 
-        capitalCitizens.forEach((citizen) => {
+        townCitizens.forEach((citizen) => {
           const cCol = citizen.x;
           const cRow = citizen.y;
 
-          // Only render if in viewport
           if (cCol >= startCol - 2 && cCol <= endCol + 2 && cRow >= startRow - 2 && cRow <= endRow + 2) {
             const drawX = cCol * TILE_SIZE;
             const drawY = cRow * TILE_SIZE;
@@ -731,13 +752,11 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             entities.push({
               ySort: drawY + TILE_SIZE,
               draw: (c) => {
-                // Sombra circular en los pies
                 c.fillStyle = 'rgba(0, 0, 0, 0.4)';
                 c.beginPath();
                 c.ellipse(drawX + 16, drawY + 30, 8, 3, 0, 0, Math.PI * 2);
                 c.fill();
 
-                // Sprite animado del personaje según su rol oficial
                 if (citizen.type === 'knight' && gameAssets.knightIdle.complete && gameAssets.knightIdle.naturalWidth > 0) {
                   const kFrame = Math.floor(time * 4) % 4;
                   c.drawImage(gameAssets.knightIdle, kFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
@@ -758,7 +777,6 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                   c.drawImage(sprite, drawX, drawY, 32, 32);
                 }
 
-                // Cartel flotante de nombre y rol
                 c.fillStyle = 'rgba(15, 23, 42, 0.85)';
                 c.beginPath();
                 c.roundRect(drawX - 24, drawY - 14, 80, 12, 4);
@@ -772,6 +790,106 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             });
           }
         });
+
+        // B. DECORACIONES ESTRUCTURADAS DE LA CIUDAD DE ROBLE (PIXEL CRAWLER)
+        // 1. Plaza Mayor: 4 Bancos de Madera Tallada
+        const plazaBenches = [{ x: 98, y: 98 }, { x: 102, y: 98 }, { x: 98, y: 102 }, { x: 102, y: 102 }];
+        plazaBenches.forEach(({ x, y }) => {
+          if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+            const bench = getWoodenBenchCanvas();
+            entities.push({
+              ySort: y * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(bench, x * TILE_SIZE, y * TILE_SIZE, 32, 32);
+              },
+            });
+          }
+        });
+
+        // 2. Terraza de la Posada: Cocina animada con olla y barriles
+        if (gameAssets.cooking.complete && gameAssets.cooking.naturalWidth > 0) {
+          const cookX = 97 * TILE_SIZE;
+          const cookY = 89 * TILE_SIZE;
+          if (97 >= startCol - 2 && 97 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
+            entities.push({
+              ySort: cookY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.cooking, 0, 0, 32, 32, cookX, cookY, 32, 32);
+              },
+            });
+          }
+        }
+
+        // 3. Botica: Mesa de Alquimia Animada
+        if (gameAssets.alchemy.complete && gameAssets.alchemy.naturalWidth > 0) {
+          const alchX = 111 * TILE_SIZE;
+          const alchY = 89 * TILE_SIZE;
+          if (111 >= startCol - 2 && 111 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
+            const alchFrame = Math.floor(time * 3) % 3;
+            entities.push({
+              ySort: alchY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.alchemy, alchFrame * 32, 0, 32, 32, alchX, alchY, 32, 32);
+              },
+            });
+          }
+        }
+
+        // 4. Taller de Carpintería: Banco de Trabajo y Aserradero
+        if (gameAssets.workbench.complete && gameAssets.workbench.naturalWidth > 0) {
+          const wbX = 106 * TILE_SIZE;
+          const wbY = 89 * TILE_SIZE;
+          if (106 >= startCol - 2 && 106 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
+            entities.push({
+              ySort: wbY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.workbench, 0, 0, 32, 32, wbX, wbY, 32, 32);
+              },
+            });
+          }
+        }
+
+        // 5. Forja: Lingotes y Herramientas
+        if (gameAssets.resources.complete && gameAssets.resources.naturalWidth > 0) {
+          const resX = 89 * TILE_SIZE;
+          const resY = 89 * TILE_SIZE;
+          if (89 >= startCol - 2 && 89 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
+            entities.push({
+              ySort: resY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.resources, 0, 0, 32, 32, resX, resY, 32, 32);
+              },
+            });
+          }
+        }
+
+        // 6. Granja: Espantapájaros en el huerto
+        if (gameAssets.farmProps.complete && gameAssets.farmProps.naturalWidth > 0) {
+          const scX = 109 * TILE_SIZE;
+          const scY = 109 * TILE_SIZE;
+          if (109 >= startCol - 2 && 109 <= endCol + 2 && 109 >= startRow - 2 && 109 <= endRow + 2) {
+            entities.push({
+              ySort: scY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.farmProps, 0, 0, 32, 32, scX, scY, 32, 32);
+              },
+            });
+          }
+        }
+
+        // 7. Santuario: Candelabro y Libros Sagrados
+        if (gameAssets.esoteric.complete && gameAssets.esoteric.naturalWidth > 0) {
+          const esoX = 92 * TILE_SIZE;
+          const esoY = 109 * TILE_SIZE;
+          if (92 >= startCol - 2 && 92 <= endCol + 2 && 109 >= startRow - 2 && 109 <= endRow + 2) {
+            entities.push({
+              ySort: esoY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.esoteric, 0, 0, 32, 32, esoX, esoY, 32, 32);
+              },
+            });
+          }
+        }
       }
 
       // 3. Cofres del tesoro registrados en currentZone.chests (si no están ya en tileData)
