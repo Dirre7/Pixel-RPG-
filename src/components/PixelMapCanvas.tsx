@@ -131,6 +131,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       hideoutTiles: new Image(),
       sewerProps: new Image(),
       ratWarriorIdle: new Image(),
+      floorTiles: new Image(),
     };
     gameAssets.house.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
     gameAssets.customHouses.src = '/houses.png';
@@ -172,6 +173,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     gameAssets.hideoutTiles.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Hideout/Assets/Tiles.png';
     gameAssets.sewerProps.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Sewer/Assets/Props.png';
     gameAssets.ratWarriorIdle.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Sewer/Enemy/Rat - Warrior/Idle/Idle-Sheet.png';
+    gameAssets.floorTiles.src = '/Pixel Crawler - Free Pack/Environment/Tilesets/Floors_Tiles.png';
 
     let animId: number;
     let time = 0;
@@ -179,6 +181,13 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
     const render = () => {
       time += 0.03;
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.imageSmoothingEnabled = false;
 
       // Interpolación suave del jugador hacia la casilla destino
       const lerpSpeed = 0.22;
@@ -216,21 +225,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       const getGroundType = (gx: number, gy: number): number => {
         if (gy < 0 || gy >= rows || gx < 0 || gx >= cols) return 0;
         const raw = currentZone.tileData[gy][gx];
-        if (raw === 0 || raw === 2 || raw === 3) return raw;
-
-        // Para casillas de huerto (13): solo si están en un gran campo de cultivo (>2 vecinos 13) es tierra arada (13); si son animales o plantas sueltas, es CÉSPED (0)!
-        if (raw === 13) {
-          let farmNeighbors = 0;
-          const offsets = [[0, -1], [0, 1], [-1, 0], [1, 0]];
-          for (const [ox, oy] of offsets) {
-            const nx = gx + ox;
-            const ny = gy + oy;
-            if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && currentZone.tileData[ny][nx] === 13) {
-              farmNeighbors++;
-            }
-          }
-          return farmNeighbors >= 3 ? 13 : 0;
-        }
+        if (raw === 0 || raw === 2 || raw === 3 || raw === 4 || raw === 8 || raw === 13) return raw;
 
         // Para objetos colocados en la calle (farolas 17, pilares 18, cofres 7, puestos 9, etc.)
         let pathNeighbors = 0;
@@ -247,8 +242,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       };
 
       // ------------------------------------------------------------------------
-      // CAPA 0: BALDOSAS DE SUELO Y CALZADAS CON AUTOTILING ORGÁNICO (SEAMLESS 2.5D)
+      // CAPA 0: BALDOSAS DE SUELO Y CALZADAS (TEXTURAS AUTÉNTICAS PIXEL CRAWLER)
       // ------------------------------------------------------------------------
+      const hasFloorTiles = gameAssets.floorTiles.complete && gameAssets.floorTiles.naturalWidth > 0;
+
       for (let y = startRow; y <= endRow; y++) {
         for (let x = startCol; x <= endCol; x++) {
           const groundType = getGroundType(x, y);
@@ -258,51 +255,37 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           if (currentZone.id === 'zone_forest' && groundType === 13 && gameAssets.farmLand.complete && gameAssets.farmLand.naturalWidth > 0) {
             // Tierra de cultivo fértil
             ctx.drawImage(gameAssets.farmLand, 16, 16, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+          } else if (hasFloorTiles) {
+            if (currentZone.id === 'zone_forest') {
+              if (groundType === 2) {
+                const inTown = x >= 78 && x <= 122 && y >= 78 && y <= 122;
+                if (inTown) {
+                  // Adoquines auténticos 16x16 de Pixel Crawler Floors_Tiles (96, 160)
+                  ctx.drawImage(gameAssets.floorTiles, 96, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+                } else {
+                  // Tierra batida auténtica 16x16 de Pixel Crawler Floors_Tiles (176, 160)
+                  ctx.drawImage(gameAssets.floorTiles, 176, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+                }
+              } else if (groundType === 0) {
+                // Césped auténtico 16x16 de Pixel Crawler Floors_Tiles (16, 160)
+                ctx.drawImage(gameAssets.floorTiles, 16, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+              } else {
+                const tileCanvas = getTileCanvas(groundType, currentZone.id, (x * 3 + y * 7) % 8);
+                ctx.drawImage(tileCanvas, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+              }
+            } else if (currentZone.id === 'zone_castle' || currentZone.id === 'zone_sanctuary') {
+              // Piedra sillar 16x16 de Pixel Crawler Floors_Tiles (256, 16)
+              ctx.drawImage(gameAssets.floorTiles, 256, 16, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+            } else if (currentZone.id === 'zone_tundra') {
+              // Nieve y hielo 16x16 de Pixel Crawler Floors_Tiles (16, 352)
+              ctx.drawImage(gameAssets.floorTiles, 16, 352, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+            } else {
+              const tileCanvas = getTileCanvas(groundType, currentZone.id, (x * 3 + y * 7) % 8);
+              ctx.drawImage(tileCanvas, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+            }
           } else {
             const tileCanvas = getTileCanvas(groundType, currentZone.id, (x * 3 + y * 7) % 8);
             ctx.drawImage(tileCanvas, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
-          }
-
-          // TRANSICIÓN ORGÁNICA DE BORDES (BITING GRASS EDGES SOBRE CAMINOS)
-          if (currentZone.id === 'zone_forest' && groundType === 2) {
-            const topGrass = y > 0 && getGroundType(x, y - 1) === 0;
-            const bottomGrass = y < rows - 1 && getGroundType(x, y + 1) === 0;
-            const leftGrass = x > 0 && getGroundType(x - 1, y) === 0;
-            const rightGrass = x < cols - 1 && getGroundType(x + 1, y) === 0;
-
-            if (topGrass) {
-              ctx.fillStyle = '#2d6318'; ctx.fillRect(drawPosX, drawPosY + 3, 32, 2);
-              ctx.fillStyle = '#4a9b2b'; ctx.fillRect(drawPosX, drawPosY, 32, 3);
-              ctx.fillStyle = '#56ad32';
-              ctx.fillRect(drawPosX + 2, drawPosY + 2, 4, 3);
-              ctx.fillRect(drawPosX + 10, drawPosY + 1, 5, 4);
-              ctx.fillRect(drawPosX + 18, drawPosY + 2, 5, 3);
-              ctx.fillRect(drawPosX + 26, drawPosY + 1, 4, 4);
-            }
-            if (bottomGrass) {
-              ctx.fillStyle = '#2d6318'; ctx.fillRect(drawPosX, drawPosY + 27, 32, 2);
-              ctx.fillStyle = '#4a9b2b'; ctx.fillRect(drawPosX, drawPosY + 29, 32, 3);
-              ctx.fillStyle = '#56ad32';
-              ctx.fillRect(drawPosX + 4, drawPosY + 26, 5, 3);
-              ctx.fillRect(drawPosX + 14, drawPosY + 27, 4, 3);
-              ctx.fillRect(drawPosX + 22, drawPosY + 26, 5, 4);
-            }
-            if (leftGrass) {
-              ctx.fillStyle = '#2d6318'; ctx.fillRect(drawPosX + 3, drawPosY, 2, 32);
-              ctx.fillStyle = '#4a9b2b'; ctx.fillRect(drawPosX, drawPosY, 3, 32);
-              ctx.fillStyle = '#56ad32';
-              ctx.fillRect(drawPosX + 2, drawPosY + 3, 3, 4);
-              ctx.fillRect(drawPosX + 1, drawPosY + 12, 4, 5);
-              ctx.fillRect(drawPosX + 2, drawPosY + 21, 3, 5);
-            }
-            if (rightGrass) {
-              ctx.fillStyle = '#2d6318'; ctx.fillRect(drawPosX + 27, drawPosY, 2, 32);
-              ctx.fillStyle = '#4a9b2b'; ctx.fillRect(drawPosX + 29, drawPosY, 3, 32);
-              ctx.fillStyle = '#56ad32';
-              ctx.fillRect(drawPosX + 26, drawPosY + 5, 3, 4);
-              ctx.fillRect(drawPosX + 27, drawPosY + 15, 3, 4);
-              ctx.fillRect(drawPosX + 26, drawPosY + 24, 4, 4);
-            }
           }
         }
       }
@@ -1053,17 +1036,6 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           });
         }
 
-        // 2. Biblioteca Arcano: Gran Librería de Caoba y Mesa de Estudio
-        if (gameAssets.libraryTiles.complete && gameAssets.libraryTiles.naturalWidth > 0) {
-          if (110 >= startCol - 2 && 110 <= endCol + 2 && 88 >= startRow - 2 && 88 <= endRow + 2) {
-            entities.push({
-              ySort: 88 * TILE_SIZE + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(gameAssets.libraryTiles, 265, 340, 60, 65, 110 * TILE_SIZE - 4, 88 * TILE_SIZE + 2, 40, 44);
-              },
-            });
-          }
-        }
 
         // 3. Claros del Bosque Esmeralda: Flores de Luz Feérica y Rocas Rúnicas
         if (gameAssets.fairyProps.complete && gameAssets.fairyProps.naturalWidth > 0) {

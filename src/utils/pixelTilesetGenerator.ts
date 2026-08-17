@@ -193,15 +193,8 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
   // 12. ARBUSTOS DE BAYAS Y SETOS DE BOJ
   // ---------------------------------------------------------------------------
   else if (tileType === 12) {
-    ctx.fillStyle = '#408722';
-    ctx.fillRect(0, 0, 32, 32);
-
-    // Arbusto redondeado denso
-    // ---------------------------------------------------------------------------
-    // 12. SETOS Y ROSALES DE JARDÍN (ESTILO FOLLAJE OAK TREE 2.5D)
-    // ---------------------------------------------------------------------------
     // Sombra de contacto en el suelo
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
     ctx.beginPath();
     ctx.ellipse(16, 27, 13, 4, 0, 0, Math.PI * 2);
     ctx.fill();
