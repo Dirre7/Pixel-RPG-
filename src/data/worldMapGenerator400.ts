@@ -120,18 +120,21 @@ function buildMockupTown(
   map[cy][cx] = 4; // Gran Fuente Central (Beber agua restaura HP/MP)
 
   // 5. CUADRANTE NOROESTE (Distrito Artesanal & Comercial)
-  // Gran Posada del Roble (Casa 1: en su propia parcela adoquinada, fuera del camino central)
-  map[cy - 12][cx - 4] = 5;
-  map[cy - 10][cx - 5] = 17; // Farola en la entrada de la posada
+  // Gran Posada del Roble (en su propia parcela adoquinada, fuera del camino central)
+  map[cy - 12][cx - 5] = 5;
+  map[cy - 12][cx - 2] = 5; // Círculo 1: Casa Norte-Oeste junto a la avenida
 
   // Taller de Gran Forja & Armería
   map[cy - 12][cx - 10] = 10;
   map[cy - 13][cx - 11] = 19; // Brasero de carbón
-  map[cy - 10][cx - 9] = 17;  // Farola de la forja
 
-  // Panadería de la Aldea (Casa 2)
-  map[cy - 8][cx - 8] = 5;
-  map[cy - 7][cx - 6] = 17; // Farola en la puerta
+  // Manzana Central Oeste (3 Casas en fila - Círculos 3, 4, 5)
+  map[cy - 8][cx - 8] = 5; // Casa 1 bulevar oeste (Círculo 3)
+  map[cy - 8][cx - 6] = 5; // Casa 2 bulevar oeste (Círculo 4)
+  map[cy - 8][cx - 4] = 5; // Casa 3 bulevar oeste (Círculo 5)
+
+  // Esquina Noroeste de la Plaza Mayor (Círculo 9)
+  map[cy - 3][cx - 5] = 5;
 
   // Hilera de Puestos de Mercado del Bazar
   map[cy - 7][cx - 12] = 9; map[cy - 7][cx - 10] = 9;
@@ -139,20 +142,20 @@ function buildMockupTown(
   map[cy - 5][cx - 13] = 7; // Cofre del bazar
 
   // 6. CUADRANTE NORESTE (Distrito Residencial & Administrativo)
-  // Casa Consistorial / Ayuntamiento (Casa 3)
-  map[cy - 12][cx + 5] = 5;
-  map[cy - 10][cx + 4] = 17; // Farola en la puerta
-  map[cy - 13][cx + 7] = 12; // Rosales
+  // Casa Consistorial / Ayuntamiento y Casa Norte-Este
+  map[cy - 12][cx + 2] = 5; // Círculo 2: Casa Norte-Este junto a la avenida
+  map[cy - 12][cx + 5] = 5; // Casa Consistorial
 
-  // Botica del Boticario (Casa 4)
+  // Botica del Boticario
   map[cy - 12][cx + 10] = 27;
-  map[cy - 10][cx + 9] = 17; // Farola en la puerta
-  map[cy - 13][cx + 12] = 12; // Hierbas medicinales
 
-  // Casa Residencial "Los Álamos 1" (Casa 5)
-  map[cy - 8][cx + 8] = 5;
-  map[cy - 7][cx + 6] = 17; // Farola en la puerta
-  map[cy - 8][cx + 11] = 12; // Rosales
+  // Manzana Central Este (3 Casas en fila - Círculos 6, 7, 8)
+  map[cy - 8][cx + 4] = 5; // Casa 1 residencial este (Círculo 6)
+  map[cy - 8][cx + 6] = 5; // Casa 2 residencial este (Círculo 7)
+  map[cy - 8][cx + 8] = 5; // Casa 3 residencial este (Círculo 8)
+
+  // Esquina Noreste de la Plaza Mayor (Círculo 10)
+  map[cy - 3][cx + 5] = 5;
 
   // 7. CUADRANTE SURESTE (Barrio Residencial Sur & Granja)
   // Casa Residencial "Los Álamos 2" (Casa 6)
