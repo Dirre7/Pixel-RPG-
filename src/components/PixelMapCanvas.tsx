@@ -123,6 +123,9 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       gardenTiles: new Image(),
       fairyProps: new Image(),
       libraryTiles: new Image(),
+      caveProps: new Image(),
+      caveTiles: new Image(),
+      batMove: new Image(),
     };
     gameAssets.house.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
     gameAssets.customHouses.src = '/houses.png';
@@ -156,6 +159,9 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     gameAssets.gardenTiles.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Garden Environment/Assets/Tiles.png';
     gameAssets.fairyProps.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Fairy Forest 1.7/Assets/Props.png';
     gameAssets.libraryTiles.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Library/Assets/Tiles.png';
+    gameAssets.caveProps.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Cave/Assets/Props.png';
+    gameAssets.caveTiles.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Cave/Assets/Tiles.png';
+    gameAssets.batMove.src = '/Pixel Crawler - Free Pack/Small_Bat/Move/Move_Down-Sheet.png';
 
     let animId: number;
     let time = 0;
@@ -1049,6 +1055,58 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           }
+        }
+      }
+
+      // FASE 2: MINAS DE ERIDU Y CUEVA DE SOMBRAS (PIXEL CRAWLER CAVE & BATS)
+      if (currentZone.id === 'zone_cave') {
+        // 1. Hongos Gigantes Subterráneos Bioluminiscentes
+        if (gameAssets.caveProps.complete && gameAssets.caveProps.naturalWidth > 0) {
+          const caveShrooms = [
+            { x: 194, y: 194 }, { x: 206, y: 194 }, { x: 194, y: 206 }, { x: 206, y: 206 }
+          ];
+          caveShrooms.forEach(({ x, y }) => {
+            if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+              entities.push({
+                ySort: y * TILE_SIZE + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(gameAssets.caveProps, 0, 0, 100, 90, x * TILE_SIZE - 20, y * TILE_SIZE - 40, 72, 64);
+                },
+              });
+            }
+          });
+        }
+
+        // 2. Murciélagos Animados Aleteando en las Galerías (Small_Bat)
+        if (gameAssets.batMove.complete && gameAssets.batMove.naturalWidth > 0) {
+          const batSpawns = [
+            { x: 198, y: 196, offset: 0 },
+            { x: 204, y: 198, offset: 1.5 },
+            { x: 196, y: 204, offset: 3 },
+            { x: 202, y: 205, offset: 4.5 }
+          ];
+          batSpawns.forEach(({ x, y, offset }) => {
+            if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+              const bFrame = Math.floor((time * 8) + offset) % 4;
+              const hoverY = Math.sin(time * 3 + offset) * 6;
+              const hoverX = Math.cos(time * 2 + offset) * 8;
+              const drawX = x * TILE_SIZE + hoverX;
+              const drawY = y * TILE_SIZE + hoverY;
+
+              entities.push({
+                ySort: y * TILE_SIZE + TILE_SIZE + 10,
+                draw: (c) => {
+                  // Sombra del murciélago en el suelo
+                  c.fillStyle = 'rgba(0, 0, 0, 0.35)';
+                  c.beginPath();
+                  c.ellipse(drawX + 16, y * TILE_SIZE + 24, 6, 2.5, 0, 0, Math.PI * 2);
+                  c.fill();
+                  // Sprite animado del murciélago volando
+                  c.drawImage(gameAssets.batMove, bFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
+                },
+              });
+            }
+          });
         }
       }
 
