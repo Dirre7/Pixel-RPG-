@@ -116,6 +116,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       rogueIdle: new Image(),
       peasantIdle: new Image(),
       tavernIdle: new Image(),
+      furnitureSheet1: new Image(),
+      furnitureSheet2: new Image(),
+      shrinesSheet: new Image(),
+      sawtableAnim: new Image(),
     };
     gameAssets.house.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
     gameAssets.customHouses.src = '/houses.png';
@@ -142,6 +146,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     gameAssets.rogueIdle.src = '/Pixel Crawler - Free Pack/Entities/Npc\'s/Rogue/Idle/Idle-Sheet.png';
     gameAssets.peasantIdle.src = '/Pixel Crawler - Free Pack/Entities/Npc\'s/Citizen_F/Peasant_A/Idle/Idle-Sheet.png';
     gameAssets.tavernIdle.src = '/Pixel Crawler - Free Pack/Entities/Npc\'s/Citizen_F/Tavern_A/Idle/Idle_Side-Sheet.png';
+    gameAssets.furnitureSheet1.src = '/Furniture Pack/Sheets/furniture-24x24-5x4-sheet.png';
+    gameAssets.furnitureSheet2.src = '/Furniture Pack/Sheets/furniture-2-24x24-5x5-sheet.png';
+    gameAssets.shrinesSheet.src = '/Furniture Pack/Sheets/shrines-altars-24x24-5x4-sheet.png';
+    gameAssets.sawtableAnim.src = '/Furniture Pack/Animated/sawtable-30x30-Sheet.png';
 
     let animId: number;
     let time = 0;
@@ -887,15 +895,105 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           }
         }
 
-        // 7. Santuario: Candelabro y Libros Sagrados
-        if (gameAssets.esoteric.complete && gameAssets.esoteric.naturalWidth > 0) {
-          const esoX = 92 * TILE_SIZE;
-          const esoY = 109 * TILE_SIZE;
-          if (92 >= startCol - 2 && 92 <= endCol + 2 && 109 >= startRow - 2 && 109 <= endRow + 2) {
+        // 8. ELEMENTOS TEMÁTICOS DEL FURNITURE PACK
+        // A. Patio de Entrenamiento de la Guardia (Puerta Norte)
+        if (gameAssets.furnitureSheet2.complete && gameAssets.furnitureSheet2.naturalWidth > 0) {
+          // Muñeco de entrenamiento con escudo
+          if (98 >= startCol - 2 && 98 <= endCol + 2 && 86 >= startRow - 2 && 86 <= endRow + 2) {
             entities.push({
-              ySort: esoY + TILE_SIZE,
+              ySort: 86 * TILE_SIZE + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(gameAssets.esoteric, 0, 0, 32, 32, esoX, esoY, 32, 32);
+                c.drawImage(gameAssets.furnitureSheet2, 72, 48, 24, 24, 98 * TILE_SIZE + 4, 86 * TILE_SIZE + 4, 24, 24);
+              },
+            });
+          }
+          // Muñeco de entrenamiento estándar
+          if (97 >= startCol - 2 && 97 <= endCol + 2 && 86 >= startRow - 2 && 86 <= endRow + 2) {
+            entities.push({
+              ySort: 86 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.furnitureSheet2, 72, 24, 24, 24, 97 * TILE_SIZE + 4, 86 * TILE_SIZE + 4, 24, 24);
+              },
+            });
+          }
+          // Poste de combate de madera
+          if (98 >= startCol - 2 && 98 <= endCol + 2 && 87 >= startRow - 2 && 87 <= endRow + 2) {
+            entities.push({
+              ySort: 87 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.furnitureSheet2, 72, 0, 24, 24, 98 * TILE_SIZE + 4, 87 * TILE_SIZE + 4, 24, 24);
+              },
+            });
+          }
+          // Estandarte Real del León Dorado (Entrada Norte)
+          if (102 >= startCol - 2 && 102 <= endCol + 2 && 86 >= startRow - 2 && 86 <= endRow + 2) {
+            entities.push({
+              ySort: 86 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.furnitureSheet2, 0, 48, 24, 24, 102 * TILE_SIZE + 4, 86 * TILE_SIZE + 4, 24, 24);
+              },
+            });
+          }
+          // Estandartes del Ayuntamiento
+          if (104 >= startCol - 2 && 104 <= endCol + 2 && 88 >= startRow - 2 && 88 <= endRow + 2) {
+            entities.push({
+              ySort: 88 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.furnitureSheet2, 48, 0, 24, 24, 104 * TILE_SIZE + 4, 88 * TILE_SIZE + 4, 24, 24);
+              },
+            });
+          }
+        }
+
+        // B. Gran Forja: Armero de Espadas de Acero
+        if (gameAssets.furnitureSheet1.complete && gameAssets.furnitureSheet1.naturalWidth > 0) {
+          if (92 >= startCol - 2 && 92 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
+            entities.push({
+              ySort: 89 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.furnitureSheet1, 96, 48, 24, 24, 92 * TILE_SIZE + 4, 89 * TILE_SIZE + 4, 24, 24);
+              },
+            });
+          }
+          // Botica: Estantería de Pociones y Viales
+          if (112 >= startCol - 2 && 112 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
+            entities.push({
+              ySort: 89 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.furnitureSheet1, 24, 72, 24, 24, 112 * TILE_SIZE + 4, 89 * TILE_SIZE + 4, 24, 24);
+              },
+            });
+          }
+        }
+
+        // C. Carpintería: Mesa de Sierra Mecánica Animada
+        if (gameAssets.sawtableAnim.complete && gameAssets.sawtableAnim.naturalWidth > 0) {
+          if (105 >= startCol - 2 && 105 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
+            const sawFrame = Math.floor(time * 6) % 2;
+            entities.push({
+              ySort: 89 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.sawtableAnim, sawFrame * 30, 0, 30, 30, 105 * TILE_SIZE + 1, 89 * TILE_SIZE + 1, 30, 30);
+              },
+            });
+          }
+        }
+
+        // D. Santuario Ancestral: Altar de Luz Sagrada y Mesa Relicario
+        if (gameAssets.shrinesSheet.complete && gameAssets.shrinesSheet.naturalWidth > 0) {
+          if (90 >= startCol - 2 && 90 <= endCol + 2 && 109 >= startRow - 2 && 109 <= endRow + 2) {
+            entities.push({
+              ySort: 109 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.shrinesSheet, 96, 24, 24, 24, 90 * TILE_SIZE + 4, 109 * TILE_SIZE + 4, 24, 24);
+              },
+            });
+          }
+          if (93 >= startCol - 2 && 93 <= endCol + 2 && 109 >= startRow - 2 && 109 <= endRow + 2) {
+            entities.push({
+              ySort: 109 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.shrinesSheet, 72, 48, 24, 24, 93 * TILE_SIZE + 4, 109 * TILE_SIZE + 4, 24, 24);
               },
             });
           }
