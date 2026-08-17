@@ -128,6 +128,9 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       batMove: new Image(),
       cemeteryGraves: new Image(),
       castleTiles: new Image(),
+      hideoutTiles: new Image(),
+      sewerProps: new Image(),
+      ratWarriorIdle: new Image(),
     };
     gameAssets.house.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
     gameAssets.customHouses.src = '/houses.png';
@@ -166,6 +169,9 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     gameAssets.batMove.src = '/Pixel Crawler - Free Pack/Small_Bat/Move/Move_Down-Sheet.png';
     gameAssets.cemeteryGraves.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Cemetery/Environment/Props/Graves.png';
     gameAssets.castleTiles.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Castle Environment 0.3/Assets/Tiles.png';
+    gameAssets.hideoutTiles.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Hideout/Assets/Tiles.png';
+    gameAssets.sewerProps.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Sewer/Assets/Props.png';
+    gameAssets.ratWarriorIdle.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Sewer/Enemy/Rat - Warrior/Idle/Idle-Sheet.png';
 
     let animId: number;
     let time = 0;
@@ -1185,6 +1191,97 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 ySort: y * TILE_SIZE + TILE_SIZE,
                 draw: (c) => {
                   c.drawImage(gameAssets.castleTiles, 335, 95, 25, 40, x * TILE_SIZE + 4, y * TILE_SIZE - 6, 24, 38);
+                },
+              });
+            }
+          });
+        }
+      }
+
+      // FASE 4: PANTANO ESPECTRAL DE VAEL, GUARIDAS Y ALCANTARILLADO (HIDEOUT & SEWER)
+      // A. Barriles de Roble Gigantes en la Posada del Bosque (zone_forest)
+      if (currentZone.id === 'zone_forest' && gameAssets.hideoutTiles.complete && gameAssets.hideoutTiles.naturalWidth > 0) {
+        if (96 >= startCol - 2 && 96 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
+          entities.push({
+            ySort: 89 * TILE_SIZE + TILE_SIZE,
+            draw: (c) => {
+              c.drawImage(gameAssets.hideoutTiles, 215, 390, 60, 90, 96 * TILE_SIZE - 4, 89 * TILE_SIZE - 24, 36, 54);
+            },
+          });
+        }
+      }
+
+      // B. Pantano Espectral de Vael: Campamento Clandestino de Forajidos y Ratas Guerreras
+      if (currentZone.id === 'zone_swamp') {
+        // 1. Guarida de Bandidos (Estandartes de Calavera y Fuego de Campamento)
+        if (gameAssets.hideoutTiles.complete && gameAssets.hideoutTiles.naturalWidth > 0) {
+          // Estandartes de calavera
+          const skullFlags = [{ x: 195, y: 195 }, { x: 205, y: 195 }];
+          skullFlags.forEach(({ x, y }) => {
+            if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+              entities.push({
+                ySort: y * TILE_SIZE + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(gameAssets.hideoutTiles, 345, 415, 55, 70, x * TILE_SIZE - 2, y * TILE_SIZE - 15, 36, 46);
+                },
+              });
+            }
+          });
+          // Fuego de campamento de ladrones
+          if (200 >= startCol - 2 && 200 <= endCol + 2 && 198 >= startRow - 2 && 198 <= endRow + 2) {
+            entities.push({
+              ySort: 198 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.hideoutTiles, 330, 205, 45, 45, 200 * TILE_SIZE, 198 * TILE_SIZE, 32, 32);
+              },
+            });
+          }
+        }
+
+        // 2. Props de Mazmorra / Alcantarillado (Tuberías y Frascos de Veneno)
+        if (gameAssets.sewerProps.complete && gameAssets.sewerProps.naturalWidth > 0) {
+          // Tuberías de drenaje
+          const pipes = [{ x: 194, y: 204 }, { x: 206, y: 204 }];
+          pipes.forEach(({ x, y }) => {
+            if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+              entities.push({
+                ySort: y * TILE_SIZE + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(gameAssets.sewerProps, 95, 75, 40, 30, x * TILE_SIZE, y * TILE_SIZE + 4, 32, 24);
+                },
+              });
+            }
+          });
+          // Frascos de veneno brillante
+          if (198 >= startCol - 2 && 198 <= endCol + 2 && 205 >= startRow - 2 && 205 <= endRow + 2) {
+            entities.push({
+              ySort: 205 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.sewerProps, 110, 165, 60, 55, 198 * TILE_SIZE, 205 * TILE_SIZE + 2, 28, 26);
+              },
+            });
+          }
+        }
+
+        // 3. Ratas Guerreras Animadas Patrullando el Pantano (Rat - Warrior)
+        if (gameAssets.ratWarriorIdle.complete && gameAssets.ratWarriorIdle.naturalWidth > 0) {
+          const ratSpawns = [
+            { x: 197, y: 196, offset: 0 },
+            { x: 203, y: 196, offset: 2 },
+            { x: 196, y: 202, offset: 1 },
+            { x: 204, y: 202, offset: 3 }
+          ];
+          ratSpawns.forEach(({ x, y, offset }) => {
+            if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+              const rFrame = Math.floor((time * 4) + offset) % 4;
+              entities.push({
+                ySort: y * TILE_SIZE + TILE_SIZE,
+                draw: (c) => {
+                  c.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                  c.beginPath();
+                  c.ellipse(x * TILE_SIZE + 16, y * TILE_SIZE + 28, 10, 4, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.drawImage(gameAssets.ratWarriorIdle, rFrame * 64, 0, 64, 64, x * TILE_SIZE - 12, y * TILE_SIZE - 20, 48, 48);
                 },
               });
             }
