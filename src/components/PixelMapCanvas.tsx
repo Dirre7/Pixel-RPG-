@@ -798,24 +798,28 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         currentZone.npcs.forEach((npc) => {
           const nX = npc.x * TILE_SIZE;
           const nY = npc.y * TILE_SIZE;
+          const gender = npc.avatarStyle === 'elder' || npc.name.includes('Elena') || npc.name.includes('Griselda') || npc.name.includes('Aveline') ? 'female' : 'male';
           const npcClass =
             npc.avatarStyle === 'blacksmith' ? 'Berserker' :
             npc.avatarStyle === 'wizard' ? 'Mago' :
             npc.avatarStyle === 'knight' ? 'Paladín' :
             npc.avatarStyle === 'scout' ? 'Pícaro' :
+            npc.avatarStyle === 'elder' ? 'Sacerdotisa' :
             npc.avatarStyle === 'elf' ? 'Arquero' : 'Guerrero';
-          const npcSprite = getHeroSpriteCanvas(npcClass, 'male', 'down', 'idle');
+          const npcSprite = getHeroSpriteCanvas(npcClass, gender, 'down', 'idle');
 
           entities.push({
             ySort: nY + TILE_SIZE,
             draw: (c) => {
               c.drawImage(npcSprite, nX, nY, TILE_SIZE, TILE_SIZE);
 
-              // Signo de exclamación flotante (!)
-              const bounce = Math.sin(time * 5) * 3;
-              c.fillStyle = '#facc15';
-              c.fillRect(nX + 14, nY - 14 + bounce, 4, 8);
-              c.fillRect(nX + 14, nY - 4 + bounce, 4, 3);
+              // Signo de exclamación flotante (!) EXCLUSIVAMENTE si tiene misión activa
+              if (npc.quest) {
+                const bounce = Math.sin(time * 5) * 3;
+                c.fillStyle = '#facc15';
+                c.fillRect(nX + 14, nY - 14 + bounce, 4, 8);
+                c.fillRect(nX + 14, nY - 4 + bounce, 4, 3);
+              }
             },
           });
         });

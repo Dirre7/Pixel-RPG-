@@ -1175,6 +1175,45 @@ export function getWaterTroughCanvas(time: number = 0): HTMLCanvasElement {
 }
 
 /**
+ * 🪑 BANCO DE MADERA RÚSTICO PARA PLAZAS (32x32 px)
+ */
+export function getWoodenBenchCanvas(): HTMLCanvasElement {
+  const cacheKey = 'wooden_bench_rustic';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 32; canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra en el suelo
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 12, 3.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Patas de hierro forjado
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(6, 18, 3, 8);
+  ctx.fillRect(23, 18, 3, 8);
+
+  // Asiento de tablones de madera
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(4, 17, 24, 4);
+  ctx.fillStyle = '#b45309';
+  ctx.fillRect(4, 17, 24, 1);
+
+  // Respaldo de madera
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(4, 11, 24, 4);
+  ctx.fillStyle = '#b45309';
+  ctx.fillRect(4, 11, 24, 1);
+
+  tileCache.set(cacheKey, canvas);
+  return canvas;
+}
+
+/**
  * 🪦 LÁPIDA DE CEMENTERIO (24x28 px)
  */
 export function getGraveyardCanvas(): HTMLCanvasElement {

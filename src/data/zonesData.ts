@@ -48,7 +48,7 @@ export const ZONES: Zone[] = [
         id: 'npc_forest_1',
         zoneId: 'zone_forest',
         x: 100,
-        y: 98,
+        y: 97,
         name: 'Anciano Eldrin',
         title: 'Sabio de la Aldea de Roble',
         avatarStyle: 'elder',
@@ -63,8 +63,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_2',
         zoneId: 'zone_forest',
-        x: 96,
-        y: 92,
+        x: 90,
+        y: 89,
         name: 'Brom el Maestro Forjador',
         title: 'Herrero Mayor de la Aldea',
         avatarStyle: 'blacksmith',
@@ -78,17 +78,87 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_3',
         zoneId: 'zone_forest',
-        x: 97,
-        y: 108,
+        x: 98,
+        y: 102,
         name: 'Bardo Corin',
-        title: 'Trovador de la Arboleda',
+        title: 'Trovador de la Plaza',
         avatarStyle: 'scout',
         dialogue: [
           '🎵 "Bajo las aguas del río cristalino, duerme un tesoro de poder ancestral..." 🎵',
-          '¡Bienvenido a la orilla este! Beber agua fresca en los pozos del pueblo restaurará tu vigor por completo.'
+          '¡Bienvenido a la plaza mayor! Beber agua fresca en la gran fuente restaurará tu salud y maná por completo.'
         ],
-        tip: '💡 CONSEJO DE EXPLORACIÓN: Los pozos de agua y santuarios restauran tu Vida y Maná al 100% de forma gratuita.',
+        tip: '💡 CONSEJO DE EXPLORACIÓN: La fuente central de la plaza restaura tu Vida y Maná al 100% de forma gratuita.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_side_forest_4'),
+      },
+      {
+        id: 'npc_forest_innkeeper',
+        zoneId: 'zone_forest',
+        x: 96,
+        y: 89,
+        name: 'Posadera Elena',
+        title: 'Dueña de la Posada del Roble',
+        avatarStyle: 'elder',
+        dialogue: [
+          '¡Bienvenido a la Posada del Roble, noble aventurero! Toma asiento y descansa junto a la chimenea.',
+          'Nuestras camas son las más cómodas de todo Aethelgard. ¡Pasa la noche para despertar con fuerzas renovadas!'
+        ],
+        tip: '💡 CONSEJO DE DESCANSO: Interactúa con la puerta de la posada para reponer toda tu vitalidad.',
+      },
+      {
+        id: 'npc_forest_bazaar',
+        zoneId: 'zone_forest',
+        x: 91,
+        y: 94,
+        name: 'Mercader Ronald',
+        title: 'Bazar Central de la Aldea',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Pociones curativas, elixires de maná y suministros frescos traídos de la capital!',
+          'Acércate a cualquiera de nuestros puestos del bazar para comerciar tus tesoros y abastecerte.'
+        ],
+        tip: '💡 CONSEJO DE COMERCIO: Puedes comprar pociones y equipamiento en los puestos del bazar interactuando con ellos.',
+      },
+      {
+        id: 'npc_forest_aveline',
+        zoneId: 'zone_forest',
+        x: 102,
+        y: 101,
+        name: 'Ciudadana Aveline',
+        title: 'Paseante de la Plaza',
+        avatarStyle: 'scout',
+        dialogue: [
+          'Qué paz se respira hoy en la glorieta. Dicen que las aguas de la fuente brotan directamente del Manantial Esmeralda.',
+          'Si vas al norte, ten cuidado con las sombras que rondan cerca de las minas antiguas.'
+        ],
+        tip: '💡 CONSEJO DE LA PLAZA: Los parterres de rosas florecen todo el año gracias a la magia del bosque.',
+      },
+      {
+        id: 'npc_forest_griselda',
+        zoneId: 'zone_forest',
+        x: 108,
+        y: 93,
+        name: 'Vecina Griselda',
+        title: 'Residente de Los Álamos',
+        avatarStyle: 'elder',
+        dialogue: [
+          '¡Buenos días, joven! Qué alegría ver viajeros honrados por nuestro barrio residencial.',
+          'Cuidar mis rosales todas las mañanas me llena de energía.'
+        ],
+        tip: '💡 CONSEJO VECINAL: El barrio de Los Álamos es el lugar más seguro y tranquilo de toda la comarca.',
+      },
+      {
+        id: 'npc_forest_mateo',
+        zoneId: 'zone_forest',
+        x: 110,
+        y: 106,
+        name: 'Granjero Mateo',
+        title: 'Encargado del Huerto Comunal',
+        avatarStyle: 'scout',
+        dialogue: [
+          'Nuestras cosechas de zanahorias y calabazas son las más ricas del reino.',
+          'Tratamos a nuestras vacas y gallinas con mucho cariño en el cercado este.'
+        ],
+        tip: '💡 CONSEJO AGRÍCOLA: En el cofre de la granja siempre guardamos suministros para viajeros necesitados.',
       },
       {
         id: 'npc_forest_4',

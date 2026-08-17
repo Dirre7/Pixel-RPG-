@@ -27,21 +27,20 @@ function buildMockupTown(
   cx: number,
   cy: number
 ) {
-  // 1. Pavimentar toda el área interior de la ciudad con Calzada de Piedra Beige continua (tile 2)
+  // 1. Base verde natural en toda la parcela urbana (Césped limpio)
   for (let y = cy - 15; y <= cy + 15; y++) {
     for (let x = cx - 15; x <= cx + 15; x++) {
       if (x >= 4 && x < MAP_SIZE - 4 && y >= 4 && y < MAP_SIZE - 4) {
-        map[y][x] = 2; // Calzada continua beige
+        map[y][x] = 0; // Césped esmeralda
       }
     }
   }
 
-  // 2. Muro perimetral continuo de bosque frondoso con salidas en cruz
+  // 2. Muro perimetral continuo de robles con 4 accesos abiertos
   for (let y = cy - 15; y <= cy + 15; y++) {
     for (let x = cx - 15; x <= cx + 15; x++) {
       if (x >= 4 && x < MAP_SIZE - 4 && y >= 4 && y < MAP_SIZE - 4) {
         if (x === cx - 15 || x === cx + 15 || y === cy - 15 || y === cy + 15) {
-          // Dejar abiertas las 4 avenidas cardinales (3 de ancho)
           const isNorthGate = y === cy - 15 && Math.abs(x - cx) <= 1;
           const isSouthGate = y === cy + 15 && Math.abs(x - cx) <= 1;
           const isWestGate = x === cx - 15 && Math.abs(y - cy) <= 1;
@@ -55,101 +54,146 @@ function buildMockupTown(
     }
   }
 
-  // 3. GLORIETA CENTRAL Y GRAN FUENTE
+  // 3. RED DE AVENIDAS CARDINALES Y CALLES (100% DESPEJADAS Y CONTINUAS)
+  // Gran Avenida Norte-Sur (3 casillas de ancho: X: cx - 1..cx + 1) - COMPLETAMENTE LIBRE
+  for (let y = cy - 15; y <= cy + 15; y++) {
+    for (let x = cx - 1; x <= cx + 1; x++) {
+      map[y][x] = 2;
+    }
+  }
+  // Gran Avenida Este-Oeste (3 casillas de ancho: Y: cy - 1..cy + 1) - COMPLETAMENTE LIBRE
+  for (let y = cy - 1; y <= cy + 1; y++) {
+    for (let x = cx - 15; x <= cx + 15; x++) {
+      map[y][x] = 2;
+    }
+  }
+
+  // Plaza Mayor Central (7x7 en el cruce de avenidas)
+  for (let y = cy - 3; y <= cy + 3; y++) {
+    for (let x = cx - 3; x <= cx + 3; x++) {
+      map[y][x] = 2;
+    }
+  }
+
+  // Calles Secundarias de los Cuadrantes
+  // Calle Comercial Noroeste
+  for (let y = cy - 6; y <= cy - 4; y++) {
+    for (let x = cx - 13; x <= cx - 2; x++) {
+      map[y][x] = 2;
+    }
+  }
+  // Terraza Artesanal Norte
+  for (let y = cy - 12; y <= cy - 10; y++) {
+    for (let x = cx - 13; x <= cx - 2; x++) {
+      map[y][x] = 2;
+    }
+  }
+
+  // Calle Residencial Noreste
+  for (let y = cy - 6; y <= cy - 4; y++) {
+    for (let x = cx + 2; x <= cx + 13; x++) {
+      map[y][x] = 2;
+    }
+  }
+  // Terraza Noreste
+  for (let y = cy - 12; y <= cy - 10; y++) {
+    for (let x = cx + 2; x <= cx + 13; x++) {
+      map[y][x] = 2;
+    }
+  }
+
+  // Calle Residencial Sureste
+  for (let y = cy + 4; y <= cy + 6; y++) {
+    for (let x = cx + 2; x <= cx + 13; x++) {
+      map[y][x] = 2;
+    }
+  }
+
+  // Calle del Santuario Suroeste
+  for (let y = cy + 4; y <= cy + 6; y++) {
+    for (let x = cx - 13; x <= cx - 2; x++) {
+      map[y][x] = 2;
+    }
+  }
+
+  // 4. PLAZA MAYOR CENTRAL (Único elemento: La Fuente en el centro exacto)
   map[cy][cx] = 4; // Gran Fuente Central (Beber agua restaura HP/MP)
 
-  // Parterre Norte de la Glorieta
-  map[cy - 2][cx] = 12; map[cy - 3][cx] = 12;
-  map[cy - 3][cx - 1] = 17; map[cy - 3][cx + 1] = 17; // Farolas de forja iluminando la fuente
+  // 5. CUADRANTE NOROESTE (Distrito Artesanal & Comercial)
+  // Gran Posada del Roble (Casa 1: en su propia parcela adoquinada, fuera del camino central)
+  map[cy - 12][cx - 4] = 5;
+  map[cy - 10][cx - 5] = 17; // Farola en la entrada de la posada
 
-  // Parterre Sur de la Glorieta
-  map[cy + 2][cx] = 12; map[cy + 3][cx] = 12;
-  map[cy + 3][cx - 1] = 17; map[cy + 3][cx + 1] = 17; // Farolas de forja iluminando la fuente
+  // Taller de Gran Forja & Armería
+  map[cy - 12][cx - 10] = 10;
+  map[cy - 13][cx - 11] = 19; // Brasero de carbón
+  map[cy - 10][cx - 9] = 17;  // Farola de la forja
 
-  // Parterres Laterales
-  map[cy][cx - 2] = 12; map[cy][cx - 3] = 12;
-  map[cy][cx + 2] = 12; map[cy][cx + 3] = 12;
+  // Panadería de la Aldea (Casa 2)
+  map[cy - 8][cx - 8] = 5;
+  map[cy - 7][cx - 6] = 17; // Farola en la puerta
 
-  // 4. MERCADILLO MUNICIPAL (Flanco Oeste: X: cx - 6..cx - 5)
-  map[cy - 4][cx - 6] = 9; // Puesto de Pociones & Víveres
-  map[cy - 1][cx - 6] = 9; // Puesto de Armas & Equipo
-  map[cy + 2][cx - 6] = 9; // Puesto de Pergaminos & Magia
-  map[cy + 5][cx - 6] = 9; // Puesto de Alimentos
+  // Hilera de Puestos de Mercado del Bazar
+  map[cy - 7][cx - 12] = 9; map[cy - 7][cx - 10] = 9;
+  map[cy - 3][cx - 12] = 9; map[cy - 3][cx - 10] = 9;
+  map[cy - 5][cx - 13] = 7; // Cofre del bazar
 
-  // 5. MANZANA RESIDENCIAL ORIENTAL (Flanco Este: Casas ordenadas con jardines)
-  map[cy - 4][cx + 7] = 5; // Residencia Norte
-  map[cy + 4][cx + 7] = 5; // Residencia Sur
+  // 6. CUADRANTE NORESTE (Distrito Residencial & Administrativo)
+  // Casa Consistorial / Ayuntamiento (Casa 3)
+  map[cy - 12][cx + 5] = 5;
+  map[cy - 10][cx + 4] = 17; // Farola en la puerta
+  map[cy - 13][cx + 7] = 12; // Rosales
 
-  // Patio ajardinado detrás de las casas del este
-  for (let y = cy - 5; y <= cy + 5; y++) {
-    for (let x = cx + 9; x <= cx + 13; x++) {
-      map[y][x] = 0; // Césped
-    }
-  }
-  map[cy - 2][cx + 10] = 1; map[cy + 2][cx + 10] = 1; // Árboles
-  map[cy][cx + 10] = 12; // Rosales
+  // Botica del Boticario (Casa 4)
+  map[cy - 12][cx + 10] = 27;
+  map[cy - 10][cx + 9] = 17; // Farola en la puerta
+  map[cy - 13][cx + 12] = 12; // Hierbas medicinales
 
-  // 6. DISTRITO NORTE: POSADA Y ALCALDÍA
-  map[cy - 8][cx] = 5; // Gran Posada de la Aldea (Descansar)
-  map[cy - 7][cx - 2] = 17; map[cy - 7][cx + 2] = 17; // Farolas en la entrada de la posada
-  map[cy - 10][cx - 3] = 12; map[cy - 10][cx + 3] = 12; // Rosales
-  map[cy - 11][cx + 4] = 7; // Cofre de la Posada
+  // Casa Residencial "Los Álamos 1" (Casa 5)
+  map[cy - 8][cx + 8] = 5;
+  map[cy - 7][cx + 6] = 17; // Farola en la puerta
+  map[cy - 8][cx + 11] = 12; // Rosales
 
-  // 7. DISTRITO SUROESTE (El Santo Mausoleo y Cementerio)
-  for (let y = cy + 7; y <= cy + 13; y++) {
-    for (let x = cx - 13; x <= cx - 7; x++) {
-      map[y][x] = 0; // Césped sagrado
-    }
-  }
-  map[cy + 8][cx - 12] = 8;  // Santuario Ancestral
-  map[cy + 9][cx - 10] = 1;  // Árbol guardián
-  map[cy + 8][cx - 13] = 17; map[cy + 10][cx - 13] = 17; map[cy + 12][cx - 13] = 17; map[cy + 8][cx - 8] = 17; // Farolas
+  // 7. CUADRANTE SURESTE (Barrio Residencial Sur & Granja)
+  // Casa Residencial "Los Álamos 2" (Casa 6)
+  map[cy + 4][cx + 5] = 5;
+  map[cy + 5][cx + 3] = 17; // Farola en la puerta
+  map[cy + 3][cx + 7] = 12; // Rosales
 
-  // 8 Lápidas en 2 filas de 4
-  map[cy + 11][cx - 12] = 16; map[cy + 11][cx - 11] = 16; map[cy + 11][cx - 10] = 16; map[cy + 11][cx - 9] = 16;
-  map[cy + 12][cx - 12] = 16; map[cy + 12][cx - 11] = 16; map[cy + 12][cx - 10] = 16; map[cy + 12][cx - 9] = 16;
-
-  // 8. DISTRITO SURESTE (Granja Tradicional Estructurada: Huerto, Gallinero y Cercado Ganadero)
-  // Base de césped verde natural (X: cx + 7..cx + 13, Y: cy + 7..cy + 13)
-  for (let y = cy + 7; y <= cy + 13; y++) {
-    for (let x = cx + 7; x <= cx + 13; x++) {
-      map[y][x] = 0; // Hierba limpia
-    }
-  }
-
-  // Vallas de madera perimetrales delimitando la granja con puerta al norte
+  // Granja Municipal (X: cx + 7..cx + 13, Y: cy + 7..cy + 13)
   for (let y = cy + 7; y <= cy + 13; y++) {
     for (let x = cx + 7; x <= cx + 13; x++) {
       if (y === cy + 7 || y === cy + 13 || x === cx + 7 || x === cx + 13) {
         if (!(y === cy + 7 && x === cx + 10)) {
-          map[y][x] = 15; // Valla de madera
+          map[y][x] = 15; // Valla de madera perimetral
         }
       }
     }
   }
-
-  // Valla divisoria interna entre el huerto y el corral
   for (let y = cy + 8; y <= cy + 12; y++) {
-    map[y][cx + 10] = 15; // Valla divisoria
+    map[y][cx + 10] = 15; // Valla divisoria interna
   }
+  map[cy + 8][cx + 8] = 13; map[cy + 8][cx + 9] = 13;
+  map[cy + 9][cx + 8] = 13; map[cy + 9][cx + 9] = 13;
+  map[cy + 10][cx + 8] = 13; map[cy + 10][cx + 9] = 13;
+  map[cy + 11][cx + 8] = 3;  // Abrevadero / Pozo
+  map[cy + 12][cx + 8] = 7;  // Cofre agrícola
+  map[cy + 8][cx + 11] = 13; // Gallina
+  map[cy + 9][cx + 12] = 13; // Gallina
+  map[cy + 11][cx + 11] = 3;  // Abrevadero vaca
+  map[cy + 11][cx + 12] = 13; // Vaca
 
-  // A. SECTOR OESTE DE LA GRANJA: HUERTO AGRÍCOLA LABRADO (X: cx + 8..cx + 9)
-  map[cy + 8][cx + 8] = 13; map[cy + 8][cx + 9] = 13; // Surco 1 de hortalizas
-  map[cy + 9][cx + 8] = 13; map[cy + 9][cx + 9] = 13; // Surco 2 de hortalizas
-  map[cy + 10][cx + 8] = 13; map[cy + 10][cx + 9] = 13; // Surco 3 de hortalizas
-  map[cy + 11][cx + 8] = 3;  // Pozo de riego de agua
-  map[cy + 11][cx + 9] = 13; // Bancal de cultivo
-  map[cy + 12][cx + 8] = 7;  // Cofre de suministros agrícolas
+  // 8. CUADRANTE SUROESTE (Ermita & Santuario Ancestral)
+  // Ermita del Clérigo (Casa 7)
+  map[cy + 4][cx - 8] = 5;
+  map[cy + 5][cx - 6] = 17; // Farola en la puerta
+  map[cy + 3][cx - 10] = 12; // Rosales
 
-  // B. SECTOR ESTE DE LA GRANJA: CORRAL Y PASTO GANADERO (X: cx + 11..cx + 12)
-  map[cy + 8][cx + 11] = 13; // Gallina en la hierba
-  map[cy + 9][cx + 12] = 13; // Gallina picoteando grano
-  map[cy + 11][cx + 11] = 3;  // Abrevadero de agua para la vaca
-  map[cy + 11][cx + 12] = 13; // Vaca pastando en su cercado
-
-  // 9. DISTRITO SUR CENTRAL (Dos Grandes Casas de la Aldea)
-  map[cy + 8][cx - 2] = 9; // Gran Casa Azul
-  map[cy + 8][cx + 2] = 5; // Gran Casa Roja
+  // Santuario Ancestral de Piedra
+  map[cy + 10][cx - 9] = 8;
+  map[cy + 9][cx - 11] = 17; map[cy + 9][cx - 7] = 17; // Farolas del altar
+  map[cy + 11][cx - 12] = 16; map[cy + 11][cx - 11] = 16; map[cy + 11][cx - 10] = 16; map[cy + 11][cx - 9] = 16;
+  map[cy + 12][cx - 12] = 16; map[cy + 12][cx - 11] = 16; map[cy + 12][cx - 10] = 16; map[cy + 12][cx - 9] = 16;
 }
 
 /**
