@@ -626,6 +626,123 @@ export function getCottageCanvas(styleVariant: 'red' | 'blue' | 'straw' | 'stone
   return canvas;
 }
 
+const cuteHouseCache = new Map<string, HTMLCanvasElement>();
+
+/**
+ * 🏡 CASA 2.5D CUTE FANTASY RECOLOREADA HD
+ * Conserva el 100% de la perspectiva 2.5D, madera, sombreado y textura de tejas original
+ */
+export function getRecoloredCuteHouseCanvas(
+  baseImg: HTMLImageElement,
+  variant: 'blue' | 'red' | 'stone' | 'purple'
+): HTMLCanvasElement {
+  if (cuteHouseCache.has(variant)) return cuteHouseCache.get(variant)!;
+  if (!baseImg.complete || baseImg.naturalWidth === 0) {
+    const dummy = document.createElement('canvas');
+    dummy.width = 96; dummy.height = 128;
+    return dummy;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = baseImg.naturalWidth || 96;
+  canvas.height = baseImg.naturalHeight || 128;
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(baseImg, 0, 0);
+
+  if (variant === 'blue') {
+    cuteHouseCache.set(variant, canvas);
+    return canvas;
+  }
+
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const a = data[i + 3];
+    if (a === 0) continue;
+
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+
+    // Detectar exclusivamente los píxeles del tejado azul (azul dominante sobre rojo y verde)
+    if (b > r + 8 && b > g - 15) {
+      const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+      if (variant === 'red') {
+        // Paleta Tejado Rojo Terracota 2.5D
+        if (lum < 0.3) {
+          data[i] = Math.min(255, Math.round(90 * (lum / 0.3)));
+          data[i + 1] = Math.min(255, Math.round(20 * (lum / 0.3)));
+          data[i + 2] = Math.min(255, Math.round(15 * (lum / 0.3)));
+        } else if (lum < 0.55) {
+          const t = (lum - 0.3) / 0.25;
+          data[i] = Math.round(90 + (186 - 90) * t);
+          data[i + 1] = Math.round(20 + (54 - 20) * t);
+          data[i + 2] = Math.round(15 + (32 - 15) * t);
+        } else if (lum < 0.8) {
+          const t = (lum - 0.55) / 0.25;
+          data[i] = Math.round(186 + (234 - 186) * t);
+          data[i + 1] = Math.round(54 + (100 - 54) * t);
+          data[i + 2] = Math.round(32 + (70 - 32) * t);
+        } else {
+          const t = (lum - 0.8) / 0.2;
+          data[i] = Math.round(234 + (248 - 234) * t);
+          data[i + 1] = Math.round(100 + (150 - 100) * t);
+          data[i + 2] = Math.round(70 + (115 - 70) * t);
+        }
+      } else if (variant === 'stone') {
+        // Paleta Tejado Pizarra Gris Señorial 2.5D
+        if (lum < 0.3) {
+          const v = Math.round(35 * (lum / 0.3));
+          data[i] = v; data[i + 1] = Math.round(v * 1.1); data[i + 2] = Math.round(v * 1.25);
+        } else if (lum < 0.55) {
+          const t = (lum - 0.3) / 0.25;
+          data[i] = Math.round(35 + (70 - 35) * t);
+          data[i + 1] = Math.round(40 + (80 - 40) * t);
+          data[i + 2] = Math.round(50 + (98 - 50) * t);
+        } else if (lum < 0.8) {
+          const t = (lum - 0.55) / 0.25;
+          data[i] = Math.round(70 + (115 - 70) * t);
+          data[i + 1] = Math.round(80 + (130 - 80) * t);
+          data[i + 2] = Math.round(98 + (150 - 98) * t);
+        } else {
+          const t = (lum - 0.8) / 0.2;
+          data[i] = Math.round(115 + (165 - 115) * t);
+          data[i + 1] = Math.round(130 + (180 - 130) * t);
+          data[i + 2] = Math.round(150 + (205 - 150) * t);
+        }
+      } else if (variant === 'purple') {
+        // Paleta Tejado Amatista Mística 2.5D
+        if (lum < 0.3) {
+          data[i] = Math.min(255, Math.round(75 * (lum / 0.3)));
+          data[i + 1] = Math.min(255, Math.round(20 * (lum / 0.3)));
+          data[i + 2] = Math.min(255, Math.round(110 * (lum / 0.3)));
+        } else if (lum < 0.55) {
+          const t = (lum - 0.3) / 0.25;
+          data[i] = Math.round(75 + (125 - 75) * t);
+          data[i + 1] = Math.round(20 + (38 - 20) * t);
+          data[i + 2] = Math.round(110 + (180 - 110) * t);
+        } else if (lum < 0.8) {
+          const t = (lum - 0.55) / 0.25;
+          data[i] = Math.round(125 + (170 - 125) * t);
+          data[i + 1] = Math.round(38 + (75 - 38) * t);
+          data[i + 2] = Math.round(180 + (230 - 180) * t);
+        } else {
+          const t = (lum - 0.8) / 0.2;
+          data[i] = Math.round(170 + (210 - 170) * t);
+          data[i + 1] = Math.round(75 + (130 - 75) * t);
+          data[i + 2] = Math.round(230 + (250 - 230) * t);
+        }
+      }
+    }
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+  cuteHouseCache.set(variant, canvas);
+  return canvas;
+}
+
 /**
  * 🏰 AYUNTAMIENTO / MANSIÓN CENTRAL DE PIEDRA (80x70 px)
  * Con escudo heráldico, columnas, arcada y tejado de tejas

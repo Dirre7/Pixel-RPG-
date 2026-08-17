@@ -40,6 +40,7 @@ import {
   getFarmCropCanvas,
   getWaterTroughCanvas,
   getWoodenBenchCanvas,
+  getRecoloredCuteHouseCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -109,6 +110,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       tools: new Image(),
       resources: new Image(),
       esoteric: new Image(),
+      customHouses: new Image(),
       knightIdle: new Image(),
       wizzardIdle: new Image(),
       rogueIdle: new Image(),
@@ -116,6 +118,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       tavernIdle: new Image(),
     };
     gameAssets.house.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
+    gameAssets.customHouses.src = '/houses.png';
     gameAssets.treeOak.src = '/Cute_Fantasy_Free/Outdoor decoration/Oak_Tree.png';
     gameAssets.chest.src = '/Cute_Fantasy_Free/Outdoor decoration/Chest.png';
     gameAssets.fences.src = '/Cute_Fantasy_Free/Outdoor decoration/Fences.png';
@@ -374,34 +377,41 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 5) {
-            // Casas Medievales Proporcionadas (64x80 px con sombra de contacto pegada a la madera)
-            if (gameAssets.house.complete && gameAssets.house.naturalWidth > 0) {
-              entities.push({
-                ySort: posY + TILE_SIZE + 20,
-                draw: (c) => {
-                  // Sombra de contacto directamente en la línea inferior de la madera (Y + 20)
-                  const hShadow = c.createRadialGradient(posX + 16, posY + 20, 4, posX + 16, posY + 20, 28);
-                  hShadow.addColorStop(0, 'rgba(15, 23, 42, 0.65)');
-                  hShadow.addColorStop(0.5, 'rgba(15, 23, 42, 0.3)');
-                  hShadow.addColorStop(1, 'rgba(15, 23, 42, 0)');
-                  c.fillStyle = hShadow;
-                  c.beginPath();
-                  c.ellipse(posX + 16, posY + 20, 28, 5, 0, 0, Math.PI * 2);
-                  c.fill();
-                  c.drawImage(gameAssets.house, 0, 0, 96, 128, posX - 16, posY - 48, 64, 80);
-                },
-              });
-            } else {
-              const vIndex = (x * 7 + y * 13) % 4;
-              const houseVariant = vIndex === 0 ? 'blue' : vIndex === 1 ? 'straw' : vIndex === 2 ? 'stone' : 'red';
-              const houseCanvas = getCottageCanvas(houseVariant);
-              entities.push({
-                ySort: posY + TILE_SIZE + 10,
-                draw: (c) => {
-                  c.drawImage(houseCanvas, posX - 16, posY - 24, 64, 64);
-                },
-              });
-            }
+            // Casas Medievales HD con 4 Variantes Arquitectónicas Sólidas y Completas (64x80 px)
+            let vName: 'blue' | 'red' | 'stone' | 'purple' = 'blue';
+            const vIndex = (x * 7 + y * 13) % 4;
+            if (vIndex === 1) vName = 'red';
+            else if (vIndex === 2) vName = 'stone';
+            else if (vIndex === 3) vName = 'purple';
+
+            // Asignación temática de edificios singulares
+            if (x === 95 && y === 88) vName = 'red'; // Gran Posada (Roja Terracota)
+            if (x === 105 && y === 88) vName = 'stone'; // Ayuntamiento (Pizarra Gris Señorial)
+            if (x === 110 && y === 88) vName = 'purple'; // Botica del Alquimista (Púrpura Mágica)
+
+            entities.push({
+              ySort: posY + TILE_SIZE + 20,
+              draw: (c) => {
+                // Sombra de contacto directamente en la línea inferior de la madera (Y + 20)
+                const hShadow = c.createRadialGradient(posX + 16, posY + 20, 4, posX + 16, posY + 20, 28);
+                hShadow.addColorStop(0, 'rgba(15, 23, 42, 0.65)');
+                hShadow.addColorStop(0.5, 'rgba(15, 23, 42, 0.3)');
+                hShadow.addColorStop(1, 'rgba(15, 23, 42, 0)');
+                c.fillStyle = hShadow;
+                c.beginPath();
+                c.ellipse(posX + 16, posY + 20, 28, 5, 0, 0, Math.PI * 2);
+                c.fill();
+
+                if (gameAssets.house.complete && gameAssets.house.naturalWidth > 0) {
+                  // Variantes 100% 2.5D con Textura Original (Azul, Roja Terracota, Pizarra Gris, Púrpura)
+                  const houseCanvas = getRecoloredCuteHouseCanvas(gameAssets.house, vName);
+                  c.drawImage(houseCanvas, 0, 0, 96, 128, posX - 16, posY - 48, 64, 80);
+                } else {
+                  const houseCanvas = getRecoloredCuteHouseCanvas(gameAssets.house, vName);
+                  c.drawImage(houseCanvas, 0, 0, 96, 128, posX - 16, posY - 48, 64, 80);
+                }
+              },
+            });
           } else if (tileType === 6) {
             // Molino de Viento con aspas
             entities.push({
@@ -849,7 +859,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           }
         }
 
-        // 5. Forja: Lingotes y Herramientas
+        // 5. Forja: Lingotes y Carbón
         if (gameAssets.resources.complete && gameAssets.resources.naturalWidth > 0) {
           const resX = 89 * TILE_SIZE;
           const resY = 89 * TILE_SIZE;
@@ -857,7 +867,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             entities.push({
               ySort: resY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(gameAssets.resources, 0, 0, 32, 32, resX, resY, 32, 32);
+                c.drawImage(gameAssets.resources, 24, 44, 48, 40, resX, resY, 32, 28);
               },
             });
           }
