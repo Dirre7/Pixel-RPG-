@@ -998,6 +998,183 @@ export function getStreetLampCanvas(time: number = 0): HTMLCanvasElement {
 }
 
 /**
+ * 🪵 VALLA DE MADERA CONECTADA RÚSTICA (32x32 px)
+ */
+export function getWoodenFenceCanvas(hasLeft: boolean, hasRight: boolean, hasTop: boolean, hasBottom: boolean): HTMLCanvasElement {
+  const cacheKey = `wooden_fence_${hasLeft}_${hasRight}_${hasTop}_${hasBottom}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 32; canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra del poste central en el suelo
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 8, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Travesaño Horizontal Superior (si conecta a izquierda o derecha)
+  if (hasLeft) {
+    ctx.fillStyle = '#451a03'; // Sombra
+    ctx.fillRect(0, 11, 16, 4);
+    ctx.fillStyle = '#78350f'; // Cuerpo
+    ctx.fillRect(0, 12, 16, 2);
+    ctx.fillStyle = '#b45309'; // Luz
+    ctx.fillRect(0, 12, 16, 1);
+  }
+  if (hasRight) {
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(16, 11, 16, 4);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(16, 12, 16, 2);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(16, 12, 16, 1);
+  }
+
+  // Travesaño Horizontal Inferior
+  if (hasLeft) {
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(0, 18, 16, 4);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(0, 19, 16, 2);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(0, 19, 16, 1);
+  }
+  if (hasRight) {
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(16, 18, 16, 4);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(16, 19, 16, 2);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(16, 19, 16, 1);
+  }
+
+  // Travesaño Vertical (si conecta arriba o abajo)
+  if (hasTop) {
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(13, 0, 6, 16);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(14, 0, 4, 16);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(14, 0, 1, 16);
+  }
+  if (hasBottom) {
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(13, 16, 6, 16);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(14, 16, 4, 16);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(14, 16, 1, 16);
+  }
+
+  // Poste Central Vertical Robusto
+  ctx.fillStyle = '#451a03'; // Sombra del poste
+  ctx.fillRect(12, 5, 8, 21);
+  ctx.fillStyle = '#78350f'; // Cuerpo de madera
+  ctx.fillRect(13, 6, 6, 19);
+  ctx.fillStyle = '#b45309'; // Vetas iluminadas
+  ctx.fillRect(14, 6, 2, 19);
+  ctx.fillStyle = '#d97706'; // Reflejo en la cabeza biselada
+  ctx.fillRect(13, 5, 6, 2);
+
+  tileCache.set(cacheKey, canvas);
+  return canvas;
+}
+
+/**
+ * 🥕 HORTALIZAS Y CULTIVOS AGRÍCOLAS LIMPIOS (32x32 px)
+ */
+export function getFarmCropCanvas(variant: number = 0): HTMLCanvasElement {
+  const cacheKey = `farm_crop_clean_${variant}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 32; canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra sobre la tierra arada
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+  ctx.beginPath();
+  ctx.ellipse(16, 25, 10, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (variant % 3 === 0) {
+    // 🥕 Bancal de Zanahorias
+    ctx.fillStyle = '#c2410c'; // Cuerpo naranja
+    ctx.fillRect(9, 21, 4, 5); ctx.fillRect(19, 20, 4, 6);
+    ctx.fillStyle = '#fb923c'; // Luz
+    ctx.fillRect(10, 21, 2, 4); ctx.fillRect(20, 20, 2, 5);
+    // Hojas verdes frondosas
+    ctx.fillStyle = '#15803d';
+    ctx.fillRect(8, 14, 6, 7); ctx.fillRect(18, 13, 6, 7);
+    ctx.fillStyle = '#4ade80';
+    ctx.fillRect(9, 13, 4, 4); ctx.fillRect(19, 12, 4, 4);
+  } else if (variant % 3 === 1) {
+    // 🎃 Calabaza dorada de huerto
+    ctx.fillStyle = '#c2410c'; // Sombra
+    ctx.beginPath(); ctx.ellipse(16, 20, 8, 6, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ea580c'; // Cuerpo
+    ctx.beginPath(); ctx.ellipse(16, 20, 7, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#f97316'; // Relieve
+    ctx.fillRect(14, 16, 4, 7);
+    ctx.fillStyle = '#15803d'; // Tallo verde
+    ctx.fillRect(15, 13, 2, 3);
+  } else {
+    // 🥬 Lechuga / Col rizada
+    ctx.fillStyle = '#166534';
+    ctx.beginPath(); ctx.arc(16, 21, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#22c55e';
+    ctx.beginPath(); ctx.arc(16, 20, 5.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#86efac';
+    ctx.fillRect(15, 17, 3, 3);
+  }
+
+  tileCache.set(cacheKey, canvas);
+  return canvas;
+}
+
+/**
+ * 🪣 ABREVADERO RÚSTICO DE MADERA CON AGUA (32x32 px)
+ */
+export function getWaterTroughCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32; canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra en el suelo
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 13, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Estructura de madera exterior
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(3, 12, 26, 14);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(4, 13, 24, 12);
+
+  // Cuenca de agua cristalina
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(6, 15, 20, 8);
+  ctx.fillStyle = '#38bdf8';
+  const wave = Math.sin(time * 4) * 1.5;
+  ctx.fillRect(7, 16, 18, 5);
+  ctx.fillStyle = '#bae6fd';
+  ctx.fillRect(8 + Math.round(wave), 16, 6, 2);
+
+  // Refuerzos de hierro forjado
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(8, 12, 2, 14);
+  ctx.fillRect(22, 12, 2, 14);
+
+  return canvas;
+}
+
+/**
  * 🪦 LÁPIDA DE CEMENTERIO (24x28 px)
  */
 export function getGraveyardCanvas(): HTMLCanvasElement {

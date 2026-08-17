@@ -36,6 +36,9 @@ import {
   getSquarePlazaFountainCanvas,
   getSkybridgeCanvas,
   getLeatherworkersGuildCanvas,
+  getWoodenFenceCanvas,
+  getFarmCropCanvas,
+  getWaterTroughCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -317,6 +320,26 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             }
+          } else if (tileType === 3) {
+            // Si es un punto de agua aislado (abrevadero de granja)
+            let waterNeighbors = 0;
+            const offsets = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+            for (const [ox, oy] of offsets) {
+              const nx = x + ox;
+              const ny = y + oy;
+              if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && currentZone.tileData[ny][nx] === 3) {
+                waterNeighbors++;
+              }
+            }
+            if (waterNeighbors < 2) {
+              const trough = getWaterTroughCanvas(time);
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(trough, posX, posY, 32, 32);
+                },
+              });
+            }
           } else if (tileType === 4) {
             // Fuente de la Plaza Central o Pozos de Agua en las esquinas
             if (x === 252 && y === 340) {
@@ -373,78 +396,47 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 7) {
-            // Cofre del Tesoro
+            // Cofre del Tesoro Dorado
             const chestId = `${currentZone.id}_${x}_${y}`;
             const isOpen = openedChests.includes(chestId);
-            if (gameAssets.chest.complete && gameAssets.chest.naturalWidth > 0) {
-              entities.push({
-                ySort: posY + TILE_SIZE - 4,
-                draw: (c) => {
-                  c.drawImage(gameAssets.chest, 0, isOpen ? 16 : 0, 16, 16, posX + 4, posY + 6, 24, 24);
-                },
-              });
-            } else {
-              const chestCanvas = getChestCanvas(isOpen);
-              entities.push({
-                ySort: posY + TILE_SIZE - 4,
-                draw: (c) => {
-                  c.drawImage(chestCanvas, posX + 2, posY + 4, 28, 28);
-                },
-              });
-            }
+            const chest = getChestCanvas(isOpen);
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(chest, posX + 2, posY + 4, 28, 28);
+              },
+            });
           } else if (tileType === 8) {
-            // Santuario Ancestral / Altar
+            // Santuario Místico de Piedra
+            const shrine = getShrineCanvas();
             entities.push({
               ySort: posY + TILE_SIZE + 8,
               draw: (c) => {
-                c.drawImage(shrine, posX - 8, posY - 14, 48, 48);
+                c.drawImage(shrine, posX - 8, posY - 16, 48, 48);
               },
             });
           } else if (tileType === 9) {
-            // Puesto de Mercado 2.5D con Colores Exactos de la Referencia
-            let stallVariant = (x + y) % 3;
-            if (x === 248) {
-              if (y === 330 || y === 333 || y === 336) stallVariant = 1; // Rojo
-              else if (y === 344 || y === 347) stallVariant = 2; // Azul
-            } else if (x === 249) {
-              if (y === 330 || y === 333 || y === 336) stallVariant = 0; // Verde
-              else if (y === 344) stallVariant = 1; // Rojo
-              else if (y === 347) stallVariant = 0; // Verde
-              else if (y === 350) stallVariant = 1; // Rojo
-            } else if (x === 255) {
-              if (y === 330) stallVariant = 1; // Rojo
-              else if (y === 333 || y === 336) stallVariant = 2; // Azul
-              else if (y === 344) stallVariant = 1; // Rojo
-              else if (y === 347) stallVariant = 0; // Verde
-              else if (y === 350) stallVariant = 2; // Azul
-            }
-            const stallCanvas = getMarketStallCanvas(stallVariant);
+            // Puesto de Bazar / Tienda
+            const stallIndex = (x * 3 + y * 7) % 3;
+            const stallCanvas = getMarketStallCanvas(stallIndex);
             entities.push({
-              ySort: posY + TILE_SIZE + 8,
+              ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(stallCanvas, posX - 8, posY - 12, 48, 48);
+                c.drawImage(stallCanvas, posX, posY - 4, 32, 36);
               },
             });
           } else if (tileType === 10) {
-            // Gran Forja y Yunque Pixel Crawler
+            // Forja y Yunque de Herrero
+            const blacksmith = getForgeCanvas();
             entities.push({
-              ySort: posY + TILE_SIZE + 6,
+              ySort: posY + TILE_SIZE,
               draw: (c) => {
-                if (gameAssets.furnace.complete && gameAssets.furnace.naturalWidth > 0) {
-                  const furnaceFrame = Math.floor(time * 4) % 3;
-                  c.drawImage(gameAssets.furnace, furnaceFrame * 32, 0, 32, 32, posX - 8, posY - 8, 40, 40);
-                } else {
-                  c.drawImage(forge, posX - 8, posY - 12, 48, 48);
-                }
-                if (gameAssets.anvil.complete && gameAssets.anvil.naturalWidth > 0) {
-                  c.drawImage(gameAssets.anvil, 0, 0, 32, 32, posX + 24, posY + 4, 28, 28);
-                } else {
-                  c.drawImage(weaponRack, posX + 28, posY + 2, 32, 32);
-                }
+                c.drawImage(blacksmith, posX, posY, 32, 32);
               },
             });
           } else if (tileType === 11) {
             // Portal de Jefe
+            const bossPortal = getTileCanvas(11, currentZone.id, 0);
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
@@ -461,20 +453,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 13) {
-            // Animales y Plantitas integrados sobre el césped con sombra física
-            if ((x + y) % 6 === 0 && gameAssets.chicken.complete && gameAssets.chicken.naturalWidth > 0) {
-              const chkFrame = Math.floor(time * 4) % 2;
-              entities.push({
-                ySort: posY + TILE_SIZE,
-                draw: (c) => {
-                  c.fillStyle = 'rgba(15, 23, 42, 0.35)';
-                  c.beginPath();
-                  c.ellipse(posX + 16, posY + 26, 6, 2.5, 0, 0, Math.PI * 2);
-                  c.fill();
-                  c.drawImage(gameAssets.chicken, chkFrame * 32, 0, 32, 32, posX, posY, 32, 32);
-                },
-              });
-            } else if ((x + y) % 9 === 0 && gameAssets.cow.complete && gameAssets.cow.naturalWidth > 0) {
+            // Elementos de Granja, Huerto y Animales Estructurados
+            const isCowTile = (x === 112 && y === 111) || (x === 266 && y === 334) || (x === 239 && y === 340);
+            const isChickenTile = (x === 111 && y === 108) || (x === 112 && y === 109) || (x === 228 && y === 340);
+
+            if (isCowTile && gameAssets.cow.complete && gameAssets.cow.naturalWidth > 0) {
+              // Vaca en su pasto vallado
               const cowFrame = Math.floor(time * 3) % 2;
               entities.push({
                 ySort: posY + TILE_SIZE,
@@ -486,29 +470,42 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                   c.drawImage(gameAssets.cow, cowFrame * 32, 0, 32, 32, posX - 4, posY - 4, 40, 40);
                 },
               });
-            } else if (gameAssets.farmProps.complete && gameAssets.farmProps.naturalWidth > 0) {
-              const farmPropX = ((x * 3 + y * 5) % 4) * 32;
+            } else if (isChickenTile && gameAssets.chicken.complete && gameAssets.chicken.naturalWidth > 0) {
+              // Gallina picoteando en el gallinero
+              const chkFrame = Math.floor(time * 4) % 2;
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
                   c.fillStyle = 'rgba(15, 23, 42, 0.35)';
                   c.beginPath();
-                  c.ellipse(posX + 16, posY + 28, 10, 4, 0, 0, Math.PI * 2);
+                  c.ellipse(posX + 16, posY + 26, 6, 2.5, 0, 0, Math.PI * 2);
                   c.fill();
-                  c.drawImage(gameAssets.farmProps, farmPropX, 0, 32, 32, posX, posY, 32, 32);
+                  c.drawImage(gameAssets.chicken, chkFrame * 32, 0, 32, 32, posX, posY, 32, 32);
+                },
+              });
+            } else {
+              // Bancales agrícolas de cultivo limpios (Zanahorias, Calabazas y Coles)
+              const cropCanvas = getFarmCropCanvas((x * 3 + y * 7) % 3);
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(cropCanvas, posX, posY, 32, 32);
                 },
               });
             }
           } else if (tileType === 15) {
-            // Vallas de Madera Cute Fantasy
-            if (gameAssets.fences.complete && gameAssets.fences.naturalWidth > 0) {
-              entities.push({
-                ySort: posY + TILE_SIZE - 2,
-                draw: (c) => {
-                  c.drawImage(gameAssets.fences, 0, 0, 16, 16, posX, posY + 8, 32, 24);
-                },
-              });
-            }
+            // Vallas de Madera Conectadas Rústicas 2.5D
+            const hasLeft = x > 0 && currentZone.tileData[y]?.[x - 1] === 15;
+            const hasRight = x < cols - 1 && currentZone.tileData[y]?.[x + 1] === 15;
+            const hasTop = y > 0 && currentZone.tileData[y - 1]?.[x] === 15;
+            const hasBottom = y < rows - 1 && currentZone.tileData[y + 1]?.[x] === 15;
+            const fenceCanvas = getWoodenFenceCanvas(hasLeft, hasRight, hasTop, hasBottom);
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(fenceCanvas, posX, posY, 32, 32);
+              },
+            });
           } else if (tileType === 16) {
             // Lápida de Cementerio
             const tombstone = getGraveyardCanvas();

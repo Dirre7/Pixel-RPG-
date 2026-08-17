@@ -109,12 +109,43 @@ function buildMockupTown(
   map[cy + 11][cx - 12] = 16; map[cy + 11][cx - 11] = 16; map[cy + 11][cx - 10] = 16; map[cy + 11][cx - 9] = 16;
   map[cy + 12][cx - 12] = 16; map[cy + 12][cx - 11] = 16; map[cy + 12][cx - 10] = 16; map[cy + 12][cx - 9] = 16;
 
-  // 8. DISTRITO SURESTE (Granja Real con Bancales)
+  // 8. DISTRITO SURESTE (Granja Tradicional Estructurada: Huerto, Gallinero y Cercado Ganadero)
+  // Base de césped verde natural (X: cx + 7..cx + 13, Y: cy + 7..cy + 13)
   for (let y = cy + 7; y <= cy + 13; y++) {
     for (let x = cx + 7; x <= cx + 13; x++) {
-      map[y][x] = 13; // Bancal de zanahorias y trigo
+      map[y][x] = 0; // Hierba limpia
     }
   }
+
+  // Vallas de madera perimetrales delimitando la granja con puerta al norte
+  for (let y = cy + 7; y <= cy + 13; y++) {
+    for (let x = cx + 7; x <= cx + 13; x++) {
+      if (y === cy + 7 || y === cy + 13 || x === cx + 7 || x === cx + 13) {
+        if (!(y === cy + 7 && x === cx + 10)) {
+          map[y][x] = 15; // Valla de madera
+        }
+      }
+    }
+  }
+
+  // Valla divisoria interna entre el huerto y el corral
+  for (let y = cy + 8; y <= cy + 12; y++) {
+    map[y][cx + 10] = 15; // Valla divisoria
+  }
+
+  // A. SECTOR OESTE DE LA GRANJA: HUERTO AGRÍCOLA LABRADO (X: cx + 8..cx + 9)
+  map[cy + 8][cx + 8] = 13; map[cy + 8][cx + 9] = 13; // Surco 1 de hortalizas
+  map[cy + 9][cx + 8] = 13; map[cy + 9][cx + 9] = 13; // Surco 2 de hortalizas
+  map[cy + 10][cx + 8] = 13; map[cy + 10][cx + 9] = 13; // Surco 3 de hortalizas
+  map[cy + 11][cx + 8] = 3;  // Pozo de riego de agua
+  map[cy + 11][cx + 9] = 13; // Bancal de cultivo
+  map[cy + 12][cx + 8] = 7;  // Cofre de suministros agrícolas
+
+  // B. SECTOR ESTE DE LA GRANJA: CORRAL Y PASTO GANADERO (X: cx + 11..cx + 12)
+  map[cy + 8][cx + 11] = 13; // Gallina en la hierba
+  map[cy + 9][cx + 12] = 13; // Gallina picoteando grano
+  map[cy + 11][cx + 11] = 3;  // Abrevadero de agua para la vaca
+  map[cy + 11][cx + 12] = 13; // Vaca pastando en su cercado
 
   // 9. DISTRITO SUR CENTRAL (Dos Grandes Casas de la Aldea)
   map[cy + 8][cx - 2] = 9; // Gran Casa Azul
@@ -679,13 +710,29 @@ export function generateForest400(): {
   }
   map[360][360] = 11; map[356][360] = 17; map[364][360] = 17; map[360][356] = 7;
 
-  // DENSE SCATTER PASS EN LA NATURALEZA (Bosque puro y limpio: solo robles y flores silvestres)
+  // DENSE SCATTER PASS EN LA NATURALEZA (Bosque puro y salvaje: solo robles y flores, protegiendo las ciudades)
   for (let y = 4; y < MAP_SIZE - 4; y++) {
     for (let x = 4; x < MAP_SIZE - 4; x++) {
       if (map[y][x] === 0) {
-        const val = prng(x, y, 101);
-        if (val < 0.28) map[y][x] = 1;      // Roble de fantasía
-        else if (val < 0.36) map[y][x] = 12; // Matorral silvestre / Rosas
+        // Proteger el perímetro urbano de las ciudades (para que huertos y jardines queden limpios)
+        const isInsideTown = [
+          { cx: 100, cy: 100 },
+          { cx: 200, cy: 100 },
+          { cx: 300, cy: 100 },
+          { cx: 100, cy: 200 },
+          { cx: 200, cy: 200 },
+          { cx: 300, cy: 200 },
+          { cx: 100, cy: 300 },
+          { cx: 200, cy: 300 },
+          { cx: 300, cy: 300 },
+          { cx: 250, cy: 340 }
+        ].some(({ cx, cy }) => Math.abs(x - cx) <= 16 && Math.abs(y - cy) <= 16);
+
+        if (!isInsideTown) {
+          const val = prng(x, y, 101);
+          if (val < 0.28) map[y][x] = 1;      // Roble de fantasía
+          else if (val < 0.36) map[y][x] = 12; // Matorral silvestre / Rosas
+        }
       }
     }
   }
