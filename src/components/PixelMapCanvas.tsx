@@ -126,6 +126,8 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       caveProps: new Image(),
       caveTiles: new Image(),
       batMove: new Image(),
+      cemeteryGraves: new Image(),
+      castleTiles: new Image(),
     };
     gameAssets.house.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
     gameAssets.customHouses.src = '/houses.png';
@@ -162,6 +164,8 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     gameAssets.caveProps.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Cave/Assets/Props.png';
     gameAssets.caveTiles.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Cave/Assets/Tiles.png';
     gameAssets.batMove.src = '/Pixel Crawler - Free Pack/Small_Bat/Move/Move_Down-Sheet.png';
+    gameAssets.cemeteryGraves.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Cemetery/Environment/Props/Graves.png';
+    gameAssets.castleTiles.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Castle Environment 0.3/Assets/Tiles.png';
 
     let animId: number;
     let time = 0;
@@ -552,14 +556,37 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 16) {
-            // Lápida de Cementerio
-            const tombstone = getGraveyardCanvas();
-            entities.push({
-              ySort: posY + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(tombstone, posX + 4, posY + 4, 24, 28);
-              },
-            });
+            // Lápidas Góticas y Cruces de Forja (Pixel Crawler - Cemetery)
+            if (gameAssets.cemeteryGraves.complete && gameAssets.cemeteryGraves.naturalWidth > 0) {
+              const gVariant = (x * 7 + y * 13) % 4;
+              let sx = 135; let sy = 5; let sw = 30; let sh = 65; // Cruz gótica
+              if (gVariant === 1) {
+                sx = 95; sy = 5; sw = 30; sh = 65; // Cruz celta
+              } else if (gVariant === 2) {
+                sx = 205; sy = 115; sw = 35; sh = 70; // Mausoleo
+              } else if (gVariant === 3) {
+                sx = 120; sy = 115; sw = 35; sh = 70; // Sarcófago de piedra
+              }
+
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.fillStyle = 'rgba(15, 23, 42, 0.4)';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 28, 10, 4, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.drawImage(gameAssets.cemeteryGraves, sx, sy, sw, sh, posX + 2, posY - 10, 28, 42);
+                },
+              });
+            } else {
+              const tombstone = getGraveyardCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(tombstone, posX + 4, posY + 4, 24, 28);
+                },
+              });
+            }
           } else if (tileType === 17) {
             // Farola de Camino con Farol Forjado y Halo Cálido
             const lamp = getStreetLampCanvas(time);
@@ -1056,6 +1083,18 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             });
           }
         }
+
+        // 4. Estatua del Ángel Protector en el Santuario Ancestral (Cemetery)
+        if (gameAssets.cemeteryGraves.complete && gameAssets.cemeteryGraves.naturalWidth > 0) {
+          if (89 >= startCol - 2 && 89 <= endCol + 2 && 109 >= startRow - 2 && 109 <= endRow + 2) {
+            entities.push({
+              ySort: 109 * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(gameAssets.cemeteryGraves, 40, 245, 40, 48, 89 * TILE_SIZE - 4, 109 * TILE_SIZE - 16, 40, 48);
+              },
+            });
+          }
+        }
       }
 
       // FASE 2: MINAS DE ERIDU Y CUEVA DE SOMBRAS (PIXEL CRAWLER CAVE & BATS)
@@ -1103,6 +1142,49 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                   c.fill();
                   // Sprite animado del murciélago volando
                   c.drawImage(gameAssets.batMove, bFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
+                },
+              });
+            }
+          });
+        }
+      }
+
+      // FASE 3: CIUDADELA IMPERIAL Y SAGRARIO (PIXEL CRAWLER CASTLE)
+      if (currentZone.id === 'zone_castle' || currentZone.id === 'zone_sanctuary') {
+        if (gameAssets.castleTiles.complete && gameAssets.castleTiles.naturalWidth > 0) {
+          // Trono Imperial en la cabecera
+          if (200 >= startCol - 2 && 200 <= endCol + 2 && 194 >= startRow - 2 && 194 <= endRow + 2) {
+            entities.push({
+              ySort: 194 * TILE_SIZE + TILE_SIZE + 10,
+              draw: (c) => {
+                c.fillStyle = 'rgba(0, 0, 0, 0.45)';
+                c.beginPath();
+                c.ellipse(200 * TILE_SIZE + 16, 194 * TILE_SIZE + 30, 16, 6, 0, 0, Math.PI * 2);
+                c.fill();
+                c.drawImage(gameAssets.castleTiles, 335, 15, 25, 65, 200 * TILE_SIZE + 4, 194 * TILE_SIZE - 20, 24, 60);
+              },
+            });
+          }
+          // Estandartes Púrpuras Reales
+          const banners = [{ x: 196, y: 194 }, { x: 204, y: 194 }];
+          banners.forEach(({ x, y }) => {
+            if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+              entities.push({
+                ySort: y * TILE_SIZE + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(gameAssets.castleTiles, 335, 215, 30, 55, x * TILE_SIZE + 1, y * TILE_SIZE - 12, 30, 52);
+                },
+              });
+            }
+          });
+          // Bustos de Héroes y Paladines en la galería
+          const busts = [{ x: 196, y: 198 }, { x: 204, y: 198 }, { x: 196, y: 202 }, { x: 204, y: 202 }];
+          busts.forEach(({ x, y }) => {
+            if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+              entities.push({
+                ySort: y * TILE_SIZE + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(gameAssets.castleTiles, 335, 95, 25, 40, x * TILE_SIZE + 4, y * TILE_SIZE - 6, 24, 38);
                 },
               });
             }
