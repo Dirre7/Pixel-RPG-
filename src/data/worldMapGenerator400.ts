@@ -56,7 +56,7 @@ function buildMockupTown(
   }
 
   // 3. GLORIETA CENTRAL Y GRAN FUENTE
-  map[cy][cx] = 4; // Gran Fuente Central
+  map[cy][cx] = 4; // Gran Fuente Central (Beber agua restaura HP/MP)
 
   // Parterre Norte de la Glorieta
   map[cy - 2][cx] = 12; map[cy - 3][cx] = 12;
@@ -70,51 +70,15 @@ function buildMockupTown(
   map[cy][cx - 2] = 12; map[cy][cx - 3] = 12;
   map[cy][cx + 2] = 12; map[cy][cx + 3] = 12;
 
-  // Casas Flanqueando la Fuente Central en la Glorieta
-  map[cy - 2][cx - 4] = 9; // Tienda Azul
-  map[cy - 2][cx + 4] = 5; // Casa Roja
+  // 4. MERCADILLO MUNICIPAL (Flanco Oeste: X: cx - 6..cx - 5)
+  map[cy - 4][cx - 6] = 9; // Puesto de Pociones & Víveres
+  map[cy - 1][cx - 6] = 9; // Puesto de Armas & Equipo
+  map[cy + 2][cx - 6] = 9; // Puesto de Pergaminos & Magia
+  map[cy + 5][cx - 6] = 9; // Puesto de Alimentos
 
-  // 4. DISTRITO NORTE CENTRAL
-  map[cy - 8][cx - 1] = 9; // Casa Central Azul
-
-  // Franjas de jardín/cultivo a los lados de la casa norte
-  map[cy - 11][cx - 3] = 12; map[cy - 10][cx - 3] = 12; map[cy - 9][cx - 3] = 12; map[cy - 8][cx - 3] = 12;
-  map[cy - 11][cx + 3] = 7;  map[cy - 10][cx + 3] = 13; map[cy - 9][cx + 3] = 13; map[cy - 8][cx + 3] = 7;
-
-  // Manzana Residencial Noroeste (Césped, Estanque, Árboles)
-  for (let y = cy - 13; y <= cy - 7; y++) {
-    for (let x = cx - 13; x <= cx - 8; x++) {
-      map[y][x] = 0; // Césped
-    }
-  }
-  map[cy - 11][cx - 11] = 3; // Estanque
-  map[cy - 12][cx - 9] = 1; map[cy - 10][cx - 8] = 1; // Árboles
-  map[cy - 8][cx - 11] = 12; map[cy - 8][cx - 10] = 12; // Rosas
-
-  // Manzana Residencial Noreste (Césped, Árboles, Rosas)
-  for (let y = cy - 13; y <= cy - 7; y++) {
-    for (let x = cx + 8; x <= cx + 13; x++) {
-      map[y][x] = 0; // Césped
-    }
-  }
-  map[cy - 10][cx + 10] = 1; map[cy - 12][cx + 12] = 1; // Árboles
-  map[cy - 8][cx + 9] = 12; map[cy - 8][cx + 12] = 12; // Rosas
-
-  // 5. DISTRITO OESTE (Dos Casas Azules alineadas mirando al este)
-  map[cy - 3][cx - 7] = 9; // Casa Azul Superior
-  map[cy + 3][cx - 7] = 9; // Casa Azul Inferior
-
-  // Patio ajardinado detrás de las casas del oeste
-  for (let y = cy - 5; y <= cy + 5; y++) {
-    for (let x = cx - 13; x <= cx - 9; x++) {
-      map[y][x] = 0; // Césped
-    }
-  }
-  map[cy - 2][cx - 10] = 1; map[cy + 1][cx - 10] = 1; // Árboles
-
-  // 6. DISTRITO ESTE (Dos Casas Rojas alineadas mirando al oeste)
-  map[cy - 3][cx + 7] = 5; // Casa Roja Superior
-  map[cy + 3][cx + 7] = 5; // Casa Roja Inferior
+  // 5. MANZANA RESIDENCIAL ORIENTAL (Flanco Este: Casas ordenadas con jardines)
+  map[cy - 4][cx + 7] = 5; // Residencia Norte
+  map[cy + 4][cx + 7] = 5; // Residencia Sur
 
   // Patio ajardinado detrás de las casas del este
   for (let y = cy - 5; y <= cy + 5; y++) {
@@ -122,7 +86,14 @@ function buildMockupTown(
       map[y][x] = 0; // Césped
     }
   }
-  map[cy - 1][cx + 10] = 12; map[cy + 1][cx + 10] = 12; // Rosales
+  map[cy - 2][cx + 10] = 1; map[cy + 2][cx + 10] = 1; // Árboles
+  map[cy][cx + 10] = 12; // Rosales
+
+  // 6. DISTRITO NORTE: POSADA Y ALCALDÍA
+  map[cy - 8][cx] = 5; // Gran Posada de la Aldea (Descansar)
+  map[cy - 7][cx - 2] = 17; map[cy - 7][cx + 2] = 17; // Farolas en la entrada de la posada
+  map[cy - 10][cx - 3] = 12; map[cy - 10][cx + 3] = 12; // Rosales
+  map[cy - 11][cx + 4] = 7; // Cofre de la Posada
 
   // 7. DISTRITO SUROESTE (El Santo Mausoleo y Cementerio)
   for (let y = cy + 7; y <= cy + 13; y++) {

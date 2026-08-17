@@ -210,12 +210,33 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     [currentZone, openedChests]
   );
 
+  // Helper to find nearby interactive tile (at current position or adjacent step)
+  const findNearbyInteractiveTile = useCallback(
+    (px: number, py: number) => {
+      const cur = currentZone.tileData[py]?.[px];
+      if (cur && [4, 5, 6, 7, 8, 9, 10, 11].includes(cur)) {
+        return { tile: cur, x: px, y: py };
+      }
+      const neighbors = [
+        { dx: 0, dy: -1 }, { dx: 0, dy: 1 }, { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
+        { dx: -1, dy: -1 }, { dx: 1, dy: -1 }, { dx: -1, dy: 1 }, { dx: 1, dy: 1 }
+      ];
+      for (const { dx, dy } of neighbors) {
+        const nx = px + dx;
+        const ny = py + dy;
+        const t = currentZone.tileData[ny]?.[nx];
+        if (t && [4, 5, 6, 7, 8, 9, 10, 11].includes(t)) {
+          return { tile: t, x: nx, y: ny };
+        }
+      }
+      return null;
+    },
+    [currentZone]
+  );
+
   // Check interactive tile nearby or on current position
   const checkTileInteraction = useCallback(
     (x: number, y: number) => {
-      const tile = currentZone.tileData[y]?.[x];
-      const chestId = `${currentZone.id}_${x}_${y}`;
-
       // 1. Check nearby NPC (within 1 tile)
       const nearbyNpc = currentZone.npcs?.find(
         (n) => Math.abs(n.x - x) <= 1 && Math.abs(n.y - y) <= 1
@@ -232,11 +253,42 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         return;
       }
 
+      const target = findNearbyInteractiveTile(x, y);
+      if (!target) {
+        setInteractPrompt(null);
+        return;
+      }
+
+      const { tile, x: tx, y: ty } = target;
+      const chestId = `${currentZone.id}_${tx}_${ty}`;
+
       if (tile === 4) {
-        setInteractPrompt('🛒 Puesto de Mercader (Presiona A / Espacio para Comprar)');
+        setInteractPrompt('⛲ Gran Fuente de la Plaza (Presiona A / Espacio para Beber Agua y Restaurar HP/MP)');
       } else if (tile === 5) {
-        setInteractPrompt('🏨 Taberna del Viajero (Presiona A / Espacio para Descansar por 10 Oro)');
+        setInteractPrompt('🏡 Posada de la Aldea (Presiona A / Espacio para Descansar)');
       } else if (tile === 6) {
+        if (openedChests.includes(chestId)) {
+          setInteractPrompt('🌾 Molino de Viento (Agotado)');
+        } else {
+          setInteractPrompt('🌾 Molino de Viento (Presiona A / Espacio para Reclamar Harina & Suministros)');
+        }
+      } else if (tile === 7) {
+        if (openedChests.includes(chestId)) {
+          setInteractPrompt('📦 Cofre Vacío');
+        } else {
+          setInteractPrompt('🎁 Cofre del Tesoro (Presiona A / Espacio para Abrir)');
+        }
+      } else if (tile === 8) {
+        if (openedChests.includes(chestId)) {
+          setInteractPrompt('🏛️ Santuario Místico (Visitado)');
+        } else {
+          setInteractPrompt('🏛️ Santuario Místico (Presiona A / Espacio para Meditar y Sanar)');
+        }
+      } else if (tile === 9) {
+        setInteractPrompt('🎪 Puesto del Bazar (Presiona A / Espacio para Comerciar y Comprar Víveres)');
+      } else if (tile === 10) {
+        setInteractPrompt('🔨 Gran Forja & Herrería (Presiona A / Espacio para Comprar y Mejorar Equipo)');
+      } else if (tile === 11) {
         if (isBossDefeatedInZone) {
           setInteractPrompt('✨ Portal despejado. ¡Jefe derrotado! (A / Espacio para Cambiar de Zona)');
         } else {
@@ -247,33 +299,11 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
             setInteractPrompt(`⚔️ ¡Portal Desbloqueado! Santuario del Jefe: ${currentZone.boss.name} (Presiona A / Espacio para Luchar)`);
           }
         }
-      } else if (tile === 7) {
-        if (openedChests.includes(chestId)) {
-          setInteractPrompt('📦 Cofre Vacío');
-        } else {
-          setInteractPrompt('🎁 Cofre del Tesoro (Presiona A / Espacio para Abrir)');
-        }
-      } else if (tile === 8) {
-        if (openedChests.includes(chestId)) {
-          setInteractPrompt('🏡 Cabaña de Aldeano (Visitada)');
-        } else {
-          setInteractPrompt('🏡 Cabaña de Aldeano (Presiona A / Espacio para Descansar)');
-        }
-      } else if (tile === 9) {
-        if (openedChests.includes(chestId)) {
-          setInteractPrompt('🌾 Molino de Viento (Agotado)');
-        } else {
-          setInteractPrompt('🌾 Molino de Viento (Presiona A / Espacio para Reclamar Harina & Fortuna)');
-        }
-      } else if (tile === 10) {
-        setInteractPrompt('🪣 Pozo de Agua Fresca (Presiona A / Espacio para Beber y Restaurar HP/MP)');
-      } else if (tile === 11) {
-        setInteractPrompt('🔨 Herrería & Forja de la Aldea (Presiona A / Espacio para Comprar Equipo)');
       } else {
         setInteractPrompt(null);
       }
     },
-    [currentZone, isBossDefeatedInZone, openedChests, completedQuests, findNearbyChest]
+    [currentZone, isBossDefeatedInZone, openedChests, completedQuests, findNearbyChest, findNearbyInteractiveTile]
   );
 
   useEffect(() => {
@@ -282,9 +312,6 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
   // Execute interact action
   const handleInteract = () => {
-    const tile = currentZone.tileData[playerPos.y]?.[playerPos.x];
-    const chestId = `${currentZone.id}_${playerPos.x}_${playerPos.y}`;
-
     // 1. Priority: Speak with nearby NPC
     const nearbyNpc = currentZone.npcs?.find(
       (n) => Math.abs(n.x - playerPos.x) <= 1 && Math.abs(n.y - playerPos.y) <= 1
@@ -306,14 +333,48 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       return;
     }
 
+    const target = findNearbyInteractiveTile(playerPos.x, playerPos.y);
+    if (!target) return;
+
+    const { tile, x: tx, y: ty } = target;
+    const chestId = `${currentZone.id}_${tx}_${ty}`;
+
     if (tile === 4) {
-      soundEngine.playSfx('select');
-      onOpenShop();
+      soundEngine.playSfx('heal');
+      onHealAtInn();
+      showToast('⛲ ¡Has bebido agua fresca de la fuente! HP y MP restaurados al 100%.');
     } else if (tile === 5) {
       soundEngine.playSfx('heal');
       onHealAtInn();
-      showToast('✨ ¡Has descansado en la taberna! HP y MP restaurados al 100%.');
+      showToast('✨ ¡Has descansado en la posada! HP y MP restaurados al 100%.');
     } else if (tile === 6) {
+      if (!openedChests.includes(chestId)) {
+        soundEngine.playSfx('gold');
+        onOpenChest(chestId);
+        showToast('🌾 ¡Molino de Viento! Has recolectado harina y provisiones.');
+      }
+    } else if (tile === 7) {
+      if (!openedChests.includes(chestId)) {
+        soundEngine.playSfx('chest');
+        const loot = onOpenChest(chestId);
+        if (loot) {
+          setActiveChestLoot(loot);
+        }
+      }
+    } else if (tile === 8) {
+      if (!openedChests.includes(chestId)) {
+        soundEngine.playSfx('level_up');
+        onOpenChest(chestId);
+        onHealAtInn();
+        showToast('🏛️ ¡Meditación en el santuario! HP y MP Restaurados al 100%.');
+      }
+    } else if (tile === 9) {
+      soundEngine.playSfx('select');
+      onOpenShop();
+    } else if (tile === 10) {
+      soundEngine.playSfx('select');
+      onOpenShop();
+    } else if (tile === 11) {
       if (isBossDefeatedInZone) {
         // Open zone selector
         const currentIndex = ZONES.findIndex((z) => z.id === currentZone.id);
@@ -336,34 +397,6 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           onStartBattle(true);
         }
       }
-    } else if (tile === 7) {
-      if (!openedChests.includes(chestId)) {
-        soundEngine.playSfx('chest');
-        const loot = onOpenChest(chestId);
-        if (loot) {
-          setActiveChestLoot(loot);
-        }
-      }
-    } else if (tile === 8) {
-      if (!openedChests.includes(chestId)) {
-        soundEngine.playSfx('level_up');
-        onOpenChest(chestId);
-        onHealAtInn();
-        showToast('🏡 ¡Descanso en la cabaña! HP y MP Restaurados al 100%.');
-      }
-    } else if (tile === 9) {
-      if (!openedChests.includes(chestId)) {
-        soundEngine.playSfx('gold');
-        onOpenChest(chestId);
-        showToast('🌾 ¡Molino de Viento! Has recolectado provisiones y oro.');
-      }
-    } else if (tile === 10) {
-      soundEngine.playSfx('heal');
-      onHealAtInn();
-      showToast('🪣 ¡Bebiste del pozo de agua fresca! HP y MP restaurados.');
-    } else if (tile === 11) {
-      soundEngine.playSfx('select');
-      onOpenShop();
     }
   };
 
@@ -381,13 +414,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
     const targetTile = currentZone.tileData[newY]?.[newX];
 
-    // Block collision (1: Trees/Walls, 3: Water/Lava, 5: Houses, 6: Windmill, 8: Shrine, 10: Forge, 15: Fences, 18: Pillars, 21: Hedges, 22..34: Guilds/Towers/Castles)
-    const isDirectSolid = [1, 3, 5, 6, 8, 10, 15, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34].includes(targetTile);
+    // Block collision (1: Trees, 3: Water, 4: Fountain, 5: Houses, 6: Windmill, 8: Shrine, 9: Stalls, 10: Forge, 15: Fences, 18: Pillars, 21: Hedges, 22..34: Guilds/Towers/Castles)
+    const isDirectSolid = [1, 3, 4, 5, 6, 8, 9, 10, 15, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34].includes(targetTile);
 
-    // Verificar si el jugador intenta entrar en el volumen 3x3 de una casa (tile 5)
+    // Verificar si el jugador intenta entrar en el volumen 2x2 de una casa (tile 5)
     let isInsideHouseVolume = false;
-    for (let hy = newY; hy <= newY + 2; hy++) {
-      for (let hx = newX - 1; hx <= newX + 1; hx++) {
+    for (let hy = newY; hy <= newY + 1; hy++) {
+      for (let hx = newX - 1; hx <= newX; hx++) {
         if (currentZone.tileData[hy]?.[hx] === 5) {
           isInsideHouseVolume = true;
           break;

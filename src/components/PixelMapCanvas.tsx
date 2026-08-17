@@ -336,21 +336,21 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 5) {
-            // Casas Medievales (Altura Completa 96x128 px con sombra de contacto pegada a la madera)
+            // Casas Medievales Proporcionadas (64x80 px con sombra de contacto pegada a la madera)
             if (gameAssets.house.complete && gameAssets.house.naturalWidth > 0) {
               entities.push({
                 ySort: posY + TILE_SIZE + 20,
                 draw: (c) => {
                   // Sombra de contacto directamente en la línea inferior de la madera (Y + 20)
-                  const hShadow = c.createRadialGradient(posX + 16, posY + 20, 6, posX + 16, posY + 20, 42);
+                  const hShadow = c.createRadialGradient(posX + 16, posY + 20, 4, posX + 16, posY + 20, 28);
                   hShadow.addColorStop(0, 'rgba(15, 23, 42, 0.65)');
                   hShadow.addColorStop(0.5, 'rgba(15, 23, 42, 0.3)');
                   hShadow.addColorStop(1, 'rgba(15, 23, 42, 0)');
                   c.fillStyle = hShadow;
                   c.beginPath();
-                  c.ellipse(posX + 16, posY + 20, 42, 6, 0, 0, Math.PI * 2);
+                  c.ellipse(posX + 16, posY + 20, 28, 5, 0, 0, Math.PI * 2);
                   c.fill();
-                  c.drawImage(gameAssets.house, 0, 0, 96, 128, posX - 32, posY - 96, 96, 128);
+                  c.drawImage(gameAssets.house, 0, 0, 96, 128, posX - 16, posY - 48, 64, 80);
                 },
               });
             } else {
