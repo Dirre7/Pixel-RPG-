@@ -242,7 +242,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 z-50 font-mono">
-      <div className="bg-slate-900 border-2 border-slate-700 rounded-xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-slate-900 border-2 border-slate-700 rounded-xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="p-3.5 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
           <div className="flex items-center space-x-2">
@@ -505,16 +505,44 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
 
               {/* MAIN CONTENT: 7 EQUIPPED SLOTS & INVENTORY */}
               <div className="lg:col-span-7 space-y-4">
-                {/* PAPER DOLL 7 EQUIPPED SLOTS */}
+                {/* 7 EQUIPPED SLOTS - HERO SHOWCASE & 2-COLUMN GRID */}
                 <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 shadow-xl space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
-                    <h3 className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center space-x-1.5">
-                      <span>⚔️</span>
-                      <span>Equipo Activo del Héroe (7 Ranuras)</span>
-                    </h3>
-                    <span className="text-[10px] text-slate-400 font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                      {Object.values(inventory.equipment).filter(Boolean).length}/7 Equipados
-                    </span>
+                  {/* Hero Showcase Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 rounded-lg border border-slate-800/90">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 via-slate-800 to-slate-900 border border-amber-400/50 flex items-center justify-center text-2xl shadow-inner">
+                        {player.heroClass === 'Guerrero'
+                          ? '⚔️'
+                          : player.heroClass === 'Mago'
+                          ? '🔮'
+                          : player.heroClass === 'Pícaro'
+                          ? '🗡️'
+                          : player.heroClass === 'Paladín'
+                          ? '🛡️'
+                          : player.heroClass === 'Nigromante'
+                          ? '💀'
+                          : player.heroClass === 'Arquero'
+                          ? '🏹'
+                          : '🪓'}
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-black text-amber-300">{player.name}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-bold">
+                            {player.heroClass}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-400 font-bold mt-0.5">
+                          Héroe Nivel <span className="text-amber-400">{player.level}</span> · Armamento Activo
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2 self-end sm:self-auto">
+                      <span className="text-[11px] font-black text-amber-300 bg-amber-950/60 border border-amber-800/60 px-2.5 py-1 rounded-lg shadow-sm">
+                        ⚔️ {Object.values(inventory.equipment).filter(Boolean).length}/7 Equipados
+                      </span>
+                    </div>
                   </div>
 
                   {/* Slot Card Renderer Helper */}
@@ -527,7 +555,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                       return (
                         <div
                           key={slotKey}
-                          className={`p-2 rounded-lg border text-xs flex items-start space-x-2.5 transition relative ${
+                          className={`p-2.5 rounded-xl border text-xs flex items-start space-x-3 transition relative ${
                             item
                               ? 'bg-slate-900/95 border-amber-500/30 hover:border-amber-400/60 shadow-sm'
                               : 'bg-slate-900/40 border-slate-800/80 border-dashed hover:border-slate-700'
@@ -535,7 +563,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                         >
                           {/* Slot Icon Frame */}
                           <div
-                            className={`w-9 h-9 rounded-lg flex-shrink-0 flex items-center justify-center text-lg border transition ${
+                            className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-xl border transition ${
                               item
                                 ? 'bg-gradient-to-br from-slate-800 to-slate-950 border-amber-400/50 shadow-inner'
                                 : 'bg-slate-950/80 border-slate-800 text-slate-600'
@@ -546,15 +574,15 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
 
                           {/* Item Details */}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider truncate">
                                 {config.label}
                               </span>
                               {item && (
                                 <button
                                   onClick={() => handleUnequip(slotKey)}
                                   title={`Desequipar ${item.name}`}
-                                  className="text-[9px] text-rose-400 hover:text-rose-200 bg-rose-950/60 hover:bg-rose-900/80 px-1.5 py-0.5 rounded border border-rose-800/60 transition font-bold"
+                                  className="text-[9px] text-rose-400 hover:text-rose-200 bg-rose-950/60 hover:bg-rose-900/80 px-2 py-0.5 rounded border border-rose-800/60 transition font-bold whitespace-nowrap"
                                 >
                                   Desequipar
                                 </button>
@@ -562,14 +590,14 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                             </div>
 
                             {item ? (
-                              <div>
-                                <div className="font-black text-amber-300 text-xs leading-snug mt-0.5" title={item.name}>
+                              <div className="mt-0.5">
+                                <div className="font-black text-amber-300 text-xs leading-snug" title={item.name}>
                                   {item.name}
                                 </div>
                                 {renderItemTacticalBadges(item)}
                               </div>
                             ) : (
-                              <div className="text-slate-600 text-[10px] italic mt-0.5">{config.placeholder}</div>
+                              <div className="text-slate-600 text-[10px] italic mt-1">{config.placeholder}</div>
                             )}
                           </div>
                         </div>
@@ -578,47 +606,17 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
 
                     return (
                       <div className="space-y-2.5">
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-stretch">
-                          {/* Columna Izquierda (Ataque y Accesorios) */}
-                          <div className="md:col-span-5 space-y-2 flex flex-col justify-between">
-                            {renderSlotItemCard('weapon')}
-                            {renderSlotItemCard('helmet')}
-                            {renderSlotItemCard('ring')}
-                          </div>
-
-                          {/* Centro: Pedestal del Héroe / Paper Doll */}
-                          <div className="md:col-span-2 hidden md:flex flex-col items-center justify-center p-2.5 bg-gradient-to-b from-slate-900/90 to-slate-950 rounded-xl border border-slate-800 shadow-inner relative overflow-hidden">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 via-slate-800 to-slate-900 border-2 border-amber-400/40 flex items-center justify-center text-3xl shadow-lg relative z-10 animate-pulse">
-                              {player.heroClass === 'Guerrero'
-                                ? '⚔️'
-                                : player.heroClass === 'Mago'
-                                ? '🔮'
-                                : player.heroClass === 'Pícaro'
-                                ? '🗡️'
-                                : player.heroClass === 'Paladín'
-                                ? '🛡️'
-                                : player.heroClass === 'Nigromante'
-                                ? '💀'
-                                : player.heroClass === 'Arquero'
-                                ? '🏹'
-                                : '🪓'}
-                            </div>
-
-                            <div className="text-center mt-2 relative z-10">
-                              <div className="text-[11px] font-black text-amber-300 truncate max-w-[80px]">{player.name}</div>
-                              <div className="text-[9px] text-slate-400 font-bold">Nv.{player.level}</div>
-                            </div>
-                          </div>
-
-                          {/* Columna Derecha (Defensa y Armadura) */}
-                          <div className="md:col-span-5 space-y-2 flex flex-col justify-between">
-                            {renderSlotItemCard('shield')}
-                            {renderSlotItemCard('armor')}
-                            {renderSlotItemCard('boots')}
-                          </div>
+                        {/* 6 Core Slots in 2 Spacious Columns */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          {renderSlotItemCard('weapon')}
+                          {renderSlotItemCard('shield')}
+                          {renderSlotItemCard('helmet')}
+                          {renderSlotItemCard('armor')}
+                          {renderSlotItemCard('boots')}
+                          {renderSlotItemCard('ring')}
                         </div>
 
-                        {/* Fila Inferior Centrada: Amuleto / Reliquia */}
+                        {/* 7th Slot: Amuleto / Reliquia Sagrada Centrada */}
                         <div className="w-full">
                           {renderSlotItemCard('amulet')}
                         </div>
