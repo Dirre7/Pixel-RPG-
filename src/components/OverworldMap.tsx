@@ -224,8 +224,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   // Helper to find nearby interactive tile (at current position or adjacent step)
   const findNearbyInteractiveTile = useCallback(
     (px: number, py: number) => {
+      const interactiveTiles = [1, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 18, 20];
       const cur = currentZone.tileData[py]?.[px];
-      if (cur && [4, 5, 6, 7, 8, 9, 10, 11].includes(cur)) {
+      if (cur && interactiveTiles.includes(cur)) {
         return { tile: cur, x: px, y: py };
       }
       const neighbors = [
@@ -236,7 +237,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         const nx = px + dx;
         const ny = py + dy;
         const t = currentZone.tileData[ny]?.[nx];
-        if (t && [4, 5, 6, 7, 8, 9, 10, 11].includes(t)) {
+        if (t && interactiveTiles.includes(t)) {
           return { tile: t, x: nx, y: ny };
         }
       }
@@ -273,7 +274,15 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       const { tile, x: tx, y: ty } = target;
       const chestId = `${currentZone.id}_${tx}_${ty}`;
 
-      if (tile === 4) {
+      if (tile === 1) {
+        if (currentZone.id === 'zone_swamp') {
+          setInteractPrompt('🪵 Sauce Musgoso del Pantano (Presiona A / Espacio para Talar Madera)');
+        } else if (currentZone.id === 'zone_tundra') {
+          setInteractPrompt('🪵 Pino Nevado de Niflheim (Presiona A / Espacio para Talar Madera)');
+        } else {
+          setInteractPrompt('🪵 Árbol de Roble Frondoso (Presiona A / Espacio para Talar Madera)');
+        }
+      } else if (tile === 4) {
         setInteractPrompt('⛲ Gran Fuente de la Plaza (Presiona A / Espacio para Beber Agua y Restaurar HP/MP)');
       } else if (tile === 5) {
         setInteractPrompt('🏡 Posada de la Aldea (Presiona A / Espacio para Descansar)');
@@ -293,12 +302,24 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         if (openedChests.includes(chestId)) {
           setInteractPrompt('🏛️ Santuario Místico (Visitado)');
         } else {
-          setInteractPrompt('🏛️ Santuario Místico (Presiona A / Espacio para Meditar y Sanar)');
+          setInteractPrompt('🏛️ Santuario Místico (Presiona A / Espacio para Meditar, Sanar y Recibir Gemas)');
         }
       } else if (tile === 9) {
         setInteractPrompt('🎪 Puesto del Bazar (Presiona A / Espacio para Comerciar y Comprar Víveres)');
       } else if (tile === 10) {
         setInteractPrompt('🔨 Gran Forja & Herrería (Presiona A / Espacio para Comprar y Mejorar Equipo)');
+      } else if (tile === 13) {
+        setInteractPrompt('🥕 Huerto de Cultivo y Hortalizas (Presiona A / Espacio para Cosechar Alimentos)');
+      } else if (tile === 14) {
+        setInteractPrompt('🪵 Depósito de Leña y Troncos (Presiona A / Espacio para Recoger Madera)');
+      } else if (tile === 18) {
+        if (currentZone.id === 'zone_cave' || currentZone.id === 'zone_volcano') {
+          setInteractPrompt('🪨 Veta de Mineral de Hierro y Roca (Presiona A / Espacio para Picar)');
+        } else {
+          setInteractPrompt('🪨 Cantera de Piedra Natural (Presiona A / Espacio para Extraer Piedra)');
+        }
+      } else if (tile === 20) {
+        setInteractPrompt('💎 Geoda de Cristal Arcano (Presiona A / Espacio para Extraer Gemas)');
       } else if (tile === 11) {
         if (isBossDefeatedInZone) {
           setInteractPrompt('✨ Portal despejado. ¡Jefe derrotado! (A / Espacio para Cambiar de Zona)');
@@ -323,6 +344,11 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
   // Execute interact action
   const handleInteract = () => {
+    // Ensure resources object exists
+    if (!player.resources) {
+      player.resources = { wood: 0, stone: 0, crops: 0, gems: 0 };
+    }
+
     // 1. Priority: Speak with nearby NPC
     const nearbyNpc = currentZone.npcs?.find(
       (n) => Math.abs(n.x - playerPos.x) <= 1 && Math.abs(n.y - playerPos.y) <= 1
@@ -350,7 +376,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     const { tile, x: tx, y: ty } = target;
     const chestId = `${currentZone.id}_${tx}_${ty}`;
 
-    if (tile === 4) {
+    if (tile === 1) {
+      soundEngine.playSfx('attack');
+      const woodGain = Math.floor(Math.random() * 5) + 6; // 6 - 10 wood
+      player.resources.wood = (player.resources.wood || 0) + woodGain;
+      onAutoSave();
+      showToast(`🪵 ¡Has talado leña de calidad! (+${woodGain} Madera recolectada)`);
+    } else if (tile === 4) {
       soundEngine.playSfx('heal');
       onHealAtInn();
       showToast('⛲ ¡Has bebido agua fresca de la fuente! HP y MP restaurados al 100%.');
@@ -362,7 +394,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       if (!openedChests.includes(chestId)) {
         soundEngine.playSfx('gold');
         onOpenChest(chestId);
-        if (player.resources) player.resources.crops = (player.resources.crops || 0) + 30;
+        player.resources.crops = (player.resources.crops || 0) + 30;
+        onAutoSave();
         showToast('🌾 ¡Molino de Viento! Has recolectado +30 Cosechas y Trigo.');
       } else {
         showToast('🌾 El molino está moliendo grano para la siguiente cosecha.');
@@ -374,17 +407,17 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         if (loot) {
           setActiveChestLoot(loot);
         }
-        if (player.resources) {
-          player.resources.stone = (player.resources.stone || 0) + 15;
-          player.resources.gems = (player.resources.gems || 0) + 5;
-        }
+        player.resources.stone = (player.resources.stone || 0) + 15;
+        player.resources.gems = (player.resources.gems || 0) + 5;
+        onAutoSave();
       }
     } else if (tile === 8) {
       if (!openedChests.includes(chestId)) {
         soundEngine.playSfx('level_up');
         onOpenChest(chestId);
         onHealAtInn();
-        if (player.resources) player.resources.gems = (player.resources.gems || 0) + 10;
+        player.resources.gems = (player.resources.gems || 0) + 10;
+        onAutoSave();
         showToast('🏛️ ¡Meditación en el santuario! +10 Gemas Arcanas y HP/MP Restaurados.');
       } else {
         onHealAtInn();
@@ -398,16 +431,33 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       setShowForgeModal(true);
     } else if (tile === 13) {
       soundEngine.playSfx('select');
-      if (player.resources) player.resources.crops = (player.resources.crops || 0) + 15;
-      showToast('🥕 ¡Has cosechado hortalizas y provisiones! +15 Cosechas añadidas.');
+      const cropsGain = Math.floor(Math.random() * 6) + 8; // 8 - 13 crops
+      player.resources.crops = (player.resources.crops || 0) + cropsGain;
+      onAutoSave();
+      showToast(`🥕 ¡Has cosechado hortalizas y provisiones! (+${cropsGain} Cosechas)`);
     } else if (tile === 14) {
       soundEngine.playSfx('select');
-      if (player.resources) player.resources.wood = (player.resources.wood || 0) + 20;
-      showToast('🪵 ¡Has talado y recogido leña de roble! +20 Madera añadida.');
+      const woodGain = Math.floor(Math.random() * 6) + 10; // 10 - 15 wood
+      player.resources.wood = (player.resources.wood || 0) + woodGain;
+      onAutoSave();
+      showToast(`🪵 ¡Has recogido leña de los troncos apilados! (+${woodGain} Madera)`);
     } else if (tile === 18) {
-      soundEngine.playSfx('select');
-      if (player.resources) player.resources.stone = (player.resources.stone || 0) + 20;
-      showToast('🪨 ¡Has picado mineral en la cantera! +20 Mineral de Hierro añadido.');
+      soundEngine.playSfx('attack');
+      const stoneGain = Math.floor(Math.random() * 6) + 8; // 8 - 13 stone
+      player.resources.stone = (player.resources.stone || 0) + stoneGain;
+      // 20% chance of small gem found in mineral vein
+      const foundGem = Math.random() < 0.25;
+      if (foundGem) {
+        player.resources.gems = (player.resources.gems || 0) + 1;
+      }
+      onAutoSave();
+      showToast(`🪨 ¡Has picado la veta de mineral! (+${stoneGain} Piedra/Hierro${foundGem ? ', +1 Gema 💎' : ''})`);
+    } else if (tile === 20) {
+      soundEngine.playSfx('level_up');
+      const gemGain = Math.floor(Math.random() * 3) + 2; // 2 - 4 gems
+      player.resources.gems = (player.resources.gems || 0) + gemGain;
+      onAutoSave();
+      showToast(`💎 ¡Has extraído cristales arcanos de la geoda! (+${gemGain} Gemas Arcanas)`);
     } else if (tile === 11) {
       if (isBossDefeatedInZone) {
         // Open zone selector
