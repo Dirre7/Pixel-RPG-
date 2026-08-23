@@ -103,6 +103,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       // Cute Fantasy Free
       house: new Image(),
       treeOak: new Image(),
+      treeSmall: new Image(),
       chest: new Image(),
       fences: new Image(),
       farmLand: new Image(),
@@ -147,6 +148,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     gameAssets.house.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
     gameAssets.customHouses.src = '/houses.png';
     gameAssets.treeOak.src = '/Cute_Fantasy_Free/Outdoor decoration/Oak_Tree.png';
+    gameAssets.treeSmall.src = '/Cute_Fantasy_Free/Outdoor decoration/Oak_Tree_Small.png';
     gameAssets.chest.src = '/Cute_Fantasy_Free/Outdoor decoration/Chest.png';
     gameAssets.fences.src = '/Cute_Fantasy_Free/Outdoor decoration/Fences.png';
     gameAssets.farmLand.src = '/Cute_Fantasy_Free/Tiles/FarmLand_Tile.png';
@@ -457,7 +459,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             } else if (gameAssets.treeOak.complete && gameAssets.treeOak.naturalWidth > 0) {
-              // Roble de fantasía (64x80 px con sombra pegada a las raíces en Y + 14)
+              // Roble Noble de Fantasía (64x80 px con sombra perfecta en raíces)
               const isHarvestableTree = (x * 37 + y * 19) % 11 === 0;
               entities.push({
                 ySort: posY + TILE_SIZE,
@@ -471,6 +473,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                   c.beginPath();
                   c.ellipse(posX + 16, posY + 14, 7, 2, 0, 0, Math.PI * 2);
                   c.fill();
+
                   c.drawImage(gameAssets.treeOak, posX - 16, posY - 48, 64, 80);
 
                   // Si es un Árbol Noble Talable, mostrar brillo de resina ámbar en el tronco
@@ -549,15 +552,18 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             else if (vIndex === 3) vName = 'purple';
 
             // Asignación temática de edificios singulares de la Aldea de Roble
-            if (x === 48 && y === 11) vName = 'stone';  // Almacén de Minerales y Lingotes (Piedra)
-            if (x === 40 && y === 11) vName = 'stone';  // Taller de Armería (Piedra)
-            if (x === 51 && y === 18) vName = 'blue';   // Cabaña del Aprendiz de Herrero (Azul)
-            if (x === 11 && y === 11) vName = 'blue';   // Cabaña del Granjero Mateo (Azul)
-            if (x === 47 && y === 12) vName = 'stone';  // Cabaña del Leñador (Piedra)
-            if (x === 46 && y === 41) vName = 'red';    // Gran Taberna del León Dorado (Roja)
-            if (x === 23 && y === 26) vName = 'blue';   // Cabaña del Bardo Corin (Azul)
-            if (x === 23 && y === 34) vName = 'red';    // Cabaña Residencial (Roja)
-            if (x === 23 && y === 42) vName = 'stone';  // Cabaña Familiar (Piedra)
+            if (x === 38 && y === 26) vName = 'red';    // Mansión con tejado rojo noble
+            if (x === 42 && y === 26) vName = 'stone';  // Casa señorial de cantería gris
+            if (x === 38 && y === 16) vName = 'stone';  // Casa Consistorial
+            if (x === 42 && y === 16) vName = 'blue';   // Casa Residencial Noreste
+            if (x === 38 && y === 22) vName = 'purple'; // Botica de Pociones
+            if (x === 42 && y === 22) vName = 'red';    // Casa de la Boticaria
+            if (x === 17 && y === 34) vName = 'stone';  // Cabaña del Molinero
+            if (x === 36 && y === 34) vName = 'red';    // Cabaña del Guardián
+            if (x === 18 && y === 16) vName = 'blue';   // Gran Posada del Roble
+            if (x === 22 && y === 16) vName = 'red';    // Casa Residencial Noroeste
+            if (x === 22 && y === 22) vName = 'stone';  // Casa del Artesano
+            if (x === 18 && y === 38) vName = 'purple'; // Ermita del Clérigo
 
             entities.push({
               ySort: posY + TILE_SIZE + 20,

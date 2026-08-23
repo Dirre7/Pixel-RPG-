@@ -97,6 +97,7 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[22][18] = 10; // Forja Mayor de Brom
   map[22][16] = 19; // Brasero de carbón
   map[22][22] = 5;  // Casa del Artesano
+  map[20][18] = 1;  // Árbol ornamental dentro del césped
 
   // Puestos del Bazar flanqueando la calle (sin tapar el paso en X: 20)
   for (let y = 25; y <= 28; y++) {
@@ -110,15 +111,23 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[16][42] = 5;  // Casa Residencial Noreste
   map[22][38] = 27; // Botica de Pociones
   map[22][42] = 5;  // Casa de la Boticaria
-  map[26][38] = 5; map[26][42] = 5; // Manzana Residencial "Los Álamos"
+  map[26][38] = 5;  // Mansión Residencial "Los Álamos"
+  map[26][42] = 5;  // Casa Señorial
+  map[20][43] = 1;  // Robles nobles dentro del césped
+  map[22][44] = 1;
 
-  // 9. CUADRANTE SUROESTE (Distrito Sagrado & Ermita)
+  // 9. CUADRANTE SUROESTE (Distrito Sagrado, Molino de Viento & Ermita)
+  map[34][22] = 6;  // 🌾 Molino de Viento Tradicional con Aspas Animadas
+  map[34][17] = 5;  // 🏡 Cabaña del Molinero
   map[38][18] = 5;  // Ermita del Clérigo
   map[44][18] = 8;  // Santuario Sagrado de Piedra
   map[44][16] = 17; map[44][20] = 17; // Farolas del altar
   map[44][22] = 7;  // Cofre de Reliquias
 
-  // 10. CUADRANTE SURESTE (Granja Municipal & Huertos)
+  // 10. CUADRANTE SURESTE (Cabaña del Guardián & Granja Municipal)
+  map[34][36] = 5;  // 🏠 Cabaña del Guardián de la Granja
+  map[33][43] = 1; map[35][43] = 1; // Árboles dentro del césped verde
+
   for (let y = 37; y <= 45; y++) {
     for (let x = 37; x <= 45; x++) {
       if (y === 37 || y === 45 || x === 37 || x === 45) {
