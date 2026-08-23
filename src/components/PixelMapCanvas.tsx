@@ -574,6 +574,8 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             if (x === 23 && y === 9) vName = 'blue';    // Cabaña del Guardabosques Noroeste
             if (x === 11 && y === 19) vName = 'stone';  // Almacén de Minerales y Fundición
             if (x === 11 && y === 23) vName = 'red';    // Cabaña del Mercader Mayor
+            if (x === 44 && y === 19) vName = 'blue';   // Villa del Mirador del Río
+            if (x === 44 && y === 27) vName = 'purple'; // Villa Jardín de Rosas
 
             entities.push({
               ySort: posY + TILE_SIZE + 20,

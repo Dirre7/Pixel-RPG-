@@ -186,10 +186,35 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[26][38] = 5;  // Mansión Residencial "Los Álamos"
   map[26][42] = 5;  // Casa Señorial
 
-  // Arboleda de Robles Nobles en los claros noreste
+  // Parque Ribereño, Paseo de los Sauces & Jardín Floral Este (X: 43..51, Y: 17..28) - 100% Decorativo
+  // Paseo Peatonal de la Ribera
+  for (let y = 18; y <= 28; y++) map[y][48] = 2; // Paseo adoquinado ribereño 100% libre
+  for (let x = 44; x <= 48; x++) {
+    map[18][x] = 2; // Conexión norte
+    map[24][x] = 2; // Conexión central
+    map[28][x] = 2; // Conexión sur
+  }
+  // Farolas en el césped bordeando el paseo (sin tapar el paso en X: 48)
+  map[19][49] = 17; map[23][49] = 17; map[27][49] = 17;
+
+  // Bancos de descanso y miradores en el césped ribereño
+  map[20][50] = 12; map[24][50] = 12; map[28][50] = 12;
+
+  // Jardín Floral & Columnas de Mármol con Hiedra (Dentro del césped)
+  map[21][45] = 18; map[25][45] = 18; // Columnas clásicas decorativas
+  map[22][45] = 12; map[24][45] = 12; // Parterres de rosas
+  map[23][44] = 12; map[23][46] = 12;
+
+  // Cabañas Pintorescas del Mirador
+  map[19][44] = 5;  // 🏠 Villa del Mirador del Río (Tejado Azul)
+  map[27][44] = 5;  // 🏠 Villa Jardín de Rosas (Tejado Púrpura)
+
+  // Arboleda de Robles Nobles 100% dentro del césped verde
   map[4][34] = 1; map[4][38] = 1; map[4][44] = 1; map[4][48] = 1;
   map[6][50] = 1; map[8][50] = 1; map[12][50] = 1; map[14][50] = 1;
   map[14][34] = 1; map[14][48] = 1;
+  map[18][51] = 1; map[22][51] = 1; map[26][51] = 1;
+  map[17][46] = 1; map[25][43] = 1; // Árbol en el césped verde (sin tocar adoquines)
   map[20][43] = 1; map[22][44] = 1;
 
   // Cofre del Claro Noreste
