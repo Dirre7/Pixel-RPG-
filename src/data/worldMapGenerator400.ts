@@ -114,13 +114,31 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[6][24] = 14; map[8][24] = 14; // Pilas de leña
   map[9][23] = 5;  // 🏠 Cabaña del Guardabosques Noroeste
 
-  // Zona Artesanal Central
+  // Zona Artesanal Central & Fundición Oeste
   map[16][18] = 5;  // Gran Posada del Roble
   map[16][22] = 5;  // Casa Residencial Noroeste
   map[22][18] = 10; // Forja Mayor de Brom
   map[22][16] = 19; // Brasero de carbón
   map[22][22] = 5;  // Casa del Artesano
   map[20][18] = 1;  // Árbol ornamental dentro del césped
+
+  // Distrito de Fundición, Armería & Almacén Comercial Oeste (X: 6..15, Y: 16..25)
+  for (let x = 8; x <= 16; x++) {
+    map[18][x] = 2; // Calle de la Fundición
+    map[24][x] = 2; // Calle del Almacén Comercial
+  }
+  for (let y = 18; y <= 24; y++) map[y][10] = 2; // Callejón del Gremio
+  map[18][12] = 17; map[24][12] = 17; // Farolas de la calle
+
+  // Almacén de Minerales y Fundición de Acero (X: 8..14, Y: 18..21) -> Recolección de Hierro 🪨
+  map[19][11] = 5;  // 🏠 Almacén de Minerales y Lingotes (Cantería Gris)
+  map[20][9] = 18; map[20][13] = 18; // Bloques de metal y vetas de hierro
+  map[19][8] = 19;  // Brasero de carbón ardiente
+
+  // Depósito de Mercancías del Bazar y Taller Maderero (X: 8..14, Y: 22..25) -> Recolección de Madera 🪵
+  map[23][11] = 5;  // 🏠 Cabaña del Mercader Mayor (Tejado Rojo)
+  map[23][9] = 14; map[23][13] = 14; // Pilas de cajas y madera
+  map[22][8] = 17;  // Farola del depósito
 
   // Puestos del Bazar flanqueando la calle (sin tapar el paso en X: 20)
   for (let y = 25; y <= 28; y++) {
@@ -129,10 +147,12 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[26][17] = 9; map[28][17] = 9; // Puestos lado oeste
   map[26][23] = 9; map[28][23] = 9; // Puestos lado este
 
-  // Arboleda de Robles Nobles en los claros noroeste
+  // Arboleda de Robles Nobles en los claros noroeste y oeste
   map[4][10] = 1; map[4][16] = 1; map[4][22] = 1; map[4][26] = 1;
   map[6][6] = 1; map[9][6] = 1; map[12][6] = 1; map[14][6] = 1;
   map[12][10] = 1; map[14][12] = 1; map[14][26] = 1;
+  map[16][7] = 1; map[20][5] = 1; map[24][5] = 1;
+  map[18][6] = 1; map[22][7] = 1;
 
   // 8. CUADRANTE NORESTE (Distrito Residencial, Aserradero, Cantera & Huerto de la Boticaria)
   // Red de calles del sector norte
