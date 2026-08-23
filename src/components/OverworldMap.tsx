@@ -100,7 +100,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   const [facingDir, setFacingDir] = useState<'down' | 'up' | 'left' | 'right'>('down');
   const [selectedNpc, setSelectedNpc] = useState<NPC | null>(null);
   const [isQuestLogOpen, setIsQuestLogOpen] = useState(false);
-  const [showMinimap, setShowMinimap] = useState(true);
+  const [showMinimap, setShowMinimap] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 768 : true
+  );
   const [showForgeModal, setShowForgeModal] = useState(false);
   const [activeChestLoot, setActiveChestLoot] = useState<ChestLoot | null>(null);
 
