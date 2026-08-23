@@ -570,6 +570,8 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             if (x === 49 && y === 40) vName = 'blue';   // Cabaña del Pescador
             if (x === 35 && y === 9) vName = 'red';     // Cabaña del Maestro Leñador
             if (x === 42 && y === 9) vName = 'stone';   // Cabaña del Maestro Cantero
+            if (x === 14 && y === 9) vName = 'red';     // Cabaña del Gremio de Exploradores
+            if (x === 23 && y === 9) vName = 'blue';    // Cabaña del Guardabosques Noroeste
 
             entities.push({
               ySort: posY + TILE_SIZE + 20,
