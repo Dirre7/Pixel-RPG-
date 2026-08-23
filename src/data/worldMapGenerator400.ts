@@ -152,14 +152,14 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[49][24] = 1; map[53][26] = 1;
   map[46][26] = 1; map[42][26] = 1;
 
-  // 10. CUADRANTE SURESTE (Cabaña del Guardián & Granja Municipal)
+  // 10. CUADRANTE SURESTE (Granja, Casas Adosadas de la Ribera & Muelle)
   map[34][36] = 5;  // 🏠 Cabaña del Guardián de la Granja
-  map[33][43] = 1; map[35][43] = 1; // Árboles dentro del césped verde
 
+  // Granja Municipal (Huertos, Corrales y Vallas)
   for (let y = 37; y <= 45; y++) {
     for (let x = 37; x <= 45; x++) {
       if (y === 37 || y === 45 || x === 37 || x === 45) {
-        if (!(y === 37 && x === 40)) map[y][x] = 14; // Vallas de madera conectadas
+        if (!(y === 37 && x === 40) && !(y === 45 && x === 40)) map[y][x] = 14; // Vallas con accesos norte y sur
       }
     }
   }
@@ -168,11 +168,41 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[43][39] = 7;  // Cofre de la Granja
   map[39][43] = 13; map[40][43] = 13; // Animales
 
+  // Cabaña del Pescador & Embarcadero de Madera en el Río (X: 49, Y: 40)
+  map[40][49] = 5;  // Cabaña del Pescador
+  map[40][47] = 2; map[40][48] = 2; // Sendero de piedra al muelle
+  map[40][51] = 15; // Embarcadero / Muelle de madera sobre el agua
+  map[39][50] = 17; // Farola del puerto fluvial
+
+  // Hilera de Casas Adosadas de la Ribera (Y: 48, X: 40..48)
+  for (let x = 38; x <= 50; x++) map[46][x] = 2; // Calle adoquinada de las casas adosadas
+  map[46][40] = 2; map[46][44] = 2; map[46][48] = 2; // Entradas peatonales
+  map[46][42] = 17; map[46][46] = 17; map[46][50] = 17; // Farolas de la calle
+  map[47][42] = 12; map[47][46] = 12; // Parterres de flores entre portales
+
+  map[48][40] = 5;  // 🏡 Casa Adosada 1 (Tejado Rojo)
+  map[48][44] = 5;  // 🏡 Casa Adosada 2 (Cantería Gris)
+  map[48][48] = 5;  // 🏡 Casa Adosada 3 (Tejado Azul)
+
+  // Cercado de Pasto Sur con Abrevadero (Y: 51..54, X: 42..48)
+  for (let x = 42; x <= 48; x++) {
+    map[53][x] = 14; // Valla de madera del pasto
+  }
+  map[51][42] = 14; map[52][42] = 14;
+  map[51][48] = 14; map[52][48] = 14;
+  map[52][44] = 3;  // Abrevadero de agua fresca
+
+  // Arboleda de Robles Ribereños (Poblando la llanura sureste)
+  map[34][48] = 1; map[36][49] = 1;
+  map[43][48] = 1; map[45][50] = 1;
+  map[52][38] = 1; map[54][40] = 1;
+  map[54][48] = 1; map[54][50] = 1;
+
   // 11. Secretos de Exploración en las esquinas del bosque
   map[6][6] = 7;   // Cofre oculto en arboleda noroeste
   map[6][50] = 7;  // Cofre del río noreste
   map[52][6] = 7;  // Cofre suroeste
-  map[52][50] = 7; // Cofre del lago este
+  map[52][50] = 7; // Cofre del jardín este
 
   return { tileData: map, width: MAP_SIZE, height: MAP_SIZE };
 }
