@@ -387,6 +387,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             } else if (gameAssets.treeOak.complete && gameAssets.treeOak.naturalWidth > 0) {
               // Roble de fantasía (64x80 px con sombra pegada a las raíces en Y + 14)
+              const isHarvestableTree = (x * 37 + y * 19) % 11 === 0;
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
@@ -400,14 +401,33 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                   c.ellipse(posX + 16, posY + 14, 7, 2, 0, 0, Math.PI * 2);
                   c.fill();
                   c.drawImage(gameAssets.treeOak, posX - 16, posY - 48, 64, 80);
+
+                  // Si es un Árbol Noble Talable, mostrar brillo de resina ámbar en el tronco
+                  if (isHarvestableTree) {
+                    const sparkle = Math.sin(time * 3 + x + y) * 0.3 + 0.7;
+                    c.fillStyle = `rgba(245, 158, 11, ${sparkle})`;
+                    c.beginPath();
+                    c.arc(posX + 16, posY - 4, 3, 0, Math.PI * 2);
+                    c.fill();
+                    c.fillStyle = '#ffffff';
+                    c.fillRect(posX + 15, posY - 5, 1.5, 1.5);
+                  }
                 },
               });
             } else {
+              const isHarvestableTree = (x * 37 + y * 19) % 11 === 0;
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
                   c.drawImage(treeTrunk, posX - 8, posY, 48, 36);
                   c.drawImage(treeCanopy, posX - 16, posY - 36, 64, 64);
+                  if (isHarvestableTree) {
+                    const sparkle = Math.sin(time * 3 + x + y) * 0.3 + 0.7;
+                    c.fillStyle = `rgba(245, 158, 11, ${sparkle})`;
+                    c.beginPath();
+                    c.arc(posX + 16, posY - 4, 3, 0, Math.PI * 2);
+                    c.fill();
+                  }
                 },
               });
             }

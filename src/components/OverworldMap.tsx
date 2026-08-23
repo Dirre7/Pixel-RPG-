@@ -105,6 +105,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   );
   const [showForgeModal, setShowForgeModal] = useState(false);
   const [activeChestLoot, setActiveChestLoot] = useState<ChestLoot | null>(null);
+  const [depletedNodes, setDepletedNodes] = useState<string[]>([]);
 
   // Initialize Sets from saved string arrays
   const [exploredTilesSets, setExploredTilesSets] = useState<Record<string, Set<string>>>(() => {
@@ -224,9 +225,20 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   // Helper to find nearby interactive tile (at current position or adjacent step)
   const findNearbyInteractiveTile = useCallback(
     (px: number, py: number) => {
-      const interactiveTiles = [1, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 18, 20];
+      const isHarvestableTree = (tx: number, ty: number) => {
+        if (currentZone.id === 'zone_castle' || currentZone.id === 'zone_cave') return false;
+        return (tx * 37 + ty * 19) % 11 === 0;
+      };
+
+      const checkTile = (tile: number, tx: number, ty: number) => {
+        if (tile === 1) {
+          return isHarvestableTree(tx, ty);
+        }
+        return [4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 18, 20].includes(tile);
+      };
+
       const cur = currentZone.tileData[py]?.[px];
-      if (cur && interactiveTiles.includes(cur)) {
+      if (cur && checkTile(cur, px, py)) {
         return { tile: cur, x: px, y: py };
       }
       const neighbors = [
@@ -237,7 +249,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         const nx = px + dx;
         const ny = py + dy;
         const t = currentZone.tileData[ny]?.[nx];
-        if (t && interactiveTiles.includes(t)) {
+        if (t && checkTile(t, nx, ny)) {
           return { tile: t, x: nx, y: ny };
         }
       }
@@ -273,14 +285,21 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
       const { tile, x: tx, y: ty } = target;
       const chestId = `${currentZone.id}_${tx}_${ty}`;
+      const treeNodeId = `${currentZone.id}_tree_${tx}_${ty}`;
+      const oreNodeId = `${currentZone.id}_ore_${tx}_${ty}`;
+      const cropNodeId = `${currentZone.id}_crop_${tx}_${ty}`;
 
       if (tile === 1) {
-        if (currentZone.id === 'zone_swamp') {
-          setInteractPrompt('🪵 Sauce Musgoso del Pantano (Presiona A / Espacio para Talar Madera)');
-        } else if (currentZone.id === 'zone_tundra') {
-          setInteractPrompt('🪵 Pino Nevado de Niflheim (Presiona A / Espacio para Talar Madera)');
+        if (depletedNodes.includes(treeNodeId)) {
+          setInteractPrompt('🪵 Roble Noble (Agotado - La madera necesita regenerarse)');
         } else {
-          setInteractPrompt('🪵 Árbol de Roble Frondoso (Presiona A / Espacio para Talar Madera)');
+          if (currentZone.id === 'zone_swamp') {
+            setInteractPrompt('🪵 Sauce Resinoso del Pantano (Presiona A / Espacio para Talar Madera)');
+          } else if (currentZone.id === 'zone_tundra') {
+            setInteractPrompt('🪵 Pino Nevado Ancestral (Presiona A / Espacio para Talar Madera)');
+          } else {
+            setInteractPrompt('🪵 Roble Noble Resinoso (Presiona A / Espacio para Talar Madera)');
+          }
         }
       } else if (tile === 4) {
         setInteractPrompt('⛲ Gran Fuente de la Plaza (Presiona A / Espacio para Beber Agua y Restaurar HP/MP)');
@@ -309,11 +328,21 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       } else if (tile === 10) {
         setInteractPrompt('🔨 Gran Forja & Herrería (Presiona A / Espacio para Comprar y Mejorar Equipo)');
       } else if (tile === 13) {
-        setInteractPrompt('🥕 Huerto de Cultivo y Hortalizas (Presiona A / Espacio para Cosechar Alimentos)');
+        if (depletedNodes.includes(cropNodeId)) {
+          setInteractPrompt('🥕 Parcela de Cultivo (Agotada - Creciendo nueva cosecha)');
+        } else {
+          setInteractPrompt('🥕 Huerto de Cultivo y Hortalizas (Presiona A / Espacio para Cosechar Alimentos)');
+        }
       } else if (tile === 14) {
-        setInteractPrompt('🪵 Depósito de Leña y Troncos (Presiona A / Espacio para Recoger Madera)');
+        if (depletedNodes.includes(treeNodeId)) {
+          setInteractPrompt('🪵 Pila de Leña (Agotada)');
+        } else {
+          setInteractPrompt('🪵 Depósito de Leña y Troncos (Presiona A / Espacio para Recoger Madera)');
+        }
       } else if (tile === 18) {
-        if (currentZone.id === 'zone_cave' || currentZone.id === 'zone_volcano') {
+        if (depletedNodes.includes(oreNodeId)) {
+          setInteractPrompt('🪨 Veta de Mineral (Agotada - Veta extraída)');
+        } else if (currentZone.id === 'zone_cave' || currentZone.id === 'zone_volcano') {
           setInteractPrompt('🪨 Veta de Mineral de Hierro y Roca (Presiona A / Espacio para Picar)');
         } else {
           setInteractPrompt('🪨 Cantera de Piedra Natural (Presiona A / Espacio para Extraer Piedra)');
@@ -335,7 +364,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         setInteractPrompt(null);
       }
     },
-    [currentZone, isBossDefeatedInZone, openedChests, completedQuests, findNearbyChest, findNearbyInteractiveTile]
+    [currentZone, isBossDefeatedInZone, openedChests, completedQuests, depletedNodes, findNearbyChest, findNearbyInteractiveTile]
   );
 
   useEffect(() => {
@@ -375,13 +404,22 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
     const { tile, x: tx, y: ty } = target;
     const chestId = `${currentZone.id}_${tx}_${ty}`;
+    const treeNodeId = `${currentZone.id}_tree_${tx}_${ty}`;
+    const oreNodeId = `${currentZone.id}_ore_${tx}_${ty}`;
+    const cropNodeId = `${currentZone.id}_crop_${tx}_${ty}`;
 
     if (tile === 1) {
+      if (depletedNodes.includes(treeNodeId)) {
+        soundEngine.playSfx('error');
+        showToast('🪵 Este árbol ya ha sido talado. ¡Busca otros robles nobles en el bosque!');
+        return;
+      }
       soundEngine.playSfx('attack');
       const woodGain = Math.floor(Math.random() * 5) + 6; // 6 - 10 wood
       player.resources.wood = (player.resources.wood || 0) + woodGain;
+      setDepletedNodes((prev) => [...prev, treeNodeId]);
       onAutoSave();
-      showToast(`🪵 ¡Has talado leña de calidad! (+${woodGain} Madera recolectada)`);
+      showToast(`🪵 ¡Has talado el roble noble! (+${woodGain} Madera de Roble)`);
     } else if (tile === 4) {
       soundEngine.playSfx('heal');
       onHealAtInn();
@@ -430,18 +468,35 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       soundEngine.playSfx('select');
       setShowForgeModal(true);
     } else if (tile === 13) {
+      if (depletedNodes.includes(cropNodeId)) {
+        soundEngine.playSfx('error');
+        showToast('🥕 Este huerto ya fue cosechado. Creciendo nueva siembra.');
+        return;
+      }
       soundEngine.playSfx('select');
       const cropsGain = Math.floor(Math.random() * 6) + 8; // 8 - 13 crops
       player.resources.crops = (player.resources.crops || 0) + cropsGain;
+      setDepletedNodes((prev) => [...prev, cropNodeId]);
       onAutoSave();
       showToast(`🥕 ¡Has cosechado hortalizas y provisiones! (+${cropsGain} Cosechas)`);
     } else if (tile === 14) {
+      if (depletedNodes.includes(treeNodeId)) {
+        soundEngine.playSfx('error');
+        showToast('🪵 Esta pila de leña ya fue recogida.');
+        return;
+      }
       soundEngine.playSfx('select');
       const woodGain = Math.floor(Math.random() * 6) + 10; // 10 - 15 wood
       player.resources.wood = (player.resources.wood || 0) + woodGain;
+      setDepletedNodes((prev) => [...prev, treeNodeId]);
       onAutoSave();
       showToast(`🪵 ¡Has recogido leña de los troncos apilados! (+${woodGain} Madera)`);
     } else if (tile === 18) {
+      if (depletedNodes.includes(oreNodeId)) {
+        soundEngine.playSfx('error');
+        showToast('🪨 Esta veta de mineral ya ha sido extraída.');
+        return;
+      }
       soundEngine.playSfx('attack');
       const stoneGain = Math.floor(Math.random() * 6) + 8; // 8 - 13 stone
       player.resources.stone = (player.resources.stone || 0) + stoneGain;
@@ -450,6 +505,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       if (foundGem) {
         player.resources.gems = (player.resources.gems || 0) + 1;
       }
+      setDepletedNodes((prev) => [...prev, oreNodeId]);
       onAutoSave();
       showToast(`🪨 ¡Has picado la veta de mineral! (+${stoneGain} Piedra/Hierro${foundGem ? ', +1 Gema 💎' : ''})`);
     } else if (tile === 20) {
