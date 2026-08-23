@@ -6,3 +6,7 @@ coverage/
 *.log
 .env*
 !.env.example
+*.exe
+.godot/
+godot_bin/
+public/Godot_*/

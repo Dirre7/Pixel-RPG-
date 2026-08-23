@@ -74,7 +74,7 @@ export default function App() {
   });
 
   const [currentZoneId, setCurrentZoneId] = useState<string>('zone_forest');
-  const [playerPos, setPlayerPos] = useState<{ x: number; y: number }>({ x: 98, y: 98 });
+  const [playerPos, setPlayerPos] = useState<{ x: number; y: number }>({ x: 30, y: 30 });
   const [defeatedBosses, setDefeatedBosses] = useState<string[]>([]);
   const [openedChests, setOpenedChests] = useState<string[]>([]);
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
@@ -95,7 +95,14 @@ export default function App() {
       const raw = localStorage.getItem(SAVE_KEY);
       if (raw) {
         const parsed: GameSaveData = JSON.parse(raw);
+        // Clamp out-of-bounds player positions from previous 400x400 saves
+        if (parsed.playerPos && (parsed.playerPos.x >= 60 || parsed.playerPos.y >= 60 || parsed.playerPos.x < 0 || parsed.playerPos.y < 0)) {
+          parsed.playerPos = { x: 30, y: 30 };
+        }
         setSavedGameData(parsed);
+        if (parsed.playerPos) {
+          setPlayerPos(parsed.playerPos);
+        }
         if (parsed.exploredTilesByZone) {
           setExploredTilesByZone(parsed.exploredTilesByZone);
         }
@@ -262,8 +269,21 @@ export default function App() {
       attack: classConfig.baseStats.attack,
       defense: classConfig.baseStats.defense,
       speed: classConfig.baseStats.speed,
+      accuracy: classConfig.baseStats.accuracy ?? 95,
+      evasion: classConfig.baseStats.evasion ?? 6,
+      critRate: classConfig.baseStats.critRate ?? 10,
+      critDamage: classConfig.baseStats.critDamage ?? 175,
+      blockRate: classConfig.baseStats.blockRate ?? 0,
+      lifesteal: classConfig.baseStats.lifesteal ?? 0,
+      mpRegen: classConfig.baseStats.mpRegen ?? 0,
       gold: 35,
       score: 0,
+      resources: {
+        wood: 35,
+        stone: 20,
+        crops: 25,
+        gems: 5,
+      },
     };
 
     const initialInv: Inventory = {
@@ -288,7 +308,7 @@ export default function App() {
     setPlayer(initialPlayerStats);
     setInventory(initialInv);
     setCurrentZoneId('zone_forest');
-    setPlayerPos({ x: 98, y: 98 });
+    setPlayerPos({ x: 30, y: 30 });
     setDefeatedBosses([]);
     setOpenedChests([]);
     setCompletedQuests([]);
@@ -299,7 +319,7 @@ export default function App() {
 
     setGameState('overworld');
     setShowPrologueModal(true);
-    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 98, y: 98 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
+    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 30, y: 30 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
   };
 
   // Start Showcase Game (Modo Creador / Todo Desbloqueado - Nivel 75 y Tier 8)
@@ -319,8 +339,21 @@ export default function App() {
       attack: 420,
       defense: 310,
       speed: 120,
+      accuracy: 100,
+      evasion: 35,
+      critRate: 45,
+      critDamage: 250,
+      blockRate: 45,
+      lifesteal: 15,
+      mpRegen: 25,
       gold: 99999,
       score: 85000,
+      resources: {
+        wood: 999,
+        stone: 999,
+        crops: 999,
+        gems: 999,
+      },
     };
 
     const weapon8 = SHOP_EQUIPMENT.find((e) => e.id === 'eq_w_excalibur') || SHOP_EQUIPMENT[0];
@@ -364,7 +397,7 @@ export default function App() {
     setPlayer(showcasePlayer);
     setInventory(showcaseInv);
     setCurrentZoneId('zone_forest');
-    setPlayerPos({ x: 98, y: 98 });
+    setPlayerPos({ x: 30, y: 30 });
     setDefeatedBosses(allBosses);
     setOpenedChests([]);
     setCompletedQuests(allQuestIds);
@@ -373,7 +406,7 @@ export default function App() {
     setUnlockedLoreIds(allLoreIds);
 
     setGameState('overworld');
-    triggerAutoSave(showcasePlayer, showcaseInv, 'zone_forest', { x: 98, y: 98 }, allBosses, [], allQuestIds, allSkillIds, allLoreIds, allQuestIds);
+    triggerAutoSave(showcasePlayer, showcaseInv, 'zone_forest', { x: 30, y: 30 }, allBosses, [], allQuestIds, allSkillIds, allLoreIds, allQuestIds);
   };
 
   // Unlock all content in current session
@@ -449,7 +482,11 @@ export default function App() {
     setPlayer(savedGameData.player);
     setInventory(safeInventory);
     setCurrentZoneId(savedGameData.currentZoneId || 'zone_forest');
-    setPlayerPos(savedGameData.playerPos || { x: 98, y: 98 });
+    const rawPos = savedGameData.playerPos || { x: 30, y: 30 };
+    const safePos = (rawPos.x >= 60 || rawPos.y >= 60 || rawPos.x < 0 || rawPos.y < 0)
+      ? { x: 30, y: 30 }
+      : rawPos;
+    setPlayerPos(safePos);
     setDefeatedBosses(savedGameData.defeatedBosses || []);
     setOpenedChests(savedGameData.openedChests || []);
     setCompletedQuests(savedGameData.completedQuests || []);
@@ -701,6 +738,20 @@ export default function App() {
   }) => {
     let finalPlayer = result.updatedPlayer;
     let finalLore = [...unlockedLoreIds];
+
+    if (result.won) {
+      const stoneGained = currentEnemy?.isBoss ? 45 : Math.floor(Math.random() * 8) + 4;
+      const gemsGained = currentEnemy?.isBoss ? 25 : Math.floor(Math.random() * 3) + 1;
+      finalPlayer = {
+        ...finalPlayer,
+        resources: {
+          wood: finalPlayer.resources?.wood || 0,
+          crops: finalPlayer.resources?.crops || 0,
+          stone: (finalPlayer.resources?.stone || 0) + stoneGained,
+          gems: (finalPlayer.resources?.gems || 0) + gemsGained,
+        },
+      };
+    }
 
     if (result.won && currentEnemy && !currentEnemy.isBoss) {
       const enemySprite = currentEnemy.spriteType || '';
@@ -1068,12 +1119,7 @@ export default function App() {
   // Change Zone (8 Regions Support)
   const handleChangeZone = (zoneId: string) => {
     setCurrentZoneId(zoneId);
-    let defaultPos = { x: 100, y: 101 };
-    if (zoneId === 'zone_forest') {
-      defaultPos = { x: 98, y: 98 };
-    } else if (zoneId === 'zone_sanctuary') {
-      defaultPos = { x: 200, y: 201 };
-    }
+    let defaultPos = { x: 30, y: 30 };
     setPlayerPos(defaultPos);
 
     let updatedLore = [...unlockedLoreIds];
@@ -1193,7 +1239,59 @@ export default function App() {
           onAcceptQuest={handleAcceptQuest}
           onClaimQuestReward={handleClaimQuestReward}
           onChangeZone={handleChangeZone}
-          onAutoSave={() => triggerAutoSave()}
+          onUseConsumable={(cId: string) => {
+            if (!player) return;
+            const target = inventory.consumables.find((c) => c.id === cId || c.id.includes(cId));
+            if (!target || target.quantity <= 0) return;
+
+            // Si es pocion de vida y ya tiene vida al 100%, no gastar
+            if (target.effect === 'heal_hp' && player.hp >= player.maxHp) {
+              return;
+            }
+            // Si es pocion de mana y ya tiene mana al 100%, no gastar
+            if (target.effect === 'heal_mp' && player.mp >= player.maxMp) {
+              return;
+            }
+
+            if (target.effect === 'teleport' || target.id.includes('teleport') || target.id.includes('scroll')) {
+              setPlayerPos({ x: 30, y: 30 });
+              soundEngine.playSfx('levelup');
+            } else {
+              soundEngine.playSfx('heal');
+            }
+
+            let healHp = 0;
+            let healMp = 0;
+            if (target.effect === 'heal_hp') healHp = target.power || 40;
+            else if (target.effect === 'heal_mp') healMp = target.power || 25;
+            else if (target.effect === 'heal_all') { healHp = player.maxHp; healMp = player.maxMp; }
+
+            const updatedHp = Math.min(player.maxHp, player.hp + healHp);
+            const updatedMp = Math.min(player.maxMp, player.mp + healMp);
+
+            const updatedConsumables = inventory.consumables
+              .map((c) => (c.id === target.id ? { ...c, quantity: c.quantity - 1 } : c))
+              .filter((c) => c.quantity > 0);
+
+            const updatedPlayer = { ...player, hp: updatedHp, mp: updatedMp };
+            const updatedInventory = { ...inventory, consumables: updatedConsumables };
+
+            setPlayer(updatedPlayer);
+            setInventory(updatedInventory);
+            triggerAutoSave(updatedPlayer, updatedInventory);
+          }}
+          onEquipItem={(item) => {
+            setInventory((prev) => {
+              const next = { ...prev };
+              if (item.type === 'weapon') next.equipment = { ...next.equipment, weapon: item };
+              else if (item.type === 'armor') next.equipment = { ...next.equipment, armor: item };
+              else if (item.type === 'accessory') next.equipment = { ...next.equipment, accessory: item };
+              return next;
+            });
+            if (player) {
+              triggerAutoSave(player, inventory, currentZoneId, playerPos, defeatedBosses, openedChests, completedQuests, unlockedSkillIds, unlockedLoreIds, acceptedQuests, unlockedAchievements);
+            }
+          }}
         />
       )}
 

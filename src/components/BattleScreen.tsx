@@ -134,13 +134,35 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
     setTimeout(() => {
       setPlayerIsAttacking(false);
+
+      // Hit / Evasion Check
+      const playerAcc = player.accuracy ?? 95;
+      const enemyEva = enemy.evasion ?? 5;
+      const hitChance = Math.min(100, Math.max(25, playerAcc - enemyEva));
+      const rollHit = Math.random() * 100 < hitChance;
+
+      if (!rollHit) {
+        soundEngine.playSfx('flee');
+        addLog(`💨 ¡${player.name} lanzó un ataque pero ${enemy.name} lo esquivó ágilmente!`);
+        spawnFloatingText(`¡ESQUIVADO!`, '#94a3b8', 70, 30);
+
+        setTimeout(() => {
+          setActiveEffect(null);
+          setTurn('enemy');
+          triggerEnemyTurn(enemy.hp);
+        }, 500);
+        return;
+      }
+
       setEnemyIsHit(true);
       soundEngine.playSfx('hit');
 
-      // Calculate Damage
+      // Calculate Damage & Dynamic Crits
       const baseDmg = Math.max(1, Math.round((player.attack * atkBuff) - enemy.defense * 0.4));
-      const isCrit = Math.random() < (player.heroClass === 'Pícaro' ? 0.3 : 0.15);
-      const finalDmg = Math.round(baseDmg * (isCrit ? 1.75 : 1.0) * (0.9 + Math.random() * 0.2));
+      const critChance = (player.critRate ?? 10) / 100;
+      const critMultiplier = (player.critDamage ?? 175) / 100;
+      const isCrit = Math.random() < critChance;
+      const finalDmg = Math.round(baseDmg * (isCrit ? critMultiplier : 1.0) * (0.9 + Math.random() * 0.2));
 
       const newEnemyHp = Math.max(0, enemy.hp - finalDmg);
       setEnemy((prev) => ({ ...prev, hp: newEnemyHp }));
@@ -148,6 +170,15 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       const critTag = isCrit ? ' 💥 ¡GOLPE CRÍTICO!' : '';
       addLog(`⚔️ ${player.name} atacó a ${enemy.name} e infligió ${finalDmg} de daño.${critTag}`);
       spawnFloatingText(`-${finalDmg}${isCrit ? ' CRIT!' : ''}`, isCrit ? '#facc15' : '#ef4444', 70, 30);
+
+      // Lifesteal Mechanic
+      if (player.lifesteal && player.lifesteal > 0) {
+        const healAmt = Math.max(1, Math.round(finalDmg * (player.lifesteal / 100)));
+        const newPlayerHp = Math.min(player.maxHp, player.hp + healAmt);
+        setPlayer((prev) => ({ ...prev, hp: newPlayerHp }));
+        addLog(`🩸 ${player.name} drenó ${healAmt} HP por robo de vida.`);
+        spawnFloatingText(`+${healAmt} HP 🩸`, '#10b981', 30, 65);
+      }
 
       setTimeout(() => {
         setEnemyIsHit(false);
@@ -221,17 +252,50 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
       setTimeout(() => {
         setPlayerIsAttacking(false);
+
+        // Accuracy check for damaging skills (skills have +10% bonus accuracy)
+        const playerAcc = (player.accuracy ?? 95) + 10;
+        const enemyEva = enemy.evasion ?? 5;
+        const hitChance = Math.min(100, Math.max(30, playerAcc - enemyEva));
+        const rollHit = Math.random() * 100 < hitChance;
+
+        if (!rollHit) {
+          soundEngine.playSfx('flee');
+          addLog(`💨 ¡${enemy.name} esquivó el hechizo ${skill.name}!`);
+          spawnFloatingText(`¡ESQUIVADO!`, '#94a3b8', 70, 30);
+
+          setTimeout(() => {
+            setActiveEffect(null);
+            setTurn('enemy');
+            triggerEnemyTurn(enemy.hp);
+          }, 500);
+          return;
+        }
+
         setEnemyIsHit(true);
         soundEngine.playSfx('hit');
 
         const baseDmg = Math.max(1, Math.round(((player.attack * atkBuff) * skill.power) - enemy.defense * 0.3));
-        const finalDmg = Math.round(baseDmg * (0.95 + Math.random() * 0.15));
+        const critChance = (player.critRate ?? 10) / 100;
+        const critMultiplier = (player.critDamage ?? 175) / 100;
+        const isCrit = Math.random() < critChance;
+        const finalDmg = Math.round(baseDmg * (isCrit ? critMultiplier : 1.0) * (0.95 + Math.random() * 0.15));
 
         const newEnemyHp = Math.max(0, enemy.hp - finalDmg);
         setEnemy((prev) => ({ ...prev, hp: newEnemyHp }));
 
-        addLog(`✨ ${player.name} desató ${skill.name} e infligió ${finalDmg} de daño elemental.`);
-        spawnFloatingText(`-${finalDmg}`, '#38bdf8', 70, 30);
+        const critTag = isCrit ? ' 💥 ¡GOLPE CRÍTICO MÁGICO!' : '';
+        addLog(`✨ ${player.name} desató ${skill.name} e infligió ${finalDmg} de daño elemental.${critTag}`);
+        spawnFloatingText(`-${finalDmg}${isCrit ? ' CRIT!' : ''}`, isCrit ? '#facc15' : '#38bdf8', 70, 30);
+
+        // Lifesteal on magic/skills if applicable
+        if (player.lifesteal && player.lifesteal > 0) {
+          const healAmt = Math.max(1, Math.round(finalDmg * (player.lifesteal / 100)));
+          const newPlayerHp = Math.min(player.maxHp, player.hp + healAmt);
+          setPlayer((prev) => ({ ...prev, hp: newPlayerHp }));
+          addLog(`🩸 ${player.name} absorbió ${healAmt} HP con drenaje.`);
+          spawnFloatingText(`+${healAmt} HP 🩸`, '#10b981', 30, 65);
+        }
 
         setTimeout(() => {
           setEnemyIsHit(false);
@@ -370,6 +434,37 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
       setTimeout(() => {
         setEnemyIsAttacking(false);
+
+        // Player Evasion Check vs Enemy Accuracy
+        const enemyAcc = enemy.accuracy ?? 90;
+        const playerEva = player.evasion ?? 6;
+        const enemyHitChance = Math.min(100, Math.max(20, enemyAcc - playerEva));
+        const enemyHits = Math.random() * 100 < enemyHitChance;
+
+        if (!enemyHits) {
+          soundEngine.playSfx('flee');
+          const skillName = specialSkill ? ` ${specialSkill.name}` : '';
+          addLog(`💨 ¡${player.name} esquivó ágilmente el ataque${skillName} de ${enemy.name}!`);
+          spawnFloatingText(`¡ESQUIVADO!`, '#38bdf8', 30, 50);
+
+          setTimeout(() => {
+            setActiveEffect(null);
+            setIsDefending(false);
+
+            // Turn starts for player - Apply MP Regen
+            if (player.mpRegen && player.mpRegen > 0) {
+              const regen = Math.min(player.maxMp - player.mp, player.mpRegen);
+              if (regen > 0) {
+                setPlayer((prev) => ({ ...prev, mp: Math.min(prev.maxMp, prev.mp + regen) }));
+                addLog(`✨ Regeneración pasiva: +${regen} MP.`);
+              }
+            }
+
+            setTurn('player');
+          }, 600);
+          return;
+        }
+
         setPlayerIsHit(true);
         soundEngine.playSfx('hit');
 
@@ -377,14 +472,27 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         const powerMult = specialSkill ? specialSkill.power : 1.0;
         const effectiveDef = (player.defense * defBuff) * (isDefending ? 2.0 : 1.0);
         const rawDmg = Math.max(2, Math.round((enemy.attack * powerMult) - effectiveDef * 0.5));
-        const finalDmg = Math.round(rawDmg * (0.9 + Math.random() * 0.2));
+        let finalDmg = Math.round(rawDmg * (0.9 + Math.random() * 0.2));
+
+        // Shield / Class Block Check
+        const blockRate = (player.blockRate ?? 0) / 100;
+        const isBlocked = Math.random() < blockRate;
+
+        if (isBlocked) {
+          finalDmg = Math.max(1, Math.round(finalDmg * 0.4)); // 60% damage reduction on block!
+        }
 
         const newPlayerHp = Math.max(0, player.hp - finalDmg);
         setPlayer((prev) => ({ ...prev, hp: newPlayerHp }));
 
         const skillName = specialSkill ? ` usó ${specialSkill.name}` : ' atacó';
-        addLog(`💥 ¡${enemy.name}${skillName} e infligió ${finalDmg} de daño!`);
-        spawnFloatingText(`-${finalDmg}`, '#ef4444', 30, 50);
+        if (isBlocked) {
+          addLog(`🛡️ ¡${player.name} bloqueó el golpe de ${enemy.name} reduciendo el daño un 60%! (-${finalDmg} HP)`);
+          spawnFloatingText(`-${finalDmg} BLOQUEO!`, '#fbbf24', 30, 50);
+        } else {
+          addLog(`💥 ¡${enemy.name}${skillName} e infligió ${finalDmg} de daño!`);
+          spawnFloatingText(`-${finalDmg}`, '#ef4444', 30, 50);
+        }
 
         setTimeout(() => {
           setPlayerIsHit(false);
@@ -394,6 +502,15 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
           if (newPlayerHp <= 0) {
             handleDefeat();
           } else {
+            // Turn starts for player - Apply MP Regen
+            if (player.mpRegen && player.mpRegen > 0) {
+              const regen = Math.min(player.maxMp - player.mp, player.mpRegen);
+              if (regen > 0) {
+                setPlayer((prev) => ({ ...prev, mp: Math.min(prev.maxMp, prev.mp + regen) }));
+                addLog(`✨ Regeneración pasiva: +${regen} MP.`);
+              }
+            }
+
             setTurn('player');
           }
         }, 600);

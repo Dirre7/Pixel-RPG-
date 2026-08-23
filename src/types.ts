@@ -1,5 +1,12 @@
 export type HeroClass = 'Guerrero' | 'Mago' | 'Pícaro' | 'Paladín' | 'Nigromante' | 'Arquero' | 'Berserker';
 
+export interface PlayerResources {
+  wood: number;
+  stone: number;
+  crops: number;
+  gems: number;
+}
+
 export interface PlayerStats {
   name: string;
   heroClass: HeroClass;
@@ -14,8 +21,16 @@ export interface PlayerStats {
   attack: number;
   defense: number;
   speed: number;
+  accuracy?: number;     // % Probabilidad de acierto (ej. 95)
+  evasion?: number;      // % Probabilidad de esquivar (ej. 8)
+  critRate?: number;     // % Probabilidad de golpe crítico (ej. 15)
+  critDamage?: number;   // % Daño crítico (ej. 175 = x1.75)
+  blockRate?: number;    // % Probabilidad de bloqueo de escudo (ej. 25)
+  lifesteal?: number;    // % Robo de vida sobre daño infligido (ej. 5)
+  mpRegen?: number;      // MP recuperado al inicio de cada turno
   gold: number;
   score: number;
+  resources?: PlayerResources;
 }
 
 export type ElementType = 'physical' | 'fire' | 'ice' | 'thunder' | 'holy' | 'shadow' | 'magic';
@@ -45,13 +60,20 @@ export interface EquipmentItem {
   bonusHp?: number;
   bonusMp?: number;
   bonusSpeed?: number;
+  bonusAccuracy?: number;   // +% Precisión
+  bonusEvasion?: number;    // +% Evasión
+  bonusCritRate?: number;   // +% Probabilidad de Crítico
+  bonusCritDamage?: number; // +% Daño Crítico
+  bonusBlockRate?: number;  // +% Probabilidad de Bloqueo
+  bonusLifesteal?: number;  // +% Robo de Vida
+  bonusMpRegen?: number;    // + Regeneración de Maná/turno
   price: number;
   description: string;
   icon: string;
   model3d?: string;
 }
 
-export type ConsumableEffect = 'heal_hp' | 'heal_mp' | 'heal_all' | 'buff_atk' | 'buff_def';
+export type ConsumableEffect = 'heal_hp' | 'heal_mp' | 'heal_all' | 'buff_atk' | 'buff_def' | 'teleport';
 
 export interface ConsumableItem {
   id: string;
@@ -95,6 +117,9 @@ export interface Enemy {
   attack: number;
   defense: number;
   speed: number;
+  accuracy?: number; // % Probabilidad de acierto enemigo (default 90)
+  evasion?: number;  // % Probabilidad de esquivar enemiga (default 5)
+  critRate?: number; // % Probabilidad de crítico enemigo (default 5)
   expReward: number;
   goldReward: number;
   spriteType:

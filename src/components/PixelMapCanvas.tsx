@@ -77,8 +77,19 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
   const targetPosRef = useRef({ x: playerPos.x, y: playerPos.y });
 
   useEffect(() => {
-    targetPosRef.current = { x: playerPos.x, y: playerPos.y };
-  }, [playerPos]);
+    const maxX = (currentZone.mapWidth || 60) - 1;
+    const maxY = (currentZone.mapHeight || 60) - 1;
+    const safeX = Math.min(Math.max(0, playerPos.x), maxX);
+    const safeY = Math.min(Math.max(0, playerPos.y), maxY);
+
+    if (safeX !== playerPos.x || safeY !== playerPos.y) {
+      currentPosRef.current = { x: safeX, y: safeY };
+      targetPosRef.current = { x: safeX, y: safeY };
+      onPlayerMove({ x: safeX, y: safeY });
+    } else {
+      targetPosRef.current = { x: safeX, y: safeY };
+    }
+  }, [playerPos, currentZone.mapWidth, currentZone.mapHeight]);
 
   // Bucle de Renderizado 2D a 60 FPS
   useEffect(() => {
@@ -252,32 +263,81 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           const drawPosX = x * TILE_SIZE;
           const drawPosY = y * TILE_SIZE;
 
-          if (currentZone.id === 'zone_forest' && groundType === 13 && gameAssets.farmLand.complete && gameAssets.farmLand.naturalWidth > 0) {
+          if (currentZone.id === 'zone_forest' && groundType === 3) {
+            // Río Cristalino Animado con Brillo de Olas y Nenúfares
+            const wave = Math.sin(time * 2.5 + x * 0.6 + y * 0.4) * 0.15;
+            ctx.fillStyle = '#0f2b5c';
+            ctx.fillRect(drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+            ctx.fillStyle = `rgba(56, 189, 248, ${0.45 + wave})`;
+            ctx.fillRect(drawPosX, drawPosY + 4, TILE_SIZE, TILE_SIZE - 8);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.fillRect(drawPosX + 6 + (Math.sin(time * 3 + y) * 4), drawPosY + 8, 12, 2);
+
+            // Nenúfares con flores flotantes
+            if ((x * 7 + y * 13) % 6 === 0) {
+              ctx.fillStyle = '#15803d';
+              ctx.beginPath();
+              ctx.ellipse(drawPosX + 16, drawPosY + 16, 6, 4, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#fb7185';
+              ctx.fillRect(drawPosX + 15, drawPosY + 14, 3, 3);
+            }
+          } else if (currentZone.id === 'zone_forest' && groundType === 15) {
+            // Puente de Madera Rústico sobre el río
+            ctx.fillStyle = '#0f2b5c';
+            ctx.fillRect(drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+            ctx.fillStyle = '#5c2c16';
+            ctx.fillRect(drawPosX + 2, drawPosY, TILE_SIZE - 4, TILE_SIZE);
+            ctx.fillStyle = '#854d0e';
+            ctx.fillRect(drawPosX + 4, drawPosY + 2, TILE_SIZE - 8, 5);
+            ctx.fillRect(drawPosX + 4, drawPosY + 10, TILE_SIZE - 8, 5);
+            ctx.fillRect(drawPosX + 4, drawPosY + 18, TILE_SIZE - 8, 5);
+            ctx.fillRect(drawPosX + 4, drawPosY + 26, TILE_SIZE - 8, 5);
+            // Barandillas de madera
+            ctx.fillStyle = '#b45309';
+            ctx.fillRect(drawPosX + 2, drawPosY, 2, TILE_SIZE);
+            ctx.fillRect(drawPosX + TILE_SIZE - 4, drawPosY, 2, TILE_SIZE);
+          } else if (currentZone.id === 'zone_forest' && groundType === 13 && gameAssets.farmLand.complete && gameAssets.farmLand.naturalWidth > 0) {
             // Tierra de cultivo fértil
             ctx.drawImage(gameAssets.farmLand, 16, 16, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
           } else if (hasFloorTiles) {
             if (currentZone.id === 'zone_forest') {
               if (groundType === 2) {
-                const inTown = x >= 78 && x <= 122 && y >= 78 && y <= 122;
+                const inTown = x >= 14 && x <= 48 && y >= 14 && y <= 48;
                 if (inTown) {
-                  // Adoquines auténticos 16x16 de Pixel Crawler Floors_Tiles (96, 160)
+                  // Adoquines auténticos de Pixel Crawler Floors_Tiles (96, 160)
                   ctx.drawImage(gameAssets.floorTiles, 96, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
                 } else {
-                  // Tierra batida auténtica 16x16 de Pixel Crawler Floors_Tiles (176, 160)
+                  // Tierra batida auténtica de Pixel Crawler Floors_Tiles (176, 160)
                   ctx.drawImage(gameAssets.floorTiles, 176, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
                 }
               } else if (groundType === 0) {
-                // Césped auténtico 16x16 de Pixel Crawler Floors_Tiles (16, 160)
+                // Césped con textura auténtica
                 ctx.drawImage(gameAssets.floorTiles, 16, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+
+                // Flores silvestres esparcidas orgánicamente
+                const flowerHash = (x * 17 + y * 31) % 8;
+                if (flowerHash === 1) {
+                  ctx.fillStyle = '#ef4444'; // Flor roja
+                  ctx.fillRect(drawPosX + 6, drawPosY + 8, 3, 3);
+                  ctx.fillStyle = '#fef08a';
+                  ctx.fillRect(drawPosX + 7, drawPosY + 9, 1, 1);
+                } else if (flowerHash === 2) {
+                  ctx.fillStyle = '#38bdf8'; // Flor azul
+                  ctx.fillRect(drawPosX + 18, drawPosY + 16, 3, 3);
+                  ctx.fillStyle = '#ffffff';
+                  ctx.fillRect(drawPosX + 19, drawPosY + 17, 1, 1);
+                } else if (flowerHash === 3) {
+                  ctx.fillStyle = '#facc15'; // Flor amarilla
+                  ctx.fillRect(drawPosX + 12, drawPosY + 20, 3, 3);
+                }
               } else {
                 const tileCanvas = getTileCanvas(groundType, currentZone.id, (x * 3 + y * 7) % 8);
                 ctx.drawImage(tileCanvas, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
               }
             } else if (currentZone.id === 'zone_castle' || currentZone.id === 'zone_sanctuary') {
-              // Piedra sillar 16x16 de Pixel Crawler Floors_Tiles (256, 16)
               ctx.drawImage(gameAssets.floorTiles, 256, 16, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
             } else if (currentZone.id === 'zone_tundra') {
-              // Nieve y hielo 16x16 de Pixel Crawler Floors_Tiles (16, 352)
               ctx.drawImage(gameAssets.floorTiles, 16, 352, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
             } else {
               const tileCanvas = getTileCanvas(groundType, currentZone.id, (x * 3 + y * 7) % 8);
@@ -372,13 +432,13 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 4) {
-            // Fuente de la Plaza Central o Pozos de Agua en las esquinas
-            if (x === 252 && y === 340) {
+            // Gran Fuente Monumental de la Plaza Central o Pozos de Agua en Granja
+            if (x === 30 && y === 30) {
               const centralFountain = getSquarePlazaFountainCanvas(time);
               entities.push({
                 ySort: posY + TILE_SIZE + 10,
                 draw: (c) => {
-                  c.drawImage(centralFountain, posX - 12, posY - 14, 56, 56);
+                  c.drawImage(centralFountain, posX - 16, posY - 16, 64, 64);
                 },
               });
             } else {
@@ -397,10 +457,16 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             else if (vIndex === 2) vName = 'stone';
             else if (vIndex === 3) vName = 'purple';
 
-            // Asignación temática de edificios singulares
-            if (x === 95 && y === 88) vName = 'red'; // Gran Posada (Roja Terracota)
-            if (x === 105 && y === 88) vName = 'stone'; // Ayuntamiento (Pizarra Gris Señorial)
-            if (x === 110 && y === 88) vName = 'purple'; // Botica del Alquimista (Púrpura Mágica)
+            // Asignación temática de edificios singulares de la Aldea de Roble
+            if (x === 48 && y === 11) vName = 'stone';  // Almacén de Minerales y Lingotes (Piedra)
+            if (x === 40 && y === 11) vName = 'stone';  // Taller de Armería (Piedra)
+            if (x === 51 && y === 18) vName = 'blue';   // Cabaña del Aprendiz de Herrero (Azul)
+            if (x === 11 && y === 11) vName = 'blue';   // Cabaña del Granjero Mateo (Azul)
+            if (x === 47 && y === 12) vName = 'stone';  // Cabaña del Leñador (Piedra)
+            if (x === 46 && y === 41) vName = 'red';    // Gran Taberna del León Dorado (Roja)
+            if (x === 23 && y === 26) vName = 'blue';   // Cabaña del Bardo Corin (Azul)
+            if (x === 23 && y === 34) vName = 'red';    // Cabaña Residencial (Roja)
+            if (x === 23 && y === 42) vName = 'stone';  // Cabaña Familiar (Piedra)
 
             entities.push({
               ySort: posY + TILE_SIZE + 20,
@@ -416,13 +482,36 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 c.fill();
 
                 if (gameAssets.house.complete && gameAssets.house.naturalWidth > 0) {
-                  // Variantes 100% 2.5D con Textura Original (Azul, Roja Terracota, Pizarra Gris, Púrpura)
                   const houseCanvas = getRecoloredCuteHouseCanvas(gameAssets.house, vName);
                   c.drawImage(houseCanvas, 0, 0, 96, 128, posX - 16, posY - 48, 64, 80);
                 } else {
                   const houseCanvas = getRecoloredCuteHouseCanvas(gameAssets.house, vName);
                   c.drawImage(houseCanvas, 0, 0, 96, 128, posX - 16, posY - 48, 64, 80);
                 }
+              },
+            });
+          } else if (tileType === 10) {
+            // Gran Forja Imperial de Piedra con Chimenea y Humo Animado
+            entities.push({
+              ySort: posY + TILE_SIZE + 20,
+              draw: (c) => {
+                const blacksmith = getForgeCanvas();
+                c.drawImage(blacksmith, posX - 16, posY - 40, 64, 72);
+                // Humo animado
+                const smokeFrame = Math.floor(time * 4) % 3;
+                c.fillStyle = 'rgba(203, 213, 225, 0.45)';
+                c.beginPath();
+                c.arc(posX + 36, posY - 45 - smokeFrame * 5, 4 + smokeFrame * 2, 0, Math.PI * 2);
+                c.fill();
+              },
+            });
+          } else if (tileType === 14) {
+            // Valla de Madera Rústica
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                const fence = getWoodenFenceCanvas(true, true, false, false);
+                c.drawImage(fence, posX, posY, 32, 32);
               },
             });
           } else if (tileType === 6) {
@@ -473,12 +562,82 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 11) {
-            // Portal de Jefe
-            const bossPortal = getTileCanvas(11, currentZone.id, 0);
+            // Gran Portal de Mazmorra / Portal del Jefe 2.5D Monumental Animado (64x72 px)
             entities.push({
-              ySort: posY + TILE_SIZE,
+              ySort: posY + TILE_SIZE + 10,
               draw: (c) => {
-                c.drawImage(bossPortal, posX - 8, posY - 14, 48, 48);
+                const pX = posX - 16;
+                const pY = posY - 40;
+
+                // Sombra de contacto
+                const shadow = c.createRadialGradient(posX + 16, posY + 20, 4, posX + 16, posY + 20, 32);
+                shadow.addColorStop(0, 'rgba(0, 0, 0, 0.8)');
+                shadow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                c.fillStyle = shadow;
+                c.beginPath();
+                c.ellipse(posX + 16, posY + 20, 32, 8, 0, 0, Math.PI * 2);
+                c.fill();
+
+                // Pilares de piedra rúnica
+                c.fillStyle = '#1e293b';
+                c.fillRect(pX + 4, pY + 12, 14, 52); // Pilar izquierdo
+                c.fillRect(pX + 46, pY + 12, 14, 52); // Pilar derecho
+                c.fillStyle = '#334155';
+                c.fillRect(pX + 2, pY + 8, 60, 14); // Dintel superior
+
+                // Bloques de piedra decorativa
+                c.fillStyle = '#475569';
+                c.fillRect(pX + 6, pY + 16, 10, 8);
+                c.fillRect(pX + 48, pY + 16, 10, 8);
+                c.fillRect(pX + 6, pY + 36, 10, 8);
+                c.fillRect(pX + 48, pY + 36, 10, 8);
+
+                // Vórtice de Energía Mágica Giratoria
+                const pulse = Math.sin(time * 4) * 0.2 + 0.8;
+                let vColor1 = 'rgba(34, 197, 94, 0.9)'; // Forest
+                let vColor2 = 'rgba(21, 128, 61, 0.4)';
+                if (currentZone.id === 'zone_cave') { vColor1 = 'rgba(168, 85, 247, 0.9)'; vColor2 = 'rgba(107, 33, 168, 0.4)'; }
+                else if (currentZone.id === 'zone_swamp') { vColor1 = 'rgba(16, 185, 129, 0.9)'; vColor2 = 'rgba(4, 120, 87, 0.4)'; }
+                else if (currentZone.id === 'zone_volcano') { vColor1 = 'rgba(239, 68, 68, 0.9)'; vColor2 = 'rgba(185, 28, 28, 0.4)'; }
+                else if (currentZone.id === 'zone_tundra') { vColor1 = 'rgba(56, 189, 248, 0.9)'; vColor2 = 'rgba(3, 105, 161, 0.4)'; }
+                else if (currentZone.id === 'zone_castle') { vColor1 = 'rgba(245, 158, 11, 0.9)'; vColor2 = 'rgba(180, 83, 9, 0.4)'; }
+                else if (currentZone.id === 'zone_void') { vColor1 = 'rgba(236, 72, 153, 0.9)'; vColor2 = 'rgba(131, 24, 67, 0.4)'; }
+                else if (currentZone.id === 'zone_sanctuary') { vColor1 = 'rgba(250, 204, 21, 0.9)'; vColor2 = 'rgba(202, 138, 4, 0.4)'; }
+
+                const vortex = c.createRadialGradient(posX + 16, pY + 40, 2, posX + 16, pY + 40, 20);
+                vortex.addColorStop(0, '#ffffff');
+                vortex.addColorStop(0.5, vColor1);
+                vortex.addColorStop(1, vColor2);
+                c.fillStyle = vortex;
+                c.beginPath();
+                c.ellipse(posX + 16, pY + 40, 14 * pulse, 22 * pulse, 0, 0, Math.PI * 2);
+                c.fill();
+
+                // Destellos de partículas orbitando
+                for (let i = 0; i < 4; i++) {
+                  const angle = time * 3 + (i * Math.PI / 2);
+                  const orbX = posX + 16 + Math.cos(angle) * 12;
+                  const orbY = pY + 40 + Math.sin(angle) * 18;
+                  c.fillStyle = '#ffffff';
+                  c.fillRect(orbX, orbY, 3, 3);
+                }
+
+                // Antorchas de llama mágica a los lados
+                const fPulse = Math.sin(time * 6) * 2;
+                c.fillStyle = vColor1;
+                c.beginPath();
+                c.arc(pX + 11, pY + 6 + fPulse, 5, 0, Math.PI * 2);
+                c.arc(pX + 53, pY + 6 + fPulse, 5, 0, Math.PI * 2);
+                c.fill();
+                c.fillStyle = '#ffffff';
+                c.fillRect(pX + 10, pY + 4 + fPulse, 2, 2);
+                c.fillRect(pX + 52, pY + 4 + fPulse, 2, 2);
+
+                // Calavera / Runa en el dintel
+                c.fillStyle = '#fef08a';
+                c.font = '10px monospace';
+                c.textAlign = 'center';
+                c.fillText('⚔️', posX + 16, pY + 18);
               },
             });
           } else if (tileType === 12) {
@@ -763,83 +922,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         }
       }
 
-      // 2. Ciudadanos, Guardias y Decoraciones Estructuradas de la Ciudad de Roble
+      // 2. Decoraciones Estructuradas y Ambientación de la Ciudad de Roble (Sin Solapamientos)
       if (currentZone.id === 'zone_forest') {
-        // A. GUARDIAS REALES DE LAS 4 PUERTAS Y CIUDADANOS
-        const townCitizens = [
-          // Guardias de las 4 Puertas de la Ciudad de Roble
-          { name: 'Guardia Real (Puerta Norte)', class: 'Paladín' as const, x: 100, y: 86, dir: 'down' as Direction, type: 'knight' },
-          { name: 'Guardia Real (Puerta Sur)', class: 'Paladín' as const, x: 100, y: 114, dir: 'up' as Direction, type: 'knight' },
-          { name: 'Guardia Real (Puerta Oeste)', class: 'Paladín' as const, x: 86, y: 100, dir: 'right' as Direction, type: 'knight' },
-          { name: 'Guardia Real (Puerta Este)', class: 'Paladín' as const, x: 114, y: 100, dir: 'left' as Direction, type: 'knight' },
-
-          // Ciudadanos de la Gran Capital (Sureste)
-          { name: 'Capitán Garrett (Guardia Real)', class: 'Paladín' as const, x: 240, y: 304, dir: 'down' as Direction, type: 'knight' },
-          { name: 'Archimago Thorne', class: 'Mago' as const, x: 276, y: 314, dir: 'down' as Direction, type: 'wizzard' },
-          { name: 'Sacerdotisa Solaria', class: 'Paladín' as const, x: 218, y: 314, dir: 'down' as Direction, type: 'peasant' },
-          { name: 'Maestro Doran (Herrero Real)', class: 'Berserker' as const, x: 270, y: 338, dir: 'right' as Direction, type: 'peasant' },
-          { name: 'Boticaria Elena', class: 'Mago' as const, x: 280, y: 342, dir: 'down' as Direction, type: 'wizzard' },
-          { name: 'Mercader Cedric (Frutas)', class: 'Pícaro' as const, x: 248, y: 332, dir: 'down' as Direction, type: 'rogue' },
-          { name: 'Mercader Barnaby (Telas)', class: 'Pícaro' as const, x: 256, y: 332, dir: 'down' as Direction, type: 'rogue' },
-          { name: 'Tabernero Bruno', class: 'Guerrero' as const, x: 246, y: 314, dir: 'down' as Direction, type: 'tavern' },
-          { name: 'Curtidor Gareth', class: 'Arquero' as const, x: 206, y: 342, dir: 'down' as Direction, type: 'peasant' },
-          { name: 'Doncella Beatrix', class: 'Arquero' as const, x: 226, y: 346, dir: 'right' as Direction, type: 'tavern' },
-          { name: 'Granjero Tobías', class: 'Guerrero' as const, x: 202, y: 354, dir: 'down' as Direction, type: 'peasant' },
-        ];
-
-        townCitizens.forEach((citizen) => {
-          const cCol = citizen.x;
-          const cRow = citizen.y;
-
-          if (cCol >= startCol - 2 && cCol <= endCol + 2 && cRow >= startRow - 2 && cRow <= endRow + 2) {
-            const drawX = cCol * TILE_SIZE;
-            const drawY = cRow * TILE_SIZE;
-
-            entities.push({
-              ySort: drawY + TILE_SIZE,
-              draw: (c) => {
-                c.fillStyle = 'rgba(0, 0, 0, 0.4)';
-                c.beginPath();
-                c.ellipse(drawX + 16, drawY + 30, 8, 3, 0, 0, Math.PI * 2);
-                c.fill();
-
-                if (citizen.type === 'knight' && gameAssets.knightIdle.complete && gameAssets.knightIdle.naturalWidth > 0) {
-                  const kFrame = Math.floor(time * 4) % 4;
-                  c.drawImage(gameAssets.knightIdle, kFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
-                } else if (citizen.type === 'wizzard' && gameAssets.wizzardIdle.complete && gameAssets.wizzardIdle.naturalWidth > 0) {
-                  const wFrame = Math.floor(time * 3) % 4;
-                  c.drawImage(gameAssets.wizzardIdle, wFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
-                } else if (citizen.type === 'rogue' && gameAssets.rogueIdle.complete && gameAssets.rogueIdle.naturalWidth > 0) {
-                  const rFrame = Math.floor(time * 4) % 4;
-                  c.drawImage(gameAssets.rogueIdle, rFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
-                } else if (citizen.type === 'peasant' && gameAssets.peasantIdle.complete && gameAssets.peasantIdle.naturalWidth > 0) {
-                  const pFrame = Math.floor(time * 3) % 4;
-                  c.drawImage(gameAssets.peasantIdle, pFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
-                } else if (citizen.type === 'tavern' && gameAssets.tavernIdle.complete && gameAssets.tavernIdle.naturalWidth > 0) {
-                  const tFrame = Math.floor(time * 3) % 4;
-                  c.drawImage(gameAssets.tavernIdle, tFrame * 32, 0, 32, 32, drawX, drawY, 32, 32);
-                } else {
-                  const sprite = getHeroSpriteCanvas(citizen.class, 'male', citizen.dir, 'idle');
-                  c.drawImage(sprite, drawX, drawY, 32, 32);
-                }
-
-                c.fillStyle = 'rgba(15, 23, 42, 0.85)';
-                c.beginPath();
-                c.roundRect(drawX - 24, drawY - 14, 80, 12, 4);
-                c.fill();
-
-                c.fillStyle = '#fde047';
-                c.font = 'bold 8px monospace';
-                c.textAlign = 'center';
-                c.fillText(citizen.name.split(' ')[0], drawX + 16, drawY - 5);
-              },
-            });
-          }
-        });
-
-        // B. DECORACIONES ESTRUCTURADAS DE LA CIUDAD DE ROBLE (PIXEL CRAWLER)
-        // 1. Plaza Mayor: 4 Bancos de Madera Tallada
-        const plazaBenches = [{ x: 98, y: 98 }, { x: 102, y: 98 }, { x: 98, y: 102 }, { x: 102, y: 102 }];
+        // A. Bancos de Madera Tallada en las 4 esquinas de la Plaza Mayor
+        const plazaBenches = [{ x: 26, y: 28 }, { x: 34, y: 28 }, { x: 26, y: 32 }, { x: 34, y: 32 }];
         plazaBenches.forEach(({ x, y }) => {
           if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
             const bench = getWoodenBenchCanvas();
@@ -852,11 +938,11 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           }
         });
 
-        // 2. Terraza de la Posada: Cocina animada con olla y barriles
+        // B. Terraza de la Taberna: Cocina y Barriles (X: 44, Y: 44)
         if (gameAssets.cooking.complete && gameAssets.cooking.naturalWidth > 0) {
-          const cookX = 97 * TILE_SIZE;
-          const cookY = 89 * TILE_SIZE;
-          if (97 >= startCol - 2 && 97 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
+          const cookX = 44 * TILE_SIZE;
+          const cookY = 44 * TILE_SIZE;
+          if (44 >= startCol - 2 && 44 <= endCol + 2 && 44 >= startRow - 2 && 44 <= endRow + 2) {
             entities.push({
               ySort: cookY + TILE_SIZE,
               draw: (c) => {
@@ -866,40 +952,11 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           }
         }
 
-        // 3. Botica: Mesa de Alquimia Animada
-        if (gameAssets.alchemy.complete && gameAssets.alchemy.naturalWidth > 0) {
-          const alchX = 111 * TILE_SIZE;
-          const alchY = 89 * TILE_SIZE;
-          if (111 >= startCol - 2 && 111 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
-            const alchFrame = Math.floor(time * 3) % 3;
-            entities.push({
-              ySort: alchY + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(gameAssets.alchemy, alchFrame * 32, 0, 32, 32, alchX, alchY, 32, 32);
-              },
-            });
-          }
-        }
-
-        // 4. Taller de Carpintería: Banco de Trabajo y Aserradero
-        if (gameAssets.workbench.complete && gameAssets.workbench.naturalWidth > 0) {
-          const wbX = 106 * TILE_SIZE;
-          const wbY = 89 * TILE_SIZE;
-          if (106 >= startCol - 2 && 106 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
-            entities.push({
-              ySort: wbY + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(gameAssets.workbench, 0, 0, 32, 32, wbX, wbY, 32, 32);
-              },
-            });
-          }
-        }
-
-        // 5. Forja: Lingotes y Carbón
+        // C. Gran Forja: Almacén de Carbón y Lingotes (X: 48, Y: 14)
         if (gameAssets.resources.complete && gameAssets.resources.naturalWidth > 0) {
-          const resX = 89 * TILE_SIZE;
-          const resY = 89 * TILE_SIZE;
-          if (89 >= startCol - 2 && 89 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
+          const resX = 48 * TILE_SIZE;
+          const resY = 14 * TILE_SIZE;
+          if (48 >= startCol - 2 && 48 <= endCol + 2 && 14 >= startRow - 2 && 14 <= endRow + 2) {
             entities.push({
               ySort: resY + TILE_SIZE,
               draw: (c) => {
@@ -909,11 +966,11 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           }
         }
 
-        // 6. Granja: Espantapájaros en el huerto
+        // D. Granja: Espantapájaros en el centro del huerto (X: 16, Y: 18)
         if (gameAssets.farmProps.complete && gameAssets.farmProps.naturalWidth > 0) {
-          const scX = 109 * TILE_SIZE;
-          const scY = 109 * TILE_SIZE;
-          if (109 >= startCol - 2 && 109 <= endCol + 2 && 109 >= startRow - 2 && 109 <= endRow + 2) {
+          const scX = 16 * TILE_SIZE;
+          const scY = 18 * TILE_SIZE;
+          if (16 >= startCol - 2 && 16 <= endCol + 2 && 18 >= startRow - 2 && 18 <= endRow + 2) {
             entities.push({
               ySort: scY + TILE_SIZE,
               draw: (c) => {
@@ -923,156 +980,154 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           }
         }
 
-        // 8. ELEMENTOS TEMÁTICOS DEL FURNITURE PACK
-        // A. Patio de Entrenamiento de la Guardia (Puerta Norte)
-        if (gameAssets.furnitureSheet2.complete && gameAssets.furnitureSheet2.naturalWidth > 0) {
-          // Muñeco de entrenamiento con escudo
-          if (98 >= startCol - 2 && 98 <= endCol + 2 && 86 >= startRow - 2 && 86 <= endRow + 2) {
+        // E. Corrales de Animales: Gallinas y Vacas pastando (X: 19..23, Y: 41..45)
+        if (gameAssets.chicken.complete && gameAssets.chicken.naturalWidth > 0) {
+          const chickens = [{ x: 19, y: 41 }, { x: 22, y: 42 }, { x: 20, y: 45 }];
+          chickens.forEach(({ x, y }, idx) => {
+            if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+              const chkFrame = Math.floor(time * 3 + idx) % 2;
+              entities.push({
+                ySort: y * TILE_SIZE + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(gameAssets.chicken, chkFrame * 32, 0, 32, 32, x * TILE_SIZE, y * TILE_SIZE, 24, 24);
+                },
+              });
+            }
+          });
+        }
+        if (gameAssets.cow.complete && gameAssets.cow.naturalWidth > 0) {
+          const cowX = 21 * TILE_SIZE;
+          const cowY = 43 * TILE_SIZE;
+          if (21 >= startCol - 2 && 21 <= endCol + 2 && 43 >= startRow - 2 && 43 <= endRow + 2) {
+            const cowFrame = Math.floor(time * 2) % 3;
             entities.push({
-              ySort: 86 * TILE_SIZE + TILE_SIZE,
+              ySort: cowY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(gameAssets.furnitureSheet2, 72, 48, 24, 24, 98 * TILE_SIZE + 4, 86 * TILE_SIZE + 4, 24, 24);
-              },
-            });
-          }
-          // Muñeco de entrenamiento estándar
-          if (97 >= startCol - 2 && 97 <= endCol + 2 && 86 >= startRow - 2 && 86 <= endRow + 2) {
-            entities.push({
-              ySort: 86 * TILE_SIZE + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(gameAssets.furnitureSheet2, 72, 24, 24, 24, 97 * TILE_SIZE + 4, 86 * TILE_SIZE + 4, 24, 24);
-              },
-            });
-          }
-          // Poste de combate de madera
-          if (98 >= startCol - 2 && 98 <= endCol + 2 && 87 >= startRow - 2 && 87 <= endRow + 2) {
-            entities.push({
-              ySort: 87 * TILE_SIZE + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(gameAssets.furnitureSheet2, 72, 0, 24, 24, 98 * TILE_SIZE + 4, 87 * TILE_SIZE + 4, 24, 24);
-              },
-            });
-          }
-          // Estandarte Real del León Dorado (Entrada Norte)
-          if (102 >= startCol - 2 && 102 <= endCol + 2 && 86 >= startRow - 2 && 86 <= endRow + 2) {
-            entities.push({
-              ySort: 86 * TILE_SIZE + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(gameAssets.furnitureSheet2, 0, 48, 24, 24, 102 * TILE_SIZE + 4, 86 * TILE_SIZE + 4, 24, 24);
-              },
-            });
-          }
-          // Estandartes del Ayuntamiento
-          if (104 >= startCol - 2 && 104 <= endCol + 2 && 88 >= startRow - 2 && 88 <= endRow + 2) {
-            entities.push({
-              ySort: 88 * TILE_SIZE + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(gameAssets.furnitureSheet2, 48, 0, 24, 24, 104 * TILE_SIZE + 4, 88 * TILE_SIZE + 4, 24, 24);
+                c.drawImage(gameAssets.cow, cowFrame * 32, 0, 32, 32, cowX - 4, cowY - 4, 32, 32);
               },
             });
           }
         }
 
-        // B. Gran Forja: Armero de Espadas de Acero
-        if (gameAssets.furnitureSheet1.complete && gameAssets.furnitureSheet1.naturalWidth > 0) {
-          if (92 >= startCol - 2 && 92 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
-            entities.push({
-              ySort: 89 * TILE_SIZE + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(gameAssets.furnitureSheet1, 96, 48, 24, 24, 92 * TILE_SIZE + 4, 89 * TILE_SIZE + 4, 24, 24);
-              },
-            });
-          }
-          // Botica: Estantería de Pociones y Viales
-          if (112 >= startCol - 2 && 112 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
-            entities.push({
-              ySort: 89 * TILE_SIZE + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(gameAssets.furnitureSheet1, 24, 72, 24, 24, 112 * TILE_SIZE + 4, 89 * TILE_SIZE + 4, 24, 24);
-              },
-            });
-          }
-        }
-
-        // C. Carpintería: Mesa de Sierra Mecánica Animada
+        // F. Aserradero: Mesa de Sierra Mecánica (X: 15, Y: 46)
         if (gameAssets.sawtableAnim.complete && gameAssets.sawtableAnim.naturalWidth > 0) {
-          if (105 >= startCol - 2 && 105 <= endCol + 2 && 89 >= startRow - 2 && 89 <= endRow + 2) {
+          if (15 >= startCol - 2 && 15 <= endCol + 2 && 46 >= startRow - 2 && 46 <= endRow + 2) {
             const sawFrame = Math.floor(time * 6) % 2;
             entities.push({
-              ySort: 89 * TILE_SIZE + TILE_SIZE,
+              ySort: 46 * TILE_SIZE + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(gameAssets.sawtableAnim, sawFrame * 30, 0, 30, 30, 105 * TILE_SIZE + 1, 89 * TILE_SIZE + 1, 30, 30);
+                c.drawImage(gameAssets.sawtableAnim, sawFrame * 30, 0, 30, 30, 15 * TILE_SIZE + 1, 46 * TILE_SIZE + 1, 30, 30);
               },
             });
           }
         }
 
-        // D. Santuario Ancestral: Altar de Luz Sagrada y Mesa Relicario
-        if (gameAssets.shrinesSheet.complete && gameAssets.shrinesSheet.naturalWidth > 0) {
-          if (90 >= startCol - 2 && 90 <= endCol + 2 && 109 >= startRow - 2 && 109 <= endRow + 2) {
-            entities.push({
-              ySort: 109 * TILE_SIZE + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(gameAssets.shrinesSheet, 96, 24, 24, 24, 90 * TILE_SIZE + 4, 109 * TILE_SIZE + 4, 24, 24);
-              },
-            });
-          }
-        }
-
-        // E. FASE 1: JARDINES URBANOS, BIBLIOTECA Y BOSQUE FEÉRICO (PIXEL CRAWLER)
-        // 1. Jardines Urbanos: Cipreses Esculpidos y Nenúfares
-        if (gameAssets.gardenTiles.complete && gameAssets.gardenTiles.naturalWidth > 0) {
-          // Cipreses en las esquinas de los bulevares
-          const cypresses = [{ x: 97, y: 94 }, { x: 103, y: 94 }];
-          cypresses.forEach(({ x, y }) => {
+        // G. Patio de Armas: 4 Caballeros de la Milicia entrenando en formación 2x2 (X: 38..40, Y: 41..43)
+        if (gameAssets.knightIdle.complete && gameAssets.knightIdle.naturalWidth > 0) {
+          const squad = [
+            { x: 38, y: 41 }, { x: 40, y: 41 },
+            { x: 38, y: 43 }, { x: 40, y: 43 }
+          ];
+          squad.forEach(({ x, y }, idx) => {
             if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+              const kFrame = Math.floor(time * 4 + idx * 0.7) % 4;
               entities.push({
                 ySort: y * TILE_SIZE + TILE_SIZE,
                 draw: (c) => {
-                  c.drawImage(gameAssets.gardenTiles, 155, 275, 35, 105, x * TILE_SIZE - 2, y * TILE_SIZE - 40, 24, 72);
+                  c.fillStyle = 'rgba(15, 23, 42, 0.35)';
+                  c.beginPath();
+                  c.ellipse(x * TILE_SIZE + 16, y * TILE_SIZE + 27, 7, 3, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.drawImage(gameAssets.knightIdle, kFrame * 32, 0, 32, 32, x * TILE_SIZE, y * TILE_SIZE - 2, 32, 32);
                 },
               });
             }
           });
         }
 
-
-        // 3. Claros del Bosque Esmeralda: Flores de Luz Feérica y Rocas Rúnicas
-        if (gameAssets.fairyProps.complete && gameAssets.fairyProps.naturalWidth > 0) {
-          // Flores Feéricas Gigantes
-          const fairyBlooms = [{ x: 84, y: 100 }, { x: 116, y: 100 }];
-          fairyBlooms.forEach(({ x, y }) => {
+        // H. Dianas de Entrenamiento en el Patio de Armas (X: 37, Y: 38) y (X: 41, Y: 38)
+        if (gameAssets.furnitureSheet2.complete && gameAssets.furnitureSheet2.naturalWidth > 0) {
+          const targets = [{ x: 37, y: 38 }, { x: 41, y: 38 }];
+          targets.forEach(({ x, y }) => {
             if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
               entities.push({
                 ySort: y * TILE_SIZE + TILE_SIZE,
                 draw: (c) => {
-                  c.drawImage(gameAssets.fairyProps, 325, 0, 45, 60, x * TILE_SIZE - 4, y * TILE_SIZE - 12, 40, 48);
+                  c.drawImage(gameAssets.furnitureSheet2, 72, 48, 24, 24, x * TILE_SIZE + 4, y * TILE_SIZE + 4, 24, 24);
                 },
               });
             }
           });
-          // Roca Rúnica con Ojo Arcano
-          if (96 >= startCol - 2 && 96 <= endCol + 2 && 110 >= startRow - 2 && 110 <= endRow + 2) {
-            entities.push({
-              ySort: 110 * TILE_SIZE + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(gameAssets.fairyProps, 195, 360, 45, 50, 96 * TILE_SIZE, 110 * TILE_SIZE - 8, 32, 40);
-              },
-            });
-          }
         }
 
-        // 4. Estatua del Ángel Protector en el Santuario Ancestral (Cemetery)
-        if (gameAssets.cemeteryGraves.complete && gameAssets.cemeteryGraves.naturalWidth > 0) {
-          if (89 >= startCol - 2 && 89 <= endCol + 2 && 109 >= startRow - 2 && 109 <= endRow + 2) {
+        // 7. PIXEL TRIBE: BURBUJA DE DIÁLOGO DINÁMICA (Solo sobre la cabeza del NPC cuando el héroe está cerca)
+        currentZone.npcs?.forEach((npc) => {
+          const distToPlayer = Math.hypot(npc.x - playerPos.x, npc.y - playerPos.y);
+          if (distToPlayer <= 2.2 && npc.x >= startCol - 2 && npc.x <= endCol + 2 && npc.y >= startRow - 2 && npc.y <= endRow + 2) {
+            const floatY = Math.sin(time * 3) * 2;
             entities.push({
-              ySort: 109 * TILE_SIZE + TILE_SIZE,
+              ySort: npc.y * TILE_SIZE + TILE_SIZE + 30,
               draw: (c) => {
-                c.drawImage(gameAssets.cemeteryGraves, 40, 245, 40, 48, 89 * TILE_SIZE - 4, 109 * TILE_SIZE - 16, 40, 48);
+                const bubbleX = npc.x * TILE_SIZE + 4;
+                const bubbleY = npc.y * TILE_SIZE - 28 + floatY;
+
+                c.fillStyle = '#0f172a';
+                c.strokeStyle = '#f59e0b';
+                c.lineWidth = 1.5;
+                c.beginPath();
+                c.roundRect(bubbleX, bubbleY, 24, 14, 4);
+                c.fill();
+                c.stroke();
+
+                c.fillStyle = '#0f172a';
+                c.beginPath();
+                c.moveTo(bubbleX + 8, bubbleY + 14);
+                c.lineTo(bubbleX + 12, bubbleY + 18);
+                c.lineTo(bubbleX + 14, bubbleY + 14);
+                c.fill();
+
+                c.fillStyle = '#fef08a';
+                c.font = 'bold 9px monospace';
+                c.textAlign = 'center';
+                c.fillText('💬', bubbleX + 12, bubbleY + 11);
               },
             });
           }
-        }
+        });
+
+        // 8. PIXEL TRIBE: HALOS DE LUZ CÁLIDA NOCTURNA EN FAROLAS Y FORJA
+        const lightSources = [
+          { x: 44, y: 14, radius: 55, color: 'rgba(251, 191, 36, 0.25)' },  // Forja
+          { x: 26, y: 26, radius: 45, color: 'rgba(254, 240, 138, 0.22)' }, // Farola NO
+          { x: 34, y: 26, radius: 45, color: 'rgba(254, 240, 138, 0.22)' }, // Farola NE
+          { x: 26, y: 34, radius: 45, color: 'rgba(254, 240, 138, 0.22)' }, // Farola SO
+          { x: 34, y: 34, radius: 45, color: 'rgba(254, 240, 138, 0.22)' }, // Farola SE
+          { x: 45, y: 45, radius: 50, color: 'rgba(251, 191, 36, 0.2)' },   // Taberna
+        ];
+        lightSources.forEach(({ x, y, radius, color }) => {
+          if (x >= startCol - 3 && x <= endCol + 3 && y >= startRow - 3 && y <= endRow + 3) {
+            const flicker = Math.sin(time * 6 + x) * 2;
+            entities.push({
+              ySort: y * TILE_SIZE - 50,
+              draw: (c) => {
+                const grad = c.createRadialGradient(
+                  x * TILE_SIZE + 16,
+                  y * TILE_SIZE + 16,
+                  4,
+                  x * TILE_SIZE + 16,
+                  y * TILE_SIZE + 16,
+                  radius + flicker
+                );
+                grad.addColorStop(0, color);
+                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                c.fillStyle = grad;
+                c.beginPath();
+                c.arc(x * TILE_SIZE + 16, y * TILE_SIZE + 16, radius + flicker, 0, Math.PI * 2);
+                c.fill();
+              },
+            });
+          }
+        });
       }
 
       // FASE 2: MINAS DE ERIDU Y CUEVA DE SOMBRAS (PIXEL CRAWLER CAVE & BATS)

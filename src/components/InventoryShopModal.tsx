@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PlayerStats, Inventory, EquipmentItem, ConsumableItem, EquipmentSlot } from '../types';
-import { SHOP_CONSUMABLES, SHOP_EQUIPMENT } from '../data/gameData';
+import { HERO_CLASSES, SHOP_CONSUMABLES, SHOP_EQUIPMENT } from '../data/gameData';
 import { soundEngine } from '../utils/soundEngine';
 import {
   ShoppingBag,
@@ -9,7 +9,12 @@ import {
   X,
   Heart,
   Zap,
-  Sparkles
+  Sparkles,
+  Target,
+  Wind,
+  Flame,
+  Droplet,
+  ShieldAlert
 } from 'lucide-react';
 
 interface InventoryShopModalProps {
@@ -52,13 +57,30 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
     setTimeout(() => setToastMessage(null), 2200);
   };
 
-  // Recalculate player stats with active equipment
+  // Recalculate player stats with active equipment and tactical bonuses
   const getCalculatedPlayerStats = (eq: Inventory['equipment']): PlayerStats => {
+    const classBase = HERO_CLASSES[player.heroClass]?.baseStats || {
+      accuracy: 95,
+      evasion: 5,
+      critRate: 10,
+      critDamage: 175,
+      blockRate: 0,
+      lifesteal: 0,
+      mpRegen: 0,
+    };
+
     let atkBonus = 0;
     let defBonus = 0;
     let hpBonus = 0;
     let mpBonus = 0;
     let spdBonus = 0;
+    let accBonus = 0;
+    let evaBonus = 0;
+    let critBonus = 0;
+    let critDmgBonus = 0;
+    let blockBonus = 0;
+    let lifestealBonus = 0;
+    let mpRegenBonus = 0;
 
     Object.values(eq).forEach((item) => {
       if (item) {
@@ -67,6 +89,13 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
         if (item.bonusHp) hpBonus += item.bonusHp;
         if (item.bonusMp) mpBonus += item.bonusMp;
         if (item.bonusSpeed) spdBonus += item.bonusSpeed;
+        if (item.bonusAccuracy) accBonus += item.bonusAccuracy;
+        if (item.bonusEvasion) evaBonus += item.bonusEvasion;
+        if (item.bonusCritRate) critBonus += item.bonusCritRate;
+        if (item.bonusCritDamage) critDmgBonus += item.bonusCritDamage;
+        if (item.bonusBlockRate) blockBonus += item.bonusBlockRate;
+        if (item.bonusLifesteal) lifestealBonus += item.bonusLifesteal;
+        if (item.bonusMpRegen) mpRegenBonus += item.bonusMpRegen;
       }
     });
 
@@ -82,6 +111,13 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
       attack: player.attack + atkBonus,
       defense: player.defense + defBonus,
       speed: player.speed + spdBonus,
+      accuracy: Math.min(100, (classBase.accuracy ?? 95) + accBonus),
+      evasion: (classBase.evasion ?? 5) + evaBonus,
+      critRate: (classBase.critRate ?? 10) + critBonus,
+      critDamage: (classBase.critDamage ?? 175) + critDmgBonus,
+      blockRate: (classBase.blockRate ?? 0) + blockBonus,
+      lifesteal: (classBase.lifesteal ?? 0) + lifestealBonus,
+      mpRegen: (classBase.mpRegen ?? 0) + mpRegenBonus,
     };
   };
 
@@ -115,6 +151,18 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
   // Use Consumable out of combat
   const handleUseConsumable = (item: ConsumableItem) => {
     if (item.quantity <= 0) return;
+
+    if (item.effect === 'heal_hp' && player.hp >= player.maxHp) {
+      soundEngine.playSfx('select');
+      showToast('💚 ¡Tu salud ya está al 100%! No se gastó la poción.');
+      return;
+    }
+    if (item.effect === 'heal_mp' && player.mp >= player.maxMp) {
+      soundEngine.playSfx('select');
+      showToast('💙 ¡Tu maná ya está al 100%! No se gastó la poción.');
+      return;
+    }
+
     soundEngine.playSfx('heal');
     let newHp = player.hp;
     let newMp = player.mp;
@@ -174,6 +222,23 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
   };
 
   const filteredOwnedEquipment = inventory.ownedEquipment.filter((item) => filterSlot === 'all' || item.slot === filterSlot);
+
+  const renderItemTacticalBadges = (item: EquipmentItem) => (
+    <div className="text-[10px] text-emerald-400 font-bold mt-1 flex flex-wrap gap-x-1.5 gap-y-0.5">
+      {item.bonusAttack ? <span>+{item.bonusAttack} Atq</span> : null}
+      {item.bonusDefense ? <span>+{item.bonusDefense} Def</span> : null}
+      {item.bonusHp ? <span>+{item.bonusHp} HP</span> : null}
+      {item.bonusMp ? <span>+{item.bonusMp} MP</span> : null}
+      {item.bonusSpeed ? <span>+{item.bonusSpeed} Vel</span> : null}
+      {item.bonusAccuracy ? <span className="text-amber-300">+{item.bonusAccuracy}% Prec</span> : null}
+      {item.bonusEvasion ? <span className="text-cyan-300">+{item.bonusEvasion}% Eva</span> : null}
+      {item.bonusCritRate ? <span className="text-yellow-400">+{item.bonusCritRate}% Crít</span> : null}
+      {item.bonusCritDamage ? <span className="text-orange-400">+{item.bonusCritDamage}% Dño Crít</span> : null}
+      {item.bonusBlockRate ? <span className="text-blue-300">+{item.bonusBlockRate}% Bloqueo</span> : null}
+      {item.bonusLifesteal ? <span className="text-rose-400">+{item.bonusLifesteal}% Robo Vida</span> : null}
+      {item.bonusMpRegen ? <span className="text-sky-300">+{item.bonusMpRegen} MP/turno</span> : null}
+    </div>
+  );
 
   return (
     <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 z-50 font-mono">
@@ -301,15 +366,15 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                   </div>
 
                   {/* Stats Breakdown */}
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-3.5 space-y-2">
                     <div className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                      <span>Atributos del Héroe</span>
+                      <span>Atributos Primarios</span>
                       <span className="text-[9px] text-amber-400 font-normal">Base + Equipo</span>
                     </div>
 
-                    <div className="flex items-center justify-between p-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
+                    <div className="flex items-center justify-between p-1.5 px-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
                       <div className="flex items-center space-x-2 text-rose-400 font-bold">
-                        <Heart className="w-4 h-4" />
+                        <Heart className="w-3.5 h-3.5" />
                         <span>Puntos de Vida</span>
                       </div>
                       <span className="font-black text-slate-100">
@@ -317,9 +382,9 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between p-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
+                    <div className="flex items-center justify-between p-1.5 px-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
                       <div className="flex items-center space-x-2 text-sky-400 font-bold">
-                        <Zap className="w-4 h-4" />
+                        <Zap className="w-3.5 h-3.5" />
                         <span>Puntos de Maná</span>
                       </div>
                       <span className="font-black text-slate-100">
@@ -327,29 +392,104 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between p-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
+                    <div className="flex items-center justify-between p-1.5 px-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
                       <div className="flex items-center space-x-2 text-amber-400 font-bold">
-                        <Swords className="w-4 h-4" />
+                        <Swords className="w-3.5 h-3.5" />
                         <span>Poder de Ataque</span>
                       </div>
                       <span className="font-black text-slate-100">{player.attack}</span>
                     </div>
 
-                    <div className="flex items-center justify-between p-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
+                    <div className="flex items-center justify-between p-1.5 px-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
                       <div className="flex items-center space-x-2 text-blue-400 font-bold">
-                        <Shield className="w-4 h-4" />
-                        <span>Defensa & Resistencia</span>
+                        <Shield className="w-3.5 h-3.5" />
+                        <span>Defensa & Armadura</span>
                       </div>
                       <span className="font-black text-slate-100">{player.defense}</span>
                     </div>
 
-                    <div className="flex items-center justify-between p-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
+                    <div className="flex items-center justify-between p-1.5 px-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
                       <div className="flex items-center space-x-2 text-emerald-400 font-bold">
-                        <Sparkles className="w-4 h-4" />
+                        <Sparkles className="w-3.5 h-3.5" />
                         <span>Velocidad de Turno</span>
                       </div>
                       <span className="font-black text-slate-100">{player.speed}</span>
                     </div>
+                  </div>
+
+                  {/* TACTICAL COMBAT STATS */}
+                  <div className="mt-3.5 space-y-1.5">
+                    <div className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                      <span>Estadísticas Tácticas</span>
+                      <span className="text-[9px] text-sky-400 font-normal">Combate RPG</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                      {/* Precisión */}
+                      <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
+                        <div className="flex items-center space-x-1.5 text-amber-300 font-bold">
+                          <Target className="w-3 h-3 text-amber-400" />
+                          <span>Precisión</span>
+                        </div>
+                        <span className="font-black text-amber-200">{player.accuracy ?? 95}%</span>
+                      </div>
+
+                      {/* Evasión */}
+                      <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
+                        <div className="flex items-center space-x-1.5 text-cyan-300 font-bold">
+                          <Wind className="w-3 h-3 text-cyan-400" />
+                          <span>Evasión</span>
+                        </div>
+                        <span className="font-black text-cyan-200">{player.evasion ?? 6}%</span>
+                      </div>
+
+                      {/* Crítico */}
+                      <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
+                        <div className="flex items-center space-x-1.5 text-yellow-300 font-bold">
+                          <Flame className="w-3 h-3 text-yellow-400" />
+                          <span>Crítico</span>
+                        </div>
+                        <span className="font-black text-yellow-200">{player.critRate ?? 10}%</span>
+                      </div>
+
+                      {/* Daño Crítico */}
+                      <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
+                        <div className="flex items-center space-x-1.5 text-orange-300 font-bold">
+                          <Zap className="w-3 h-3 text-orange-400" />
+                          <span>Daño Crít.</span>
+                        </div>
+                        <span className="font-black text-orange-200">{player.critDamage ?? 175}%</span>
+                      </div>
+
+                      {/* Bloqueo */}
+                      <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
+                        <div className="flex items-center space-x-1.5 text-blue-300 font-bold">
+                          <ShieldAlert className="w-3 h-3 text-blue-400" />
+                          <span>Bloqueo</span>
+                        </div>
+                        <span className="font-black text-blue-200">{player.blockRate ?? 0}%</span>
+                      </div>
+
+                      {/* Robo de Vida */}
+                      <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
+                        <div className="flex items-center space-x-1.5 text-rose-300 font-bold">
+                          <Droplet className="w-3 h-3 text-rose-400" />
+                          <span>Robo Vida</span>
+                        </div>
+                        <span className="font-black text-rose-200">{player.lifesteal ?? 0}%</span>
+                      </div>
+                    </div>
+
+                    {/* MP Regen Bar if active */}
+                    {(player.mpRegen ?? 0) > 0 && (
+                      <div className="p-1.5 bg-sky-950/40 rounded border border-sky-800/60 flex items-center justify-between text-[11px]">
+                        <div className="flex items-center space-x-1.5 text-sky-300 font-bold">
+                          <Sparkles className="w-3 h-3 text-sky-400" />
+                          <span>Regeneración Pasiva</span>
+                        </div>
+                        <span className="font-black text-sky-200">+{player.mpRegen} MP/turno</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -404,13 +544,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                                 <div className="font-bold text-amber-300 text-xs truncate">
                                   {item.icon} {item.name}
                                 </div>
-                                <div className="text-[10px] text-emerald-400 font-bold mt-0.5 flex flex-wrap gap-x-1.5">
-                                  {item.bonusAttack ? <span>+{item.bonusAttack} Atq</span> : null}
-                                  {item.bonusDefense ? <span>+{item.bonusDefense} Def</span> : null}
-                                  {item.bonusHp ? <span>+{item.bonusHp} HP</span> : null}
-                                  {item.bonusMp ? <span>+{item.bonusMp} MP</span> : null}
-                                  {item.bonusSpeed ? <span>+{item.bonusSpeed} Vel</span> : null}
-                                </div>
+                                {renderItemTacticalBadges(item)}
                               </div>
                             ) : (
                               <div className="text-slate-600 text-[11px] italic mt-1">{placeholder}</div>
@@ -485,13 +619,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                               {item.description}
                             </p>
 
-                            <div className="text-[10px] text-emerald-400 font-bold mt-1.5 flex flex-wrap gap-x-1.5">
-                              {item.bonusAttack ? <span>+{item.bonusAttack} Atq</span> : null}
-                              {item.bonusDefense ? <span>+{item.bonusDefense} Def</span> : null}
-                              {item.bonusHp ? <span>+{item.bonusHp} HP</span> : null}
-                              {item.bonusMp ? <span>+{item.bonusMp} MP</span> : null}
-                              {item.bonusSpeed ? <span>+{item.bonusSpeed} Vel</span> : null}
-                            </div>
+                            {renderItemTacticalBadges(item)}
                           </div>
 
                           <div className="mt-2.5 flex items-center space-x-1.5 pt-2 border-t border-slate-800/80">
@@ -517,13 +645,51 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
             </div>
           )}
 
-          {/* TAB 2: CONSUMABLES */}
+          {/* TAB 2: CONSUMABLES & MATERIALS */}
           {activeTab === 'inventory' && (
             <div className="space-y-4">
+              {/* Materials & Resources */}
+              <div className="bg-slate-950 p-4 rounded-xl border border-amber-500/30 shadow-lg">
+                <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2.5 flex items-center space-x-2">
+                  <span>🪵</span>
+                  <span>Materiales de Recolección & Crafteo</span>
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div className="p-2 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xl">🪵</span>
+                      <span className="font-bold text-amber-200">Madera</span>
+                    </div>
+                    <span className="font-bold text-amber-400">{(player.resources?.wood || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xl">🪨</span>
+                      <span className="font-bold text-slate-200">Hierro</span>
+                    </div>
+                    <span className="font-bold text-slate-400">{(player.resources?.stone || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xl">🥕</span>
+                      <span className="font-bold text-orange-200">Cosechas</span>
+                    </div>
+                    <span className="font-bold text-orange-400">{(player.resources?.crops || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xl">💎</span>
+                      <span className="font-bold text-cyan-200">Gemas</span>
+                    </div>
+                    <span className="font-bold text-cyan-400">{(player.resources?.gems || 0).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-lg">
                 <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3 flex items-center space-x-2">
                   <span>🧪</span>
-                  <span>Pociones y Elixires Mágicos</span>
+                  <span>Pociones, Pergaminos y Consumibles</span>
                 </h3>
 
                 {inventory.consumables.length === 0 ? (
@@ -645,13 +811,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                           {item.description}
                         </p>
 
-                        <div className="text-[10px] text-emerald-400 font-bold mt-1.5 flex flex-wrap gap-x-1.5">
-                          {item.bonusAttack ? <span>+{item.bonusAttack} Atq</span> : null}
-                          {item.bonusDefense ? <span>+{item.bonusDefense} Def</span> : null}
-                          {item.bonusHp ? <span>+{item.bonusHp} HP</span> : null}
-                          {item.bonusMp ? <span>+{item.bonusMp} MP</span> : null}
-                          {item.bonusSpeed ? <span>+{item.bonusSpeed} Vel</span> : null}
-                        </div>
+                        {renderItemTacticalBadges(item)}
                       </div>
 
                       <div className="mt-2.5 flex items-center justify-between pt-2 border-t border-slate-800/80">

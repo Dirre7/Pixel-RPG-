@@ -27,6 +27,7 @@ interface NPCDialogModalProps {
   onAcceptQuest?: (questId: string) => void;
   onClose: () => void;
   onClaimReward: (questId: string, gold: number, exp: number) => void;
+  onOpenForge?: () => void;
 }
 
 export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
@@ -40,6 +41,7 @@ export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
   onAcceptQuest,
   onClose,
   onClaimReward,
+  onOpenForge,
 }) => {
   const [dialogPageIndex, setDialogPageIndex] = useState(0);
 
@@ -281,7 +283,20 @@ export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 bg-slate-950 border-t border-slate-800 flex justify-end">
+        <div className="px-6 py-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between">
+          {npc.avatarStyle === 'blacksmith' && onOpenForge ? (
+            <button
+              onClick={() => {
+                soundEngine.playSfx('select');
+                onClose();
+                onOpenForge();
+              }}
+              className="px-4 py-2 text-xs sm:text-sm bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-amber-100 font-bold rounded-xl border border-amber-400 shadow-lg flex items-center gap-1.5 active:scale-95 transition"
+            >
+              <span>🔨 Abrir Forja de Armas</span>
+            </button>
+          ) : <div />}
+
           <button
             onClick={() => {
               soundEngine.playSfx('select');
@@ -289,7 +304,7 @@ export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
             }}
             className="px-5 py-2 text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-medium transition"
           >
-            Continuar Viaje
+            Cerrar
           </button>
         </div>
       </div>

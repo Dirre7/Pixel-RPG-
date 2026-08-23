@@ -7,8 +7,12 @@ import { NPCDialogModal } from './NPCDialogModal';
 import { Minimap } from './Minimap';
 import { QuestLogModal } from './QuestLogModal';
 import { ChestLootModal, ChestLoot } from './ChestLootModal';
+import { TopResourceBar } from './TopResourceBar';
+import { BottomActionBar } from './BottomActionBar';
+import { ForgeModal } from './ForgeModal';
 import { soundEngine } from '../utils/soundEngine';
 import { useGamepadControls, ControllerAction } from '../utils/gamepadManager';
+import { EquipmentItem } from '../types';
 import {
   ShoppingBag,
   HeartPulse,
@@ -53,6 +57,8 @@ interface OverworldMapProps {
   onClaimQuestReward: (questId: string, gold: number, exp: number) => void;
   onChangeZone: (zoneId: string) => void;
   onAutoSave: () => void;
+  onEquipItem?: (item: EquipmentItem) => void;
+  onUseConsumable?: (consumableId: string) => void;
   exploredTilesByZone?: Record<string, string[]>;
   onUpdateExploredTiles?: (zoneId: string, tiles: string[]) => void;
 }
@@ -84,6 +90,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   onClaimQuestReward,
   onChangeZone,
   onAutoSave,
+  onEquipItem,
+  onUseConsumable,
   exploredTilesByZone: initialExploredByZone = {},
   onUpdateExploredTiles,
 }) => {
@@ -93,6 +101,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   const [selectedNpc, setSelectedNpc] = useState<NPC | null>(null);
   const [isQuestLogOpen, setIsQuestLogOpen] = useState(false);
   const [showMinimap, setShowMinimap] = useState(true);
+  const [showForgeModal, setShowForgeModal] = useState(false);
   const [activeChestLoot, setActiveChestLoot] = useState<ChestLoot | null>(null);
 
   // Initialize Sets from saved string arrays
@@ -351,7 +360,10 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       if (!openedChests.includes(chestId)) {
         soundEngine.playSfx('gold');
         onOpenChest(chestId);
-        showToast('🌾 ¡Molino de Viento! Has recolectado harina y provisiones.');
+        if (player.resources) player.resources.crops = (player.resources.crops || 0) + 30;
+        showToast('🌾 ¡Molino de Viento! Has recolectado +30 Cosechas y Trigo.');
+      } else {
+        showToast('🌾 El molino está moliendo grano para la siguiente cosecha.');
       }
     } else if (tile === 7) {
       if (!openedChests.includes(chestId)) {
@@ -360,20 +372,40 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         if (loot) {
           setActiveChestLoot(loot);
         }
+        if (player.resources) {
+          player.resources.stone = (player.resources.stone || 0) + 15;
+          player.resources.gems = (player.resources.gems || 0) + 5;
+        }
       }
     } else if (tile === 8) {
       if (!openedChests.includes(chestId)) {
         soundEngine.playSfx('level_up');
         onOpenChest(chestId);
         onHealAtInn();
-        showToast('🏛️ ¡Meditación en el santuario! HP y MP Restaurados al 100%.');
+        if (player.resources) player.resources.gems = (player.resources.gems || 0) + 10;
+        showToast('🏛️ ¡Meditación en el santuario! +10 Gemas Arcanas y HP/MP Restaurados.');
+      } else {
+        onHealAtInn();
+        showToast('🏛️ La paz del santuario restaura tu energía vital.');
       }
     } else if (tile === 9) {
       soundEngine.playSfx('select');
       onOpenShop();
     } else if (tile === 10) {
       soundEngine.playSfx('select');
-      onOpenShop();
+      setShowForgeModal(true);
+    } else if (tile === 13) {
+      soundEngine.playSfx('select');
+      if (player.resources) player.resources.crops = (player.resources.crops || 0) + 15;
+      showToast('🥕 ¡Has cosechado hortalizas y provisiones! +15 Cosechas añadidas.');
+    } else if (tile === 14) {
+      soundEngine.playSfx('select');
+      if (player.resources) player.resources.wood = (player.resources.wood || 0) + 20;
+      showToast('🪵 ¡Has talado y recogido leña de roble! +20 Madera añadida.');
+    } else if (tile === 18) {
+      soundEngine.playSfx('select');
+      if (player.resources) player.resources.stone = (player.resources.stone || 0) + 20;
+      showToast('🪨 ¡Has picado mineral en la cantera! +20 Mineral de Hierro añadido.');
     } else if (tile === 11) {
       if (isBossDefeatedInZone) {
         // Open zone selector
@@ -414,14 +446,20 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
     const targetTile = currentZone.tileData[newY]?.[newX];
 
-    // Block collision (1: Trees, 3: Water, 4: Fountain, 5: Houses, 6: Windmill, 8: Shrine, 9: Stalls, 10: Forge, 15: Fences, 18: Pillars, 21: Hedges, 22..34: Guilds/Towers/Castles)
-    const isDirectSolid = [1, 3, 4, 5, 6, 8, 9, 10, 15, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34].includes(targetTile);
+    // Block collision (1: Trees, 3: Deep Water, 4: Fountain/Well, 5: Houses, 6: Windmill, 7: Chests, 8: Shrine, 9: Market Stalls, 10: Stone Forge, 12: Bushes/Rose parterres, 14: Wooden Fences, 16: Gravestones, 17: Lamps, 18: Anvil/Workbench/Pillars, 19: Braziers, 21: Hedges)
+    const isDirectSolid = [1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34].includes(targetTile);
 
-    // Verificar si el jugador intenta entrar en el volumen 2x2 de una casa (tile 5)
+    // Bancos de madera en las 4 esquinas de la plaza central
+    const isPlazaBench = currentZone.id === 'zone_forest' && [
+      '26,28', '34,28', '26,32', '34,32'
+    ].includes(`${newX},${newY}`);
+
+    // Verificar si el jugador intenta entrar en el volumen 2x2 de una casa (tile 5, 6, 10)
     let isInsideHouseVolume = false;
     for (let hy = newY; hy <= newY + 1; hy++) {
       for (let hx = newX - 1; hx <= newX; hx++) {
-        if (currentZone.tileData[hy]?.[hx] === 5) {
+        const t = currentZone.tileData[hy]?.[hx];
+        if (t === 5 || t === 6 || t === 10) {
           isInsideHouseVolume = true;
           break;
         }
@@ -429,7 +467,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       if (isInsideHouseVolume) break;
     }
 
-    if (isDirectSolid || isInsideHouseVolume) {
+    if (isDirectSolid || isInsideHouseVolume || isPlazaBench) {
       soundEngine.playSfx('error');
       return;
     }
@@ -449,20 +487,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     }
 
     // COMBAT ENCOUNTERS IN THE WILD:
-    // 1. Roads, paved avenues, bridges and docks (tile 2, 15) are 100% SAFE (0% encounters).
-    // 2. All POIs, shops, forges, shrines, wells, lanterns (tile 4..11, 16..19) are 100% SAFE.
-    // 3. All town perimeters (within 18 tiles of town centers) are 100% SAFE.
+    // 1. Roads, paved avenues, bridges (tile 2, 15) are 100% SAFE.
+    // 2. All POIs, shops, forges, shrines, wells (tile 4..11, 16..19) are 100% SAFE.
+    // 3. Inside the 150-building Citadel (radius 17 from center 30,30) is 100% peaceful.
+    // 4. Outside in the 4 wild grasslands (targetTile === 0), monster combat begins!
     const isPavedRoad = targetTile === 2 || targetTile === 15;
     const isSpecialPoi = [4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19].includes(targetTile);
-    const townCenters = [
-      { x: 100, y: 100 },
-      { x: 300, y: 100 },
-      { x: 100, y: 265 },
-      { x: 200, y: 200 }
-    ];
-    const isInsideTown = townCenters.some(
-      (tc) => Math.abs(newX - tc.x) <= 18 && Math.abs(newY - tc.y) <= 18
-    );
+    const isInsideTown = currentZone.id === 'zone_forest' && (Math.abs(newX - 30) <= 17 && Math.abs(newY - 30) <= 17);
 
     const isSafeZone = isPavedRoad || isSpecialPoi || isInsideTown;
 
@@ -785,7 +816,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
       {/* Overworld Map Grid View - 3D WebGL MOBA Engine */}
       <div
-        className="relative flex-1 min-h-0 w-full my-0.5 sm:my-1 bg-slate-900 border-2 border-slate-700 rounded-xl shadow-inner overflow-hidden flex flex-col justify-center touch-none select-none"
+        className="relative flex-1 min-h-0 w-full my-0.5 sm:my-1 bg-slate-900 border-2 border-slate-700 rounded-xl shadow-inner overflow-hidden touch-none select-none"
         style={{ touchAction: 'none' }}
         onTouchStart={handleTouchStart}
         onTouchMove={(e) => {
@@ -806,8 +837,19 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           onInteract={handleInteract}
         />
 
+        <TopResourceBar
+          player={player}
+          currentZone={currentZone}
+          acceptedQuests={acceptedQuests}
+          completedQuests={completedQuests}
+          onOpenQuests={() => {
+            soundEngine.playSfx('select');
+            setIsQuestLogOpen(true);
+          }}
+        />
+
         {/* Floating Minimap Overlay in Top-Right Corner (Collapsible for Mobile) */}
-        <div className="absolute top-2 right-2 z-20 pointer-events-auto flex flex-col items-end">
+        <div className="absolute top-10 right-2 z-20 pointer-events-auto flex flex-col items-end">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -945,21 +987,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           </div>
         </div>
 
-        {/* Floating Quick Action Buttons on Bottom-Right */}
+        {/* Action Button on Bottom-Right */}
         <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 z-20 flex items-center gap-2 pointer-events-auto select-none" style={{ touchAction: 'none' }}>
-          <button
-            onClick={() => {
-              soundEngine.playSfx('select');
-              setIsQuestLogOpen(true);
-            }}
-            className="px-2.5 py-2 bg-slate-900/90 active:bg-amber-600 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-xl border border-amber-500/60 shadow-xl flex items-center space-x-1 font-bold text-xs font-mono backdrop-blur-sm transition select-none"
-            style={{ touchAction: 'none' }}
-            title="Abrir Diario de Misiones"
-          >
-            <Scroll className="w-3.5 h-3.5 text-amber-400" />
-            <span>Misiones</span>
-          </button>
-
           <button
             onPointerDown={(e) => {
               e.preventDefault();
@@ -976,54 +1005,49 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
         {/* Interactive Banner Toast / Prompt - Placed at Top for Maximum Visibility */}
         {interactPrompt && (
-          <div className="absolute top-2 sm:top-3 left-1/2 transform -translate-x-1/2 w-11/12 max-w-sm sm:max-w-md bg-slate-950/95 border-2 border-amber-400 rounded-xl p-2 sm:p-2.5 shadow-2xl backdrop-blur-md text-center text-xs sm:text-sm font-mono text-amber-300 animate-pulse z-30 pointer-events-none">
+          <div className="absolute top-12 sm:top-14 left-1/2 transform -translate-x-1/2 w-11/12 max-w-sm sm:max-w-md bg-slate-950/95 border-2 border-amber-400 rounded-xl p-2 sm:p-2.5 shadow-2xl backdrop-blur-md text-center text-xs sm:text-sm font-mono text-amber-300 animate-pulse z-30 pointer-events-none">
             {interactPrompt}
           </div>
         )}
 
         {/* Toast Notification */}
         {toastMessage && (
-          <div className="absolute top-12 sm:top-14 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-950 px-3 py-1.5 rounded-full font-mono font-bold text-xs shadow-2xl animate-fade-in z-40 pointer-events-none border border-amber-300">
+          <div className="absolute top-16 sm:top-20 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-950 px-3 py-1.5 rounded-full font-mono font-bold text-xs shadow-2xl animate-fade-in z-40 pointer-events-none border border-amber-300">
             {toastMessage}
           </div>
         )}
       </div>
 
-      {/* Navigation & Action Controls Bar */}
-      <div className="w-full grid grid-cols-3 gap-1.5 my-0.5 sm:my-1 flex-shrink-0">
-        <button
-          onClick={() => {
-            soundEngine.playSfx('select');
-            onOpenInventory();
-          }}
-          className="flex items-center justify-center space-x-1.5 py-1.5 sm:py-2 px-2 bg-slate-800 hover:bg-slate-700 active:scale-95 rounded-lg border border-slate-700 text-amber-300 font-mono text-xs font-bold transition touch-manipulation"
-        >
-          <Package className="w-3.5 h-3.5 text-amber-400" />
-          <span>Inventario</span>
-        </button>
+      {/* Pixel Tribe Bottom Action Bar & Hotbar */}
+      <BottomActionBar
+        player={player}
+        inventory={inventory}
+        onOpenInventory={onOpenInventory}
+        onOpenQuests={() => {
+          soundEngine.playSfx('select');
+          setIsQuestLogOpen(true);
+        }}
+        onOpenShop={onOpenShop}
+        onOpenSettings={onOpenSettings}
+        onTeleportToTown={() => {
+          onMove({ x: 30, y: 30 });
+        }}
+        onUseConsumable={(cId) => (onUseConsumable ? onUseConsumable(cId) : onHealAtInn())}
+        onShowToast={(msg) => showToast(msg)}
+      />
 
-        <button
-          onClick={() => {
-            soundEngine.playSfx('select');
-            setIsQuestLogOpen(true);
+      {/* Forge & Weapon Tree Modal */}
+      {showForgeModal && (
+        <ForgeModal
+          player={player}
+          inventory={inventory}
+          onClose={() => setShowForgeModal(false)}
+          onEquipItem={(item) => {
+            if (onEquipItem) onEquipItem(item);
           }}
-          className="flex items-center justify-center space-x-1.5 py-1.5 sm:py-2 px-2 bg-amber-950/80 hover:bg-amber-900/90 active:scale-95 rounded-lg border border-amber-600 text-amber-200 font-mono text-xs font-bold transition touch-manipulation"
-        >
-          <Scroll className="w-3.5 h-3.5 text-amber-400" />
-          <span>Misiones</span>
-        </button>
-
-        <button
-          onClick={() => {
-            soundEngine.playSfx('select');
-            onOpenShop();
-          }}
-          className="flex items-center justify-center space-x-1.5 py-1.5 sm:py-2 px-2 bg-slate-800 hover:bg-slate-700 active:scale-95 rounded-lg border border-slate-700 text-emerald-300 font-mono text-xs font-bold transition touch-manipulation"
-        >
-          <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Tienda</span>
-        </button>
-      </div>
+          onShowToast={(msg) => showToast(msg)}
+        />
+      )}
 
       {/* Chest Loot Reward Modal */}
       {activeChestLoot && (
@@ -1086,6 +1110,10 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                 : ` y 🧪 ${q.rewardItemName} (en Consumibles)`
               : '';
             showToast(`🎉 ¡Misión Entregada! +${gold} Oro, +${exp} EXP${itemSuffix}`);
+          }}
+          onOpenForge={() => {
+            setSelectedNpc(null);
+            setShowForgeModal(true);
           }}
         />
       )}

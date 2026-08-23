@@ -1,0 +1,42 @@
+[gd_resource type="TileSet" load_steps=3 format=3 uid="uid://ctileset001"]
+
+[ext_resource type="Texture2D" path="res://assets/pixel_crawler/Environment/Tilesets/Floors_Tiles.png" id="1_floors"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_floors"]
+texture = ExtResource("1_floors")
+texture_region_size = Vector2i(16, 16)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+7:0/0 = 0
+8:0/0 = 0
+9:0/0 = 0
+10:0/0 = 0
+11:0/0 = 0
+12:0/0 = 0
+13:0/0 = 0
+14:0/0 = 0
+1:9/0 = 0
+1:10/0 = 0
+6:9/0 = 0
+6:10/0 = 0
+11:9/0 = 0
+11:10/0 = 0
+16:1/0 = 0
+
+[resource]
+tile_size = Vector2i(16, 16)
+terrain_set_0/mode = 0
+terrain_set_0/terrain_0/name = "Grass"
+terrain_set_0/terrain_0/color = Color(0.3, 0.65, 0.2, 1)
+terrain_set_0/terrain_1/name = "Cobblestone"
+terrain_set_0/terrain_1/color = Color(0.6, 0.55, 0.5, 1)
+terrain_set_0/terrain_2/name = "Dirt"
+terrain_set_0/terrain_2/color = Color(0.55, 0.35, 0.2, 1)
+terrain_set_0/terrain_3/name = "CastleStone"
+terrain_set_0/terrain_3/color = Color(0.4, 0.4, 0.45, 1)
+sources/0 = SubResource("TileSetAtlasSource_floors")

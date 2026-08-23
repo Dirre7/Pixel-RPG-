@@ -1,0 +1,54 @@
+[gd_scene load_steps=8 format=3 uid="uid://cbonfire001"]
+
+[ext_resource type="Texture2D" path="res://assets/pixel_crawler/Environment/Structures/Stations/Bonfire/Bonfire_01-Sheet.png" id="1_bonfire"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bf0"]
+atlas = ExtResource("1_bonfire")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bf1"]
+atlas = ExtResource("1_bonfire")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bf2"]
+atlas = ExtResource("1_bonfire")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bf3"]
+atlas = ExtResource("1_bonfire")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bonfire"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bf0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bf1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bf2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bf3")
+}],
+"loop": true,
+"name": &"default",
+"speed": 8.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_col"]
+radius = 8.0
+
+[node name="Bonfire" type="StaticBody2D"]
+y_sort_enabled = true
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -8)
+sprite_frames = SubResource("SpriteFrames_bonfire")
+autoplay = "default"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -2)
+shape = SubResource("CircleShape2D_col")

@@ -1,0 +1,81 @@
+[gd_scene load_steps=10 format=3 uid="uid://cknight001"]
+
+[ext_resource type="Script" path="res://scripts/npcs/guard_knight.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/pixel_crawler/Entities/Npc's/Knight/Idle/Idle-Sheet.png" id="2_knight"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k0"]
+atlas = ExtResource("2_knight")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k1"]
+atlas = ExtResource("2_knight")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k2"]
+atlas = ExtResource("2_knight")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k3"]
+atlas = ExtResource("2_knight")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_knight"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k3")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 6.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_col"]
+radius = 6.0
+height = 14.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interact"]
+radius = 24.0
+
+[node name="GuardKnight" type="CharacterBody2D"]
+y_sort_enabled = true
+script = ExtResource("1_script")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -12)
+sprite_frames = SubResource("SpriteFrames_knight")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -2)
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_col")
+
+[node name="InteractionArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
+position = Vector2(0, -6)
+shape = SubResource("CircleShape2D_interact")
+
+[node name="InteractPrompt" type="Label" parent="."]
+visible = false
+offset_left = -20.0
+offset_top = -34.0
+offset_right = 20.0
+offset_bottom = -20.0
+theme_override_colors/font_color = Color(1, 0.9, 0.2, 1)
+text = "[E]"
+horizontal_alignment = 1
+
+[connection signal="body_entered" from="InteractionArea" to="." method="_on_interaction_area_body_entered"]
+[connection signal="body_exited" from="InteractionArea" to="." method="_on_interaction_area_body_exited"]
