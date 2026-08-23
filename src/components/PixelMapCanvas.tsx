@@ -264,7 +264,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           const drawPosY = y * TILE_SIZE;
 
           if (currentZone.id === 'zone_forest' && groundType === 3) {
-            // Río Cristalino Animado con Brillo de Olas y Nenúfares
+            // Río Cristalino Animado con Orillas y Espuma de Costa
             const wave = Math.sin(time * 2.5 + x * 0.6 + y * 0.4) * 0.15;
             ctx.fillStyle = '#0f2b5c';
             ctx.fillRect(drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
@@ -272,6 +272,34 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             ctx.fillRect(drawPosX, drawPosY + 4, TILE_SIZE, TILE_SIZE - 8);
             ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
             ctx.fillRect(drawPosX + 6 + (Math.sin(time * 3 + y) * 4), drawPosY + 8, 12, 2);
+
+            // Detección de Orilla (Shoreline) con el césped
+            const leftIsShore = x > 0 && currentZone.tileData[y]?.[x - 1] !== 3 && currentZone.tileData[y]?.[x - 1] !== 15;
+            const rightIsShore = x < currentZone.mapWidth - 1 && currentZone.tileData[y]?.[x + 1] !== 3 && currentZone.tileData[y]?.[x + 1] !== 15;
+
+            // Orilla Oeste (Ribera de tierra húmeda + espuma de agua)
+            if (leftIsShore) {
+              ctx.fillStyle = '#2d6318';
+              ctx.fillRect(drawPosX, drawPosY, 3, TILE_SIZE);
+              ctx.fillStyle = '#1e3a8a';
+              ctx.fillRect(drawPosX + 3, drawPosY, 2, TILE_SIZE);
+              // Espuma blanca de oleaje
+              const foamWave = Math.sin(time * 3 + y * 0.8) * 1.5;
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+              ctx.fillRect(drawPosX + 4 + foamWave, drawPosY + 2, 2, TILE_SIZE - 4);
+            }
+
+            // Orilla Este
+            if (rightIsShore) {
+              ctx.fillStyle = '#2d6318';
+              ctx.fillRect(drawPosX + TILE_SIZE - 3, drawPosY, 3, TILE_SIZE);
+              ctx.fillStyle = '#1e3a8a';
+              ctx.fillRect(drawPosX + TILE_SIZE - 5, drawPosY, 2, TILE_SIZE);
+              // Espuma blanca de oleaje
+              const foamWave = Math.cos(time * 3 + y * 0.8) * 1.5;
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+              ctx.fillRect(drawPosX + TILE_SIZE - 6 - foamWave, drawPosY + 2, 2, TILE_SIZE - 4);
+            }
 
             // Nenúfares con flores flotantes
             if ((x * 7 + y * 13) % 6 === 0) {
@@ -297,19 +325,62 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             ctx.fillStyle = '#b45309';
             ctx.fillRect(drawPosX + 2, drawPosY, 2, TILE_SIZE);
             ctx.fillRect(drawPosX + TILE_SIZE - 4, drawPosY, 2, TILE_SIZE);
-          } else if (currentZone.id === 'zone_forest' && groundType === 13 && gameAssets.farmLand.complete && gameAssets.farmLand.naturalWidth > 0) {
-            // Tierra de cultivo fértil
-            ctx.drawImage(gameAssets.farmLand, 16, 16, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+          } else if (currentZone.id === 'zone_forest' && groundType === 13) {
+            // Tierra fértil de arado marrón oscuro (sin caja naranja)
+            const farmCanvas = getTileCanvas(13, currentZone.id, (x * 3 + y * 7) % 4);
+            ctx.drawImage(farmCanvas, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
           } else if (hasFloorTiles) {
             if (currentZone.id === 'zone_forest') {
               if (groundType === 2) {
-                const inTown = x >= 14 && x <= 48 && y >= 14 && y <= 48;
-                if (inTown) {
-                  // Adoquines auténticos de Pixel Crawler Floors_Tiles (96, 160)
-                  ctx.drawImage(gameAssets.floorTiles, 96, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
-                } else {
-                  // Tierra batida auténtica de Pixel Crawler Floors_Tiles (176, 160)
-                  ctx.drawImage(gameAssets.floorTiles, 176, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+                // Adoquines auténticos continuos de Pixel Crawler Floors_Tiles (96, 160)
+                ctx.drawImage(gameAssets.floorTiles, 96, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+
+                // Suavizado orgánico de bordes con césped (Autotiling natural)
+                const topTile = y > 0 ? currentZone.tileData[y - 1]?.[x] : 0;
+                const bottomTile = y < currentZone.mapHeight - 1 ? currentZone.tileData[y + 1]?.[x] : 0;
+                const leftTile = x > 0 ? currentZone.tileData[y]?.[x - 1] : 0;
+                const rightTile = x < currentZone.mapWidth - 1 ? currentZone.tileData[y]?.[x + 1] : 0;
+
+                const isGrassOrWild = (t: number | undefined) => t === 0 || t === 1 || t === 12;
+
+                // Borde Superior: briznas de hierba verde y sombra sutil
+                if (isGrassOrWild(topTile)) {
+                  ctx.fillStyle = 'rgba(45, 99, 24, 0.35)';
+                  ctx.fillRect(drawPosX, drawPosY, TILE_SIZE, 2);
+                  ctx.fillStyle = '#4a9b2b';
+                  for (let bx = 0; bx < TILE_SIZE; bx += 4) {
+                    const grassH = ((x * 13 + bx) % 3) + 2;
+                    ctx.fillRect(drawPosX + bx, drawPosY, 2, grassH);
+                  }
+                }
+
+                // Borde Inferior: briznas de hierba verde
+                if (isGrassOrWild(bottomTile)) {
+                  ctx.fillStyle = '#4a9b2b';
+                  for (let bx = 0; bx < TILE_SIZE; bx += 4) {
+                    const grassH = ((x * 17 + bx) % 3) + 2;
+                    ctx.fillRect(drawPosX + bx, drawPosY + TILE_SIZE - grassH, 2, grassH);
+                  }
+                }
+
+                // Borde Izquierdo
+                if (isGrassOrWild(leftTile)) {
+                  ctx.fillStyle = 'rgba(45, 99, 24, 0.3)';
+                  ctx.fillRect(drawPosX, drawPosY, 2, TILE_SIZE);
+                  ctx.fillStyle = '#4a9b2b';
+                  for (let by = 0; by < TILE_SIZE; by += 4) {
+                    const grassW = ((y * 11 + by) % 3) + 2;
+                    ctx.fillRect(drawPosX, drawPosY + by, grassW, 2);
+                  }
+                }
+
+                // Borde Derecho
+                if (isGrassOrWild(rightTile)) {
+                  ctx.fillStyle = '#4a9b2b';
+                  for (let by = 0; by < TILE_SIZE; by += 4) {
+                    const grassW = ((y * 19 + by) % 3) + 2;
+                    ctx.fillRect(drawPosX + TILE_SIZE - grassW, drawPosY + by, grassW, 2);
+                  }
                 }
               } else if (groundType === 0) {
                 // Césped con textura auténtica

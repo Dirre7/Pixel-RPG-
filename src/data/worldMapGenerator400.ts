@@ -49,13 +49,11 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
     }
   }
 
-  // 2. Río Fluvial Exterior (Fluye por el bosque este en X: 52..54 sin tocar la aldea)
+  // 2. Río Fluvial Exterior (Fluye por el bosque este en X: 52..54 de forma limpia)
   for (let y = 3; y <= 56; y++) {
-    const rx = Math.round(53 + Math.sin(y * 0.15) * 1.5);
-    if (rx >= 50 && rx <= 56) {
-      map[y][rx] = 3;
-      map[y][rx + 1] = 3;
-    }
+    map[y][52] = 3;
+    map[y][53] = 3;
+    map[y][54] = 3;
   }
   // Puente hacia la Arboleda Secreta Este
   map[30][52] = 15; map[30][53] = 15; map[30][54] = 15;
