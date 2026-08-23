@@ -116,13 +116,41 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[20][43] = 1;  // Robles nobles dentro del césped
   map[22][44] = 1;
 
-  // 9. CUADRANTE SUROESTE (Distrito Sagrado, Molino de Viento & Ermita)
+  // 9. CUADRANTE SUROESTE (Distrito Sagrado, Molino, Camposanto & Arboleda)
   map[34][22] = 6;  // 🌾 Molino de Viento Tradicional con Aspas Animadas
   map[34][17] = 5;  // 🏡 Cabaña del Molinero
-  map[38][18] = 5;  // Ermita del Clérigo
-  map[44][18] = 8;  // Santuario Sagrado de Piedra
-  map[44][16] = 17; map[44][20] = 17; // Farolas del altar
-  map[44][22] = 7;  // Cofre de Reliquias
+  map[38][18] = 5;  // ⛪ Ermita del Clérigo
+
+  // Plazoleta Monumental del Santuario Sagrado (Tile 8)
+  map[43][18] = 2; map[44][17] = 2; map[44][18] = 8; map[44][19] = 2; map[45][18] = 2;
+  map[43][16] = 17; map[43][20] = 17; // Farolas de luz cálida
+  map[45][16] = 17; map[45][20] = 17;
+  map[42][16] = 18; map[42][20] = 18; // Columnas clásicas de mármol con hiedra
+  map[44][15] = 12; map[44][21] = 12; // Parterres de rosas sagradas
+  map[45][22] = 7;  // Cofre de Reliquias Sagradas
+
+  // Camposanto Histórico Cercado (Al Oeste del Santuario)
+  map[42][10] = 14; map[42][11] = 14; map[42][12] = 14; map[42][13] = 14;
+  map[47][10] = 14; map[47][11] = 14; map[47][12] = 14; map[47][13] = 14;
+  map[43][9] = 14; map[44][9] = 14; map[45][9] = 14; map[46][9] = 14;
+  map[44][14] = 2;  // Camino de entrada al camposanto
+  map[43][14] = 17; // Farol del cementerio
+  map[43][11] = 20; map[43][13] = 20; // Lápidas góticas antiguas
+  map[45][11] = 20; map[45][13] = 20;
+  map[46][11] = 20; map[46][13] = 20;
+  map[44][11] = 7;  // Cofre Secreto de los Antiguos
+
+  // Campamento Ermitaño & Arboleda Sagrada de Robles
+  map[50][18] = 19; // Hoguera mística ardiendo con brasas
+  map[50][16] = 12; // Banco de meditación
+
+  // Arboleda de robles centenarios poblando la llanura suroeste
+  map[34][9] = 1; map[38][9] = 1; map[34][13] = 1; map[38][13] = 1;
+  map[48][8] = 1; map[51][8] = 1; map[54][8] = 1;
+  map[48][14] = 1; map[53][13] = 1;
+  map[53][18] = 1; map[53][22] = 1;
+  map[49][24] = 1; map[53][26] = 1;
+  map[46][26] = 1; map[42][26] = 1;
 
   // 10. CUADRANTE SURESTE (Cabaña del Guardián & Granja Municipal)
   map[34][36] = 5;  // 🏠 Cabaña del Guardián de la Granja
