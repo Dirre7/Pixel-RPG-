@@ -106,15 +106,46 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[26][17] = 9; map[28][17] = 9; // Puestos lado oeste
   map[26][23] = 9; map[28][23] = 9; // Puestos lado este
 
-  // 8. CUADRANTE NORESTE (Distrito Residencial & Administrativo)
+  // 8. CUADRANTE NORESTE (Distrito Residencial, Aserradero, Cantera & Huerto de la Boticaria)
+  // Red de calles del sector norte
+  for (let x = 30; x <= 50; x++) map[10][x] = 2; // Calle del Aserradero y la Cantera
+  for (let y = 5; y <= 15; y++) map[y][41] = 2;  // Avenida del Este
+  map[10][36] = 17; map[10][46] = 17; // Farolas de la encrucijada
+
+  // Aserradero y Pila de Madera del Bosque Norte (X: 34..40, Y: 5..9) -> Recolección de Madera 🪵
+  map[6][36] = 14; map[6][38] = 14; // Pilas de leña
+  map[8][36] = 14; map[8][38] = 14;
+  map[9][35] = 5;   // 🏠 Cabaña del Maestro Leñador
+  map[8][34] = 17;  // Farola del aserradero
+
+  // Cantera de Minerales y Bloques de Cantería (X: 43..49, Y: 5..9) -> Recolección de Hierro y Piedra 🪨
+  map[5][44] = 14; map[5][45] = 14; map[5][46] = 14; map[5][47] = 14; // Valla de cantera
+  map[6][45] = 18; map[8][45] = 18; // Vetas de mineral y rocas de cantería
+  map[7][47] = 18; map[8][48] = 18;
+  map[9][42] = 5;   // 🏠 Cabaña del Maestro Cantero
+  map[6][43] = 17;  // Farola minera
+
+  // Huerto Silvestre y Plantación de Hierbas Medicinales (X: 43..49, Y: 11..14) -> Recolección de Cosechas 🥕
+  map[12][45] = 13; map[12][47] = 13; // Bancales de cultivo fértiles
+  map[13][45] = 13; map[13][47] = 13;
+  map[12][43] = 17; // Farola de la plantación
+
+  // Zona Residencial & Administrativa Central
   map[16][38] = 31; // Casa Consistorial / Ayuntamiento
   map[16][42] = 5;  // Casa Residencial Noreste
   map[22][38] = 27; // Botica de Pociones
   map[22][42] = 5;  // Casa de la Boticaria
   map[26][38] = 5;  // Mansión Residencial "Los Álamos"
   map[26][42] = 5;  // Casa Señorial
-  map[20][43] = 1;  // Robles nobles dentro del césped
-  map[22][44] = 1;
+
+  // Arboleda de Robles Nobles en los claros noreste
+  map[4][34] = 1; map[4][38] = 1; map[4][44] = 1; map[4][48] = 1;
+  map[6][50] = 1; map[8][50] = 1; map[12][50] = 1; map[14][50] = 1;
+  map[14][34] = 1; map[14][48] = 1;
+  map[20][43] = 1; map[22][44] = 1;
+
+  // Cofre del Claro Noreste
+  map[5][49] = 7; // Cofre escondido en la arboleda ribereña
 
   // 9. CUADRANTE SUROESTE (Distrito Sagrado, Molino, Camposanto & Arboleda)
   map[34][22] = 6;  // 🌾 Molino de Viento Tradicional con Aspas Animadas
