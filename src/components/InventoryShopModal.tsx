@@ -224,19 +224,19 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
   const filteredOwnedEquipment = inventory.ownedEquipment.filter((item) => filterSlot === 'all' || item.slot === filterSlot);
 
   const renderItemTacticalBadges = (item: EquipmentItem) => (
-    <div className="text-[10px] text-emerald-400 font-bold mt-1 flex flex-wrap gap-x-1.5 gap-y-0.5">
-      {item.bonusAttack ? <span>+{item.bonusAttack} Atq</span> : null}
-      {item.bonusDefense ? <span>+{item.bonusDefense} Def</span> : null}
-      {item.bonusHp ? <span>+{item.bonusHp} HP</span> : null}
-      {item.bonusMp ? <span>+{item.bonusMp} MP</span> : null}
-      {item.bonusSpeed ? <span>+{item.bonusSpeed} Vel</span> : null}
-      {item.bonusAccuracy ? <span className="text-amber-300">+{item.bonusAccuracy}% Prec</span> : null}
-      {item.bonusEvasion ? <span className="text-cyan-300">+{item.bonusEvasion}% Eva</span> : null}
-      {item.bonusCritRate ? <span className="text-yellow-400">+{item.bonusCritRate}% Crít</span> : null}
-      {item.bonusCritDamage ? <span className="text-orange-400">+{item.bonusCritDamage}% Dño Crít</span> : null}
-      {item.bonusBlockRate ? <span className="text-blue-300">+{item.bonusBlockRate}% Bloqueo</span> : null}
-      {item.bonusLifesteal ? <span className="text-rose-400">+{item.bonusLifesteal}% Robo Vida</span> : null}
-      {item.bonusMpRegen ? <span className="text-sky-300">+{item.bonusMpRegen} MP/turno</span> : null}
+    <div className="text-[10px] font-bold mt-1.5 flex flex-wrap gap-1">
+      {item.bonusAttack ? <span className="bg-amber-950/60 text-amber-300 border border-amber-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">⚔️ +{item.bonusAttack} Atq</span> : null}
+      {item.bonusDefense ? <span className="bg-blue-950/60 text-blue-300 border border-blue-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🛡️ +{item.bonusDefense} Def</span> : null}
+      {item.bonusHp ? <span className="bg-rose-950/60 text-rose-300 border border-rose-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">❤️ +{item.bonusHp} HP</span> : null}
+      {item.bonusMp ? <span className="bg-sky-950/60 text-sky-300 border border-sky-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">💧 +{item.bonusMp} MP</span> : null}
+      {item.bonusSpeed ? <span className="bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🌀 +{item.bonusSpeed} Vel</span> : null}
+      {item.bonusAccuracy ? <span className="bg-amber-900/40 text-amber-200 border border-amber-700/50 px-1.5 py-0.5 rounded flex items-center gap-0.5">🎯 +{item.bonusAccuracy}% Prec</span> : null}
+      {item.bonusEvasion ? <span className="bg-cyan-950/60 text-cyan-300 border border-cyan-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">💨 +{item.bonusEvasion}% Eva</span> : null}
+      {item.bonusCritRate ? <span className="bg-yellow-950/60 text-yellow-300 border border-yellow-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">💥 +{item.bonusCritRate}% Crít</span> : null}
+      {item.bonusCritDamage ? <span className="bg-orange-950/60 text-orange-300 border border-orange-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">⚡ +{item.bonusCritDamage}% Dño Crít</span> : null}
+      {item.bonusBlockRate ? <span className="bg-indigo-950/60 text-indigo-300 border border-indigo-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🛡️ +{item.bonusBlockRate}% Bloqueo</span> : null}
+      {item.bonusLifesteal ? <span className="bg-red-950/70 text-red-300 border border-red-800/70 px-1.5 py-0.5 rounded flex items-center gap-0.5">🩸 +{item.bonusLifesteal}% Robo</span> : null}
+      {item.bonusMpRegen ? <span className="bg-teal-950/60 text-teal-300 border border-teal-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">✨ +{item.bonusMpRegen} MP/t</span> : null}
     </div>
   );
 
@@ -505,34 +505,56 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
 
               {/* MAIN CONTENT: 7 EQUIPPED SLOTS & INVENTORY */}
               <div className="lg:col-span-7 space-y-4">
-                {/* 7 EQUIPPED SLOTS */}
-                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 shadow-lg">
-                  <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2.5 flex items-center space-x-1.5">
-                    <span>⚔️</span>
-                    <span>Ranuras de Equipamiento (7/7)</span>
-                  </h3>
+                {/* PAPER DOLL 7 EQUIPPED SLOTS */}
+                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 shadow-xl space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                    <h3 className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center space-x-1.5">
+                      <span>⚔️</span>
+                      <span>Equipo Activo del Héroe (7 Ranuras)</span>
+                    </h3>
+                    <span className="text-[10px] text-slate-400 font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                      {Object.values(inventory.equipment).filter(Boolean).length}/7 Equipados
+                    </span>
+                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {SLOT_CONFIG.map(({ key, label, icon, placeholder }) => {
-                      const item = inventory.equipment[key];
+                  {/* Slot Card Renderer Helper */}
+                  {(() => {
+                    const renderSlotItemCard = (slotKey: EquipmentSlot) => {
+                      const config = SLOT_CONFIG.find((s) => s.key === slotKey);
+                      if (!config) return null;
+                      const item = inventory.equipment[slotKey];
+
                       return (
                         <div
-                          key={key}
-                          className={`p-2 rounded-lg border text-xs flex flex-col justify-between min-h-[75px] transition ${
+                          key={slotKey}
+                          className={`p-2 rounded-lg border text-xs flex items-start space-x-2.5 transition relative ${
                             item
-                              ? 'bg-slate-900/90 border-amber-500/30'
-                              : 'bg-slate-900/40 border-slate-800/80 border-dashed'
+                              ? 'bg-slate-900/95 border-amber-500/30 hover:border-amber-400/60 shadow-sm'
+                              : 'bg-slate-900/40 border-slate-800/80 border-dashed hover:border-slate-700'
                           }`}
                         >
-                          <div>
-                            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-1 flex items-center justify-between">
-                              <span>
-                                {icon} {label}
+                          {/* Slot Icon Frame */}
+                          <div
+                            className={`w-9 h-9 rounded-lg flex-shrink-0 flex items-center justify-center text-lg border transition ${
+                              item
+                                ? 'bg-gradient-to-br from-slate-800 to-slate-950 border-amber-400/50 shadow-inner'
+                                : 'bg-slate-950/80 border-slate-800 text-slate-600'
+                            }`}
+                          >
+                            {item ? item.icon : config.icon}
+                          </div>
+
+                          {/* Item Details */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                                {config.label}
                               </span>
                               {item && (
                                 <button
-                                  onClick={() => handleUnequip(key)}
-                                  className="text-[9px] text-rose-400 hover:text-rose-300 bg-rose-950/60 hover:bg-rose-900/80 px-1.5 py-0.5 rounded border border-rose-800/60 transition"
+                                  onClick={() => handleUnequip(slotKey)}
+                                  title={`Desequipar ${item.name}`}
+                                  className="text-[9px] text-rose-400 hover:text-rose-200 bg-rose-950/60 hover:bg-rose-900/80 px-1.5 py-0.5 rounded border border-rose-800/60 transition font-bold"
                                 >
                                   Desequipar
                                 </button>
@@ -541,19 +563,68 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
 
                             {item ? (
                               <div>
-                                <div className="font-bold text-amber-300 text-xs truncate">
-                                  {item.icon} {item.name}
+                                <div className="font-black text-amber-300 text-xs leading-snug mt-0.5" title={item.name}>
+                                  {item.name}
                                 </div>
                                 {renderItemTacticalBadges(item)}
                               </div>
                             ) : (
-                              <div className="text-slate-600 text-[11px] italic mt-1">{placeholder}</div>
+                              <div className="text-slate-600 text-[10px] italic mt-0.5">{config.placeholder}</div>
                             )}
                           </div>
                         </div>
                       );
-                    })}
-                  </div>
+                    };
+
+                    return (
+                      <div className="space-y-2.5">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-stretch">
+                          {/* Columna Izquierda (Ataque y Accesorios) */}
+                          <div className="md:col-span-5 space-y-2 flex flex-col justify-between">
+                            {renderSlotItemCard('weapon')}
+                            {renderSlotItemCard('helmet')}
+                            {renderSlotItemCard('ring')}
+                          </div>
+
+                          {/* Centro: Pedestal del Héroe / Paper Doll */}
+                          <div className="md:col-span-2 hidden md:flex flex-col items-center justify-center p-2.5 bg-gradient-to-b from-slate-900/90 to-slate-950 rounded-xl border border-slate-800 shadow-inner relative overflow-hidden">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 via-slate-800 to-slate-900 border-2 border-amber-400/40 flex items-center justify-center text-3xl shadow-lg relative z-10 animate-pulse">
+                              {player.heroClass === 'Guerrero'
+                                ? '⚔️'
+                                : player.heroClass === 'Mago'
+                                ? '🔮'
+                                : player.heroClass === 'Pícaro'
+                                ? '🗡️'
+                                : player.heroClass === 'Paladín'
+                                ? '🛡️'
+                                : player.heroClass === 'Nigromante'
+                                ? '💀'
+                                : player.heroClass === 'Arquero'
+                                ? '🏹'
+                                : '🪓'}
+                            </div>
+
+                            <div className="text-center mt-2 relative z-10">
+                              <div className="text-[11px] font-black text-amber-300 truncate max-w-[80px]">{player.name}</div>
+                              <div className="text-[9px] text-slate-400 font-bold">Nv.{player.level}</div>
+                            </div>
+                          </div>
+
+                          {/* Columna Derecha (Defensa y Armadura) */}
+                          <div className="md:col-span-5 space-y-2 flex flex-col justify-between">
+                            {renderSlotItemCard('shield')}
+                            {renderSlotItemCard('armor')}
+                            {renderSlotItemCard('boots')}
+                          </div>
+                        </div>
+
+                        {/* Fila Inferior Centrada: Amuleto / Reliquia */}
+                        <div className="w-full">
+                          {renderSlotItemCard('amulet')}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* INVENTORY ITEMS & CATEGORY FILTERS */}
