@@ -129,8 +129,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_2',
         zoneId: 'zone_forest',
-        x: 18,
-        y: 23,
+        x: 16,
+        y: 22,
         name: 'Brom el Maestro Forjador',
         title: 'Herrero Mayor del Distrito Metalúrgico',
         avatarStyle: 'blacksmith',
@@ -144,8 +144,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_3',
         zoneId: 'zone_forest',
-        x: 28,
-        y: 30,
+        x: 29,
+        y: 28,
         name: 'Bardo Corin',
         title: 'Trovador de la Plaza Mayor',
         avatarStyle: 'scout',
@@ -159,8 +159,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_forest_lynda',
         zoneId: 'zone_forest',
-        x: 38,
-        y: 23,
+        x: 39,
+        y: 22,
         name: 'Boticaria Lynda',
         title: 'Maestra de Elixires y Pociones',
         avatarStyle: 'wizard',
