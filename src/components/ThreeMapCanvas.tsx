@@ -489,7 +489,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
         const isWaterTile = currentZone.tileData[y]?.[x] === 3;
         const posX = x * 2.5;
         const posZ = y * 2.5;
-        const elevation = (Math.sin(x * 1.3 + y * 1.7) * 0.05) + (Math.cos(x * 0.8 - y * 1.2) * 0.04);
+        const elevation = 0; // Flat, uniform, seamless terrain
         const baseGroundY = isWaterTile ? -0.55 : -0.2;
         dummyPos.set(posX, baseGroundY + elevation, posZ);
         dummyMatrix.compose(dummyPos, dummyQuat, dummyScale);
@@ -512,8 +512,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
         const posX = x * 2.5;
         const posZ = y * 2.5;
 
-        // Micro-elevation height variation for natural organic terrain
-        const elevation = (Math.sin(x * 1.3 + y * 1.7) * 0.05) + (Math.cos(x * 0.8 - y * 1.2) * 0.04);
+        // Perfectly flat and uniform terrain level
+        const elevation = 0;
 
         // CONTINUOUS SEAMLESS PATH (Blended Connection Overlays & Rounded Corner Fillets)
         if (tileType === 2) {
