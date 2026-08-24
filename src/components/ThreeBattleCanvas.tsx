@@ -232,6 +232,8 @@ export const ThreeBattleCanvas: React.FC<ThreeBattleCanvasProps> = ({
       0.04
     );
 
+    const isMobile = typeof window !== 'undefined' && (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 900);
+
     // 2. ISOMETRIC OVER-THE-SHOULDER CAMERA
     // Placed behind and to the left of hero, looking diagonally across towards the enemy
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
@@ -239,11 +241,16 @@ export const ThreeBattleCanvas: React.FC<ThreeBattleCanvasProps> = ({
     camera.lookAt(0.15, 0.75, -0.2);
 
     // 3. RENDERER
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: !isMobile,
+      alpha: true,
+      powerPreference: 'high-performance',
+      precision: isMobile ? 'mediump' : 'highp',
+    });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(isMobile ? 1.0 : Math.min(window.devicePixelRatio, 1.5));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
     container.appendChild(renderer.domElement);
@@ -262,8 +269,8 @@ export const ThreeBattleCanvas: React.FC<ThreeBattleCanvasProps> = ({
     );
     sunLight.position.set(-5, 10, 5);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 1024;
-    sunLight.shadow.mapSize.height = 1024;
+    sunLight.shadow.mapSize.width = isMobile ? 512 : 1024;
+    sunLight.shadow.mapSize.height = isMobile ? 512 : 1024;
     sunLight.shadow.bias = -0.0005;
     scene.add(sunLight);
 

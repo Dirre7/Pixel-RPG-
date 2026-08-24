@@ -168,12 +168,19 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     camera.position.set(centerX + 8.5, 11.5, centerZ + 8.5);
     camera.lookAt(centerX, 0.8, centerZ);
 
+    const isMobile = typeof window !== 'undefined' && (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 900);
+
     // 2. RENDERER SETUP
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: !isMobile,
+      alpha: false,
+      powerPreference: 'high-performance',
+      precision: isMobile ? 'mediump' : 'highp',
+    });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(isMobile ? 1.0 : Math.min(window.devicePixelRatio, 1.5));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = currentZone.id === 'zone_cave' || currentZone.id === 'zone_volcano' || currentZone.id === 'zone_castle' ? 1.4 : 1.15;
 
@@ -253,8 +260,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const sunPosZ = centerZ - 130;
     sunLight.position.set(sunPosX, sunPosY, sunPosZ);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 1024;
-    sunLight.shadow.mapSize.height = 1024;
+    sunLight.shadow.mapSize.width = isMobile ? 512 : 1024;
+    sunLight.shadow.mapSize.height = isMobile ? 512 : 1024;
     sunLight.shadow.camera.near = 0.5;
     sunLight.shadow.camera.far = 250;
     const shadowD = 35;
@@ -267,16 +274,16 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
     // --- BACKGROUND MAP ENVIRONMENT: OCEAN, SUN, CLOUDS & COASTAL CLIFFS ---
     // 1. VAST OCEAN WATER PLANE WITH SUN SPECULAR REFLECTIONS
-    const oceanGeo = new THREE.PlaneGeometry(1200, 1200, 64, 64);
+    const oceanGeo = new THREE.PlaneGeometry(1200, 1200, isMobile ? 16 : 48, isMobile ? 16 : 48);
     const oceanMat = new THREE.MeshPhysicalMaterial({
       color: currentZone.id === 'zone_volcano' ? 0x991b1b : 0x0284c7,
       emissive: currentZone.id === 'zone_volcano' ? 0x7f1d1d : 0x0369a1,
       emissiveIntensity: 0.25,
       roughness: 0.08,
       metalness: 0.4,
-      transmission: 0.35,
+      transmission: isMobile ? 0 : 0.35,
       ior: 1.333,
-      clearcoat: 1.0,
+      clearcoat: isMobile ? 0 : 1.0,
       clearcoatRoughness: 0.05,
       reflectivity: 0.9,
     });
@@ -291,7 +298,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     sunGroup.position.set(sunPosX, sunPosY, sunPosZ);
 
     const sunCore = new THREE.Mesh(
-      new THREE.SphereGeometry(14, 32, 32),
+      new THREE.SphereGeometry(14, 24, 24),
       new THREE.MeshBasicMaterial({ color: 0xfff3c7 })
     );
     sunGroup.add(sunCore);
@@ -302,11 +309,11 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       opacity: 0.35,
       side: THREE.BackSide,
     });
-    const sunCorona = new THREE.Mesh(new THREE.SphereGeometry(24, 32, 32), sunCoronaMat);
+    const sunCorona = new THREE.Mesh(new THREE.SphereGeometry(24, 24, 24), sunCoronaMat);
     sunGroup.add(sunCorona);
 
     const sunCoronaOuter = new THREE.Mesh(
-      new THREE.SphereGeometry(38, 32, 32),
+      new THREE.SphereGeometry(38, 24, 24),
       new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.15, side: THREE.BackSide })
     );
     sunGroup.add(sunCoronaOuter);
@@ -324,14 +331,15 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       opacity: 0.92,
     });
 
-    for (let c = 0; c < 14; c++) {
+    const cloudCount = isMobile ? 4 : 12;
+    for (let c = 0; c < cloudCount; c++) {
       const cloud = new THREE.Group();
       const cloudCX = centerX - 120 + Math.random() * 240;
       const cloudCY = 38 + Math.random() * 25;
       const cloudCZ = centerZ - 120 + Math.random() * 240;
       cloud.position.set(cloudCX, cloudCY, cloudCZ);
 
-      const puffCount = 5 + Math.floor(Math.random() * 4);
+      const puffCount = isMobile ? 3 : 5 + Math.floor(Math.random() * 4);
       for (let p = 0; p < puffCount; p++) {
         const puffRadius = 3.5 + Math.random() * 5.0;
         const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(puffRadius, 1), cloudMat);
@@ -353,26 +361,27 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const islandMaxX = mapW + 2;
     const islandMinZ = -2;
     const islandMaxZ = mapH + 2;
+    const cliffStep = isMobile ? 10 : 5;
 
-    for (let i = -10; i <= mapW + 10; i += 5) {
+    for (let i = -10; i <= mapW + 10; i += cliffStep) {
       // North & South Coast Cliffs
       [islandMinZ - 1.5, islandMaxZ + 1.5].forEach((cz) => {
         const cliff = new THREE.Mesh(new THREE.DodecahedronGeometry(2.5 + Math.random() * 2, 1), cliffMat);
         cliff.position.set(i, 0.2, cz);
         cliff.scale.set(1.2, 0.6 + Math.random() * 0.8, 1.2);
-        cliff.castShadow = true;
+        cliff.castShadow = !isMobile;
         cliff.receiveShadow = true;
         scene.add(cliff);
       });
     }
 
-    for (let j = -10; j <= mapH + 10; j += 5) {
+    for (let j = -10; j <= mapH + 10; j += cliffStep) {
       // East & West Coast Cliffs
       [islandMinX - 1.5, islandMaxX + 1.5].forEach((cx) => {
         const cliff = new THREE.Mesh(new THREE.DodecahedronGeometry(2.5 + Math.random() * 2, 1), cliffMat);
         cliff.position.set(cx, 0.2, j);
         cliff.scale.set(1.2, 0.6 + Math.random() * 0.8, 1.2);
-        cliff.castShadow = true;
+        cliff.castShadow = !isMobile;
         cliff.receiveShadow = true;
         scene.add(cliff);
       });
@@ -1018,7 +1027,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     scene.add(heroGroup);
 
     // 7. PARTICLES (Embers / Falling Autumn Leaves)
-    const particleCount = 120;
+    const particleCount = isMobile ? 18 : 60;
     const particleGeo = new THREE.BufferGeometry();
     const particlePos = new Float32Array(particleCount * 3);
 
