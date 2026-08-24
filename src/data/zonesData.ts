@@ -11,9 +11,17 @@ import {
   generatePantheon400,
   MAP_SIZE,
 } from './worldMapGenerator400';
+import {
+  generateTavernInterior,
+  generateForgeInterior,
+  generateBoticaInterior,
+  generateCastleInterior,
+  generateCryptDungeon,
+  generateSmugglersCaveDungeon,
+} from './subzonesGenerator';
 
 // ==============================================================================
-// 🗺️ GENERACIÓN DE MAPAS MAESTROS DE 60x60 (3.600 BALDOSAS)
+// 🗺️ GENERACIÓN DE MAPAS MAESTROS Y SUBZONAS DE INTERIORES
 // ==============================================================================
 
 const forestWorld = generateForest400();
@@ -24,6 +32,14 @@ const tundraWorld = generateTundra400();
 const castleWorld = generateCastle400();
 const voidWorld = generateVoid400();
 const pantheonWorld = generatePantheon400();
+
+// 🏰 Subzonas de Interiores e Instancias
+const tavernWorld = generateTavernInterior();
+const forgeWorld = generateForgeInterior();
+const boticaWorld = generateBoticaInterior();
+const castleInteriorWorld = generateCastleInterior();
+const cryptWorld = generateCryptDungeon();
+const smugglersCaveWorld = generateSmugglersCaveDungeon();
 
 // ==============================================================================
 // 🌟 CONFIGURACIÓN COMPLETA DE LAS 8 REGIONES DE AETHELGARD (88 MISIONES)
@@ -424,6 +440,58 @@ export const ZONES: Zone[] = [
           'Las tierras del sur son tranquilas y fértiles. Nos encargamos de cuidar los huertos y los depósitos de leña.',
           'El Santuario Místico en el extremo sur concede una serenidad incomparable.'
         ],
+      },
+    ],
+    portals: [
+      {
+        x: 32,
+        y: 55,
+        targetZoneId: 'subzone_tavern',
+        targetPos: { x: 9, y: 12 },
+        label: 'Taberna y Posada "El Jabalí Dorado"',
+        isDoor: true,
+      },
+      {
+        x: 24,
+        y: 55,
+        targetZoneId: 'subzone_forge',
+        targetPos: { x: 7, y: 12 },
+        label: 'La Gran Forja Real de Brom',
+        isDoor: true,
+      },
+      {
+        x: 48,
+        y: 55,
+        targetZoneId: 'subzone_botica',
+        targetPos: { x: 7, y: 12 },
+        label: 'Botica Alquímica de Lynda',
+        isDoor: true,
+      },
+      {
+        x: 48,
+        y: 49,
+        targetZoneId: 'subzone_castle',
+        targetPos: { x: 10, y: 18 },
+        label: 'Gran Salón del Trono de Aethelgard',
+        isDoor: true,
+      },
+      {
+        x: 58,
+        y: 25,
+        targetZoneId: 'subzone_crypt',
+        targetPos: { x: 14, y: 24 },
+        label: 'Catacumbas del Monasterio Caído',
+        minLevel: 3,
+        isDoor: true,
+      },
+      {
+        x: 56,
+        y: 87,
+        targetZoneId: 'subzone_smugglers_cave',
+        targetPos: { x: 11, y: 22 },
+        label: 'Cueva Secreta de los Contrabandistas',
+        minLevel: 4,
+        isDoor: true,
       },
     ],
   },
@@ -1986,6 +2054,546 @@ export const ZONES: Zone[] = [
         dialogue: ['El círculo del destino se ha cerrado... ¡has salvado el multiverso de Aethelgard!'],
         tip: '💡 CONSEJO: ¡Felicidades! Has completado las 88 misiones del Reino de Aethelgard.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_side_sanctuary_8'),
+      },
+    ],
+  },
+
+  // =========================================================================
+  // 🏰 SUBZONAS DE INTERIORES E INSTANCIAS (MAPA 1: AETHELGARD)
+  // =========================================================================
+
+  // 1. 🍻 TABERNA Y POSADA "EL JABALÍ DORADO"
+  {
+    id: 'subzone_tavern',
+    name: 'Taberna y Posada "El Jabalí Dorado"',
+    description: 'Acogedor refugio de aventureros con chimenea, música de bardo y comida caliente.',
+    themeColor: '#f59e0b',
+    bgMusicTheme: 'forest',
+    requiredLevel: 1,
+    isInterior: true,
+    interiorType: 'tavern',
+    parentZoneId: 'zone_forest',
+    exitPosition: { x: 32, y: 56 },
+    mapWidth: tavernWorld.width,
+    mapHeight: tavernWorld.height,
+    tileData: tavernWorld.tileData,
+    portals: [
+      {
+        x: 9,
+        y: 13,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 32, y: 56 },
+        label: 'Salir a la Plaza Mayor de Aethelgard',
+        isDoor: true,
+      },
+    ],
+    enemies: [],
+    boss: {
+      name: 'Ninguno',
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      speed: 0,
+      expReward: 0,
+      goldReward: 0,
+      spriteType: 'slime',
+      color: '#fff',
+      isBoss: false,
+      zoneId: 'subzone_tavern',
+      description: 'Zona pacífica.',
+    },
+    npcs: [
+      {
+        id: 'npc_tavern_innkeeper',
+        zoneId: 'subzone_tavern',
+        x: 4,
+        y: 2,
+        name: 'Tabernero Barnaby',
+        title: 'Dueño del Jabalí Dorado',
+        avatarStyle: 'elder',
+        dialogue: [
+          '¡Bienvenido al Jabalí Dorado, viajero! Acércate al fuego y caliéntate.',
+          'Nuestras jarras de sidra de manzana y estofado de ternera devuelven las fuerzas a cualquier guerrero.'
+        ],
+        tip: '💡 DESCANSO DE TABERNA: Sentarse junto a la chimenea reconforta el espíritu y recupera vida.',
+      },
+      {
+        id: 'npc_tavern_bard',
+        zoneId: 'subzone_tavern',
+        x: 13,
+        y: 5,
+        name: 'Bardo Elorien',
+        title: 'Trovador Errante',
+        avatarStyle: 'scout',
+        dialogue: [
+          '🎶 "Bajo el cielo de Aethelgard florece la espada y la magia..." 🎶',
+          'He viajado por las 8 regiones. Se dice que en las Catacumbas del Monasterio duerme una reliquia sagrada.'
+        ],
+        tip: '💡 RUMORES DE AVENTURA: Hablar con los bardos desvela secretos de los cofres de mazmorra.',
+      },
+      {
+        id: 'npc_tavern_veteran',
+        zoneId: 'subzone_tavern',
+        x: 13,
+        y: 10,
+        name: 'Capitán Jubilado Ronald',
+        title: 'Veterano de la Guardia Real',
+        avatarStyle: 'knight',
+        dialogue: [
+          'Ah, mis años mozos... En mis tiempos patrullábamos hasta el Valle de los Viñedos.',
+          'Cuidado con la Cueva de los Contrabandistas en la costa sureste: no son simples marineros.'
+        ],
+      },
+    ],
+  },
+
+  // 2. ⚔️ LA GRAN FORJA REAL DE BROM
+  {
+    id: 'subzone_forge',
+    name: 'La Gran Forja Real de Brom',
+    description: 'Taller de herrería con fragua al rojo vivo, yunques y estantes de armamento.',
+    themeColor: '#ef4444',
+    bgMusicTheme: 'volcano',
+    requiredLevel: 1,
+    isInterior: true,
+    interiorType: 'forge',
+    parentZoneId: 'zone_forest',
+    exitPosition: { x: 24, y: 56 },
+    mapWidth: forgeWorld.width,
+    mapHeight: forgeWorld.height,
+    tileData: forgeWorld.tileData,
+    portals: [
+      {
+        x: 7,
+        y: 13,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 24, y: 56 },
+        label: 'Salir al Distrito de los Herreros',
+        isDoor: true,
+      },
+      {
+        x: 8,
+        y: 13,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 24, y: 56 },
+        label: 'Salir al Distrito de los Herreros',
+        isDoor: true,
+      },
+    ],
+    enemies: [],
+    boss: {
+      name: 'Ninguno',
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      speed: 0,
+      expReward: 0,
+      goldReward: 0,
+      spriteType: 'slime',
+      color: '#fff',
+      isBoss: false,
+      zoneId: 'subzone_forge',
+      description: 'Zona de herrería.',
+    },
+    npcs: [
+      {
+        id: 'npc_forge_master_brom',
+        zoneId: 'subzone_forge',
+        x: 7,
+        y: 4,
+        name: 'Gran Maestro Brom',
+        title: 'Herrero Real de Aethelgard',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡El fuego de la fragua nunca se apaga! El acero puro se templa con esfuerzo y paciencia.',
+          'Si reúnes lingotes de hierro y gemas arcanas, puedo forjarte las armas legendarias del Árbol de Armas.'
+        ],
+        tip: '💡 CONSEJO DE FORJA: Mejora tus armas en el menú de la Forja para desbloquear afinidades elementales.',
+      },
+      {
+        id: 'npc_forge_apprentice',
+        zoneId: 'subzone_forge',
+        x: 12,
+        y: 6,
+        name: 'Aprendiz Thorgar',
+        title: 'Fundidor de Metales',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          'Mantenemos el fuelle a máxima potencia para templar las corazas de la guardia de la ciudad.',
+          'Las vetas de mineral de la cantera este producen el mejor hierro del continente.'
+        ],
+      },
+    ],
+  },
+
+  // 3. 🌿 BOTICA ALQUÍMICA DE LYNDA
+  {
+    id: 'subzone_botica',
+    name: 'Botica Alquímica de Lynda',
+    description: 'Laboratorio de pociones mágicas, hierbas secas aromáticas y calderos burbujeantes.',
+    themeColor: '#10b981',
+    bgMusicTheme: 'forest',
+    requiredLevel: 1,
+    isInterior: true,
+    interiorType: 'botica',
+    parentZoneId: 'zone_forest',
+    exitPosition: { x: 48, y: 56 },
+    mapWidth: boticaWorld.width,
+    mapHeight: boticaWorld.height,
+    tileData: boticaWorld.tileData,
+    portals: [
+      {
+        x: 7,
+        y: 13,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 48, y: 56 },
+        label: 'Salir al Distrito Botánico',
+        isDoor: true,
+      },
+      {
+        x: 8,
+        y: 13,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 48, y: 56 },
+        label: 'Salir al Distrito Botánico',
+        isDoor: true,
+      },
+    ],
+    enemies: [],
+    boss: {
+      name: 'Ninguno',
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      speed: 0,
+      expReward: 0,
+      goldReward: 0,
+      spriteType: 'slime',
+      color: '#fff',
+      isBoss: false,
+      zoneId: 'subzone_botica',
+      description: 'Zona de alquimia.',
+    },
+    npcs: [
+      {
+        id: 'npc_botica_lynda',
+        zoneId: 'subzone_botica',
+        x: 4,
+        y: 2,
+        name: 'Maestra Lynda',
+        title: 'Gran Alquimista y Boticaria',
+        avatarStyle: 'wizard',
+        dialogue: [
+          '¡Cuidado con no tirar los frascos de savia de mandrágora!',
+          'Mis elixires de salud y maná son destilados con flores silvestres de la Arboleda Mágica.'
+        ],
+        tip: '💡 BOTICA: Lleva siempre pociones de maná para tus habilidades más poderosas en combate.',
+      },
+      {
+        id: 'npc_botica_herbalist',
+        zoneId: 'subzone_botica',
+        x: 12,
+        y: 5,
+        name: 'Herborista Cedric',
+        title: 'Recolector de Plantas Raras',
+        avatarStyle: 'scout',
+        dialogue: [
+          'Las raíces del Árbol Milenario tienen propiedades curativas legendarias.',
+          'Si encuentras setas luminosas en las cuevas, tráelas a la botica.'
+        ],
+      },
+    ],
+  },
+
+  // 4. 👑 GRAN SALÓN DEL TRONO DE AETHELGARD
+  {
+    id: 'subzone_castle',
+    name: 'Gran Salón del Trono de Aethelgard',
+    description: 'Salón de audiencias real con columnas de mármol, estandartes dorados y el Trono de la Corona.',
+    themeColor: '#3b82f6',
+    bgMusicTheme: 'castle',
+    requiredLevel: 1,
+    isInterior: true,
+    interiorType: 'castle',
+    parentZoneId: 'zone_forest',
+    exitPosition: { x: 48, y: 50 },
+    mapWidth: castleInteriorWorld.width,
+    mapHeight: castleInteriorWorld.height,
+    tileData: castleInteriorWorld.tileData,
+    portals: [
+      {
+        x: 10,
+        y: 19,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 48, y: 50 },
+        label: 'Salir al Patio del Castillo',
+        isDoor: true,
+      },
+      {
+        x: 11,
+        y: 19,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 48, y: 50 },
+        label: 'Salir al Patio del Castillo',
+        isDoor: true,
+      },
+    ],
+    enemies: [],
+    boss: {
+      name: 'Ninguno',
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      speed: 0,
+      expReward: 0,
+      goldReward: 0,
+      spriteType: 'slime',
+      color: '#fff',
+      isBoss: false,
+      zoneId: 'subzone_castle',
+      description: 'Salón del Trono.',
+    },
+    npcs: [
+      {
+        id: 'npc_castle_lord',
+        zoneId: 'subzone_castle',
+        x: 10,
+        y: 3,
+        name: 'Lord Canciller Eldon',
+        title: 'Regente Supremo de Aethelgard',
+        avatarStyle: 'elder',
+        dialogue: [
+          '¡Bienvenido ante el Trono de Aethelgard, noble héroe!',
+          'Nuestras tierras han sido bendecidas por la paz, pero oscuros rumores llegan del Cañón de Azufre y las Catacumbas.',
+          'La Corona recompensará generosamente a quien purifique las amenazas del reino.'
+        ],
+        tip: '💡 LA CORONA: Cumplir las misiones principales eleva tu rango y desbloquea el acceso a nuevas regiones.',
+      },
+      {
+        id: 'npc_castle_guard_captain',
+        zoneId: 'subzone_castle',
+        x: 6,
+        y: 8,
+        name: 'Capitana Valerie',
+        title: 'Comandante de la Guardia Real',
+        avatarStyle: 'knight',
+        dialogue: [
+          'Mis caballeros protegen la ciudadela noche y día. Ningún monstruo cruzará las murallas.',
+          'Entrena con el Instructor Vaelen en la plaza para perfeccionar tus tácticas de combate.'
+        ],
+      },
+      {
+        id: 'npc_castle_mage_advisor',
+        zoneId: 'subzone_castle',
+        x: 15,
+        y: 8,
+        name: 'Archimago Theron',
+        title: 'Consejero Místico de la Corte',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Los cristales arcanos del Noroeste vibran con energía ancestral.',
+          'Si investigas la magia de la savia, descubrirás los orígenes del Rey Slime.'
+        ],
+      },
+    ],
+  },
+
+  // 5. 🪦 MAZMORRA: CATACUMBAS DEL MONASTERIO CAÍDO
+  {
+    id: 'subzone_crypt',
+    name: 'Mazmorra: Catacumbas del Monasterio Caído',
+    description: 'Laberinto subterráneo de piedra oscura, sepulcros antiguos, esqueletos y reliquias sagradas.',
+    themeColor: '#8b5cf6',
+    bgMusicTheme: 'cave',
+    requiredLevel: 3,
+    isInterior: true,
+    interiorType: 'crypt',
+    parentZoneId: 'zone_forest',
+    exitPosition: { x: 58, y: 26 },
+    mapWidth: cryptWorld.width,
+    mapHeight: cryptWorld.height,
+    tileData: cryptWorld.tileData,
+    portals: [
+      {
+        x: 13,
+        y: 25,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 58, y: 26 },
+        label: 'Subir a las Ruinas del Monasterio',
+        isDoor: true,
+      },
+      {
+        x: 14,
+        y: 25,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 58, y: 26 },
+        label: 'Subir a las Ruinas del Monasterio',
+        isDoor: true,
+      },
+    ],
+    enemies: [
+      {
+        name: 'Esqueleto de la Cripta',
+        isBoss: false,
+        hp: 75,
+        maxHp: 75,
+        attack: 16,
+        defense: 7,
+        speed: 8,
+        expReward: 35,
+        goldReward: 14,
+        spriteType: 'skeleton',
+        color: '#e2e8f0',
+        zoneId: 'subzone_crypt',
+        description: 'Guerrero caído reanimado por la magia oscura de la cripta.',
+      },
+      {
+        name: 'Espectro del Monje',
+        isBoss: false,
+        hp: 60,
+        maxHp: 60,
+        attack: 22,
+        defense: 4,
+        speed: 11,
+        expReward: 42,
+        goldReward: 18,
+        spriteType: 'wraith',
+        color: '#c084fc',
+        zoneId: 'subzone_crypt',
+        description: 'Espíritu incorpóreo que drena el maná y lanza maldiciones.',
+      },
+    ],
+    boss: {
+      name: 'Sumo Sacerdote Corrupto Malgoth',
+      isBoss: true,
+      hp: 350,
+      maxHp: 350,
+      attack: 38,
+      defense: 14,
+      speed: 12,
+      expReward: 250,
+      goldReward: 120,
+      spriteType: 'lich',
+      color: '#7c3aed',
+      zoneId: 'subzone_crypt',
+      description: 'Líder nigromante que profana las tumbas del antiguo claustro.',
+    },
+    npcs: [
+      {
+        id: 'npc_crypt_spirit',
+        zoneId: 'subzone_crypt',
+        x: 13,
+        y: 22,
+        name: 'Espíritu del Hermano Lucius',
+        title: 'Guardián de las Catacumbas',
+        avatarStyle: 'wizard',
+        dialogue: [
+          'Viajero mortal... ten cuidado al descender por estos pasadizos.',
+          'Al final de la sala del altar aguarda el cofre con la Reliquia Sagrada del Monasterio.'
+        ],
+        tip: '💡 MAZMORRA SUBTERRÁNEA: Los monstruos de las catacumbas son vulnerables al daño sagrado y fuego.',
+      },
+    ],
+  },
+
+  // 6. 🏴‍☠️ MAZMORRA: CUEVA SECRETA DE LOS CONTRABANDISTAS
+  {
+    id: 'subzone_smugglers_cave',
+    name: 'Mazmorra: Cueva Secreta de los Contrabandistas',
+    description: 'Gruta costera excavada por el mar con pasarelas de madera, corsarios y botines clandestinos.',
+    themeColor: '#0ea5e9',
+    bgMusicTheme: 'swamp',
+    requiredLevel: 4,
+    isInterior: true,
+    interiorType: 'smugglers_cave',
+    parentZoneId: 'zone_forest',
+    exitPosition: { x: 56, y: 88 },
+    mapWidth: smugglersCaveWorld.width,
+    mapHeight: smugglersCaveWorld.height,
+    tileData: smugglersCaveWorld.tileData,
+    portals: [
+      {
+        x: 11,
+        y: 23,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 56, y: 88 },
+        label: 'Salir al Muelle Secreto de la Ensenada',
+        isDoor: true,
+      },
+      {
+        x: 12,
+        y: 23,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 56, y: 88 },
+        label: 'Salir al Muelle Secreto de la Ensenada',
+        isDoor: true,
+      },
+    ],
+    enemies: [
+      {
+        name: 'Corsario Rebelde',
+        isBoss: false,
+        hp: 90,
+        maxHp: 90,
+        attack: 19,
+        defense: 8,
+        speed: 10,
+        expReward: 45,
+        goldReward: 22,
+        spriteType: 'goblin',
+        color: '#0284c7',
+        zoneId: 'subzone_smugglers_cave',
+        description: 'Pirata despiadado armado con sable y pistola de pólvora.',
+      },
+      {
+        name: 'Asesino de la Marea',
+        isBoss: false,
+        hp: 75,
+        maxHp: 75,
+        attack: 24,
+        defense: 6,
+        speed: 14,
+        expReward: 50,
+        goldReward: 26,
+        spriteType: 'snake',
+        color: '#0f766e',
+        zoneId: 'subzone_smugglers_cave',
+        description: 'Sigiloso combatiente de las sombras que ataca por la espalda.',
+      },
+    ],
+    boss: {
+      name: 'Capitán Barbanegra del Abismo',
+      isBoss: true,
+      hp: 420,
+      maxHp: 420,
+      attack: 44,
+      defense: 16,
+      speed: 14,
+      expReward: 300,
+      goldReward: 160,
+      spriteType: 'golem',
+      color: '#0369a1',
+      zoneId: 'subzone_smugglers_cave',
+      description: 'Líder temible de los contrabandistas de la costa este.',
+    },
+    npcs: [
+      {
+        id: 'npc_smugglers_turncoat',
+        zoneId: 'subzone_smugglers_cave',
+        x: 10,
+        y: 11,
+        name: 'Marinero Arrepentido Jack',
+        title: 'Navegante de la Cala',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡No me hagas daño! Solo soy el contramaestre.',
+          'Si cruzas la pasarela noreste encontrarás el Gran Cofre del Botín Pirata.'
+        ],
+        tip: '💡 BOTÍN PIRATA: Los cofres de contrabando contienen abundante oro y gemas preciosas.',
       },
     ],
   },

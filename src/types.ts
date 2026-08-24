@@ -210,6 +210,16 @@ export interface NPC {
   quests?: NPCQuest[];
 }
 
+export interface MapPortal {
+  x: number;
+  y: number;
+  targetZoneId: string;
+  targetPos: { x: number; y: number };
+  label: string;
+  minLevel?: number;
+  isDoor?: boolean;
+}
+
 export interface Zone {
   id: string;
   name: string;
@@ -218,11 +228,16 @@ export interface Zone {
   requiredLevel: number;
   mapWidth: number;
   mapHeight: number;
-  tileData: number[][]; // 0: grass/floor, 1: wall/tree/rock, 2: path, 3: water/lava/void, 4: shop, 5: inn, 6: boss portal, 7: chest, 8: shrine, 9: fountain, 10: npc
+  tileData: number[][]; // 0: grass/floor, 1: wall/tree/rock, 2: path, 3: water/lava/void, 4: shop, 5: inn, 6: boss portal, 7: chest, 8: shrine, 9: fountain, 10: npc, 28: portal/door
   enemies: Omit<Enemy, 'id'>[];
   boss: Omit<Enemy, 'id'>;
   npcs?: NPC[];
   description: string;
+  isInterior?: boolean;
+  parentZoneId?: string;
+  exitPosition?: { x: number; y: number };
+  interiorType?: 'tavern' | 'forge' | 'botica' | 'castle' | 'crypt' | 'smugglers_cave' | 'dungeon';
+  portals?: MapPortal[];
 }
 
 export interface LoreEntry {

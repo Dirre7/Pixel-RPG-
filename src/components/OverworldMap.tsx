@@ -400,6 +400,25 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       return;
     }
 
+    // 3. Priority: Enter nearby Door / Portal
+    const nearbyPortal = currentZone.portals?.find(
+      (p) => Math.abs(p.x - playerPos.x) <= 1 && Math.abs(p.y - playerPos.y) <= 1
+    );
+    if (nearbyPortal) {
+      if (nearbyPortal.minLevel && player.level < nearbyPortal.minLevel) {
+        soundEngine.playSfx('error');
+        showToast(`🔒 Requiere Nivel ${nearbyPortal.minLevel} para entrar a ${nearbyPortal.label}`);
+        return;
+      }
+      soundEngine.playSfx('levelup');
+      showToast(`🚪 ${nearbyPortal.label}...`);
+      setTimeout(() => {
+        onChangeZone(nearbyPortal.targetZoneId);
+        onMove(nearbyPortal.targetPos);
+      }, 120);
+      return;
+    }
+
     const target = findNearbyInteractiveTile(playerPos.x, playerPos.y);
     if (!target) return;
 
@@ -555,8 +574,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
     const targetTile = currentZone.tileData[newY]?.[newX];
 
-    // Block collision on void abyss, out of bounds, and solid obstacle tiles
-    const isDirectSolid = targetTile === -1 || targetTile === undefined || [-1, 1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34].includes(targetTile);
+    // Block collision on void abyss, out of bounds, and solid obstacle tiles (28 is walkable door/portal)
+    const isDirectSolid = targetTile === -1 || targetTile === undefined || [-1, 1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 34].includes(targetTile);
 
     if (isDirectSolid) {
       soundEngine.playSfx('error');
@@ -572,6 +591,23 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     soundEngine.playSfx('select');
     onMove({ x: newX, y: newY });
 
+    // 🚪 AUTOMATIC STEP-ON PORTAL TRIGGER (Doors, Stairs, Dungeons)
+    const stepPortal = currentZone.portals?.find((p) => p.x === newX && p.y === newY);
+    if (stepPortal) {
+      if (stepPortal.minLevel && player.level < stepPortal.minLevel) {
+        soundEngine.playSfx('error');
+        showToast(`🔒 Requiere Nivel ${stepPortal.minLevel} para entrar a ${stepPortal.label}`);
+        return;
+      }
+      soundEngine.playSfx('levelup');
+      showToast(`🚪 ${stepPortal.label}...`);
+      setTimeout(() => {
+        onChangeZone(stepPortal.targetZoneId);
+        onMove(stepPortal.targetPos);
+      }, 120);
+      return;
+    }
+
     // Step counter management
     if (safeStepsRemaining > 0) {
       setSafeStepsRemaining((prev) => prev - 1);
@@ -580,11 +616,11 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     // COMBAT ENCOUNTERS IN THE WILD:
     // 1. Roads, paved avenues, bridges (tile 2, 15) are 100% SAFE.
     // 2. All POIs, shops, forges, shrines, wells (tile 4..11, 16..19) are 100% SAFE.
-    // 3. Inside the Great Citadel of Aethelgard (around center 36,60) is 100% peaceful.
+    // 3. Inside the Great Citadel of Aethelgard (around center 36,60) or any interior is 100% peaceful.
     // 4. Outside in the wild grasslands (targetTile === 0), monster combat begins!
     const isPavedRoad = targetTile === 2 || targetTile === 15;
-    const isSpecialPoi = [4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19].includes(targetTile);
-    const isInsideTown = currentZone.id === 'zone_forest' && (Math.abs(newX - 36) <= 18 && Math.abs(newY - 60) <= 16);
+    const isSpecialPoi = [4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19, 28].includes(targetTile);
+    const isInsideTown = (currentZone.id === 'zone_forest' && (Math.abs(newX - 36) <= 18 && Math.abs(newY - 60) <= 16)) || (currentZone.isInterior && currentZone.interiorType !== 'crypt' && currentZone.interiorType !== 'smugglers_cave');
 
     const isSafeZone = isPavedRoad || isSpecialPoi || isInsideTown;
 
@@ -592,8 +628,12 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       let encounterChance = 0;
 
       if (targetTile === 0) {
-        // Natural wilderness (grass / deep caves / wild mud)
-        encounterChance = currentZone.id === 'zone_forest' ? 0.08 : 0.12;
+        // Natural wilderness (grass / deep caves / wild mud / dungeon corridors)
+        if (currentZone.interiorType === 'crypt' || currentZone.interiorType === 'smugglers_cave') {
+          encounterChance = 0.16; // Dungeon encounter rate
+        } else {
+          encounterChance = currentZone.id === 'zone_forest' ? 0.08 : 0.12;
+        }
       } else if (targetTile === 14) {
         // Elite danger grounds / cursed earth
         encounterChance = 0.22;

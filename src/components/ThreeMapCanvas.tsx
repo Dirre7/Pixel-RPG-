@@ -828,7 +828,31 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           const seed = Math.abs(x * 31 + y * 17);
           let obsGroup: THREE.Group;
 
-          if (currentZone.id === 'zone_castle') {
+          if (currentZone.isInterior) {
+            // 🏰 Specialized Instanced Interior Walls (Timber/Plaster/Dungeon)
+            if (currentZone.interiorType === 'crypt' || currentZone.interiorType === 'smugglers_cave') {
+              const wallRes = create3DDungeonStoneWallMesh(x, y, (x + y) % 3 === 0);
+              obsGroup = wallRes.group;
+              obsGroup.position.set(posX, elevation, posZ);
+              if (wallRes.updateAnimation) animatedBuildingUpdaters.push(wallRes.updateAnimation);
+            } else {
+              obsGroup = new THREE.Group();
+              const wallMat = new THREE.MeshStandardMaterial({
+                color: currentZone.interiorType === 'castle' ? 0xe2e8f0 : (currentZone.interiorType === 'forge' ? 0x475569 : 0x5c3a21),
+                roughness: 0.75,
+              });
+              const wallMesh = new THREE.Mesh(new THREE.BoxGeometry(2.5, 3.2, 2.5), wallMat);
+              wallMesh.position.y = 1.6;
+              wallMesh.castShadow = true;
+              wallMesh.receiveShadow = true;
+              obsGroup.add(wallMesh);
+
+              const trim = new THREE.Mesh(new THREE.BoxGeometry(2.55, 0.20, 2.55), new THREE.MeshStandardMaterial({ color: 0x3d1c06, roughness: 0.7 }));
+              trim.position.y = 3.1;
+              obsGroup.add(trim);
+              obsGroup.position.set(posX, elevation, posZ);
+            }
+          } else if (currentZone.id === 'zone_castle') {
             // Monumental Circular Watchtower Rotundas & Arched Stone Walls (Matching Reference Photo!)
             const isRotunda = (x % 6 === 0 && y % 6 === 0) || (x + y) % 9 === 0;
             const castleRes = create3DCastleArchedWallMesh(x, y, isRotunda);
@@ -1112,6 +1136,90 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           geodeGroup.position.y += elevation;
           tileGroup.add(geodeGroup);
           obstacleGroups.push({ group: geodeGroup, gridX: x, gridY: y });
+        }
+
+        // 🚪 Puerta de Entrada / Portal de Instancia (Tile 28)
+        if (tileType === 28) {
+          const doorGroup = new THREE.Group();
+          doorGroup.position.set(posX, elevation, posZ);
+
+          const matchingPortal = currentZone.portals?.find((p) => p.x === x && p.y === y);
+          const portalLabel = matchingPortal?.label || (currentZone.isInterior ? '🚪 Salir al Exterior' : '🚪 Entrar al Interior');
+
+          const frameMat = new THREE.MeshStandardMaterial({
+            color: currentZone.isInterior ? 0x78716c : 0x5c2b08,
+            roughness: 0.7,
+          });
+          const postL = new THREE.Mesh(new THREE.BoxGeometry(0.24, 2.4, 0.24), frameMat);
+          postL.position.set(-0.85, 1.2, 0);
+          postL.castShadow = true;
+          doorGroup.add(postL);
+
+          const postR = new THREE.Mesh(new THREE.BoxGeometry(0.24, 2.4, 0.24), frameMat);
+          postR.position.set(0.85, 1.2, 0);
+          postR.castShadow = true;
+          doorGroup.add(postR);
+
+          const lintel = new THREE.Mesh(new THREE.BoxGeometry(1.94, 0.30, 0.30), frameMat);
+          lintel.position.set(0, 2.35, 0);
+          lintel.castShadow = true;
+          doorGroup.add(lintel);
+
+          // Glowing Golden / Cyan Threshold Portal Ring
+          const ringColor = currentZone.isInterior ? 0x38bdf8 : 0xf59e0b;
+          const ringEmissive = currentZone.isInterior ? 0x0284c7 : 0xd97706;
+          const ringMat = new THREE.MeshStandardMaterial({
+            color: ringColor,
+            emissive: ringEmissive,
+            emissiveIntensity: 2.2,
+            roughness: 0.2,
+          });
+          const portalRing = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.05, 8, 24), ringMat);
+          portalRing.rotation.x = Math.PI / 2;
+          portalRing.position.y = 0.04;
+          doorGroup.add(portalRing);
+
+          // Warm light column
+          const lightColumnMat = new THREE.MeshBasicMaterial({
+            color: currentZone.isInterior ? 0xbae6fd : 0xfef08a,
+            transparent: true,
+            opacity: 0.25,
+            side: THREE.DoubleSide,
+          });
+          const lightCol = new THREE.Mesh(new THREE.CylinderGeometry(0.70, 0.70, 2.4, 16, 1, true), lightColumnMat);
+          lightCol.position.y = 1.2;
+          doorGroup.add(lightCol);
+
+          // 🏷️ Floating High-Res 3D Doorway Signboard Sprite
+          const signCanvas = document.createElement('canvas');
+          signCanvas.width = 512;
+          signCanvas.height = 128;
+          const sCtx = signCanvas.getContext('2d');
+          if (sCtx) {
+            sCtx.fillStyle = 'rgba(15, 23, 42, 0.90)';
+            sCtx.beginPath();
+            sCtx.roundRect(12, 12, 488, 104, 24);
+            sCtx.fill();
+
+            sCtx.lineWidth = 6;
+            sCtx.strokeStyle = currentZone.isInterior ? '#38bdf8' : '#f59e0b';
+            sCtx.stroke();
+
+            sCtx.font = 'bold 30px sans-serif';
+            sCtx.fillStyle = '#ffffff';
+            sCtx.textAlign = 'center';
+            sCtx.textBaseline = 'middle';
+            sCtx.fillText(portalLabel, 256, 64);
+          }
+
+          const signTex = new THREE.CanvasTexture(signCanvas);
+          signTex.minFilter = THREE.LinearFilter;
+          const signSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: signTex, transparent: true, depthTest: false }));
+          signSprite.scale.set(3.4, 0.85, 1);
+          signSprite.position.set(0, 2.9, 0);
+          doorGroup.add(signSprite);
+
+          tileGroup.add(doorGroup);
         }
       }
     }

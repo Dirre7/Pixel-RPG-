@@ -91,7 +91,8 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   for (let y = 18; y <= 36; y++) {
     map[y][57] = 2; map[y][58] = 2;
   }
-  map[24][58] = 8;  // 🏛️ Claustro en Ruinas del Monasterio
+  map[24][58] = 8;   // 🏛️ Claustro en Ruinas del Monasterio
+  map[25][58] = 28;  // 🚪 Entrada y Descenso a las Catacumbas del Monasterio
   map[22][56] = 18; map[22][60] = 18; // Columnas de mármol derruidas
   map[26][56] = 18; map[26][60] = 18;
   map[18][58] = 7;  // 🎁 Cofre de Reliquias del Monasterio Caído
@@ -186,6 +187,7 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
     map[y][52] = 2; map[y][53] = 2; // Senda del puerto
   }
   map[86][56] = 5;   // 🏠 Almacén Clandestino de Contrabando
+  map[87][56] = 28;  // 🚪 Entrada a la Mazmorra: Cueva Secreta de los Contrabandistas
   map[86][50] = 14;  // Pilas de leña y suministros
   map[96][60] = 18; map[98][60] = 18; // Canteras de pizarra
   map[97][62] = 20;  // 💎 Geoda de cristal de la cala
@@ -249,6 +251,7 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
 
   // 🏰 Grandes Mansiones y Casonas Nobles enmarcando la Plaza
   map[54][32] = 5;  // Gran Posada del León Dorado (Norte)
+  map[55][32] = 28; // 🚪 Puerta de Entrada a la Taberna y Posada "El Jabalí Dorado"
   map[54][40] = 5;  // Mansión del Gremio de Comerciantes (Noreste)
   map[64][32] = 5;  // Casona Señorial del Roble (Suroeste)
   map[64][40] = 5;  // Casona Noble de la Ribera (Sureste)
@@ -256,15 +259,18 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   // Distrito Oeste (Forja, Posada, Almacenes)
   map[48][24] = 5;  // Gran Posada de los Viajeros
   map[54][24] = 10; // Gran Forja Mayor de Brom
+  map[55][24] = 28; // 🚪 Puerta de Entrada a la Gran Forja Real
   map[54][26] = 19; // Brasero
   map[50][20] = 5;  // Almacén de Minerales
   map[56][20] = 5;  // Mansión Comercial Oeste
   map[62][20] = 5;  // Taller de Curtidores
 
   // Distrito Este (Ayuntamiento, Botica, Mansiones)
-  map[48][48] = 31; // Gran Casa Consistorial
+  map[48][48] = 31; // Gran Casa Consistorial / Castillo
+  map[49][48] = 28; // 🚪 Puerta de Entrada al Gran Salón del Trono
   map[48][52] = 5;  // Mansión Solariega Noreste
   map[54][48] = 27; // Botica de Lynda
+  map[55][48] = 28; // 🚪 Puerta de Entrada a la Botica Alquímica
   map[54][52] = 5;  // Mansión "Villa Rosa"
   map[60][48] = 5;  // Mansión "Los Álamos"
   map[60][52] = 5;  // Palacio Residencial Este

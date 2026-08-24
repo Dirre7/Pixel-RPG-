@@ -91,7 +91,10 @@ export const Minimap: React.FC<MinimapProps> = ({
           continue;
         }
 
-        if (tile === 3) {
+        if (tile === 28) {
+          // Doorway / Instance Portal
+          ctx.fillStyle = '#f59e0b';
+        } else if (tile === 3) {
           // River / Water / Lava
           ctx.fillStyle = currentZone.id === 'zone_volcano' ? '#ea580c' : '#0284c7';
         } else if (tile === 2 || tile === 15) {
@@ -199,6 +202,34 @@ export const Minimap: React.FC<MinimapProps> = ({
       }
     }
 
+    // 5. Draw Discovered Zone Portals / Building Doors (🚪)
+    if (currentZone.portals) {
+      currentZone.portals.forEach((portal) => {
+        if (portal.x >= startX && portal.x < endX && portal.y >= startY && portal.y < endY) {
+          const isRevealed = isCreatorMode || !exploredTiles || exploredTiles.has(`${portal.x},${portal.y}`);
+          if (isRevealed) {
+            const px = (portal.x - startX) * cellW + cellW / 2;
+            const py = (portal.y - startY) * cellH + cellH / 2;
+
+            // Outer cyan glow
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.4)';
+            ctx.beginPath();
+            ctx.arc(px, py, Math.max(5, cellW * 1.4), 0, Math.PI * 2);
+            ctx.fill();
+
+            // Inner bright door badge
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(px, py, Math.max(3.5, cellW * 0.9), 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+          }
+        }
+      });
+    }
+
     // 4. Draw Player Blip (Pulsing Green Marker with Direction Flare)
     if (playerPos.x >= startX && playerPos.x < endX && playerPos.y >= startY && playerPos.y < endY) {
       const pX = (playerPos.x - startX) * cellW + cellW / 2;
@@ -286,7 +317,7 @@ export const Minimap: React.FC<MinimapProps> = ({
       />
 
       {/* Legend */}
-      <div className="w-full grid grid-cols-4 gap-0.5 mt-1 text-[8px] text-slate-400 font-bold text-center">
+      <div className="w-full grid grid-cols-5 gap-0.5 mt-1 text-[8px] text-slate-400 font-bold text-center">
         <div className="flex items-center justify-center space-x-0.5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
           <span>Héroe</span>
@@ -294,6 +325,10 @@ export const Minimap: React.FC<MinimapProps> = ({
         <div className="flex items-center justify-center space-x-0.5">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
           <span>NPC</span>
+        </div>
+        <div className="flex items-center justify-center space-x-0.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+          <span>Puerta</span>
         </div>
         <div className="flex items-center justify-center space-x-0.5">
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-300" />
