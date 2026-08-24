@@ -74,7 +74,7 @@ export default function App() {
   });
 
   const [currentZoneId, setCurrentZoneId] = useState<string>('zone_forest');
-  const [playerPos, setPlayerPos] = useState<{ x: number; y: number }>({ x: 30, y: 30 });
+  const [playerPos, setPlayerPos] = useState<{ x: number; y: number }>({ x: 36, y: 62 });
   const [defeatedBosses, setDefeatedBosses] = useState<string[]>([]);
   const [openedChests, setOpenedChests] = useState<string[]>([]);
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
@@ -95,9 +95,9 @@ export default function App() {
       const raw = localStorage.getItem(SAVE_KEY);
       if (raw) {
         const parsed: GameSaveData = JSON.parse(raw);
-        // Clamp out-of-bounds player positions from previous 400x400 saves
-        if (parsed.playerPos && (parsed.playerPos.x >= 60 || parsed.playerPos.y >= 60 || parsed.playerPos.x < 0 || parsed.playerPos.y < 0)) {
-          parsed.playerPos = { x: 30, y: 30 };
+        // Clamp out-of-bounds player positions
+        if (parsed.playerPos && (parsed.playerPos.x >= 72 || parsed.playerPos.y >= 116 || parsed.playerPos.x < 0 || parsed.playerPos.y < 0)) {
+          parsed.playerPos = { x: 36, y: 62 };
         }
         setSavedGameData(parsed);
         if (parsed.playerPos) {
@@ -308,7 +308,7 @@ export default function App() {
     setPlayer(initialPlayerStats);
     setInventory(initialInv);
     setCurrentZoneId('zone_forest');
-    setPlayerPos({ x: 30, y: 30 });
+    setPlayerPos({ x: 36, y: 62 });
     setDefeatedBosses([]);
     setOpenedChests([]);
     setCompletedQuests([]);
@@ -319,7 +319,7 @@ export default function App() {
 
     setGameState('overworld');
     setShowPrologueModal(true);
-    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 30, y: 30 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
+    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 36, y: 62 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
   };
 
   // Start Showcase Game (Modo Creador / Todo Desbloqueado - Nivel 75 y Tier 8)
@@ -397,7 +397,7 @@ export default function App() {
     setPlayer(showcasePlayer);
     setInventory(showcaseInv);
     setCurrentZoneId('zone_forest');
-    setPlayerPos({ x: 30, y: 30 });
+    setPlayerPos({ x: 36, y: 62 });
     setDefeatedBosses(allBosses);
     setOpenedChests([]);
     setCompletedQuests(allQuestIds);
@@ -406,7 +406,7 @@ export default function App() {
     setUnlockedLoreIds(allLoreIds);
 
     setGameState('overworld');
-    triggerAutoSave(showcasePlayer, showcaseInv, 'zone_forest', { x: 30, y: 30 }, allBosses, [], allQuestIds, allSkillIds, allLoreIds, allQuestIds);
+    triggerAutoSave(showcasePlayer, showcaseInv, 'zone_forest', { x: 36, y: 62 }, allBosses, [], allQuestIds, allSkillIds, allLoreIds, allQuestIds);
   };
 
   // Unlock all content in current session
@@ -482,9 +482,9 @@ export default function App() {
     setPlayer(savedGameData.player);
     setInventory(safeInventory);
     setCurrentZoneId(savedGameData.currentZoneId || 'zone_forest');
-    const rawPos = savedGameData.playerPos || { x: 30, y: 30 };
-    const safePos = (rawPos.x >= 60 || rawPos.y >= 60 || rawPos.x < 0 || rawPos.y < 0)
-      ? { x: 30, y: 30 }
+    const rawPos = savedGameData.playerPos || { x: 36, y: 62 };
+    const safePos = (rawPos.x >= 72 || rawPos.y >= 116 || rawPos.x < 0 || rawPos.y < 0)
+      ? { x: 36, y: 62 }
       : rawPos;
     setPlayerPos(safePos);
     setDefeatedBosses(savedGameData.defeatedBosses || []);
@@ -1119,7 +1119,7 @@ export default function App() {
   // Change Zone (8 Regions Support)
   const handleChangeZone = (zoneId: string) => {
     setCurrentZoneId(zoneId);
-    let defaultPos = { x: 30, y: 30 };
+    let defaultPos = zoneId === 'zone_forest' ? { x: 36, y: 62 } : { x: 30, y: 30 };
     setPlayerPos(defaultPos);
 
     let updatedLore = [...unlockedLoreIds];
@@ -1254,7 +1254,7 @@ export default function App() {
             }
 
             if (target.effect === 'teleport' || target.id.includes('teleport') || target.id.includes('scroll')) {
-              setPlayerPos({ x: 30, y: 30 });
+              setPlayerPos({ x: 36, y: 62 });
               soundEngine.playSfx('levelup');
             } else {
               soundEngine.playSfx('heal');

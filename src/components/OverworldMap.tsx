@@ -1124,7 +1124,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         onOpenShop={onOpenShop}
         onOpenSettings={onOpenSettings}
         onTeleportToTown={() => {
-          onMove({ x: 36, y: 60 });
+          onMove({ x: 36, y: 62 });
         }}
         onUseConsumable={(cId) => (onUseConsumable ? onUseConsumable(cId) : onHealAtInn())}
         onShowToast={(msg) => showToast(msg)}
