@@ -280,18 +280,26 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
     // --- BACKGROUND MAP ENVIRONMENT: OCEAN, SUN, CLOUDS & COASTAL CLIFFS ---
     // 1. VAST OCEAN WATER PLANE WITH SUN SPECULAR REFLECTIONS
+    const waterPBR = getCachedWaterPBR(currentZone.id);
+    waterPBR.diffuse.wrapS = THREE.RepeatWrapping;
+    waterPBR.diffuse.wrapT = THREE.RepeatWrapping;
+    waterPBR.diffuse.repeat.set(48, 48);
+    waterPBR.normal.wrapS = THREE.RepeatWrapping;
+    waterPBR.normal.wrapT = THREE.RepeatWrapping;
+    waterPBR.normal.repeat.set(48, 48);
+
     const oceanGeo = new THREE.PlaneGeometry(1200, 1200, isMobile ? 16 : 48, isMobile ? 16 : 48);
     const oceanMat = new THREE.MeshPhysicalMaterial({
-      color: currentZone.id === 'zone_volcano' ? 0x991b1b : 0x0284c7,
-      emissive: currentZone.id === 'zone_volcano' ? 0x7f1d1d : 0x0369a1,
-      emissiveIntensity: 0.25,
-      roughness: 0.08,
-      metalness: 0.4,
-      transmission: isMobile ? 0 : 0.35,
+      map: waterPBR.diffuse,
+      normalMap: waterPBR.normal,
+      normalScale: new THREE.Vector2(2.2, 2.2),
+      roughness: 0.05,
+      metalness: 0.2,
+      transmission: isMobile ? 0 : 0.45,
       ior: 1.333,
-      clearcoat: isMobile ? 0 : 1.0,
-      clearcoatRoughness: 0.05,
-      reflectivity: 0.9,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.04,
+      reflectivity: 0.95,
     });
     const oceanMesh = new THREE.Mesh(oceanGeo, oceanMat);
     oceanMesh.rotation.x = -Math.PI / 2;
@@ -930,16 +938,16 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
             if (grottoRes.updateAnimation) animatedBuildingUpdaters.push(grottoRes.updateAnimation);
           } else {
             const liquidMat = new THREE.MeshPhysicalMaterial({
-              color: 0x0284c7,
-              emissive: 0x0369a1,
-              emissiveIntensity: 0.6,
-              roughness: 0.08,
-              metalness: 0.3,
-              transmission: 0.4,
+              map: waterPBR.diffuse,
+              normalMap: waterPBR.normal,
+              normalScale: new THREE.Vector2(2.0, 2.0),
+              roughness: 0.05,
+              metalness: 0.15,
+              transmission: currentZone.id === 'zone_volcano' ? 0 : (isMobile ? 0.2 : 0.65),
               ior: 1.333,
               clearcoat: 1.0,
-              clearcoatRoughness: 0.05,
-              reflectivity: 0.9,
+              clearcoatRoughness: 0.03,
+              reflectivity: 0.95,
             });
             const liquidMesh = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.42, 2.505), liquidMat);
             liquidMesh.position.set(posX, -0.10 + elevation, posZ);
@@ -1582,6 +1590,12 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
         tree.rotation.x = Math.cos(windPhase * 0.85) * 0.018;
       });
 
+      // 🌊 Continuous Dynamic River & Ocean Flow Dynamics
+      const riverFlow = delta * 0.12;
+      waterPBR.diffuse.offset.y += riverFlow;
+      waterPBR.normal.offset.y += riverFlow * 1.35;
+      waterPBR.normal.offset.x += riverFlow * 0.45;
+
       animatedWaters.forEach((w, idx) => {
         if (w === oceanMesh) {
           w.position.y = -0.38 + Math.sin(time * 1.4) * 0.045;
@@ -1832,6 +1846,167 @@ function createNormalMapFromCanvas(srcCanvas: HTMLCanvasElement, strength: numbe
 }
 
 /**
+/**
+ * Generates ultra-realistic stylized RPG Water PBR Textures (Animated multi-wave normals, caustics & shoreline foam)
+ */
+function createProceduralWaterPBRTextures(zoneId: string): { diffuse: THREE.CanvasTexture; normal: THREE.CanvasTexture; foam: THREE.CanvasTexture } {
+  const isVolcano = zoneId === 'zone_volcano';
+  const isCave = zoneId === 'zone_cave';
+  const isCastle = zoneId === 'zone_castle';
+
+  // 1. Water Diffuse & Caustics Canvas (512x512)
+  const diffCanvas = document.createElement('canvas');
+  diffCanvas.width = 512;
+  diffCanvas.height = 512;
+  const dCtx = diffCanvas.getContext('2d')!;
+
+  if (isVolcano) {
+    // Glowing Molten Magma Surface with incandescent energy veins
+    const grad = dCtx.createLinearGradient(0, 0, 512, 512);
+    grad.addColorStop(0, '#ea580c');
+    grad.addColorStop(0.35, '#dc2626');
+    grad.addColorStop(0.7, '#991b1b');
+    grad.addColorStop(1, '#450a0a');
+    dCtx.fillStyle = grad;
+    dCtx.fillRect(0, 0, 512, 512);
+
+    // Glowing magma convection cells
+    for (let i = 0; i < 40; i++) {
+      const cx = (i * 97) % 512;
+      const cy = (i * 137) % 512;
+      const r = 24 + (i % 5) * 12;
+      const rGrad = dCtx.createRadialGradient(cx, cy, 2, cx, cy, r);
+      rGrad.addColorStop(0, '#fef08a');
+      rGrad.addColorStop(0.4, '#f59e0b');
+      rGrad.addColorStop(0.8, '#dc2626');
+      rGrad.addColorStop(1, 'transparent');
+      dCtx.fillStyle = rGrad;
+      dCtx.beginPath();
+      dCtx.arc(cx, cy, r, 0, Math.PI * 2);
+      dCtx.fill();
+    }
+  } else {
+    // Crystal Clear Azure & Emerald Water with Caustics Network
+    const baseGrad = dCtx.createLinearGradient(0, 0, 512, 512);
+    if (isCave) {
+      baseGrad.addColorStop(0, '#06b6d4');
+      baseGrad.addColorStop(0.5, '#0891b2');
+      baseGrad.addColorStop(1, '#0e7490');
+    } else if (isCastle) {
+      baseGrad.addColorStop(0, '#38bdf8');
+      baseGrad.addColorStop(0.5, '#0284c7');
+      baseGrad.addColorStop(1, '#0369a1');
+    } else {
+      // Natural Forest River: Crystal turquoise shallows into sapphire deeps
+      baseGrad.addColorStop(0, '#06b6d4');
+      baseGrad.addColorStop(0.3, '#0284c7');
+      baseGrad.addColorStop(0.7, '#0369a1');
+      baseGrad.addColorStop(1, '#1e3a8a');
+    }
+    dCtx.fillStyle = baseGrad;
+    dCtx.fillRect(0, 0, 512, 512);
+
+    // Dynamic Sunlit Caustic Wave Patterns
+    dCtx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    dCtx.lineWidth = 3;
+    dCtx.filter = 'blur(1px)';
+    for (let c = 0; c < 24; c++) {
+      dCtx.beginPath();
+      const startX = (c * 43) % 512;
+      const startY = (c * 67) % 512;
+      dCtx.moveTo(startX, startY);
+      for (let s = 0; s < 6; s++) {
+        const nx = (startX + Math.sin(s * 1.2 + c) * 60 + s * 45) % 512;
+        const ny = (startY + Math.cos(s * 1.4 + c) * 60 + s * 55) % 512;
+        dCtx.quadraticCurveTo(nx - 20, ny + 20, nx, ny);
+      }
+      dCtx.stroke();
+    }
+    dCtx.filter = 'none';
+
+    // Sparkling Sun Specular Highlights on wave peaks
+    dCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    for (let i = 0; i < 180; i++) {
+      const sx = (i * 73 + (i % 7) * 31) % 512;
+      const sy = (i * 127 + (i % 11) * 23) % 512;
+      dCtx.beginPath();
+      dCtx.arc(sx, sy, 1.5 + (i % 3) * 0.8, 0, Math.PI * 2);
+      dCtx.fill();
+    }
+  }
+
+  // 2. Multi-Frequency Wave Normal Map (Generates physical 3D ripples with sunlight specular)
+  const normCanvas = document.createElement('canvas');
+  normCanvas.width = 512;
+  normCanvas.height = 512;
+  const nCtx = normCanvas.getContext('2d')!;
+
+  const normImg = nCtx.createImageData(512, 512);
+  const data = normImg.data;
+
+  for (let y = 0; y < 512; y++) {
+    for (let x = 0; x < 512; x++) {
+      // Superimposed Sinusoidal & Trochoidal Wave Functions
+      const u = (x / 512) * Math.PI * 8;
+      const v = (y / 512) * Math.PI * 8;
+
+      const wave1 = Math.sin(u * 1.5 + v * 0.8);
+      const wave2 = Math.cos(u * 0.7 - v * 1.6);
+      const wave3 = Math.sin(u * 3.1 + v * 2.7) * 0.4;
+      const wave4 = Math.cos(u * 4.5 - v * 3.8) * 0.25;
+
+      const dzdx = (Math.cos(u * 1.5) * 1.5 + Math.sin(u * 3.1) * 1.24) * 0.6;
+      const dzdy = (Math.sin(v * 1.6) * 1.6 + Math.cos(v * 2.7) * 1.08) * 0.6;
+
+      const nx = (-dzdx * 0.5 + 0.5) * 255;
+      const ny = (-dzdy * 0.5 + 0.5) * 255;
+      const nz = (1.0 / Math.sqrt(dzdx * dzdx + dzdy * dzdy + 1.0)) * 255;
+
+      const idx = (y * 512 + x) * 4;
+      data[idx] = Math.round(nx);
+      data[idx + 1] = Math.round(ny);
+      data[idx + 2] = Math.round(nz);
+      data[idx + 3] = 255;
+    }
+  }
+  nCtx.putImageData(normImg, 0, 0);
+
+  // 3. Shoreline Foam & Crests Texture
+  const foamCanvas = document.createElement('canvas');
+  foamCanvas.width = 256;
+  foamCanvas.height = 256;
+  const fCtx = foamCanvas.getContext('2d')!;
+  fCtx.fillStyle = 'rgba(255, 255, 255, 0)';
+  fCtx.fillRect(0, 0, 256, 256);
+
+  fCtx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+  fCtx.lineWidth = 4;
+  for (let i = 0; i < 16; i++) {
+    fCtx.beginPath();
+    const yPos = i * 16;
+    fCtx.moveTo(0, yPos);
+    for (let xPos = 0; xPos <= 256; xPos += 16) {
+      fCtx.lineTo(xPos, yPos + Math.sin(xPos * 0.1 + i) * 4);
+    }
+    fCtx.stroke();
+  }
+
+  const diffuse = new THREE.CanvasTexture(diffCanvas);
+  diffuse.wrapS = THREE.RepeatWrapping;
+  diffuse.wrapT = THREE.RepeatWrapping;
+
+  const normal = new THREE.CanvasTexture(normCanvas);
+  normal.wrapS = THREE.RepeatWrapping;
+  normal.wrapT = THREE.RepeatWrapping;
+
+  const foam = new THREE.CanvasTexture(foamCanvas);
+  foam.wrapS = THREE.RepeatWrapping;
+  foam.wrapT = THREE.RepeatWrapping;
+
+  return { diffuse, normal, foam };
+}
+
+/**
  * Generates high-fidelity PBR ground textures (Diffuse + Real Sobel Normal Relief Map)
  */
 function createProceduralGroundPBRTextures(zoneId: string): { diffuse: THREE.CanvasTexture; normal: THREE.CanvasTexture } {
@@ -1841,50 +2016,90 @@ function createProceduralGroundPBRTextures(zoneId: string): { diffuse: THREE.Can
   const ctx = canvas.getContext('2d')!;
 
   if (zoneId === 'zone_forest') {
-    // Rich forest floor gradient base
+    // 🌿 Hand-Painted Stylized Forest Floor (Vibrant Greens, Lush Blades, Wildflowers & Clovers)
     const grad = ctx.createLinearGradient(0, 0, 512, 512);
     grad.addColorStop(0, '#15803d');
-    grad.addColorStop(0.5, '#166534');
-    grad.addColorStop(1, '#14532d');
+    grad.addColorStop(0.35, '#16a34a');
+    grad.addColorStop(0.7, '#22c55e');
+    grad.addColorStop(1, '#15803d');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, 512, 512);
 
-    // Organic Soil/Dirt patches
-    ctx.fillStyle = '#451a03';
-    for (let i = 0; i < 18; i++) {
+    // Natural warm sunlight & ambient shade blotches
+    for (let i = 0; i < 35; i++) {
+      const cx = (i * 89) % 512;
+      const cy = (i * 131) % 512;
+      const r = 35 + (i % 6) * 18;
+      const patchGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, r);
+      patchGrad.addColorStop(0, i % 2 === 0 ? 'rgba(74, 222, 128, 0.45)' : 'rgba(21, 128, 61, 0.55)');
+      patchGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = patchGrad;
       ctx.beginPath();
-      ctx.arc(
-        Math.random() * 512,
-        Math.random() * 512,
-        25 + Math.random() * 45,
-        0,
-        Math.PI * 2
-      );
-      ctx.globalAlpha = 0.28;
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fill();
     }
-    ctx.globalAlpha = 1.0;
 
-    // Grass noise speckles & moss patches
-    for (let i = 0; i < 3500; i++) {
-      const rx = Math.random() * 512;
-      const ry = Math.random() * 512;
-      const rVal = Math.random();
-      ctx.fillStyle = rVal > 0.6 ? '#22c55e' : rVal > 0.3 ? '#16a34a' : '#15803d';
-      ctx.fillRect(rx, ry, 3 + Math.random() * 4, 3 + Math.random() * 4);
+    // Hand-Painted Stylized Grass Blades with Highlighted Tips & Ambient Occlusion Bases
+    for (let i = 0; i < 2800; i++) {
+      const gx = Math.random() * 512;
+      const gy = Math.random() * 512;
+      const bladeH = 5 + Math.random() * 8;
+      const bladeW = 2 + Math.random() * 1.5;
+      const lean = (Math.random() - 0.5) * 4;
+
+      // Dark Root Occlusion Shadow
+      ctx.fillStyle = '#052e16';
+      ctx.fillRect(gx - 1, gy, bladeW + 2, 2);
+
+      // Mid-tone Grass Stem
+      ctx.fillStyle = Math.random() > 0.4 ? '#22c55e' : '#16a34a';
+      ctx.beginPath();
+      ctx.moveTo(gx, gy);
+      ctx.lineTo(gx + lean, gy - bladeH);
+      ctx.lineTo(gx + bladeW + lean, gy - bladeH);
+      ctx.lineTo(gx + bladeW, gy);
+      ctx.closePath();
+      ctx.fill();
+
+      // Golden Sunlit Tip Highlight
+      ctx.fillStyle = '#86efac';
+      ctx.fillRect(gx + lean, gy - bladeH, bladeW, 2);
     }
 
-    // Autumn leaf litter (crimson, gold, orange specks)
-    const leafColors = ['#dc2626', '#ea580c', '#eab308', '#b91c1c'];
-    for (let i = 0; i < 450; i++) {
-      ctx.fillStyle = leafColors[Math.floor(Math.random() * leafColors.length)];
-      ctx.fillRect(Math.random() * 512, Math.random() * 512, 3, 2);
+    // Four-Leaf & Three-Leaf Clover Clusters
+    for (let c = 0; c < 120; c++) {
+      const cx = (c * 97) % 512;
+      const cy = (c * 173) % 512;
+      ctx.fillStyle = '#4ade80';
+      for (let l = 0; l < 4; l++) {
+        const ang = (l * Math.PI) / 2;
+        ctx.beginPath();
+        ctx.arc(cx + Math.cos(ang) * 4, cy + Math.sin(ang) * 4, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = '#14532d';
+      ctx.fillRect(cx - 0.5, cy - 0.5, 1, 1);
     }
 
-    // White/Pink clover flower dots
-    ctx.fillStyle = '#fbcfe8';
-    for (let i = 0; i < 180; i++) {
-      ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
+    // Wild Woodland Flowers: Scarlet Poppies, Golden Buttercups & Pale Daisies
+    const flowerColors = ['#ef4444', '#facc15', '#ffffff', '#38bdf8', '#f472b6'];
+    for (let f = 0; f < 160; f++) {
+      const fx = (f * 67 + 33) % 512;
+      const fy = (f * 113 + 57) % 512;
+      const col = flowerColors[f % flowerColors.length];
+
+      ctx.fillStyle = col;
+      for (let p = 0; p < 5; p++) {
+        const rad = (p * Math.PI * 2) / 5;
+        ctx.beginPath();
+        ctx.arc(fx + Math.cos(rad) * 3, fy + Math.sin(rad) * 3, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Golden flower pistil center
+      ctx.fillStyle = '#ea580c';
+      ctx.beginPath();
+      ctx.arc(fx, fy, 1.5, 0, Math.PI * 2);
+      ctx.fill();
     }
   } else if (zoneId === 'zone_cave') {
     // Authentic Dwarven Flagstone & Granite Tile Ground with micro-bevels
@@ -2016,13 +2231,26 @@ function createProceduralGroundPBRTextures(zoneId: string): { diffuse: THREE.Can
       ctx.fillStyle = Math.random() > 0.6 ? '#c084fc' : '#fde047';
       ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
     }
+  } else if (zoneId === 'zone_tundra') {
+    // Frosty Crisp Snow with Glittering Ice Crystals
+    const sGrad = ctx.createLinearGradient(0, 0, 512, 512);
+    sGrad.addColorStop(0, '#f8fafc');
+    sGrad.addColorStop(0.5, '#e2e8f0');
+    sGrad.addColorStop(1, '#cbd5e1');
+    ctx.fillStyle = sGrad;
+    ctx.fillRect(0, 0, 512, 512);
+
+    for (let i = 0; i < 500; i++) {
+      ctx.fillStyle = Math.random() > 0.5 ? '#ffffff' : '#93c5fd';
+      ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
+    }
   } else {
     ctx.fillStyle = '#334155';
     ctx.fillRect(0, 0, 512, 512);
   }
 
   const diffuse = new THREE.CanvasTexture(canvas);
-  const normal = createNormalMapFromCanvas(canvas, 3.2);
+  const normal = createNormalMapFromCanvas(canvas, zoneId === 'zone_forest' ? 3.8 : 3.2);
 
   return { diffuse, normal };
 }
@@ -2036,8 +2264,8 @@ function createProceduralPathPBRTextures(): { diffuse: THREE.CanvasTexture; norm
   canvas.height = 512;
   const ctx = canvas.getContext('2d')!;
 
-  // Dark mortar grout
-  ctx.fillStyle = '#450a0a';
+  // Deep Damp Earth & Mortar Grout Base
+  ctx.fillStyle = '#291209';
   ctx.fillRect(0, 0, 512, 512);
 
   const cols = 8;
@@ -2053,24 +2281,60 @@ function createProceduralPathPBRTextures(): { diffuse: THREE.CanvasTexture; norm
       const bw = w - 6;
       const bh = h - 6;
 
+      // Realistic Medieval Brick / Flagstone Gradient with Warm Terracotta & Granitic Ochre
       const grad = ctx.createLinearGradient(bx, by, bx + bw, by + bh);
-      grad.addColorStop(0, '#dc2626');
-      grad.addColorStop(0.5, '#b91c1c');
-      grad.addColorStop(1, '#881337');
+      const stoneSeed = Math.abs(r * 17 + c * 31);
+      if (stoneSeed % 3 === 0) {
+        grad.addColorStop(0, '#e06f52');
+        grad.addColorStop(0.5, '#c2410c');
+        grad.addColorStop(1, '#9a3412');
+      } else if (stoneSeed % 3 === 1) {
+        grad.addColorStop(0, '#d97706');
+        grad.addColorStop(0.5, '#b45309');
+        grad.addColorStop(1, '#78350f');
+      } else {
+        grad.addColorStop(0, '#ea580c');
+        grad.addColorStop(0.5, '#c2410c');
+        grad.addColorStop(1, '#831843');
+      }
 
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.roundRect(bx, by, bw, bh, 8);
+      ctx.roundRect(bx, by, bw, bh, 6);
       ctx.fill();
 
-      // Top Highlight
-      ctx.strokeStyle = '#fca5a5';
+      // Top Specular Sunlit Chamfer Edge
+      ctx.strokeStyle = '#fdba74';
       ctx.lineWidth = 1.8;
       ctx.beginPath();
       ctx.moveTo(bx + 4, by + 2);
       ctx.lineTo(bx + bw - 4, by + 2);
       ctx.stroke();
 
+      // Left Soft Rim Highlight
+      ctx.strokeStyle = '#fed7aa';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(bx + 2, by + 4);
+      ctx.lineTo(bx + 2, by + bh - 4);
+      ctx.stroke();
+
+      // Bottom-Right Deep Shadow Crevice
+      ctx.strokeStyle = '#431407';
+      ctx.lineWidth = 2.0;
+      ctx.beginPath();
+      ctx.moveTo(bx + bw - 1, by + 4);
+      ctx.lineTo(bx + bw - 1, by + bh - 1);
+      ctx.lineTo(bx + 4, by + bh - 1);
+      ctx.stroke();
+
+      // Weathered Stone Pitting & Surface Grain
+      for (let p = 0; p < 18; p++) {
+        ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.22)';
+        ctx.fillRect(bx + 3 + Math.random() * (bw - 6), by + 3 + Math.random() * (bh - 6), 2, 2);
+      }
+
+      // Crevice Green Moss & Lichen
       if ((c + r) % 3 === 0) {
         ctx.fillStyle = '#15803d';
         ctx.fillRect(bx + Math.random() * bw, by + Math.random() * bh, 3, 3);
@@ -2083,7 +2347,7 @@ function createProceduralPathPBRTextures(): { diffuse: THREE.CanvasTexture; norm
   diffuse.wrapT = THREE.RepeatWrapping;
   diffuse.repeat.set(1, 1);
 
-  const normal = createNormalMapFromCanvas(canvas, 3.8);
+  const normal = createNormalMapFromCanvas(canvas, 4.2);
   normal.wrapS = THREE.RepeatWrapping;
   normal.wrapT = THREE.RepeatWrapping;
   normal.repeat.set(1, 1);
@@ -2094,9 +2358,17 @@ function createProceduralPathPBRTextures(): { diffuse: THREE.CanvasTexture; norm
 // --- GLOBAL TEXTURE CACHING SYSTEM (ELIMINATES ZERO-DELAY MAP TRANSITIONS) ---
 const globalTextureCache: Record<string, THREE.CanvasTexture> = {};
 const globalGroundPBRCache: Record<string, { diffuse: THREE.CanvasTexture; normal: THREE.CanvasTexture }> = {};
+const globalWaterPBRCache: Record<string, { diffuse: THREE.CanvasTexture; normal: THREE.CanvasTexture; foam: THREE.CanvasTexture }> = {};
 let cachedPathPBR: { diffuse: THREE.CanvasTexture; normal: THREE.CanvasTexture } | null = null;
 let cachedBarkTexture: THREE.CanvasTexture | null = null;
 let cachedBirchTexture: THREE.CanvasTexture | null = null;
+
+function getCachedWaterPBR(zoneId: string) {
+  if (!globalWaterPBRCache[zoneId]) {
+    globalWaterPBRCache[zoneId] = createProceduralWaterPBRTextures(zoneId);
+  }
+  return globalWaterPBRCache[zoneId];
+}
 
 function getCachedBarkTexture(): THREE.CanvasTexture {
   if (!cachedBarkTexture) {
