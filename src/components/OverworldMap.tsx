@@ -942,9 +942,15 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           openedChests={openedChests}
           defeatedBosses={defeatedBosses}
           completedQuests={completedQuests}
-          onTileClick={(targetX, targetY) => {
-            onMove({ x: targetX, y: targetY });
-          }}
+          onTileClick={
+            player.level >= 75
+              ? (targetX, targetY) => {
+                  onMove({ x: targetX, y: targetY });
+                  soundEngine.playSfx('select');
+                  showToast(`⚡ Teletransporte Creador: [${targetX}, ${targetY}]`);
+                }
+              : undefined
+          }
         />
 
         <TopResourceBar
