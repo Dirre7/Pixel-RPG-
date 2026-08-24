@@ -486,10 +486,12 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     let tileIndex = 0;
     for (let y = 0; y < currentZone.mapHeight; y++) {
       for (let x = 0; x < currentZone.mapWidth; x++) {
+        const isWaterTile = currentZone.tileData[y]?.[x] === 3;
         const posX = x * 2.5;
         const posZ = y * 2.5;
         const elevation = (Math.sin(x * 1.3 + y * 1.7) * 0.05) + (Math.cos(x * 0.8 - y * 1.2) * 0.04);
-        dummyPos.set(posX, -0.2 + elevation, posZ);
+        const baseGroundY = isWaterTile ? -0.55 : -0.2;
+        dummyPos.set(posX, baseGroundY + elevation, posZ);
         dummyMatrix.compose(dummyPos, dummyQuat, dummyScale);
         groundInstancedMesh.setMatrixAt(tileIndex++, dummyMatrix);
       }
@@ -742,27 +744,66 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
             const liquidMat = new THREE.MeshPhysicalMaterial({
               color: 0x0284c7,
               emissive: 0x0369a1,
-              emissiveIntensity: 0.5,
-              roughness: 0.1,
-              metalness: 0.2,
-              transmission: 0.5,
+              emissiveIntensity: 0.6,
+              roughness: 0.08,
+              metalness: 0.3,
+              transmission: 0.4,
               ior: 1.333,
               clearcoat: 1.0,
-              clearcoatRoughness: 0.1,
+              clearcoatRoughness: 0.05,
+              reflectivity: 0.9,
             });
-            const liquidMesh = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.38, 2.35), liquidMat);
-            liquidMesh.position.set(posX, -0.21 + elevation, posZ);
+            const liquidMesh = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.42, 2.505), liquidMat);
+            liquidMesh.position.set(posX, -0.10 + elevation, posZ);
             tileGroup.add(liquidMesh);
             animatedWaters.push(liquidMesh);
 
-            // Riverbed pebbles visible under clear water
-            if (currentZone.id === 'zone_forest' && (x + y) % 2 === 0) {
-              const riverPebble = new THREE.Mesh(
-                new THREE.DodecahedronGeometry(0.2, 1),
-                new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 })
-              );
-              riverPebble.position.set(posX + 0.3, -0.35 + elevation, posZ - 0.2);
-              tileGroup.add(riverPebble);
+            // Natural Riverbanks & Pebble Borders around grass boundaries
+            const bankMat = new THREE.MeshStandardMaterial({
+              color: currentZone.id === 'zone_volcano' ? 0x451a03 : currentZone.id === 'zone_cave' ? 0x334155 : 0xc89d68,
+              roughness: 0.9,
+            });
+            const pebbleMat = new THREE.MeshStandardMaterial({
+              color: 0x475569,
+              roughness: 0.75,
+            });
+
+            const hasNorthGrass = currentZone.tileData[y - 1]?.[x] !== 3;
+            const hasSouthGrass = currentZone.tileData[y + 1]?.[x] !== 3;
+            const hasEastGrass = currentZone.tileData[y]?.[x + 1] !== 3;
+            const hasWestGrass = currentZone.tileData[y]?.[x - 1] !== 3;
+
+            if (hasNorthGrass) {
+              const bankN = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.16, 0.28), bankMat);
+              bankN.position.set(posX, 0.04 + elevation, posZ - 1.15);
+              tileGroup.add(bankN);
+              const pN = new THREE.Mesh(new THREE.DodecahedronGeometry(0.16, 1), pebbleMat);
+              pN.position.set(posX + 0.5, 0.08 + elevation, posZ - 1.12);
+              tileGroup.add(pN);
+            }
+            if (hasSouthGrass) {
+              const bankS = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.16, 0.28), bankMat);
+              bankS.position.set(posX, 0.04 + elevation, posZ + 1.15);
+              tileGroup.add(bankS);
+              const pS = new THREE.Mesh(new THREE.DodecahedronGeometry(0.18, 1), pebbleMat);
+              pS.position.set(posX - 0.4, 0.08 + elevation, posZ + 1.12);
+              tileGroup.add(pS);
+            }
+            if (hasWestGrass) {
+              const bankW = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.16, 2.505), bankMat);
+              bankW.position.set(posX - 1.15, 0.04 + elevation, posZ);
+              tileGroup.add(bankW);
+              const pW = new THREE.Mesh(new THREE.DodecahedronGeometry(0.15, 1), pebbleMat);
+              pW.position.set(posX - 1.12, 0.08 + elevation, posZ + 0.3);
+              tileGroup.add(pW);
+            }
+            if (hasEastGrass) {
+              const bankE = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.16, 2.505), bankMat);
+              bankE.position.set(posX + 1.15, 0.04 + elevation, posZ);
+              tileGroup.add(bankE);
+              const pE = new THREE.Mesh(new THREE.DodecahedronGeometry(0.17, 1), pebbleMat);
+              pE.position.set(posX + 1.12, 0.08 + elevation, posZ - 0.4);
+              tileGroup.add(pE);
             }
           }
         }
@@ -1180,7 +1221,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
         if (w === oceanMesh) {
           w.position.y = -0.38 + Math.sin(time * 1.4) * 0.045;
         } else {
-          w.position.y = -0.21 + Math.sin(time * 2.8 + idx * 0.4) * 0.03;
+          w.position.y = -0.10 + Math.sin(time * 2.2 + idx * 0.4) * 0.008;
         }
       });
 
