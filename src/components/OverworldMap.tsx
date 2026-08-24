@@ -555,28 +555,10 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
     const targetTile = currentZone.tileData[newY]?.[newX];
 
-    // Block collision (1: Trees, 3: Deep Water, 4: Fountain/Well, 5: Houses, 6: Windmill, 7: Chests, 8: Shrine, 9: Market Stalls, 10: Stone Forge, 12: Bushes/Rose parterres, 14: Wooden Fences, 16: Gravestones, 17: Lamps, 18: Anvil/Workbench/Pillars, 19: Braziers, 21: Hedges)
+    // Block collision on solid obstacle tiles
     const isDirectSolid = [1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34].includes(targetTile);
 
-    // Bancos de madera en las 4 esquinas de la plaza central
-    const isPlazaBench = currentZone.id === 'zone_forest' && [
-      '26,28', '34,28', '26,32', '34,32'
-    ].includes(`${newX},${newY}`);
-
-    // Verificar si el jugador intenta entrar en el volumen 2x2 de una casa (tile 5, 6, 10)
-    let isInsideHouseVolume = false;
-    for (let hy = newY; hy <= newY + 1; hy++) {
-      for (let hx = newX - 1; hx <= newX; hx++) {
-        const t = currentZone.tileData[hy]?.[hx];
-        if (t === 5 || t === 6 || t === 10) {
-          isInsideHouseVolume = true;
-          break;
-        }
-      }
-      if (isInsideHouseVolume) break;
-    }
-
-    if (isDirectSolid || isInsideHouseVolume || isPlazaBench) {
+    if (isDirectSolid) {
       soundEngine.playSfx('error');
       return;
     }

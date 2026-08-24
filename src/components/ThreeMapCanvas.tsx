@@ -582,6 +582,157 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
               tileGroup.add(post);
             }
           }
+
+          // 🌿 Organic RPG Roadside Transitions: Stone Curbs, Wild Grass, Pebbles & Wooden Fences
+          const hasNorthGrass = currentZone.tileData[y - 1]?.[x] !== 2 && currentZone.tileData[y - 1]?.[x] !== 3;
+          const hasSouthGrass = currentZone.tileData[y + 1]?.[x] !== 2 && currentZone.tileData[y + 1]?.[x] !== 3;
+          const hasEastGrass = currentZone.tileData[y]?.[x + 1] !== 2 && currentZone.tileData[y]?.[x + 1] !== 3;
+          const hasWestGrass = currentZone.tileData[y]?.[x - 1] !== 2 && currentZone.tileData[y]?.[x - 1] !== 3;
+
+          const curbMat = new THREE.MeshStandardMaterial({ color: 0x78716c, roughness: 0.85 });
+          const pebbleMat = new THREE.MeshStandardMaterial({ color: 0x57534e, roughness: 0.9 });
+          const grassMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.6 });
+          const fenceMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.85 });
+
+          if (hasNorthGrass) {
+            const curbN = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.04, 0.12), curbMat);
+            curbN.position.set(posX, 0.02, posZ - 1.20);
+            tileGroup.add(curbN);
+
+            if ((x + y) % 2 === 0) {
+              const pN = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
+              pN.position.set(posX + 0.45, 0.05, posZ - 1.16);
+              tileGroup.add(pN);
+            }
+
+            if ((x * 7 + y * 11) % 3 === 0) {
+              const gN = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
+              gN.position.set(posX - 0.5, 0.08, posZ - 1.18);
+              tileGroup.add(gN);
+            }
+
+            if ((x * 13 + y * 19) % 4 === 0 && currentZone.id === 'zone_forest') {
+              const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+              post1.position.set(posX - 0.7, 0.25, posZ - 1.22);
+              post1.castShadow = true;
+              tileGroup.add(post1);
+
+              const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+              post2.position.set(posX + 0.7, 0.25, posZ - 1.22);
+              post2.castShadow = true;
+              tileGroup.add(post2);
+
+              const rail = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 0.04), fenceMat);
+              rail.position.set(posX, 0.35, posZ - 1.22);
+              rail.castShadow = true;
+              tileGroup.add(rail);
+            }
+          }
+
+          if (hasSouthGrass) {
+            const curbS = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.04, 0.12), curbMat);
+            curbS.position.set(posX, 0.02, posZ + 1.20);
+            tileGroup.add(curbS);
+
+            if ((x + y) % 2 === 1) {
+              const pS = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
+              pS.position.set(posX - 0.45, 0.05, posZ + 1.16);
+              tileGroup.add(pS);
+            }
+
+            if ((x * 11 + y * 13) % 3 === 0) {
+              const gS = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
+              gS.position.set(posX + 0.5, 0.08, posZ + 1.18);
+              tileGroup.add(gS);
+            }
+
+            if ((x * 17 + y * 23) % 4 === 0 && currentZone.id === 'zone_forest') {
+              const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+              post1.position.set(posX - 0.7, 0.25, posZ + 1.22);
+              post1.castShadow = true;
+              tileGroup.add(post1);
+
+              const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+              post2.position.set(posX + 0.7, 0.25, posZ + 1.22);
+              post2.castShadow = true;
+              tileGroup.add(post2);
+
+              const rail = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 0.04), fenceMat);
+              rail.position.set(posX, 0.35, posZ + 1.22);
+              rail.castShadow = true;
+              tileGroup.add(rail);
+            }
+          }
+
+          if (hasWestGrass) {
+            const curbW = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.04, 2.505), curbMat);
+            curbW.position.set(posX - 1.20, 0.02, posZ);
+            tileGroup.add(curbW);
+
+            if ((x + y) % 2 === 0) {
+              const pW = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
+              pW.position.set(posX - 1.16, 0.05, posZ + 0.45);
+              tileGroup.add(pW);
+            }
+
+            if ((x * 13 + y * 17) % 3 === 0) {
+              const gW = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
+              gW.position.set(posX - 1.18, 0.08, posZ - 0.5);
+              tileGroup.add(gW);
+            }
+
+            if ((x * 19 + y * 29) % 4 === 0 && currentZone.id === 'zone_forest') {
+              const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+              post1.position.set(posX - 1.22, 0.25, posZ - 0.7);
+              post1.castShadow = true;
+              tileGroup.add(post1);
+
+              const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+              post2.position.set(posX - 1.22, 0.25, posZ + 0.7);
+              post2.castShadow = true;
+              tileGroup.add(post2);
+
+              const rail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 1.6), fenceMat);
+              rail.position.set(posX - 1.22, 0.35, posZ);
+              rail.castShadow = true;
+              tileGroup.add(rail);
+            }
+          }
+
+          if (hasEastGrass) {
+            const curbE = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.04, 2.505), curbMat);
+            curbE.position.set(posX + 1.20, 0.02, posZ);
+            tileGroup.add(curbE);
+
+            if ((x + y) % 2 === 1) {
+              const pE = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
+              pE.position.set(posX + 1.16, 0.05, posZ - 0.45);
+              tileGroup.add(pE);
+            }
+
+            if ((x * 17 + y * 23) % 3 === 0) {
+              const gE = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
+              gE.position.set(posX + 1.18, 0.08, posZ + 0.5);
+              tileGroup.add(gE);
+            }
+
+            if ((x * 23 + y * 31) % 4 === 0 && currentZone.id === 'zone_forest') {
+              const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+              post1.position.set(posX + 1.22, 0.25, posZ - 0.7);
+              post1.castShadow = true;
+              tileGroup.add(post1);
+
+              const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+              post2.position.set(posX + 1.22, 0.25, posZ + 0.7);
+              post2.castShadow = true;
+              tileGroup.add(post2);
+
+              const rail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 1.6), fenceMat);
+              rail.position.set(posX + 1.22, 0.35, posZ);
+              rail.castShadow = true;
+              tileGroup.add(rail);
+            }
+          }
         }
 
         // Ground / Path Decorations (Hedges, Flower Patches, 3D Grass Tufts, Pebbles, Lanterns, Crystals)
