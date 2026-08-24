@@ -136,18 +136,22 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
       map[y][x] = 0;
     }
   }
-  // Conexión vial al laberinto
-  for (let x = 14; x <= 20; x++) {
+  // Calzada principal de acceso este a oeste conectada con la ciudad
+  for (let x = 6; x <= 24; x++) {
     map[60][x] = 2;
   }
-  // Setos del laberinto
+  // Setos del laberinto (con accesos abiertos en las entradas viales)
   for (let y = 48; y <= 72; y++) {
-    map[y][6] = 1;
-    map[y][16] = 1;
+    if (y < 59 || y > 61) {
+      map[y][6] = 1;
+      map[y][16] = 1;
+    }
   }
   for (let x = 6; x <= 16; x++) {
-    map[48][x] = 1;
-    map[72][x] = 1;
+    if (x < 10 || x > 12) {
+      map[48][x] = 1;
+      map[72][x] = 1;
+    }
   }
   map[60][11] = 18; // Estatua central del laberinto
   map[60][9] = 7;   // 🎁 Cofre Secreto del Laberinto
