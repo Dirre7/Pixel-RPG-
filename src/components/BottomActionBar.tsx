@@ -59,9 +59,9 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
   ];
 
   return (
-    <div className="w-full flex flex-col items-center gap-1.5 pointer-events-auto select-none z-20">
+    <div className="flex flex-col items-center gap-1 sm:gap-1.5 pointer-events-auto select-none pb-1 sm:pb-2">
       {/* 6-Slot Quick Action Hotbar */}
-      <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-950/95 p-1.5 sm:p-2 rounded-2xl border-2 border-amber-600/80 shadow-2xl backdrop-blur-md overflow-x-auto max-w-full no-scrollbar">
+      <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-950/75 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl border border-amber-500/50 shadow-2xl backdrop-blur-md overflow-x-auto max-w-full no-scrollbar">
         {hotbarSlots.map((slot) => (
           <button
             key={slot.key}
@@ -126,35 +126,40 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
                   player.resources.crops -= 2;
                   player.hp = Math.min(player.maxHp, player.hp + 50);
                   soundEngine.playSfx('heal');
-                  onShowToast('🥩 ¡Carne Asada consumida! +50 HP restaurados (-2 Cosechas).');
+                  onShowToast('🥩 ¡Has comido Carne Asada! +50 HP restaurados (-2 Cosechas).');
                 } else {
                   soundEngine.playSfx('error');
-                  onShowToast('⚠️ Necesitas al menos 2 cosechas/provisiones en tu inventario.');
+                  onShowToast('⚠️ Necesitas al menos 2 Cosechas para preparar Carne Asada.');
                 }
               } else if (slot.type === 'elixir') {
+                if (player.hp >= player.maxHp && player.mp >= player.maxMp) {
+                  soundEngine.playSfx('select');
+                  onShowToast('✨ ¡Tu salud y maná ya están al 100%!');
+                  return;
+                }
                 if (elixirItem && elixirItem.quantity > 0) {
                   onUseConsumable(elixirItem.id);
-                  onShowToast('🏺 ¡Elixir Sagrado consumido! HP y MP restaurados al 100%.');
+                  onShowToast(`🏺 ¡Usado ${elixirItem.name}! Vida y Maná restaurados al 100%.`);
                 } else {
                   soundEngine.playSfx('error');
-                  onShowToast('⚠️ No tienes Elixires Sagrados en tu inventario.');
+                  onShowToast('⚠️ No te quedan Elixires Sagrados.');
                 }
               }
             }}
-            className="relative group w-11 h-11 sm:w-13 sm:h-13 bg-slate-900/95 hover:bg-slate-800 active:scale-90 border-2 border-slate-700 hover:border-amber-400 rounded-2xl flex flex-col items-center justify-center transition shadow-lg flex-shrink-0"
+            className="relative flex flex-col items-center justify-center w-9 h-9 sm:w-11 sm:h-11 bg-slate-900/80 hover:bg-slate-800 active:scale-90 rounded-lg sm:rounded-xl border border-slate-700/80 hover:border-amber-400/80 shadow-md transition-all group"
             title={`${slot.name} (Tecla ${slot.key})`}
           >
-            {/* Key shortcut badge */}
-            <span className="absolute top-0.5 left-1.5 text-[9px] font-mono text-slate-400 group-hover:text-amber-300 font-bold">
+            {/* Slot Hotkey Label */}
+            <span className="absolute top-0.5 left-1 text-[8px] sm:text-[9px] font-mono font-black text-slate-400 group-hover:text-amber-300">
               {slot.key}
             </span>
 
             {/* Icon */}
-            <span className="text-xl sm:text-2xl select-none">{slot.icon}</span>
+            <span className="text-base sm:text-xl select-none mt-1">{slot.icon}</span>
 
             {/* Count Badge */}
             {slot.count > 0 && (
-              <span className="absolute bottom-0.5 right-1 text-[9px] sm:text-[10px] font-mono font-black text-amber-200 bg-slate-950 px-1.5 py-0.2 rounded-full border border-amber-500/60 shadow">
+              <span className="absolute -bottom-1 -right-1 text-[8px] sm:text-[9px] font-mono font-black text-amber-200 bg-slate-950 px-1 rounded-full border border-amber-500/60 shadow">
                 {slot.count}
               </span>
             )}
@@ -162,18 +167,17 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
         ))}
       </div>
 
-      {/* Village Management Navigation Bar (Pixel Tribe Style) */}
-      <div className="flex items-center justify-center gap-1.5 sm:gap-3 overflow-x-auto max-w-full no-scrollbar py-1">
-
+      {/* Main Bottom Action Buttons (Glassmorphic Dock) */}
+      <div className="flex items-center justify-center gap-1.5 sm:gap-2">
         {/* Misiones */}
         <button
           onClick={() => {
             soundEngine.playSfx('select');
             onOpenQuests();
           }}
-          className="flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 bg-amber-950/95 hover:bg-amber-900 active:scale-95 text-amber-200 rounded-2xl border-2 border-amber-600 shadow-xl font-mono text-xs sm:text-sm font-black transition"
+          className="flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-amber-950/80 hover:bg-amber-900 active:scale-95 text-amber-200 rounded-xl border border-amber-600/70 shadow-lg font-mono text-[11px] sm:text-xs font-black backdrop-blur-md transition"
         >
-          <Scroll className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
+          <Scroll className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
           <span>Misiones</span>
         </button>
 
@@ -183,9 +187,9 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
             soundEngine.playSfx('select');
             onOpenShop();
           }}
-          className="flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 bg-slate-900/95 hover:bg-slate-800 active:scale-95 text-emerald-300 rounded-2xl border-2 border-emerald-600 shadow-xl font-mono text-xs sm:text-sm font-black transition"
+          className="flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-900/80 hover:bg-slate-800 active:scale-95 text-emerald-300 rounded-xl border border-emerald-600/70 shadow-lg font-mono text-[11px] sm:text-xs font-black backdrop-blur-md transition"
         >
-          <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
+          <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
           <span>Comercio</span>
         </button>
 
@@ -195,21 +199,10 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
             soundEngine.playSfx('select');
             onOpenInventory();
           }}
-          className="flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 bg-slate-900/95 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-2xl border-2 border-amber-500 shadow-xl font-mono text-xs sm:text-sm font-black transition"
+          className="flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-900/80 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-xl border border-amber-500/70 shadow-lg font-mono text-[11px] sm:text-xs font-black backdrop-blur-md transition"
         >
-          <Package className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
+          <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
           <span>Inventario</span>
-        </button>
-
-        {/* Ajustes */}
-        <button
-          onClick={() => {
-            soundEngine.playSfx('select');
-            onOpenSettings();
-          }}
-          className="flex items-center gap-1 p-2 sm:p-2.5 bg-slate-900/95 hover:bg-slate-800 active:scale-95 text-slate-300 rounded-2xl border-2 border-slate-700 shadow-xl font-mono text-xs sm:text-sm font-bold transition"
-        >
-          <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
         </button>
       </div>
     </div>

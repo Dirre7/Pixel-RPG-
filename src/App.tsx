@@ -1311,7 +1311,7 @@ export default function App() {
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-slate-950 text-slate-100 flex flex-col justify-between items-center p-1 sm:p-3 overflow-hidden select-none touch-none">
+    <div className={`h-[100dvh] w-full bg-slate-950 text-slate-100 flex flex-col justify-between items-center ${gameState === 'overworld' ? 'p-0' : 'p-1 sm:p-3'} overflow-hidden select-none touch-none`}>
       {/* Title Screen */}
       {gameState === 'title' && (
         <TitleScreen

@@ -28,7 +28,12 @@ import {
   Save,
   Trophy,
   Scroll,
-  BookOpen
+  BookOpen,
+  Menu,
+  MapPin,
+  X,
+  Calendar,
+  Settings
 } from 'lucide-react';
 
 interface OverworldMapProps {
@@ -109,6 +114,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     typeof window !== 'undefined' ? window.innerWidth >= 768 : true
   );
   const [showForgeModal, setShowForgeModal] = useState(false);
+  const [showGameMenuModal, setShowGameMenuModal] = useState(false);
+  const [showZoneTravelModal, setShowZoneTravelModal] = useState(false);
   const [activeChestLoot, setActiveChestLoot] = useState<ChestLoot | null>(null);
   const [depletedNodes, setDepletedNodes] = useState<string[]>([]);
 
@@ -766,210 +773,17 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-between w-full h-full max-h-[100dvh] max-w-7xl mx-auto p-1 sm:p-2.5 bg-slate-950 text-slate-100 rounded-xl border border-slate-800 shadow-2xl overflow-hidden select-none touch-none">
-      {/* Top Header: Zone Name, Quick Utilities & Zone Selector */}
-      <div className="w-full flex flex-col gap-1 sm:gap-1.5 p-1.5 sm:p-2 bg-slate-900/90 rounded-2xl border border-slate-800 flex-shrink-0">
-        {/* Row 1: Title and Utility Action Buttons */}
-        <div className="w-full flex items-center justify-between gap-1.5 sm:gap-2">
-          {/* Left: Current Zone Title with indicator dot */}
-          <div className="flex items-center gap-2 overflow-hidden py-0.5 min-w-0">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-            <h1 className="font-bold text-xs sm:text-sm text-amber-300 font-mono truncate">
-              {currentZone.name}
-            </h1>
-          </div>
-
-          {/* Right: Quick Action Modals (Codex, Ranking, Logros, Ajustes) */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <button
-              onClick={() => {
-                soundEngine.playSfx('select');
-                onOpenLoreCodex();
-              }}
-              className="px-2 sm:px-2.5 py-1.5 bg-amber-600/20 hover:bg-amber-600/40 active:scale-95 text-amber-300 rounded-xl border border-amber-500/50 transition flex items-center gap-1 text-xs font-mono font-bold shadow-sm"
-              title="Abrir Códice y Guía del Reino"
-            >
-              <Scroll className="w-4 h-4 text-amber-400" />
-              <span className="hidden sm:inline">Códice</span>
-            </button>
-
-            <button
-              onClick={() => {
-                soundEngine.playSfx('select');
-                onOpenLeaderboard();
-              }}
-              className="px-2 sm:px-2.5 py-1.5 bg-amber-600/20 hover:bg-amber-600/40 active:scale-95 text-amber-300 rounded-xl border border-amber-500/50 transition flex items-center gap-1 text-xs font-mono font-bold shadow-sm"
-              title="Ver Clasificación"
-            >
-              <Trophy className="w-4 h-4 text-amber-400" />
-              <span className="hidden sm:inline">Ranking</span>
-            </button>
-
-            <button
-              onClick={() => {
-                soundEngine.playSfx('select');
-                onOpenAchievements();
-              }}
-              className="relative px-2 sm:px-2.5 py-1.5 bg-gradient-to-r from-amber-600/25 to-yellow-600/20 hover:from-amber-600/45 active:scale-95 text-amber-300 rounded-xl border border-amber-500/50 shadow-md transition flex items-center gap-1 text-xs font-mono font-bold"
-              title="Ver Logros y Recompensas"
-            >
-              <Award className="w-4 h-4 text-yellow-400" />
-              <span className="font-bold hidden sm:inline">Logros</span>
-              {unclaimedAchievementsCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-slate-950 shadow animate-bounce">
-                  {unclaimedAchievementsCount}
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => {
-                soundEngine.playSfx('select');
-                onOpenSettings();
-              }}
-              className="p-1.5 sm:p-2 bg-slate-800 hover:bg-slate-700 active:scale-95 rounded-xl border border-slate-700 text-slate-300 transition flex items-center shadow-sm"
-              title="Ajustes"
-            >
-              <Gamepad className="w-4 h-4 text-slate-300" />
-            </button>
-          </div>
-        </div>
-
-        {/* Row 2: Zone Selector Tabs (8 Regions) */}
-        <div className="w-full flex items-center gap-1.5 bg-slate-950/90 p-1.5 rounded-xl border border-slate-800 overflow-x-auto scrollbar-thin scrollbar-thumb-amber-500/50">
-          {ZONES.map((z) => {
-            const unlocked = isZoneUnlocked(z.id, defeatedBosses);
-            const requirementMsg = getZoneRequirementMessage(z.id);
-            const isCurrent = z.id === currentZone.id;
-            const shortName = z.name.split(':')[1]?.trim() || z.name.split(':')[0];
-
-            return (
-              <button
-                key={z.id}
-                onClick={() => {
-                  if (unlocked) {
-                    soundEngine.playSfx('select');
-                    onChangeZone(z.id);
-                  } else {
-                    soundEngine.playSfx('error');
-                    showToast(requirementMsg);
-                  }
-                }}
-                className={`py-1.5 px-2.5 text-xs rounded-lg font-mono flex items-center justify-center gap-1.5 transition-all whitespace-nowrap active:scale-95 flex-shrink-0 ${
-                  isCurrent
-                    ? 'bg-amber-500 text-slate-950 font-black shadow-md border-amber-400'
-                    : unlocked
-                    ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
-                    : 'bg-slate-900/90 text-slate-500 border border-slate-800/80 opacity-75'
-                }`}
-                title={unlocked ? z.name : requirementMsg}
-              >
-                {!unlocked ? <span className="text-xs">🔒</span> : <span className="text-xs">📍</span>}
-                <span className="font-bold">{shortName}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Compact Main Stats Bar (Single Row) */}
-      <div className="w-full flex items-center justify-between gap-1.5 sm:gap-2.5 my-1 p-1.5 sm:p-2 bg-slate-900/95 rounded-2xl border-2 border-slate-800 text-xs font-mono shadow-xl flex-shrink-0">
-        {/* Player Name & Class */}
-        <div className="flex items-center space-x-1.5 flex-shrink-0 bg-slate-950 px-2 py-1 rounded-xl border border-slate-800 shadow-inner">
-          <span className="text-sm">{player.heroClass === 'Guerrero' ? '⚔️' : player.heroClass === 'Mago' ? '🪄' : '🗡️'}</span>
-          <span className="font-black text-amber-300 truncate max-w-[80px] sm:max-w-none text-xs sm:text-sm">{player.name}</span>
-          <span className="text-amber-400 font-bold text-[10px] sm:text-xs">Nv.{player.level}</span>
-        </div>
-
-        {/* HP Bar */}
-        <div className="flex-1 min-w-[55px] sm:min-w-[85px] bg-slate-950 px-1.5 py-1 rounded-xl border border-slate-800 shadow-inner">
-          <div className="flex justify-between text-emerald-400 font-black text-[9px] sm:text-[10px]">
-            <span>HP</span>
-            <span>{player.hp}/{player.maxHp}</span>
-          </div>
-          <div className="w-full bg-slate-800 h-2 sm:h-2.5 rounded-full overflow-hidden mt-0.5">
-            <div
-              className="bg-emerald-500 h-full transition-all duration-300"
-              style={{ width: `${Math.min(100, Math.max(0, (player.hp / player.maxHp) * 100))}%` }}
-            />
-          </div>
-        </div>
-
-        {/* MP Bar */}
-        <div className="flex-1 min-w-[55px] sm:min-w-[85px] bg-slate-950 px-1.5 py-1 rounded-xl border border-slate-800 shadow-inner">
-          <div className="flex justify-between text-sky-400 font-black text-[9px] sm:text-[10px]">
-            <span>MP</span>
-            <span>{player.mp}/{player.maxMp}</span>
-          </div>
-          <div className="w-full bg-slate-800 h-2 sm:h-2.5 rounded-full overflow-hidden mt-0.5">
-            <div
-              className="bg-sky-500 h-full transition-all duration-300"
-              style={{ width: `${Math.min(100, Math.max(0, (player.mp / player.maxMp) * 100))}%` }}
-            />
-          </div>
-        </div>
-
-        {/* EXP Bar (Next Level Progress) */}
-        <div
-          className="flex-1 min-w-[55px] sm:min-w-[85px] bg-slate-950 px-1.5 py-1 rounded-xl border border-purple-900/50 hover:border-purple-500/60 transition-colors shadow-inner"
-          title={`EXP: ${player.exp} / ${player.maxExp} (Faltan ${Math.max(0, player.maxExp - player.exp)} EXP para Nv.${player.level + 1})`}
-        >
-          <div className="flex justify-between text-purple-300 font-black text-[9px] sm:text-[10px]">
-            <span className="flex items-center gap-0.5">
-              <span>EXP</span>
-            </span>
-            <span>{player.exp}/{player.maxExp}</span>
-          </div>
-          <div className="w-full bg-slate-800 h-2 sm:h-2.5 rounded-full overflow-hidden mt-0.5">
-            <div
-              className="bg-gradient-to-r from-purple-500 via-fuchsia-400 to-amber-300 h-full transition-all duration-300"
-              style={{ width: `${Math.min(100, Math.max(0, (player.exp / player.maxExp) * 100))}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Gold & Save & Menu */}
-        <div className="flex items-center space-x-1 flex-shrink-0 bg-slate-950 px-2 py-1 rounded-xl border border-amber-500/60 shadow-inner">
-          <span className="text-sm">🪙</span>
-          <span className="font-black text-yellow-300 text-xs sm:text-sm">{player.gold.toLocaleString()}G</span>
-          <button
-            onClick={() => {
-              soundEngine.playSfx('levelup');
-              onAutoSave();
-              showToast(`💾 ¡Guardado en Ranura ${activeSlotIndex + 1}! (${player.name} Nv. ${player.level})`);
-            }}
-            className="p-1 bg-emerald-700 hover:bg-emerald-600 active:scale-95 rounded text-emerald-100 font-bold flex items-center space-x-0.5 border border-emerald-500 shadow"
-            title={`Guardar partida en Ranura ${activeSlotIndex + 1}`}
-          >
-            <Save className="w-3.5 h-3.5" />
-            <span className="text-[10px] hidden sm:inline">Guardar</span>
-          </button>
-          {onReturnToTitle && (
-            <button
-              onClick={() => {
-                onAutoSave();
-                soundEngine.playSfx('select');
-                onReturnToTitle();
-              }}
-              className="p-1 bg-slate-800 hover:bg-slate-700 active:scale-95 rounded text-slate-300 text-[10px] font-bold border border-slate-700"
-              title="Guardar y Volver al Menú Principal / Cambiar Personaje"
-            >
-              🚪 Menú
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Overworld Map Grid View - 3D WebGL MOBA Engine */}
-      <div
-        className="relative flex-1 min-h-0 w-full my-0.5 sm:my-1 bg-slate-900 border-2 border-slate-700 rounded-xl shadow-inner overflow-hidden touch-none select-none"
-        style={{ touchAction: 'none' }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={(e) => {
-          if (e.cancelable) e.preventDefault();
-        }}
-        onTouchEnd={handleTouchEnd}
-      >
+    <div
+      className="relative w-full h-full bg-slate-950 overflow-hidden select-none touch-none"
+      style={{ touchAction: 'none' }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={(e) => {
+        if (e.cancelable) e.preventDefault();
+      }}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* 1. 3D WebGL MOBA Engine - 100% Fullscreen Viewport */}
+      <div className="absolute inset-0 w-full h-full">
         <ThreeMapCanvas
           currentZone={currentZone}
           playerPos={playerPos}
@@ -989,205 +803,538 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
               : undefined
           }
         />
+      </div>
 
-        <TopResourceBar
-          player={player}
-          currentZone={currentZone}
-          acceptedQuests={acceptedQuests}
-          completedQuests={completedQuests}
-          onOpenQuests={() => {
-            soundEngine.playSfx('select');
-            setIsQuestLogOpen(true);
-          }}
-        />
+      {/* 2. Top-Left: Player Vitals Glassmorphic Capsule */}
+      <div className="absolute top-2 left-2 z-20 pointer-events-auto flex flex-col gap-1 bg-slate-950/75 border border-amber-500/50 rounded-xl p-1.5 sm:p-2 shadow-2xl backdrop-blur-md font-mono min-w-[150px] sm:min-w-[210px] max-w-[240px]">
+        {/* Header: Class, Name, Level, Gold */}
+        <div className="flex items-center justify-between text-xs font-bold">
+          <div className="flex items-center gap-1 min-w-0">
+            <span className="text-sm">{player.heroClass === 'Guerrero' ? '⚔️' : player.heroClass === 'Mago' ? '🪄' : '🗡️'}</span>
+            <span className="text-amber-300 font-black truncate max-w-[70px] sm:max-w-[100px] text-xs">{player.name}</span>
+            <span className="text-amber-400 text-[10px]">Nv.{player.level}</span>
+          </div>
+          <div className="flex items-center gap-0.5 text-yellow-300 font-black text-[11px] ml-1">
+            <span>🪙</span>
+            <span>{player.gold.toLocaleString()}G</span>
+          </div>
+        </div>
 
-        {/* Floating Minimap Overlay in Top-Right Corner (Collapsible for Mobile) */}
-        <div className="absolute top-10 right-2 z-20 pointer-events-auto flex flex-col items-end">
+        {/* HP Bar */}
+        <div className="w-full">
+          <div className="flex justify-between text-emerald-400 font-black text-[8px] sm:text-[9px]">
+            <span>HP</span>
+            <span>{player.hp}/{player.maxHp}</span>
+          </div>
+          <div className="w-full bg-slate-800/90 h-1.5 sm:h-2 rounded-full overflow-hidden">
+            <div
+              className="bg-emerald-500 h-full transition-all duration-300"
+              style={{ width: `${Math.min(100, Math.max(0, (player.hp / player.maxHp) * 100))}%` }}
+            />
+          </div>
+        </div>
+
+        {/* MP Bar */}
+        <div className="w-full">
+          <div className="flex justify-between text-sky-400 font-black text-[8px] sm:text-[9px]">
+            <span>MP</span>
+            <span>{player.mp}/{player.maxMp}</span>
+          </div>
+          <div className="w-full bg-slate-800/90 h-1.5 sm:h-2 rounded-full overflow-hidden">
+            <div
+              className="bg-sky-500 h-full transition-all duration-300"
+              style={{ width: `${Math.min(100, Math.max(0, (player.mp / player.maxMp) * 100))}%` }}
+            />
+          </div>
+        </div>
+
+        {/* EXP Bar */}
+        <div className="w-full" title={`EXP: ${player.exp} / ${player.maxExp}`}>
+          <div className="w-full bg-slate-800/90 h-1 rounded-full overflow-hidden mt-0.5">
+            <div
+              className="bg-gradient-to-r from-purple-500 via-fuchsia-400 to-amber-300 h-full transition-all duration-300"
+              style={{ width: `${Math.min(100, Math.max(0, (player.exp / player.maxExp) * 100))}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Top-Center: Resources & Date Capsule (Glassmorphism) */}
+      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto hidden md:flex items-center gap-2.5 bg-slate-950/75 border border-amber-500/50 rounded-full px-3.5 py-1 shadow-2xl backdrop-blur-md font-mono text-xs text-amber-200">
+        <div className="flex items-center gap-1" title="Madera">
+          <span>🪵</span>
+          <span className="font-bold">{(player.resources?.wood || 0).toLocaleString()}</span>
+        </div>
+        <div className="flex items-center gap-1" title="Piedra">
+          <span>🪨</span>
+          <span className="font-bold">{(player.resources?.stone || 0).toLocaleString()}</span>
+        </div>
+        <div className="flex items-center gap-1" title="Cosechas">
+          <span>🥕</span>
+          <span className="font-bold">{(player.resources?.crops || 0).toLocaleString()}</span>
+        </div>
+        <div className="flex items-center gap-1" title="Gemas">
+          <span>💎</span>
+          <span className="font-bold">{(player.resources?.gems || 0).toLocaleString()}</span>
+        </div>
+        <div className="h-3 w-px bg-amber-500/40 mx-0.5" />
+        <div className="flex items-center gap-1 text-amber-300">
+          <Calendar className="w-3.5 h-3.5" />
+          <span className="font-bold">D15, Primavera</span>
+        </div>
+      </div>
+
+      {/* 4. Top-Right: Fast Travel, Save, Menu & Minimap */}
+      <div className="absolute top-2 right-2 z-20 pointer-events-auto flex flex-col items-end gap-1 font-mono">
+        {/* System Bar Quick Controls */}
+        <div className="flex items-center gap-1">
+          {/* Fast-Travel Zone Button */}
+          <button
+            onClick={() => {
+              soundEngine.playSfx('select');
+              setShowZoneTravelModal(true);
+            }}
+            className="px-2 py-1 bg-slate-950/80 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-lg border border-amber-500/50 shadow-md text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 transition"
+            title="Viaje Rápido entre Zonas"
+          >
+            <MapPin className="w-3 h-3 text-amber-400" />
+            <span className="hidden sm:inline">Zonas</span>
+          </button>
+
+          {/* Quick Save Button */}
+          <button
+            onClick={() => {
+              soundEngine.playSfx('levelup');
+              onAutoSave();
+              showToast(`💾 ¡Partida Guardada en Ranura ${activeSlotIndex + 1}!`);
+            }}
+            className="px-2 py-1 bg-emerald-950/80 hover:bg-emerald-900 active:scale-95 text-emerald-200 rounded-lg border border-emerald-500/50 shadow-md text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 transition"
+            title={`Guardar partida (Ranura ${activeSlotIndex + 1})`}
+          >
+            <Save className="w-3 h-3 text-emerald-400" />
+            <span className="hidden sm:inline">Guardar</span>
+          </button>
+
+          {/* Unified Game Menu Button */}
+          <button
+            onClick={() => {
+              soundEngine.playSfx('select');
+              setShowGameMenuModal(true);
+            }}
+            className="relative p-1 px-2 bg-slate-950/80 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-lg border border-amber-500/50 shadow-md text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 transition"
+            title="Abrir Menú Principal del Juego"
+          >
+            <Menu className="w-3 h-3 text-amber-400" />
+            <span className="hidden sm:inline">Menú</span>
+            {unclaimedAchievementsCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-amber-500 text-[8px] font-black text-slate-950 shadow animate-bounce">
+                {unclaimedAchievementsCount}
+              </span>
+            )}
+          </button>
+
+          {/* Minimap Toggle */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               setShowMinimap(!showMinimap);
             }}
-            onTouchStart={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowMinimap((prev) => !prev);
-            }}
-            className="mb-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-slate-950/80 active:bg-amber-500 active:text-slate-950 hover:bg-slate-800 border border-amber-500/50 rounded text-[9px] sm:text-[10px] font-mono text-amber-300 shadow-md flex items-center gap-1 backdrop-blur-sm transition"
+            className="p-1 px-1.5 bg-slate-950/80 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-lg border border-amber-500/50 shadow-md text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 transition"
             title="Mostrar / Ocultar Minimapa"
           >
-            <Compass className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />
-            <span className="font-bold">{showMinimap ? 'Ocultar' : 'Mapa'}</span>
+            <Compass className="w-3 h-3 text-amber-400" />
           </button>
-          {showMinimap && (
-            <div className="origin-top-right">
-              <Minimap
-                currentZone={currentZone}
-                playerPos={playerPos}
-                openedChests={openedChests}
-                defeatedBosses={defeatedBosses}
-                exploredTiles={exploredTilesSets[currentZone.id]}
-                isCreatorMode={player.level >= 75}
-                onMinimapClick={(targetX, targetY) => {
-                  if (player.level >= 75) {
-                    onMove({ x: targetX, y: targetY });
-                    soundEngine.playSfx('select');
-                    showToast(`⚡ Teletransporte Creador: [${targetX}, ${targetY}]`);
-                  } else {
-                    showToast(`📍 Coordenadas exploradas: [${targetX}, ${targetY}]`);
-                  }
-                }}
-              />
-            </div>
-          )}
         </div>
 
-        {/* Floating Touch D-Pad Control Overlay */}
-        <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 z-20 pointer-events-auto select-none" style={{ touchAction: 'none' }}>
-          <div className="grid grid-cols-3 gap-1 w-32 h-32 sm:w-36 sm:h-36 bg-slate-950/90 p-1.5 rounded-full border-2 border-amber-500/70 backdrop-blur-md shadow-2xl">
-            <div />
-            <button
-              onPointerDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                startHoldMove(0, -1);
+        {/* Minimap Display */}
+        {showMinimap && (
+          <div className="origin-top-right">
+            <Minimap
+              currentZone={currentZone}
+              playerPos={playerPos}
+              openedChests={openedChests}
+              defeatedBosses={defeatedBosses}
+              exploredTiles={exploredTilesSets[currentZone.id]}
+              isCreatorMode={player.level >= 75}
+              onMinimapClick={(targetX, targetY) => {
+                if (player.level >= 75) {
+                  onMove({ x: targetX, y: targetY });
+                  soundEngine.playSfx('select');
+                  showToast(`⚡ Teletransporte Creador: [${targetX}, ${targetY}]`);
+                } else {
+                  showToast(`📍 Coordenadas exploradas: [${targetX}, ${targetY}]`);
+                }
               }}
-              onPointerUp={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                stopHoldMove();
-              }}
-              onPointerLeave={stopHoldMove}
-              onPointerCancel={stopHoldMove}
-              className="bg-slate-800/95 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-t-full border border-slate-600 flex items-center justify-center text-lg sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
-              style={{ touchAction: 'none' }}
-              aria-label="Mover Arriba"
-            >
-              ▲
-            </button>
-            <div />
-            <button
-              onPointerDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                startHoldMove(-1, 0);
-              }}
-              onPointerUp={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                stopHoldMove();
-              }}
-              onPointerLeave={stopHoldMove}
-              onPointerCancel={stopHoldMove}
-              className="bg-slate-800/95 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-l-full border border-slate-600 flex items-center justify-center text-lg sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
-              style={{ touchAction: 'none' }}
-              aria-label="Mover Izquierda"
-            >
-              ◄
-            </button>
-            <button
-              onPointerDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleInteract();
-              }}
-              className="bg-amber-600 active:bg-amber-400 text-slate-950 rounded-full font-black text-sm sm:text-base shadow-lg border-2 border-amber-300 flex items-center justify-center active:scale-90 transition-transform select-none"
-              style={{ touchAction: 'none' }}
-              aria-label="Interactuar"
-            >
-              A
-            </button>
-            <button
-              onPointerDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                startHoldMove(1, 0);
-              }}
-              onPointerUp={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                stopHoldMove();
-              }}
-              onPointerLeave={stopHoldMove}
-              onPointerCancel={stopHoldMove}
-              className="bg-slate-800/95 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-r-full border border-slate-600 flex items-center justify-center text-lg sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
-              style={{ touchAction: 'none' }}
-              aria-label="Mover Derecha"
-            >
-              ►
-            </button>
-            <div />
-            <button
-              onPointerDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                startHoldMove(0, 1);
-              }}
-              onPointerUp={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                stopHoldMove();
-              }}
-              onPointerLeave={stopHoldMove}
-              onPointerCancel={stopHoldMove}
-              className="bg-slate-800/95 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-b-full border border-slate-600 flex items-center justify-center text-lg sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
-              style={{ touchAction: 'none' }}
-              aria-label="Mover Abajo"
-            >
-              ▼
-            </button>
-            <div />
+            />
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Action Button on Bottom-Right */}
-        <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 z-20 flex items-center gap-2 pointer-events-auto select-none" style={{ touchAction: 'none' }}>
+      {/* 5. Left: Active Quest Tracker Pill */}
+      {(() => {
+        const activeQuestId = (acceptedQuests && acceptedQuests.find((id) => !completedQuests.includes(id))) || 'q_main_forest_1';
+        const currentQuest = ALL_GAME_QUESTS.find((q) => q.id === activeQuestId) || ALL_GAME_QUESTS[0];
+        if (!currentQuest) return null;
+
+        return (
+          <div className="absolute top-28 sm:top-32 left-2 z-20 pointer-events-auto max-w-[170px] sm:max-w-[220px]">
+            <button
+              onClick={() => {
+                soundEngine.playSfx('select');
+                setIsQuestLogOpen(true);
+              }}
+              className="w-full text-left bg-slate-950/75 hover:bg-slate-900/90 active:scale-98 border border-amber-500/50 rounded-xl p-1.5 sm:p-2 shadow-xl backdrop-blur-md font-mono transition group"
+              title="Abrir Diario de Misiones"
+            >
+              <div className="flex items-center gap-1 text-[9px] sm:text-[10px] text-amber-400 font-bold uppercase tracking-wider">
+                <Scroll className="w-3 h-3 text-amber-400" />
+                <span>Misión Activa</span>
+              </div>
+              <div className="text-[10px] sm:text-xs font-black text-slate-100 truncate mt-0.5 group-hover:text-amber-300">
+                {currentQuest.title}
+              </div>
+              <div className="text-[8px] sm:text-[9px] text-slate-400 line-clamp-2 mt-0.5">
+                {currentQuest.description}
+              </div>
+            </button>
+          </div>
+        );
+      })()}
+
+      {/* 6. Mobile D-Pad Overlay (Bottom-Left) */}
+      <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 z-20 pointer-events-auto select-none" style={{ touchAction: 'none' }}>
+        <div className="grid grid-cols-3 gap-1 w-28 h-28 sm:w-36 sm:h-36 bg-slate-950/80 p-1 sm:p-1.5 rounded-full border border-amber-500/60 backdrop-blur-md shadow-2xl">
+          <div />
+          <button
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              startHoldMove(0, -1);
+            }}
+            onPointerUp={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              stopHoldMove();
+            }}
+            onPointerLeave={stopHoldMove}
+            onPointerCancel={stopHoldMove}
+            className="bg-slate-800/90 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-t-full border border-slate-600 flex items-center justify-center text-base sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
+            style={{ touchAction: 'none' }}
+            aria-label="Mover Arriba"
+          >
+            ▲
+          </button>
+          <div />
+          <button
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              startHoldMove(-1, 0);
+            }}
+            onPointerUp={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              stopHoldMove();
+            }}
+            onPointerLeave={stopHoldMove}
+            onPointerCancel={stopHoldMove}
+            className="bg-slate-800/90 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-l-full border border-slate-600 flex items-center justify-center text-base sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
+            style={{ touchAction: 'none' }}
+            aria-label="Mover Izquierda"
+          >
+            ◄
+          </button>
           <button
             onPointerDown={(e) => {
               e.preventDefault();
               e.stopPropagation();
               handleInteract();
             }}
-            className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-500 to-amber-600 active:from-amber-400 active:to-amber-500 text-slate-950 rounded-full font-black text-lg sm:text-xl border-2 border-amber-300 shadow-2xl flex items-center justify-center active:scale-90 transition-transform select-none"
+            className="bg-amber-600 active:bg-amber-400 text-slate-950 rounded-full font-black text-xs sm:text-base shadow-lg border border-amber-300 flex items-center justify-center active:scale-90 transition-transform select-none"
             style={{ touchAction: 'none' }}
-            aria-label="Acción A"
+            aria-label="Interactuar"
           >
-            [A]
+            A
           </button>
+          <button
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              startHoldMove(1, 0);
+            }}
+            onPointerUp={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              stopHoldMove();
+            }}
+            onPointerLeave={stopHoldMove}
+            onPointerCancel={stopHoldMove}
+            className="bg-slate-800/90 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-r-full border border-slate-600 flex items-center justify-center text-base sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
+            style={{ touchAction: 'none' }}
+            aria-label="Mover Derecha"
+          >
+            ►
+          </button>
+          <div />
+          <button
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              startHoldMove(0, 1);
+            }}
+            onPointerUp={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              stopHoldMove();
+            }}
+            onPointerLeave={stopHoldMove}
+            onPointerCancel={stopHoldMove}
+            className="bg-slate-800/90 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-b-full border border-slate-600 flex items-center justify-center text-base sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
+            style={{ touchAction: 'none' }}
+            aria-label="Mover Abajo"
+          >
+            ▼
+          </button>
+          <div />
         </div>
-
-        {/* Interactive Banner Toast / Prompt - Placed at Top for Maximum Visibility */}
-        {interactPrompt && (
-          <div className="absolute top-12 sm:top-14 left-1/2 transform -translate-x-1/2 w-11/12 max-w-sm sm:max-w-md bg-slate-950/95 border-2 border-amber-400 rounded-xl p-2 sm:p-2.5 shadow-2xl backdrop-blur-md text-center text-xs sm:text-sm font-mono text-amber-300 animate-pulse z-30 pointer-events-none">
-            {interactPrompt}
-          </div>
-        )}
-
-        {/* Toast Notification */}
-        {toastMessage && (
-          <div className="absolute top-16 sm:top-20 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-950 px-3 py-1.5 rounded-full font-mono font-bold text-xs shadow-2xl animate-fade-in z-40 pointer-events-none border border-amber-300">
-            {toastMessage}
-          </div>
-        )}
       </div>
 
-      {/* Pixel Tribe Bottom Action Bar & Hotbar */}
-      <BottomActionBar
-        player={player}
-        inventory={inventory}
-        onOpenInventory={onOpenInventory}
-        onOpenQuests={() => {
-          soundEngine.playSfx('select');
-          setIsQuestLogOpen(true);
-        }}
-        onOpenShop={onOpenShop}
-        onOpenSettings={onOpenSettings}
-        onTeleportToTown={() => {
-          onMove({ x: 36, y: 62 });
-        }}
-        onUseConsumable={(cId) => (onUseConsumable ? onUseConsumable(cId) : onHealAtInn())}
-        onShowToast={(msg) => showToast(msg)}
-      />
+      {/* 7. Action Button [A] (Bottom-Right) */}
+      <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 z-20 flex items-center gap-2 pointer-events-auto select-none" style={{ touchAction: 'none' }}>
+        <button
+          onPointerDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleInteract();
+          }}
+          className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-500 to-amber-600 active:from-amber-400 active:to-amber-500 text-slate-950 rounded-full font-black text-base sm:text-xl border-2 border-amber-300 shadow-2xl flex items-center justify-center active:scale-90 transition-transform select-none"
+          style={{ touchAction: 'none' }}
+          aria-label="Acción A"
+        >
+          [A]
+        </button>
+      </div>
+
+      {/* 8. Bottom Center: Floating Glassmorphic Hotbar & Action Dock */}
+      <div className="absolute bottom-1 sm:bottom-2 left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto max-w-[90vw] sm:max-w-none">
+        <BottomActionBar
+          player={player}
+          inventory={inventory}
+          onOpenInventory={onOpenInventory}
+          onOpenQuests={() => {
+            soundEngine.playSfx('select');
+            setIsQuestLogOpen(true);
+          }}
+          onOpenShop={onOpenShop}
+          onOpenSettings={onOpenSettings}
+          onTeleportToTown={() => {
+            onMove({ x: 36, y: 62 });
+          }}
+          onUseConsumable={(cId) => (onUseConsumable ? onUseConsumable(cId) : onHealAtInn())}
+          onShowToast={(msg) => showToast(msg)}
+        />
+      </div>
+
+      {/* Interactive Banner Toast / Prompt */}
+      {interactPrompt && (
+        <div className="absolute top-14 sm:top-16 left-1/2 transform -translate-x-1/2 w-11/12 max-w-sm sm:max-w-md bg-slate-950/95 border-2 border-amber-400 rounded-xl p-2 sm:p-2.5 shadow-2xl backdrop-blur-md text-center text-xs sm:text-sm font-mono text-amber-300 animate-pulse z-30 pointer-events-none">
+          {interactPrompt}
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="absolute top-16 sm:top-20 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-950 px-3 py-1.5 rounded-full font-mono font-bold text-xs shadow-2xl animate-fade-in z-40 pointer-events-none border border-amber-300">
+          {toastMessage}
+        </div>
+      )}
+
+      {/* Unified RPG Game Menu Modal */}
+      {showGameMenuModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900/95 border-2 border-amber-500/80 rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-2xl font-mono text-slate-100 flex flex-col gap-3">
+            <div className="flex items-center justify-between border-b border-amber-500/40 pb-2">
+              <div className="flex items-center gap-2">
+                <Menu className="w-5 h-5 text-amber-400" />
+                <h2 className="text-base sm:text-lg font-black text-amber-300">Menú del Juego</h2>
+              </div>
+              <button
+                onClick={() => setShowGameMenuModal(false)}
+                className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-2 my-2">
+              {/* Guardar Partida */}
+              <button
+                onClick={() => {
+                  soundEngine.playSfx('levelup');
+                  onAutoSave();
+                  showToast(`💾 ¡Partida Guardada en Ranura ${activeSlotIndex + 1}!`);
+                  setShowGameMenuModal(false);
+                }}
+                className="flex items-center justify-between p-3 bg-emerald-950/80 hover:bg-emerald-900/90 active:scale-98 border border-emerald-500/60 rounded-xl text-emerald-200 font-bold transition shadow"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Save className="w-5 h-5 text-emerald-400" />
+                  <span>Guardar Partida</span>
+                </div>
+                <span className="text-xs text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/50">Ranura {activeSlotIndex + 1}</span>
+              </button>
+
+              {/* Logros */}
+              <button
+                onClick={() => {
+                  soundEngine.playSfx('select');
+                  setShowGameMenuModal(false);
+                  onOpenAchievements();
+                }}
+                className="flex items-center justify-between p-3 bg-amber-950/70 hover:bg-amber-900/80 active:scale-98 border border-amber-500/60 rounded-xl text-amber-200 font-bold transition shadow"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Award className="w-5 h-5 text-amber-400" />
+                  <span>Logros y Recompensas</span>
+                </div>
+                {unclaimedAchievementsCount > 0 && (
+                  <span className="text-xs text-slate-950 font-black bg-amber-400 px-2 py-0.5 rounded-full animate-bounce">
+                    {unclaimedAchievementsCount} listos
+                  </span>
+                )}
+              </button>
+
+              {/* Códice de Lore */}
+              <button
+                onClick={() => {
+                  soundEngine.playSfx('select');
+                  setShowGameMenuModal(false);
+                  onOpenLoreCodex();
+                }}
+                className="flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-700 active:scale-98 border border-slate-600 rounded-xl text-amber-100 font-bold transition shadow"
+              >
+                <div className="flex items-center gap-2.5">
+                  <BookOpen className="w-5 h-5 text-amber-300" />
+                  <span>Códice y Guía del Reino</span>
+                </div>
+                <span className="text-xs text-slate-400">Lore</span>
+              </button>
+
+              {/* Ranking */}
+              <button
+                onClick={() => {
+                  soundEngine.playSfx('select');
+                  setShowGameMenuModal(false);
+                  onOpenLeaderboard();
+                }}
+                className="flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-700 active:scale-98 border border-slate-600 rounded-xl text-slate-200 font-bold transition shadow"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Trophy className="w-5 h-5 text-yellow-400" />
+                  <span>Clasificación / Ranking</span>
+                </div>
+                <span className="text-xs text-yellow-400">Top 100</span>
+              </button>
+
+              {/* Ajustes */}
+              <button
+                onClick={() => {
+                  soundEngine.playSfx('select');
+                  setShowGameMenuModal(false);
+                  onOpenSettings();
+                }}
+                className="flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-700 active:scale-98 border border-slate-600 rounded-xl text-slate-300 font-bold transition shadow"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Settings className="w-5 h-5 text-slate-400" />
+                  <span>Ajustes de Sonido y Gamepad</span>
+                </div>
+              </button>
+
+              {/* Salir al Título */}
+              {onReturnToTitle && (
+                <button
+                  onClick={() => {
+                    onAutoSave();
+                    soundEngine.playSfx('select');
+                    setShowGameMenuModal(false);
+                    onReturnToTitle();
+                  }}
+                  className="flex items-center justify-center gap-2 p-3 mt-2 bg-red-950/70 hover:bg-red-900 active:scale-98 border border-red-600/60 rounded-xl text-red-200 font-bold transition shadow"
+                >
+                  <span>🚪 Guardar y Volver al Título</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Zone Fast Travel Modal */}
+      {showZoneTravelModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900/95 border-2 border-amber-500/80 rounded-2xl p-4 sm:p-6 w-full max-w-2xl shadow-2xl font-mono text-slate-100 flex flex-col gap-3">
+            <div className="flex items-center justify-between border-b border-amber-500/40 pb-2">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-amber-400" />
+                <h2 className="text-base sm:text-lg font-black text-amber-300">Mapa del Reino: Viaje Rápido</h2>
+              </div>
+              <button
+                onClick={() => setShowZoneTravelModal(false)}
+                className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-amber-500/50">
+              {ZONES.map((z) => {
+                const unlocked = isZoneUnlocked(z.id, defeatedBosses);
+                const requirementMsg = getZoneRequirementMessage(z.id);
+                const isCurrent = z.id === currentZone.id;
+
+                return (
+                  <button
+                    key={z.id}
+                    onClick={() => {
+                      if (unlocked) {
+                        soundEngine.playSfx('select');
+                        onChangeZone(z.id);
+                        setShowZoneTravelModal(false);
+                      } else {
+                        soundEngine.playSfx('error');
+                        showToast(requirementMsg);
+                      }
+                    }}
+                    className={`p-3 rounded-xl border flex flex-col text-left transition active:scale-98 ${
+                      isCurrent
+                        ? 'bg-amber-500 text-slate-950 font-black border-amber-400 shadow-lg'
+                        : unlocked
+                        ? 'bg-slate-800/90 hover:bg-slate-750 text-slate-100 border-slate-700 hover:border-amber-500/50'
+                        : 'bg-slate-950/80 text-slate-500 border-slate-800/80 opacity-60'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs sm:text-sm">
+                        {unlocked ? (isCurrent ? '📍 ' : '🗺️ ') : '🔒 '}
+                        {z.name}
+                      </span>
+                      {isCurrent && (
+                        <span className="text-[10px] bg-slate-950 text-amber-300 px-1.5 py-0.5 rounded font-mono font-bold">
+                          Zona Actual
+                        </span>
+                      )}
+                    </div>
+                    <span className={`text-[11px] mt-1 ${isCurrent ? 'text-slate-900' : 'text-slate-400'}`}>
+                      {unlocked ? z.description : requirementMsg}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Forge & Weapon Tree Modal */}
       {showForgeModal && (
