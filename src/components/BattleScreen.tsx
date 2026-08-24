@@ -3,6 +3,7 @@ import { PlayerStats, Inventory, Enemy, Skill, ConsumableItem, EquipmentItem } f
 import { ALL_SKILLS, getRandomEncounterDrop } from '../data/gameData';
 import { PixelCanvas } from './PixelCanvas';
 import { PixelBattleCanvas } from './PixelBattleCanvas';
+import { ThreeBattleCanvas } from './ThreeBattleCanvas';
 import { soundEngine } from '../utils/soundEngine';
 import { useGamepadControls, ControllerAction } from '../utils/gamepadManager';
 import {
@@ -811,9 +812,9 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
           </div>
         </div>
 
-        {/* 2D RETRO PIXEL BATTLE ARENA */}
+        {/* 3D WEBGL BATTLE ARENA */}
         <div className="w-full h-full min-h-[300px]">
-          <PixelBattleCanvas
+          <ThreeBattleCanvas
             player={player}
             equipment={inventory.equipment}
             enemy={enemy}

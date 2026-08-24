@@ -415,76 +415,10 @@ export const ThreeBattleCanvas: React.FC<ThreeBattleCanvasProps> = ({
     const heroGroup = heroResult.group;
     heroGroup.position.copy(HERO_BASE_POS);
 
-    // Integración del Modelo 3D de Blender 5.2 (hero_adventurer.glb)
-    const blenderBattleHeroContainer = new THREE.Group();
-    heroGroup.add(blenderBattleHeroContainer);
-
-    let battleMixer: THREE.AnimationMixer | null = null;
-
-    const applyBattleBlenderHero = (model: THREE.Group) => {
-      heroGroup.children.forEach((child) => {
-        if (child !== blenderBattleHeroContainer) child.visible = false;
-      });
-
-      const glbClone = model.clone();
-      const bbox = new THREE.Box3().setFromObject(glbClone);
-      const size = bbox.getSize(new THREE.Vector3());
-      const targetHeight = 1.25;
-      const maxDim = Math.max(size.y, size.x * 0.75) || 1;
-      const autoScale = targetHeight / maxDim;
-
-      glbClone.scale.set(autoScale, autoScale, autoScale);
-      const scaledBbox = new THREE.Box3().setFromObject(glbClone);
-      glbClone.position.x = -((scaledBbox.min.x + scaledBbox.max.x) / 2);
-      glbClone.position.y = -scaledBbox.min.y;
-      glbClone.position.z = -((scaledBbox.min.z + scaledBbox.max.z) / 2);
-
-      if (model.userData?.animations && model.userData.animations.length > 0) {
-        battleMixer = new THREE.AnimationMixer(glbClone);
-        const action = model.userData.animations[0];
-        battleMixer.clipAction(action).play();
-      }
-
-      blenderBattleHeroContainer.clear();
-      blenderBattleHeroContainer.add(glbClone);
-    };
-
-    const classModelKey =
-      player.heroClass === 'Mago' ? 'hero_mage' :
-      player.heroClass === 'Pícaro' ? 'hero_rogue' :
-      player.heroClass === 'Paladín' ? 'hero_paladin' :
-      player.heroClass === 'Nigromante' ? 'hero_necromancer' :
-      player.heroClass === 'Arquero' ? 'hero_archer' :
-      player.heroClass === 'Berserker' ? 'hero_berserker' : 'hero_warrior';
-    const genderKey = player.gender === 'male' ? 'male' : 'female';
-    const modelPath = `/models/${classModelKey}_${genderKey}.glb`;
-
-    if (cachedBattleHeroGLTF) {
-      applyBattleBlenderHero(cachedBattleHeroGLTF);
-    } else {
-      battleHeroGLTFLoader.load(
-        modelPath,
-        (gltf) => {
-          const model = gltf.scene;
-          model.userData.animations = gltf.animations;
-          model.traverse((child) => {
-            if ((child as THREE.Mesh).isMesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-            }
-          });
-          cachedBattleHeroGLTF = model;
-          applyBattleBlenderHero(model);
-        },
-        undefined,
-        (err) => {
-          console.warn('Fallback a modelo procedural en batalla:', err);
-        }
-      );
-    }
-
     // Angle to face the enemy across the battlefield
     const heroFaceAngle = Math.atan2(ENEMY_BASE_POS.x - HERO_BASE_POS.x, ENEMY_BASE_POS.z - HERO_BASE_POS.z);
+    heroGroup.rotation.y = heroFaceAngle;
+    scene.add(heroGroup);
     heroGroup.rotation.y = heroFaceAngle;
     scene.add(heroGroup);
 
@@ -600,30 +534,6 @@ export const ThreeBattleCanvas: React.FC<ThreeBattleCanvasProps> = ({
       const delta = clock.getDelta();
 
       // HERO COMBAT ANIMATIONS & DYNAMIC PHYSICS
-      if (battleMixer) {
-        battleMixer.update(delta);
-      } else {
-        if (playerIsAttacking) {
-          blenderBattleHeroContainer.position.set(0.12, 0.08, -0.15);
-          blenderBattleHeroContainer.rotation.z = -0.15;
-          blenderBattleHeroContainer.rotation.x = 0.14;
-        } else if (playerIsHit) {
-          blenderBattleHeroContainer.position.set(-0.15, 0.04, 0.12);
-          blenderBattleHeroContainer.rotation.z = 0.22;
-          blenderBattleHeroContainer.rotation.x = -0.15;
-        } else if (isDefending) {
-          blenderBattleHeroContainer.position.set(0, -0.04, 0);
-          blenderBattleHeroContainer.rotation.y = 0.18;
-          blenderBattleHeroContainer.rotation.z = -0.06;
-        } else {
-          // Combat idle breathing & tension
-          const bY = Math.sin(time * 3) * 0.022;
-          const bZ = Math.sin(time * 1.5) * 0.012;
-          blenderBattleHeroContainer.position.set(0, bY, 0);
-          blenderBattleHeroContainer.rotation.z = bZ;
-          blenderBattleHeroContainer.rotation.x = Math.sin(time * 3) * 0.008;
-        }
-      }
 
       if (playerIsAttacking) {
         // Hero dashes forward along the diagonal line towards enemy platform

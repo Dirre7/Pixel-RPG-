@@ -905,6 +905,122 @@ export function getMarketStallCanvas(stallVariant: number = 0): HTMLCanvasElemen
 }
 
 /**
+ * 📜 TABLÓN DE ANUNCIOS Y MISIONES DE LA ALDEA (40x48 px)
+ */
+export function getNoticeBoardCanvas(): HTMLCanvasElement {
+  const cacheKey = `notice_board_hd`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 40;
+  canvas.height = 48;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra de contacto
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(20, 44, 16, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Postes de madera maciza
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(8, 14, 4, 30);
+  ctx.fillRect(28, 14, 4, 30);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(9, 15, 2, 28);
+  ctx.fillRect(29, 15, 2, 28);
+
+  // Tablero de madera de roble
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(4, 12, 32, 22);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(6, 14, 28, 18);
+  ctx.fillStyle = '#b45309';
+  ctx.fillRect(7, 15, 26, 16);
+
+  // Tejadillo de tejas de pizarra
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(2, 6, 36, 6);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(3, 7, 34, 3);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(2, 6, 36, 2);
+
+  // Pergaminos y avisos de recompensas
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(9, 17, 8, 11);
+  ctx.fillRect(19, 18, 7, 9);
+  ctx.fillRect(27, 20, 5, 8);
+
+  ctx.fillStyle = '#ca8a04';
+  ctx.fillRect(10, 19, 6, 1);
+  ctx.fillRect(10, 21, 5, 1);
+  ctx.fillRect(10, 23, 6, 1);
+  ctx.fillRect(20, 20, 5, 1);
+  ctx.fillRect(20, 22, 4, 1);
+
+  // Chinchetas rojas / sellos de cera
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(12, 17, 2, 2);
+  ctx.fillRect(22, 18, 2, 2);
+
+  tileCache.set(cacheKey, canvas);
+  return canvas;
+}
+
+/**
+ * 🪨 GRAN ROCA REDONDEADA CON MUSGO (36x32 px)
+ */
+export function getMossyBoulderCanvas(): HTMLCanvasElement {
+  const cacheKey = `mossy_boulder_hd`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 36;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra elíptica
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+  ctx.beginPath();
+  ctx.ellipse(18, 26, 14, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Roca redondeada base
+  ctx.fillStyle = '#334155';
+  ctx.beginPath();
+  ctx.ellipse(18, 18, 13, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Cuerpo gris de piedra
+  ctx.fillStyle = '#64748b';
+  ctx.beginPath();
+  ctx.ellipse(17, 16, 11, 8, -0.1, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Relieve de luz superior
+  ctx.fillStyle = '#94a3b8';
+  ctx.beginPath();
+  ctx.ellipse(15, 13, 8, 4, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillRect(14, 12, 4, 2);
+
+  // Manchas de musgo verde vivo
+  ctx.fillStyle = '#15803d';
+  ctx.beginPath(); ctx.ellipse(12, 16, 4, 3, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(22, 19, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#4ade80';
+  ctx.fillRect(12, 15, 2, 2);
+  ctx.fillRect(23, 18, 3, 2);
+
+  tileCache.set(cacheKey, canvas);
+  return canvas;
+}
+
+/**
  * 🛡️ EXPOSITOR DE ARMAS Y ESCUDOS (32x32 px)
  */
 export function getWeaponRackCanvas(): HTMLCanvasElement {

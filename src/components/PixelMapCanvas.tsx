@@ -21,6 +21,8 @@ import {
   getCampfireCanvas,
   getEnchantedTreeCanvas,
   getEnchantedMushroomCanvas,
+  getNoticeBoardCanvas,
+  getMossyBoulderCanvas,
   getLabyrinthHedgeCanvas,
   getManaCrystalCanvas,
   getShipwreckCanvas,
@@ -144,7 +146,25 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       sewerProps: new Image(),
       ratWarriorIdle: new Image(),
       floorTiles: new Image(),
+      grassMiddle: new Image(),
+      pathTile: new Image(),
+      pathMiddle: new Image(),
+      beachTile: new Image(),
+      cliffTile: new Image(),
+      outdoorDecor: new Image(),
+      bridgeWood: new Image(),
+      waterMiddle: new Image(),
+      waterTile: new Image(),
     };
+    gameAssets.grassMiddle.src = '/Cute_Fantasy_Free/Tiles/Grass_Middle.png';
+    gameAssets.pathTile.src = '/Cute_Fantasy_Free/Tiles/Path_Tile.png';
+    gameAssets.pathMiddle.src = '/Cute_Fantasy_Free/Tiles/Path_Middle.png';
+    gameAssets.beachTile.src = '/Cute_Fantasy_Free/Tiles/Beach_Tile.png';
+    gameAssets.cliffTile.src = '/Cute_Fantasy_Free/Tiles/Cliff_Tile.png';
+    gameAssets.outdoorDecor.src = '/Cute_Fantasy_Free/Outdoor decoration/Outdoor_Decor_Free.png';
+    gameAssets.bridgeWood.src = '/Cute_Fantasy_Free/Outdoor decoration/Bridge_Wood.png';
+    gameAssets.waterMiddle.src = '/Cute_Fantasy_Free/Tiles/Water_Middle.png';
+    gameAssets.waterTile.src = '/Cute_Fantasy_Free/Tiles/Water_Tile.png';
     gameAssets.house.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
     gameAssets.customHouses.src = '/houses.png';
     gameAssets.treeOak.src = '/Cute_Fantasy_Free/Outdoor decoration/Oak_Tree.png';
@@ -218,21 +238,26 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Cámara centrada en el jugador
-      const camX = currentPosRef.current.x * TILE_SIZE - canvas.width / 2 + TILE_SIZE / 2;
-      const camY = currentPosRef.current.y * TILE_SIZE - canvas.height / 2 + TILE_SIZE / 2;
+      // Cámara centrada en el jugador con Zoom RPG Íntimo y Detallado (Estilo Cute Fantasy)
+      const zoom = 1.45;
+      const targetPxX = currentPosRef.current.x * TILE_SIZE + TILE_SIZE / 2;
+      const targetPxY = currentPosRef.current.y * TILE_SIZE + TILE_SIZE / 2;
 
       ctx.save();
-      ctx.translate(-Math.round(camX), -Math.round(camY));
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.scale(zoom, zoom);
+      ctx.translate(-Math.round(targetPxX), -Math.round(targetPxY));
 
       const rows = currentZone.tileData.length;
       const cols = currentZone.tileData[0].length;
 
-      // Viewport culling boundaries (only compute & draw visible tiles + safety margin)
-      const startCol = Math.max(0, Math.floor(camX / TILE_SIZE) - 2);
-      const endCol = Math.min(cols - 1, Math.ceil((camX + canvas.width) / TILE_SIZE) + 2);
-      const startRow = Math.max(0, Math.floor(camY / TILE_SIZE) - 2);
-      const endRow = Math.min(rows - 1, Math.ceil((camY + canvas.height) / TILE_SIZE) + 2);
+      // Viewport culling boundaries ajustados al zoom
+      const halfViewW = (canvas.width / 2) / zoom;
+      const halfViewH = (canvas.height / 2) / zoom;
+      const startCol = Math.max(0, Math.floor((targetPxX - halfViewW) / TILE_SIZE) - 2);
+      const endCol = Math.min(cols - 1, Math.ceil((targetPxX + halfViewW) / TILE_SIZE) + 2);
+      const startRow = Math.max(0, Math.floor((targetPxY - halfViewH) / TILE_SIZE) - 2);
+      const endRow = Math.min(rows - 1, Math.ceil((targetPxY + halfViewH) / TILE_SIZE) + 2);
 
       // Helper para resolver el suelo base de cualquier casilla (incluso con farolas, animales o plantitas encima)
       const getGroundType = (gx: number, gy: number): number => {
@@ -255,9 +280,20 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       };
 
       // ------------------------------------------------------------------------
-      // CAPA 0: BALDOSAS DE SUELO Y CALZADAS (TEXTURAS AUTÉNTICAS PIXEL CRAWLER)
+      // CAPA 0: BALDOSAS DE SUELO Y CALZADAS (TEXTURAS AUTÉNTICAS PIXEL CRAWLER & CUTE FANTASY)
       // ------------------------------------------------------------------------
       const hasFloorTiles = gameAssets.floorTiles.complete && gameAssets.floorTiles.naturalWidth > 0;
+
+      // Fondo base de hierba continua para eliminar cualquier costura de 1px
+      if (currentZone.id === 'zone_forest') {
+        ctx.fillStyle = '#5ca632';
+        ctx.fillRect(
+          startCol * TILE_SIZE,
+          startRow * TILE_SIZE,
+          (endCol - startCol + 1) * TILE_SIZE,
+          (endRow - startRow + 1) * TILE_SIZE
+        );
+      }
 
       for (let y = startRow; y <= endRow; y++) {
         for (let x = startCol; x <= endCol; x++) {
@@ -266,156 +302,151 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           const drawPosY = y * TILE_SIZE;
 
           if (currentZone.id === 'zone_forest' && groundType === 3) {
-            // Río Cristalino Animado con Orillas y Espuma de Costa
+            // Río Fluvial Dual-Tone (Estilo Cute Fantasy): Orillas de Arena, Aguas Turquesas y Profundidad Azul
             const wave = Math.sin(time * 2.5 + x * 0.6 + y * 0.4) * 0.15;
-            ctx.fillStyle = '#0f2b5c';
-            ctx.fillRect(drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
-            ctx.fillStyle = `rgba(56, 189, 248, ${0.45 + wave})`;
-            ctx.fillRect(drawPosX, drawPosY + 4, TILE_SIZE, TILE_SIZE - 8);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-            ctx.fillRect(drawPosX + 6 + (Math.sin(time * 3 + y) * 4), drawPosY + 8, 12, 2);
+            
+            // Base profunda azul índigo
+            ctx.fillStyle = '#0369a1';
+            ctx.fillRect(drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
+            
+            // Capa de agua turquesa cristalina
+            ctx.fillStyle = `rgba(56, 189, 248, ${0.7 + wave})`;
+            ctx.fillRect(drawPosX, drawPosY + 2, TILE_SIZE + 0.5, TILE_SIZE - 4);
+            
+            // Reflejos cristalinos en la superficie
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            const rippleX = drawPosX + 6 + (Math.sin(time * 3 + y * 0.7) * 5);
+            ctx.fillRect(rippleX, drawPosY + 8, 14, 2);
+            ctx.fillRect(rippleX + 8, drawPosY + 20, 10, 2);
 
             // Detección de Orilla (Shoreline) con el césped
             const leftIsShore = x > 0 && currentZone.tileData[y]?.[x - 1] !== 3 && currentZone.tileData[y]?.[x - 1] !== 15;
             const rightIsShore = x < currentZone.mapWidth - 1 && currentZone.tileData[y]?.[x + 1] !== 3 && currentZone.tileData[y]?.[x + 1] !== 15;
 
-            // Orilla Oeste (Ribera de tierra húmeda + espuma de agua)
+            // Orilla Oeste (Ribera de arena dorada suave + agua somera + espuma)
             if (leftIsShore) {
-              ctx.fillStyle = '#2d6318';
-              ctx.fillRect(drawPosX, drawPosY, 3, TILE_SIZE);
-              ctx.fillStyle = '#1e3a8a';
-              ctx.fillRect(drawPosX + 3, drawPosY, 2, TILE_SIZE);
-              // Espuma blanca de oleaje
+              ctx.fillStyle = '#e2b170';
+              ctx.fillRect(drawPosX, drawPosY, 4, TILE_SIZE + 0.5);
+              ctx.fillStyle = '#c89658';
+              ctx.fillRect(drawPosX + 3, drawPosY, 2, TILE_SIZE + 0.5);
+              ctx.fillStyle = 'rgba(103, 232, 249, 0.85)';
+              ctx.fillRect(drawPosX + 5, drawPosY, 4, TILE_SIZE + 0.5);
               const foamWave = Math.sin(time * 3 + y * 0.8) * 1.5;
-              ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-              ctx.fillRect(drawPosX + 4 + foamWave, drawPosY + 2, 2, TILE_SIZE - 4);
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+              ctx.fillRect(drawPosX + 6 + foamWave, drawPosY + 2, 2, TILE_SIZE - 4);
             }
 
-            // Orilla Este
+            // Orilla Este (Ribera de arena dorada + agua somera + espuma)
             if (rightIsShore) {
-              ctx.fillStyle = '#2d6318';
-              ctx.fillRect(drawPosX + TILE_SIZE - 3, drawPosY, 3, TILE_SIZE);
-              ctx.fillStyle = '#1e3a8a';
-              ctx.fillRect(drawPosX + TILE_SIZE - 5, drawPosY, 2, TILE_SIZE);
-              // Espuma blanca de oleaje
+              ctx.fillStyle = '#e2b170';
+              ctx.fillRect(drawPosX + TILE_SIZE - 4, drawPosY, 4, TILE_SIZE + 0.5);
+              ctx.fillStyle = '#c89658';
+              ctx.fillRect(drawPosX + TILE_SIZE - 5, drawPosY, 2, TILE_SIZE + 0.5);
+              ctx.fillStyle = 'rgba(103, 232, 249, 0.85)';
+              ctx.fillRect(drawPosX + TILE_SIZE - 9, drawPosY, 4, TILE_SIZE + 0.5);
               const foamWave = Math.cos(time * 3 + y * 0.8) * 1.5;
-              ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-              ctx.fillRect(drawPosX + TILE_SIZE - 6 - foamWave, drawPosY + 2, 2, TILE_SIZE - 4);
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+              ctx.fillRect(drawPosX + TILE_SIZE - 8 - foamWave, drawPosY + 2, 2, TILE_SIZE - 4);
             }
 
-            // Nenúfares con flores flotantes
+            // Nenúfares con sombra suave bajo el agua y flor de loto
             if ((x * 7 + y * 13) % 6 === 0) {
+              ctx.fillStyle = 'rgba(3, 105, 161, 0.6)';
+              ctx.beginPath();
+              ctx.ellipse(drawPosX + 17, drawPosY + 18, 7, 5, 0, 0, Math.PI * 2);
+              ctx.fill();
               ctx.fillStyle = '#15803d';
               ctx.beginPath();
               ctx.ellipse(drawPosX + 16, drawPosY + 16, 6, 4, 0, 0, Math.PI * 2);
               ctx.fill();
-              ctx.fillStyle = '#fb7185';
-              ctx.fillRect(drawPosX + 15, drawPosY + 14, 3, 3);
+              ctx.fillStyle = '#4ade80';
+              ctx.fillRect(drawPosX + 14, drawPosY + 15, 3, 2);
+              ctx.fillStyle = '#f43f5e';
+              ctx.fillRect(drawPosX + 17, drawPosY + 14, 3, 3);
+              ctx.fillStyle = '#fef08a';
+              ctx.fillRect(drawPosX + 18, drawPosY + 15, 1, 1);
             }
-          } else if (currentZone.id === 'zone_forest' && groundType === 15) {
-            // Puente de Madera Rústico sobre el río
-            ctx.fillStyle = '#0f2b5c';
-            ctx.fillRect(drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
-            ctx.fillStyle = '#5c2c16';
-            ctx.fillRect(drawPosX + 2, drawPosY, TILE_SIZE - 4, TILE_SIZE);
-            ctx.fillStyle = '#854d0e';
-            ctx.fillRect(drawPosX + 4, drawPosY + 2, TILE_SIZE - 8, 5);
-            ctx.fillRect(drawPosX + 4, drawPosY + 10, TILE_SIZE - 8, 5);
-            ctx.fillRect(drawPosX + 4, drawPosY + 18, TILE_SIZE - 8, 5);
-            ctx.fillRect(drawPosX + 4, drawPosY + 26, TILE_SIZE - 8, 5);
-            // Barandillas de madera
-            ctx.fillStyle = '#b45309';
-            ctx.fillRect(drawPosX + 2, drawPosY, 2, TILE_SIZE);
-            ctx.fillRect(drawPosX + TILE_SIZE - 4, drawPosY, 2, TILE_SIZE);
-          } else if (currentZone.id === 'zone_forest' && groundType === 13) {
-            // Tierra fértil de arado marrón oscuro (sin caja naranja)
-            const farmCanvas = getTileCanvas(13, currentZone.id, (x * 3 + y * 7) % 4);
-            ctx.drawImage(farmCanvas, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
-          } else if (hasFloorTiles) {
-            if (currentZone.id === 'zone_forest') {
-              if (groundType === 2) {
-                // Adoquines auténticos continuos de Pixel Crawler Floors_Tiles (96, 160)
-                ctx.drawImage(gameAssets.floorTiles, 96, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+          } else if (currentZone.id === 'zone_forest') {
+            // Suelo Base: Dibujar siempre la auténtica hierba pastel de Cute Fantasy
+            if (gameAssets.grassMiddle.complete && gameAssets.grassMiddle.naturalWidth > 0) {
+              ctx.drawImage(gameAssets.grassMiddle, 0, 0, 16, 16, drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
+            } else if (hasFloorTiles) {
+              ctx.drawImage(gameAssets.floorTiles, 16, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
+            }
 
-                // Suavizado orgánico de bordes con césped (Autotiling natural)
-                const topTile = y > 0 ? currentZone.tileData[y - 1]?.[x] : 0;
-                const bottomTile = y < currentZone.mapHeight - 1 ? currentZone.tileData[y + 1]?.[x] : 0;
-                const leftTile = x > 0 ? currentZone.tileData[y]?.[x - 1] : 0;
-                const rightTile = x < currentZone.mapWidth - 1 ? currentZone.tileData[y]?.[x + 1] : 0;
-
-                const isGrassOrWild = (t: number | undefined) => t === 0 || t === 1 || t === 12;
-
-                // Borde Superior: briznas de hierba verde y sombra sutil
-                if (isGrassOrWild(topTile)) {
-                  ctx.fillStyle = 'rgba(45, 99, 24, 0.35)';
-                  ctx.fillRect(drawPosX, drawPosY, TILE_SIZE, 2);
-                  ctx.fillStyle = '#4a9b2b';
-                  for (let bx = 0; bx < TILE_SIZE; bx += 4) {
-                    const grassH = ((x * 13 + bx) % 3) + 2;
-                    ctx.fillRect(drawPosX + bx, drawPosY, 2, grassH);
-                  }
-                }
-
-                // Borde Inferior: briznas de hierba verde
-                if (isGrassOrWild(bottomTile)) {
-                  ctx.fillStyle = '#4a9b2b';
-                  for (let bx = 0; bx < TILE_SIZE; bx += 4) {
-                    const grassH = ((x * 17 + bx) % 3) + 2;
-                    ctx.fillRect(drawPosX + bx, drawPosY + TILE_SIZE - grassH, 2, grassH);
-                  }
-                }
-
-                // Borde Izquierdo
-                if (isGrassOrWild(leftTile)) {
-                  ctx.fillStyle = 'rgba(45, 99, 24, 0.3)';
-                  ctx.fillRect(drawPosX, drawPosY, 2, TILE_SIZE);
-                  ctx.fillStyle = '#4a9b2b';
-                  for (let by = 0; by < TILE_SIZE; by += 4) {
-                    const grassW = ((y * 11 + by) % 3) + 2;
-                    ctx.fillRect(drawPosX, drawPosY + by, grassW, 2);
-                  }
-                }
-
-                // Borde Derecho
-                if (isGrassOrWild(rightTile)) {
-                  ctx.fillStyle = '#4a9b2b';
-                  for (let by = 0; by < TILE_SIZE; by += 4) {
-                    const grassW = ((y * 19 + by) % 3) + 2;
-                    ctx.fillRect(drawPosX + TILE_SIZE - grassW, drawPosY + by, grassW, 2);
-                  }
-                }
-              } else if (groundType === 0) {
-                // Césped con textura auténtica
-                ctx.drawImage(gameAssets.floorTiles, 16, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
-
-                // Flores silvestres esparcidas orgánicamente
-                const flowerHash = (x * 17 + y * 31) % 8;
-                if (flowerHash === 1) {
-                  ctx.fillStyle = '#ef4444'; // Flor roja
-                  ctx.fillRect(drawPosX + 6, drawPosY + 8, 3, 3);
-                  ctx.fillStyle = '#fef08a';
-                  ctx.fillRect(drawPosX + 7, drawPosY + 9, 1, 1);
-                } else if (flowerHash === 2) {
-                  ctx.fillStyle = '#38bdf8'; // Flor azul
-                  ctx.fillRect(drawPosX + 18, drawPosY + 16, 3, 3);
-                  ctx.fillStyle = '#ffffff';
-                  ctx.fillRect(drawPosX + 19, drawPosY + 17, 1, 1);
-                } else if (flowerHash === 3) {
-                  ctx.fillStyle = '#facc15'; // Flor amarilla
-                  ctx.fillRect(drawPosX + 12, drawPosY + 20, 3, 3);
-                }
-              } else {
-                const tileCanvas = getTileCanvas(groundType, currentZone.id, (x * 3 + y * 7) % 8);
-                ctx.drawImage(tileCanvas, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+            if (groundType === 2) {
+              // 🛣️ Caminos Orgánicos de Tierra y Arena Cálida (Estilo Cute Fantasy)
+              if (gameAssets.pathMiddle.complete && gameAssets.pathMiddle.naturalWidth > 0) {
+                ctx.drawImage(gameAssets.pathMiddle, 0, 0, 16, 16, drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
+              } else if (hasFloorTiles) {
+                ctx.drawImage(gameAssets.floorTiles, 96, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
               }
-            } else if (currentZone.id === 'zone_castle' || currentZone.id === 'zone_sanctuary') {
-              ctx.drawImage(gameAssets.floorTiles, 256, 16, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
-            } else if (currentZone.id === 'zone_tundra') {
-              ctx.drawImage(gameAssets.floorTiles, 16, 352, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+
+              // Suavizado orgánico suave en las orillas con la hierba (arena dorada difuminada)
+              const isPath = (tx: number, ty: number) => {
+                if (tx < 0 || ty < 0 || tx >= currentZone.mapWidth || ty >= currentZone.mapHeight) return true;
+                return currentZone.tileData[ty]?.[tx] === 2;
+              };
+              const hasT = isPath(x, y - 1);
+              const hasB = isPath(x, y + 1);
+              const hasL = isPath(x - 1, y);
+              const hasR = isPath(x + 1, y);
+
+              if (!hasT) {
+                ctx.fillStyle = 'rgba(212, 163, 115, 0.45)';
+                ctx.fillRect(drawPosX, drawPosY, TILE_SIZE + 0.5, 3);
+              }
+              if (!hasB) {
+                ctx.fillStyle = 'rgba(212, 163, 115, 0.45)';
+                ctx.fillRect(drawPosX, drawPosY + TILE_SIZE - 3, TILE_SIZE + 0.5, 3);
+              }
+              if (!hasL) {
+                ctx.fillStyle = 'rgba(212, 163, 115, 0.45)';
+                ctx.fillRect(drawPosX, drawPosY, 3, TILE_SIZE + 0.5);
+              }
+              if (!hasR) {
+                ctx.fillStyle = 'rgba(212, 163, 115, 0.45)';
+                ctx.fillRect(drawPosX + TILE_SIZE - 3, drawPosY, 3, TILE_SIZE + 0.5);
+              }
+            } else if (groundType === 13) {
+              // 🌾 Tierra Fértil de Arado (Cute Fantasy FarmLand_Tile.png)
+              if (gameAssets.farmLand.complete && gameAssets.farmLand.naturalWidth > 0) {
+                const fx = (x % 3) * 16;
+                const fy = (y % 3) * 16;
+                ctx.drawImage(gameAssets.farmLand, fx, fy, 16, 16, drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
+              }
+            } else if (groundType === 15) {
+              // 🌉 Puente de Madera Rústico sobre el río
+              ctx.fillStyle = '#5c2c16';
+              ctx.fillRect(drawPosX + 2, drawPosY, TILE_SIZE - 4, TILE_SIZE + 0.5);
+              ctx.fillStyle = '#854d0e';
+              ctx.fillRect(drawPosX + 4, drawPosY + 2, TILE_SIZE - 8, 5);
+              ctx.fillRect(drawPosX + 4, drawPosY + 10, TILE_SIZE - 8, 5);
+              ctx.fillRect(drawPosX + 4, drawPosY + 18, TILE_SIZE - 8, 5);
+              ctx.fillRect(drawPosX + 4, drawPosY + 26, TILE_SIZE - 8, 5);
+              ctx.fillStyle = '#b45309';
+              ctx.fillRect(drawPosX + 2, drawPosY, 2, TILE_SIZE + 0.5);
+              ctx.fillRect(drawPosX + TILE_SIZE - 4, drawPosY, 2, TILE_SIZE + 0.5);
             } else {
-              const tileCanvas = getTileCanvas(groundType, currentZone.id, (x * 3 + y * 7) % 8);
-              ctx.drawImage(tileCanvas, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+              // Flores silvestres esparcidas orgánicamente
+              const flowerHash = (x * 17 + y * 31) % 12;
+              if (flowerHash === 1) {
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(drawPosX + 8, drawPosY + 10, 3, 3);
+                ctx.fillStyle = '#fef08a';
+                ctx.fillRect(drawPosX + 9, drawPosY + 11, 1, 1);
+              } else if (flowerHash === 2) {
+                ctx.fillStyle = '#38bdf8';
+                ctx.fillRect(drawPosX + 20, drawPosY + 18, 3, 3);
+              } else if (flowerHash === 3) {
+                ctx.fillStyle = '#fbbf24';
+                ctx.fillRect(drawPosX + 14, drawPosY + 22, 2, 2);
+              }
             }
+          } else if (currentZone.id === 'zone_castle' || currentZone.id === 'zone_sanctuary') {
+            ctx.drawImage(gameAssets.floorTiles, 256, 16, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+          } else if (currentZone.id === 'zone_tundra') {
+            ctx.drawImage(gameAssets.floorTiles, 16, 352, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
           } else {
             const tileCanvas = getTileCanvas(groundType, currentZone.id, (x * 3 + y * 7) % 8);
             ctx.drawImage(tileCanvas, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
@@ -580,22 +611,42 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             entities.push({
               ySort: posY + TILE_SIZE + 20,
               draw: (c) => {
-                // Sombra de contacto directamente en la línea inferior de la madera (Y + 20)
-                const hShadow = c.createRadialGradient(posX + 16, posY + 20, 4, posX + 16, posY + 20, 28);
-                hShadow.addColorStop(0, 'rgba(15, 23, 42, 0.65)');
-                hShadow.addColorStop(0.5, 'rgba(15, 23, 42, 0.3)');
+                // Sombra de contacto
+                const hShadow = c.createRadialGradient(posX + 16, posY + 24, 6, posX + 16, posY + 24, 48);
+                hShadow.addColorStop(0, 'rgba(15, 23, 42, 0.7)');
+                hShadow.addColorStop(0.5, 'rgba(15, 23, 42, 0.35)');
                 hShadow.addColorStop(1, 'rgba(15, 23, 42, 0)');
                 c.fillStyle = hShadow;
                 c.beginPath();
-                c.ellipse(posX + 16, posY + 20, 28, 5, 0, 0, Math.PI * 2);
+                c.ellipse(posX + 16, posY + 24, 48, 8, 0, 0, Math.PI * 2);
                 c.fill();
 
-                if (gameAssets.house.complete && gameAssets.house.naturalWidth > 0) {
-                  const houseCanvas = getRecoloredCuteHouseCanvas(gameAssets.house, vName);
-                  c.drawImage(houseCanvas, 0, 0, 96, 128, posX - 16, posY - 48, 64, 80);
-                } else {
-                  const houseCanvas = getRecoloredCuteHouseCanvas(gameAssets.house, vName);
-                  c.drawImage(houseCanvas, 0, 0, 96, 128, posX - 16, posY - 48, 64, 80);
+                const houseCanvas = getRecoloredCuteHouseCanvas(gameAssets.house, vName);
+                c.drawImage(houseCanvas, 0, 0, 96, 128, posX - 32, posY - 76, 96, 128);
+
+                // Toldo de rayas rojas y blancas sobre el porche de la taberna (Estilo Cute Fantasy Reference)
+                if (x === 27 && y === 24) {
+                  // Toldo a rayas rojas y blancas
+                  for (let i = 0; i < 6; i++) {
+                    c.fillStyle = i % 2 === 0 ? '#dc2626' : '#ffffff';
+                    c.fillRect(posX - 28 + i * 6, posY - 12, 6, 12);
+                  }
+                  c.fillStyle = '#991b1b';
+                  c.fillRect(posX - 28, posY, 36, 2);
+
+                  // Cajas de tomates / manzanas
+                  c.fillStyle = '#78350f';
+                  c.fillRect(posX + 12, posY - 4, 14, 10);
+                  c.fillStyle = '#dc2626';
+                  c.fillRect(posX + 14, posY - 6, 10, 4);
+
+                  // Barril con pescado al lado
+                  c.fillStyle = '#451a03';
+                  c.fillRect(posX - 38, posY - 4, 8, 14);
+                  c.fillStyle = '#78350f';
+                  c.fillRect(posX - 37, posY - 3, 6, 12);
+                  c.fillStyle = '#38bdf8';
+                  c.fillRect(posX - 36, posY - 6, 4, 3);
                 }
               },
             });
@@ -612,6 +663,89 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 c.beginPath();
                 c.arc(posX + 36, posY - 45 - smokeFrame * 5, 4 + smokeFrame * 2, 0, Math.PI * 2);
                 c.fill();
+              },
+            });
+          } else if (tileType === 21) {
+            // 🪨 Acantilado de Roca / Desnivel 2.5D (Cute Fantasy Cliff_Tile.png)
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                if (gameAssets.cliffTile.complete && gameAssets.cliffTile.naturalWidth > 0) {
+                  const cx = (x % 3) * 16;
+                  c.drawImage(gameAssets.cliffTile, cx, 16, 16, 16, posX, posY, TILE_SIZE, TILE_SIZE);
+                } else {
+                  c.fillStyle = '#64748b';
+                  c.fillRect(posX, posY + 4, TILE_SIZE, TILE_SIZE - 4);
+                  c.fillStyle = '#5ca632';
+                  c.fillRect(posX, posY, TILE_SIZE, 6);
+                }
+              },
+            });
+          } else if (tileType === 13) {
+            // 🎃 Huerto con Calabazas Gigantes, Coles y Zanahorias
+            entities.push({
+              ySort: posY + TILE_SIZE - 2,
+              draw: (c) => {
+                const cropVariant = (x * 3 + y * 7) % 3;
+                if (cropVariant === 0) {
+                  // 🎃 Calabaza gigante naranja brillante con tallo verde
+                  c.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 24, 9, 4, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.fillStyle = '#ea580c';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 20, 9, 8, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.fillStyle = '#f97316';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 19, 6, 7, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.fillStyle = '#15803d';
+                  c.fillRect(posX + 15, posY + 10, 2, 4);
+                } else if (cropVariant === 1) {
+                  // 🥬 Repollo frondoso verde
+                  c.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 24, 8, 4, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.fillStyle = '#16a34a';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 20, 8, 7, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.fillStyle = '#86efac';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 19, 5, 5, 0, 0, Math.PI * 2);
+                  c.fill();
+                } else {
+                  // 🥕 Zanahorias en tierra
+                  c.fillStyle = '#22c55e';
+                  c.fillRect(posX + 10, posY + 16, 4, 6);
+                  c.fillRect(posX + 18, posY + 14, 4, 8);
+                  c.fillStyle = '#f97316';
+                  c.fillRect(posX + 11, posY + 22, 2, 3);
+                  c.fillRect(posX + 19, posY + 22, 2, 3);
+                }
+              },
+            });
+          } else if (tileType === 15) {
+            // 🌉 Puente de Madera Rústico sobre el río (Cute Fantasy Bridge_Wood.png)
+            entities.push({
+              ySort: posY + TILE_SIZE - 6,
+              draw: (c) => {
+                if (gameAssets.bridgeWood.complete && gameAssets.bridgeWood.naturalWidth > 0) {
+                  c.drawImage(gameAssets.bridgeWood, 0, 0, 48, 48, posX - 8, posY - 8, 48, 48);
+                } else {
+                  c.fillStyle = '#5c2c16';
+                  c.fillRect(posX + 2, posY, TILE_SIZE - 4, TILE_SIZE);
+                  c.fillStyle = '#854d0e';
+                  c.fillRect(posX + 4, posY + 2, TILE_SIZE - 8, 6);
+                  c.fillRect(posX + 4, posY + 12, TILE_SIZE - 8, 6);
+                  c.fillRect(posX + 4, posY + 22, TILE_SIZE - 8, 6);
+                  c.fillStyle = '#b45309';
+                  c.fillRect(posX + 2, posY, 3, TILE_SIZE);
+                  c.fillRect(posX + TILE_SIZE - 5, posY, 3, TILE_SIZE);
+                }
               },
             });
           } else if (tileType === 14) {
@@ -854,12 +988,32 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 18) {
-            // Columna Monumental de Mármol Clásico con Hiedra (28x44 px)
-            const pillar = getRuinedPillarCanvas();
+            // Rocas Redondeadas con Musgo (Estilo Cute Fantasy) o Columnas de Mármol con Hiedra
+            const isBoulder = currentZone.id === 'zone_forest' && ((x * 13 + y * 7) % 2 === 0);
+            if (isBoulder) {
+              const boulder = getMossyBoulderCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(boulder, posX - 2, posY, 36, 32);
+                },
+              });
+            } else {
+              const pillar = getRuinedPillarCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE + 4,
+                draw: (c) => {
+                  c.drawImage(pillar, posX + 2, posY - 10, 28, 44);
+                },
+              });
+            }
+          } else if (tileType === 22) {
+            // 📜 Tablón de Anuncios y Misiones de la Aldea (Cute Fantasy Notice Board)
+            const noticeBoard = getNoticeBoardCanvas();
             entities.push({
               ySort: posY + TILE_SIZE + 4,
               draw: (c) => {
-                c.drawImage(pillar, posX + 2, posY - 10, 28, 44);
+                c.drawImage(noticeBoard, posX - 4, posY - 16, 40, 48);
               },
             });
           } else if (tileType === 19) {

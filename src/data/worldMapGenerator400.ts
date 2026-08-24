@@ -49,47 +49,62 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
     }
   }
 
-  // 2. Río Fluvial Exterior (Fluye por el bosque este en X: 52..54 de forma limpia)
-  for (let y = 3; y <= 56; y++) {
-    map[y][52] = 3;
-    map[y][53] = 3;
-    map[y][54] = 3;
-  }
-  // Puente hacia la Arboleda Secreta Este
-  map[30][52] = 15; map[30][53] = 15; map[30][54] = 15;
-
-  // 3. Gran Red de Avenidas Cardinales de Piedra Beige (Tile 2)
-  for (let y = 3; y <= 56; y++) {
-    for (let x = cx - 1; x <= cx + 1; x++) map[y][x] = 2;
-  }
-  for (let x = 3; x <= 56; x++) {
-    for (let y = cy - 1; y <= cy + 1; y++) map[y][x] = 2;
+  // 2. Acantilados de Piedra al Norte (Relieve 2.5D de Elevación)
+  for (let x = 18; x <= 38; x++) {
+    map[20][x] = 1;  // Fila de árboles altos sobre el acantilado
+    map[21][x] = 21; // 🪨 Acantilado de Roca / Cliff Tile
   }
 
-  // 4. Gran Plaza Central Adoquinada (11x11)
-  for (let y = cy - 5; y <= cy + 5; y++) {
-    for (let x = cx - 5; x <= cx + 5; x++) map[y][x] = 2;
+  // 3. Gran Aldea Central Handcrafted (Estilo Cute Fantasy RPG)
+  // Camino sinuoso de tierra y arena cálida
+  for (let y = 23; y <= 31; y++) {
+    for (let x = 25; x <= 30; x++) map[y][x] = 2;
   }
-  map[cy][cx] = 4; // Gran Fuente Central Monumental (Restaura HP/MP)
-  map[cy - 4][cx - 4] = 17; map[cy - 4][cx + 4] = 17; // Farolas
-  map[cy + 4][cx - 4] = 17; map[cy + 4][cx + 4] = 17;
-  map[cy - 3][cx - 3] = 12; map[cy - 3][cx + 3] = 12; // Parterres de Rosas
-  map[cy + 3][cx - 3] = 12; map[cy + 3][cx + 3] = 12;
+  for (let y = 28; y <= 33; y++) {
+    for (let x = 24; x <= 33; x++) map[y][x] = 2;
+  }
+  // Acceso al puente sur
+  for (let y = 32; y <= 36; y++) {
+    map[y][29] = 2; map[y][30] = 2;
+  }
+
+  // 🏠 Gran Mansión / Posada Medieval (X: 27, Y: 23)
+  map[23][27] = 5;
+
+  // 🌾 Huerto de Calabazas y Coles Cerrado con Vallas de Madera (X: 19..24, Y: 23..27)
+  for (let x = 19; x <= 24; x++) { map[23][x] = 14; map[27][x] = 14; }
+  for (let y = 23; y <= 27; y++) { map[y][19] = 14; }
+  map[24][20] = 13; map[24][21] = 13; map[24][22] = 13; map[24][23] = 13;
+  map[25][20] = 13; map[25][21] = 13; map[25][22] = 13; map[25][23] = 13;
+  map[26][20] = 13; map[26][21] = 13; map[26][22] = 13; map[26][23] = 13;
+
+  // 🌊 Río Fluvial del Este con Isla Verde y Puente de Madera
+  for (let y = 22; y <= 36; y++) {
+    map[y][35] = 3; map[y][36] = 3; map[y][37] = 3;
+  }
+  for (let x = 31; x <= 37; x++) {
+    map[35][x] = 3; map[36][x] = 3;
+  }
+  // Isla verde con Roble Noble en el río
+  map[26][36] = 1;
+  // Puente de Madera rústico sobre el río
+  map[35][29] = 15; map[35][30] = 15;
+  map[36][29] = 15; map[36][30] = 15;
+
+  // 📜 Tablón de Misiones, Faroles, Fuente y Rocas de la Aldea
+  map[27][31] = 22; // Tablón de Anuncios junto al camino
+  map[26][31] = 17; // Farola forjada del tablón
+  map[30][28] = 4;  // Gran Fuente Central (Restaura HP/MP)
+  map[28][24] = 18; // 🪨 Gran Roca Redondeada con Musgo
+  map[31][33] = 18;
+  map[28][23] = 9;  // Puestos del Bazar con toldos
+  map[30][23] = 9;
+  map[32][26] = 12; // Bancos de descanso
+  map[32][32] = 12;
 
   // 5. ⚔️ GRAN PORTAL DEL JEFE REY SLIME (TILE 11) EN EL EXTREMO NORTE
   map[2][30] = 11;
   map[2][28] = 17; map[2][32] = 17; // Farolas de piedra del portal
-
-  // 6. Calles Secundarias de los Cuadrantes
-  for (let x = 16; x <= 28; x++) {
-    map[18][x] = 2; map[24][x] = 2; map[36][x] = 2; map[42][x] = 2;
-  }
-  for (let x = 32; x <= 44; x++) {
-    map[18][x] = 2; map[24][x] = 2; map[36][x] = 2; map[42][x] = 2;
-  }
-  for (let y = 16; y <= 44; y++) {
-    map[y][20] = 2; map[y][40] = 2;
-  }
 
   // 7. CUADRANTE NOROESTE (Distrito Artesanal, Gremio de Exploradores, Viñedo & Círculo Sagrado)
   // Red de calles del sector noroeste

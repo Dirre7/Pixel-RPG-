@@ -3,6 +3,7 @@ import { PlayerStats, Zone, Inventory, NPC } from '../types';
 import { ZONES, areZoneMainQuestsCompleted, ALL_GAME_QUESTS, isZoneUnlocked, getZoneRequirementMessage, GAME_ACHIEVEMENTS, getAchievementProgress, getQuestRewardEquipment } from '../data/gameData';
 import { PixelCanvas } from './PixelCanvas';
 import { PixelMapCanvas } from './PixelMapCanvas';
+import { ThreeMapCanvas } from './ThreeMapCanvas';
 import { NPCDialogModal } from './NPCDialogModal';
 import { Minimap } from './Minimap';
 import { QuestLogModal } from './QuestLogModal';
@@ -932,17 +933,18 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         }}
         onTouchEnd={handleTouchEnd}
       >
-        <PixelMapCanvas
+        <ThreeMapCanvas
           currentZone={currentZone}
           playerPos={playerPos}
           player={player}
           equipment={inventory.equipment}
+          facingDir={facingDir}
           openedChests={openedChests}
-          activeShrines={[]}
-          onPlayerMove={(newPos) => {
-            onMove(newPos);
+          defeatedBosses={defeatedBosses}
+          completedQuests={completedQuests}
+          onTileClick={(targetX, targetY) => {
+            onMove({ x: targetX, y: targetY });
           }}
-          onInteract={handleInteract}
         />
 
         <TopResourceBar

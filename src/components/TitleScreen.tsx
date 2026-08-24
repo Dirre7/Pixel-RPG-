@@ -34,76 +34,125 @@ interface TitleScreenProps {
   onOpenPrologue?: () => void;
 }
 
-// Escaparate Retro de Personajes 2D Pixel Art
-const PixelHeroPreview: React.FC<{ heroClass: HeroClass; gender: 'male' | 'female' }> = ({ heroClass, gender }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+// Escaparate 3D de Personajes con Iluminación Dinámica y Pedestal
+const ThreeHeroPreview: React.FC<{ heroClass: HeroClass; gender: 'male' | 'female' }> = ({ heroClass, gender }) => {
+  const mountRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d')!;
-    ctx.imageSmoothingEnabled = false;
+    const container = mountRef.current;
+    if (!container) return;
+
+    const width = container.clientWidth || 240;
+    const height = container.clientHeight || 180;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
+    camera.position.set(0, 1.05, 2.7);
+    camera.lookAt(0, 0.55, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.3;
+
+    container.innerHTML = '';
+    container.appendChild(renderer.domElement);
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffedd5, 2.2);
+    dirLight.position.set(2.5, 4, 3);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
+
+    const rimLight = new THREE.DirectionalLight(0x38bdf8, 1.2);
+    rimLight.position.set(-2.5, 2.5, -2.5);
+    scene.add(rimLight);
+
+    // Ornate Pedestal
+    const pedestalGroup = new THREE.Group();
+    const pedBase = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.75, 0.85, 0.15, 24),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.4 })
+    );
+    pedBase.position.y = -0.075;
+    pedBase.receiveShadow = true;
+    pedestalGroup.add(pedBase);
+
+    const pedGoldRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.76, 0.025, 16, 32),
+      new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.3, metalness: 0.8 })
+    );
+    pedGoldRing.rotation.x = Math.PI / 2;
+    pedGoldRing.position.y = 0.0;
+    pedestalGroup.add(pedGoldRing);
+
+    scene.add(pedestalGroup);
+
+    // Mock PlayerStats for Consistent 3D Hero Preview
+    const dummyPlayer: PlayerStats = {
+      name: 'Hero',
+      heroClass,
+      gender,
+      level: 1,
+      exp: 0,
+      maxExp: 100,
+      hp: 100,
+      maxHp: 100,
+      mp: 50,
+      maxMp: 50,
+      attack: 10,
+      defense: 10,
+      speed: 10,
+      critical: 5,
+      gold: 0,
+      diamonds: 0,
+      unlockedClasses: [],
+      inventory: [],
+      skills: [],
+    };
+
+    const heroMeshRes = createHumanHeroMesh(dummyPlayer);
+    const heroGroup = heroMeshRes.group;
+    heroGroup.position.set(0, 0.02, 0);
+    scene.add(heroGroup);
 
     let animId: number;
     let time = 0;
+    const animate = () => {
+      animId = requestAnimationFrame(animate);
+      time += 0.02;
 
-    const render = () => {
-      time += 0.05;
-      const w = canvas.width;
-      const h = canvas.height;
+      // Gentle revolving showcase & breathing
+      heroGroup.rotation.y = time * 0.75;
+      const breath = Math.sin(time * 3) * 0.02;
+      heroMeshRes.torsoGroup.position.y = 0.70 + breath;
+      heroMeshRes.headGroup.position.y = 1.15 + breath;
+      heroMeshRes.leftArm.rotation.x = Math.sin(time * 3) * 0.05;
+      heroMeshRes.rightArm.rotation.x = -Math.sin(time * 3) * 0.05;
 
-      ctx.clearRect(0, 0, w, h);
-
-      // 1. Pedestal de Madera y Sombra Retro
-      const centerX = w / 2;
-      const centerY = h * 0.72;
-
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-      ctx.beginPath();
-      ctx.ellipse(centerX, centerY + 10, 48, 14, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Base de madera con ribete dorado
-      ctx.fillStyle = '#78350f';
-      ctx.beginPath();
-      ctx.ellipse(centerX, centerY + 8, 44, 12, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#b45309';
-      ctx.beginPath();
-      ctx.ellipse(centerX, centerY + 5, 38, 10, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#fbbf24';
-      ctx.beginPath();
-      ctx.ellipse(centerX, centerY + 3, 32, 7, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 2. Sprite de Héroe con Respiración y Pulso de Vida
-      const breatheY = Math.sin(time * 3) * 2;
-      const animState = Math.sin(time * 3) > 0 ? 'idle' : 'walk1';
-      const heroCanvas = getHeroSpriteCanvas(heroClass, gender, 'down', animState as any);
-
-      // Dibujar sprite escalado (72x72)
-      ctx.drawImage(heroCanvas, centerX - 36, centerY - 64 + breatheY, 72, 72);
-
-      animId = requestAnimationFrame(render);
+      renderer.render(scene, camera);
     };
 
-    render();
+    animate();
 
-    return () => cancelAnimationFrame(animId);
+    return () => {
+      cancelAnimationFrame(animId);
+      renderer.dispose();
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+    };
   }, [heroClass, gender]);
 
   return (
-    <div className="w-full h-24 sm:h-44 flex items-center justify-center">
-      <canvas
-        ref={canvasRef}
-        width={240}
-        height={180}
-        className="w-full h-full object-contain"
-        style={{ imageRendering: 'pixelated' }}
-      />
+    <div className="w-full h-36 sm:h-48 flex items-center justify-center">
+      <div ref={mountRef} className="w-full h-full" />
     </div>
   );
 };
@@ -195,16 +244,16 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
           <div className="w-full flex justify-between items-center text-xs font-bold text-slate-300 mb-1 z-10">
             <span className="text-amber-400 flex items-center space-x-1">
               <Eye className="w-3.5 h-3.5" />
-              <span>Sprite 2D Pixel Art</span>
+              <span>Modelo 3D del Héroe</span>
             </span>
             <span className="px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300 border border-slate-700">
               {gender === 'female' ? '👧 Femenino' : '👦 Masculino'}
             </span>
           </div>
 
-          {/* 2D Real-time Pixel Art Canvas */}
+          {/* 3D Real-time Hero Figurine Preview */}
           <div className="relative w-full flex items-center justify-center">
-            <PixelHeroPreview heroClass={selectedClass} gender={gender} />
+            <ThreeHeroPreview heroClass={selectedClass} gender={gender} />
           </div>
 
           {/* Character Tag & Lore Snippet */}

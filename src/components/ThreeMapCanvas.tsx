@@ -133,7 +133,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     if (!container) return;
 
     let width = container.clientWidth || 900;
-    let height = Math.min(650, Math.max(480, Math.round(width * 0.6)));
+    let height = container.clientHeight || Math.max(580, Math.round(width * 0.65));
 
     // 1. SCENE & CAMERA SETUP
     const scene = new THREE.Scene();
@@ -165,8 +165,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const centerX = mapW / 2;
     const centerZ = mapH / 2;
 
-    camera.position.set(centerX + 15, 22, centerZ + 15);
-    camera.lookAt(centerX, 0, centerZ);
+    camera.position.set(centerX + 8.5, 11.5, centerZ + 8.5);
+    camera.lookAt(centerX, 0.8, centerZ);
 
     // 2. RENDERER SETUP
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
@@ -184,8 +184,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const handleResize = () => {
       if (!container) return;
       const newW = container.clientWidth;
-      if (!newW) return;
-      const newH = Math.min(650, Math.max(480, Math.round(newW * 0.6)));
+      const newH = container.clientHeight || Math.max(580, Math.round(newW * 0.65));
+      if (!newW || !newH) return;
       width = newW;
       height = newH;
 
@@ -253,11 +253,11 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const sunPosZ = centerZ - 130;
     sunLight.position.set(sunPosX, sunPosY, sunPosZ);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 2048;
-    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
     sunLight.shadow.camera.near = 0.5;
     sunLight.shadow.camera.far = 250;
-    const shadowD = 45;
+    const shadowD = 35;
     sunLight.shadow.camera.left = -shadowD;
     sunLight.shadow.camera.right = shadowD;
     sunLight.shadow.camera.top = shadowD;
@@ -378,8 +378,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       });
     }
 
-    // 4. PROCEDURAL PBR CANVAS TEXTURES FOR GROUND & PATHS (With Sobel Normal Maps & Micro-Relief)
-    const groundPBR = createProceduralGroundPBRTextures(currentZone.id);
+    // 4. PROCEDURAL PBR CANVAS TEXTURES FOR GROUND & PATHS (Cached for instant map switching)
+    const groundPBR = getCachedGroundPBR(currentZone.id);
     groundPBR.diffuse.wrapS = THREE.RepeatWrapping;
     groundPBR.diffuse.wrapT = THREE.RepeatWrapping;
     groundPBR.diffuse.repeat.set(currentZone.mapWidth * 0.8, currentZone.mapHeight * 0.8);
@@ -391,10 +391,10 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const tileGroup = new THREE.Group();
     scene.add(tileGroup);
 
-    const tileGeo = new THREE.BoxGeometry(2.35, 0.4, 2.35);
+    const tileGeo = new THREE.BoxGeometry(2.505, 0.4, 2.505);
 
     // Geometries & Materials reuse with True PBR Normal Map
-    const pathPBR = createProceduralPathPBRTextures();
+    const pathPBR = getCachedPathPBR();
     const pathMat = new THREE.MeshStandardMaterial({
       map: pathPBR.diffuse,
       normalMap: pathPBR.normal,
@@ -456,6 +456,21 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     // Track obstacles for dynamic X-Ray transparency when near player
     const obstacleGroups: { group: THREE.Group; gridX: number; gridY: number }[] = [];
 
+    // Ground Tile Mesh with True PBR Physical Shader (Reused instance for high performance)
+    const groundMat = new THREE.MeshStandardMaterial({
+      map: groundPBR.diffuse,
+      normalMap: groundPBR.normal,
+      normalScale: new THREE.Vector2(1.4, 1.4),
+      roughness: currentZone.id === 'zone_castle' ? 0.45 : currentZone.id === 'zone_cave' ? 0.6 : 0.85,
+      metalness: currentZone.id === 'zone_castle' ? 0.15 : currentZone.id === 'zone_cave' ? 0.18 : 0.05,
+    });
+
+    const pathMainGeo = new THREE.BoxGeometry(2.52, 0.42, 2.52);
+    const bridgeNorthGeo = new THREE.BoxGeometry(2.52, 0.42, 0.4);
+    const bridgeEastGeo = new THREE.BoxGeometry(0.4, 0.42, 2.52);
+    const filletGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.42, 8);
+    const edgeGeo = new THREE.BoxGeometry(0.15, 0.41, 2.52);
+
     // Populate Map Tiles
     for (let y = 0; y < currentZone.mapHeight; y++) {
       for (let x = 0; x < currentZone.mapWidth; x++) {
@@ -465,15 +480,6 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
         // Micro-elevation height variation for natural organic terrain
         const elevation = (Math.sin(x * 1.3 + y * 1.7) * 0.05) + (Math.cos(x * 0.8 - y * 1.2) * 0.04);
-
-        // Ground Tile Mesh with True PBR Physical Shader
-        const groundMat = new THREE.MeshStandardMaterial({
-          map: groundPBR.diffuse,
-          normalMap: groundPBR.normal,
-          normalScale: new THREE.Vector2(1.4, 1.4),
-          roughness: currentZone.id === 'zone_castle' ? 0.45 : currentZone.id === 'zone_cave' ? 0.6 : 0.85,
-          metalness: currentZone.id === 'zone_castle' ? 0.15 : currentZone.id === 'zone_cave' ? 0.18 : 0.05,
-        });
 
         const tileMesh = new THREE.Mesh(tileGeo, groundMat);
         tileMesh.position.set(posX, -0.2 + elevation, posZ);
@@ -488,7 +494,6 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           const hasWest = currentZone.tileData[y]?.[x - 1] === 2;
 
           // Main Base Path Mesh spanning full cell width seamlessly
-          const pathMainGeo = new THREE.BoxGeometry(2.52, 0.42, 2.52);
           const pathMesh = new THREE.Mesh(pathMainGeo, pathMat);
           pathMesh.position.set(posX, -0.19 + elevation, posZ);
           pathMesh.receiveShadow = true;
@@ -496,25 +501,25 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
           // Directional Overlap Connectors bridging seamlessly into connected path neighbor tiles
           if (hasNorth) {
-            const bridgeN = new THREE.Mesh(new THREE.BoxGeometry(2.52, 0.42, 0.4), pathMat);
+            const bridgeN = new THREE.Mesh(bridgeNorthGeo, pathMat);
             bridgeN.position.set(posX, -0.19 + elevation, posZ - 1.28);
             bridgeN.receiveShadow = true;
             tileGroup.add(bridgeN);
           }
           if (hasSouth) {
-            const bridgeS = new THREE.Mesh(new THREE.BoxGeometry(2.52, 0.42, 0.4), pathMat);
+            const bridgeS = new THREE.Mesh(bridgeNorthGeo, pathMat);
             bridgeS.position.set(posX, -0.19 + elevation, posZ + 1.28);
             bridgeS.receiveShadow = true;
             tileGroup.add(bridgeS);
           }
           if (hasEast) {
-            const bridgeE = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.42, 2.52), pathMat);
+            const bridgeE = new THREE.Mesh(bridgeEastGeo, pathMat);
             bridgeE.position.set(posX + 1.28, -0.19 + elevation, posZ);
             bridgeE.receiveShadow = true;
             tileGroup.add(bridgeE);
           }
           if (hasWest) {
-            const bridgeW = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.42, 2.52), pathMat);
+            const bridgeW = new THREE.Mesh(bridgeEastGeo, pathMat);
             bridgeW.position.set(posX - 1.28, -0.19 + elevation, posZ);
             bridgeW.receiveShadow = true;
             tileGroup.add(bridgeW);
@@ -522,34 +527,34 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
           // Curved Rounded Fillets on Turn Corners
           if (hasNorth && hasEast) {
-            const filletNE = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.42, 12), pathMat);
+            const filletNE = new THREE.Mesh(filletGeo, pathMat);
             filletNE.position.set(posX + 1.0, -0.19 + elevation, posZ - 1.0);
             tileGroup.add(filletNE);
           }
           if (hasNorth && hasWest) {
-            const filletNW = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.42, 12), pathMat);
+            const filletNW = new THREE.Mesh(filletGeo, pathMat);
             filletNW.position.set(posX - 1.0, -0.19 + elevation, posZ - 1.0);
             tileGroup.add(filletNW);
           }
           if (hasSouth && hasEast) {
-            const filletSE = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.42, 12), pathMat);
+            const filletSE = new THREE.Mesh(filletGeo, pathMat);
             filletSE.position.set(posX + 1.0, -0.19 + elevation, posZ + 1.0);
             tileGroup.add(filletSE);
           }
           if (hasSouth && hasWest) {
-            const filletSW = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.42, 12), pathMat);
+            const filletSW = new THREE.Mesh(filletGeo, pathMat);
             filletSW.position.set(posX - 1.0, -0.19 + elevation, posZ + 1.0);
             tileGroup.add(filletSW);
           }
 
           // Natural Soil/Dirt Border Edge Strips along non-path borders
           if (!hasWest) {
-            const edgeW = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.41, 2.52), pathBorderMat);
+            const edgeW = new THREE.Mesh(edgeGeo, pathBorderMat);
             edgeW.position.set(posX - 1.28, -0.18 + elevation, posZ);
             tileGroup.add(edgeW);
           }
           if (!hasEast) {
-            const edgeE = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.41, 2.52), pathBorderMat);
+            const edgeE = new THREE.Mesh(edgeGeo, pathBorderMat);
             edgeE.position.set(posX + 1.28, -0.18 + elevation, posZ);
             tileGroup.add(edgeE);
           }
@@ -902,6 +907,11 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     let mapMixer: THREE.AnimationMixer | null = null;
 
     const applyBlenderHero = (model: THREE.Group) => {
+      if (!model.userData?.animations || model.userData.animations.length === 0) {
+        // External model has no skeletal animation clips, keep full procedural articulated hero!
+        return;
+      }
+
       heroGroup.children.forEach((child) => {
         if (child !== blenderHeroContainer) child.visible = false;
       });
@@ -919,11 +929,9 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       glbClone.position.y = -scaledBbox.min.y;
       glbClone.position.z = -((scaledBbox.min.z + scaledBbox.max.z) / 2);
 
-      if (model.userData?.animations && model.userData.animations.length > 0) {
-        mapMixer = new THREE.AnimationMixer(glbClone);
-        const action = model.userData.animations[0];
-        mapMixer.clipAction(action).play();
-      }
+      mapMixer = new THREE.AnimationMixer(glbClone);
+      const action = model.userData.animations[0];
+      mapMixer.clipAction(action).play();
 
       blenderHeroContainer.clear();
       blenderHeroContainer.add(glbClone);
@@ -1051,10 +1059,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       curr.z += (targ.z - curr.z) * 0.18;
 
       // Realistic Kinematics & Velocity vector
-      const velX = (curr.x - prevX) / Math.max(delta, 0.001);
-      const velZ = (curr.z - prevZ) / Math.max(delta, 0.001);
-      const speed = Math.hypot(velX, velZ);
-      const isMoving = speed > 0.15;
+      const distToTarget = Math.hypot(targ.x - curr.x, targ.z - curr.z);
+      const isMoving = distToTarget > 0.04;
 
       // Hero Character Rotation based on Facing Direction
       let targetRotY = Math.PI; // default facing up (away down the path into screen)
@@ -1069,50 +1075,32 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       heroGroup.rotation.y += rotDiff * 0.22;
 
       // 🌟 PHYSICAL INERTIA & BANKING: Lean hero into corners and turns
+      const velX = (curr.x - prevX) / Math.max(delta, 0.001);
+      const velZ = (curr.z - prevZ) / Math.max(delta, 0.001);
       const targetBankZ = THREE.MathUtils.clamp(-velX * 0.045, -0.22, 0.22);
       const targetBankX = THREE.MathUtils.clamp(velZ * 0.045, -0.22, 0.22);
       heroGroup.rotation.z = THREE.MathUtils.lerp(heroGroup.rotation.z, targetBankZ, 0.18);
       heroGroup.rotation.x = THREE.MathUtils.lerp(heroGroup.rotation.x, targetBankX, 0.18);
 
       // 🌟 STEP WEIGHT SPRING BOUNCE: Footstep ground compression
-      const stepBounce = isMoving ? Math.abs(Math.sin(time * 13)) * 0.05 : Math.sin(time * 2.8) * 0.015;
+      const stepBounce = isMoving ? Math.abs(Math.sin(time * 14)) * 0.06 : Math.sin(time * 2.8) * 0.015;
       heroGroup.position.set(curr.x, -stepBounce, curr.z);
-
-      // Físicas del Modelo 3D (Mixer esqueletal o Animación Procedural Viva)
-      if (mapMixer) {
-        mapMixer.update(delta);
-      } else {
-        if (isMoving) {
-          const stepBounce = Math.abs(Math.sin(time * 13)) * 0.055;
-          const walkSwayZ = Math.sin(time * 6.5) * 0.05;
-          const forwardLean = 0.06;
-
-          blenderHeroContainer.position.y = stepBounce;
-          blenderHeroContainer.rotation.z = walkSwayZ;
-          blenderHeroContainer.rotation.x = forwardLean;
-        } else {
-          const breathY = Math.sin(time * 2.8) * 0.02;
-          const breathSway = Math.sin(time * 1.4) * 0.015;
-
-          blenderHeroContainer.position.y = breathY;
-          blenderHeroContainer.rotation.z = breathSway;
-          blenderHeroContainer.rotation.x = Math.sin(time * 2.8) * 0.008;
-        }
-      }
 
       // Human Character Walking & Dynamic Skeletal Physics
       if (isMoving) {
-        heroMeshResult.leftLeg.rotation.x = Math.sin(time * 13) * 0.48;
-        heroMeshResult.rightLeg.rotation.x = -Math.sin(time * 13) * 0.48;
-        heroMeshResult.leftArm.rotation.x = -Math.sin(time * 13) * 0.38;
-        heroMeshResult.rightArm.rotation.x = Math.sin(time * 13) * 0.38;
-        heroMeshResult.torsoGroup.position.y = 0.70 + Math.abs(Math.sin(time * 13)) * 0.04;
-        heroMeshResult.headGroup.position.y = 1.15 + Math.abs(Math.sin(time * 13)) * 0.04;
+        const walkCycle = time * 14;
+        heroMeshResult.leftLeg.rotation.x = Math.sin(walkCycle) * 0.72;
+        heroMeshResult.rightLeg.rotation.x = -Math.sin(walkCycle) * 0.72;
+        heroMeshResult.leftArm.rotation.x = -Math.sin(walkCycle) * 0.62;
+        heroMeshResult.rightArm.rotation.x = Math.sin(walkCycle) * 0.62;
+        heroMeshResult.torsoGroup.rotation.y = Math.sin(walkCycle) * 0.12;
+        heroMeshResult.torsoGroup.position.y = 0.70 + Math.abs(Math.sin(walkCycle)) * 0.05;
+        heroMeshResult.headGroup.position.y = 1.15 + Math.abs(Math.sin(walkCycle)) * 0.05;
         
         // 🌟 VERLET CLOTH & HAIR LAG: Cape / Headband sways against movement direction
         if (heroMeshResult.headbandTail) {
-          heroMeshResult.headbandTail.rotation.z = -0.3 + Math.sin(time * 13) * 0.28;
-          heroMeshResult.headbandTail.rotation.x = THREE.MathUtils.lerp(heroMeshResult.headbandTail.rotation.x, 0.45, 0.2);
+          heroMeshResult.headbandTail.rotation.z = -0.3 + Math.sin(walkCycle) * 0.35;
+          heroMeshResult.headbandTail.rotation.x = THREE.MathUtils.lerp(heroMeshResult.headbandTail.rotation.x, 0.55, 0.2);
         }
 
         // 🌟 INTERACTIVE FLUID SHOCKWAVES: Spawn concentric ripples when near water / lava
@@ -1131,12 +1119,14 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           }
         }
       } else {
-        heroMeshResult.leftLeg.rotation.x = 0;
-        heroMeshResult.rightLeg.rotation.x = 0;
-        heroMeshResult.leftArm.rotation.x = 0;
-        heroMeshResult.rightArm.rotation.x = 0;
-        heroMeshResult.torsoGroup.position.y = 0.70 + Math.sin(time * 3) * 0.015;
-        heroMeshResult.headGroup.position.y = 1.15 + Math.sin(time * 3) * 0.02;
+        const breathCycle = time * 3;
+        heroMeshResult.leftLeg.rotation.x = THREE.MathUtils.lerp(heroMeshResult.leftLeg.rotation.x, 0, 0.2);
+        heroMeshResult.rightLeg.rotation.x = THREE.MathUtils.lerp(heroMeshResult.rightLeg.rotation.x, 0, 0.2);
+        heroMeshResult.leftArm.rotation.x = Math.sin(breathCycle) * 0.06;
+        heroMeshResult.rightArm.rotation.x = -Math.sin(breathCycle) * 0.06;
+        heroMeshResult.torsoGroup.rotation.y = 0;
+        heroMeshResult.torsoGroup.position.y = 0.70 + Math.sin(breathCycle) * 0.015;
+        heroMeshResult.headGroup.position.y = 1.15 + Math.sin(breathCycle) * 0.02;
         if (heroMeshResult.headbandTail) {
           heroMeshResult.headbandTail.rotation.z = -0.3 + Math.sin(time * 4) * 0.1;
           heroMeshResult.headbandTail.rotation.x = THREE.MathUtils.lerp(heroMeshResult.headbandTail.rotation.x, 0, 0.1);
@@ -1248,16 +1238,16 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
         });
       }
 
-      // Smooth camera follow target hero position (Isometric Overhead ARPG Angle)
-      const camTargetX = curr.x + 15;
-      const camTargetZ = curr.z + 15;
-      camera.position.x += (camTargetX - camera.position.x) * 0.12;
-      camera.position.z += (camTargetZ - camera.position.z) * 0.12;
-      camera.position.y = 22;
-      camera.lookAt(curr.x, 0, curr.z);
+      // Smooth camera follow target hero position (Close Crisp Isometric ARPG Angle)
+      const camTargetX = curr.x + 8.5;
+      const camTargetZ = curr.z + 8.5;
+      camera.position.x += (camTargetX - camera.position.x) * 0.15;
+      camera.position.z += (camTargetZ - camera.position.z) * 0.15;
+      camera.position.y = 11.5;
+      camera.lookAt(curr.x, 0.8, curr.z);
 
       // Keep sunlight positioned relative to player for crisp dynamic shadows
-      sunLight.position.set(curr.x + 15, 35, curr.z - 10);
+      sunLight.position.set(curr.x + 12, 28, curr.z - 8);
 
       // Animate floating particles
       const positions = particleSystem.geometry.attributes.position.array as Float32Array;
@@ -1328,9 +1318,9 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
   }, [currentZone, player.heroClass, equipment, openedChests, defeatedBosses, isBossDefeated]);
 
   return (
-    <div className="relative flex justify-center items-center w-full my-1 select-none overflow-hidden rounded-xl border-2 border-amber-900/60 shadow-[0_0_30px_rgba(0,0,0,0.9)] bg-slate-950">
+    <div className="relative flex justify-center items-center w-full h-full min-h-[580px] flex-1 select-none overflow-hidden rounded-xl border-2 border-amber-900/60 shadow-[0_0_30px_rgba(0,0,0,0.9)] bg-slate-950">
       {/* 3D WebGL Canvas Container */}
-      <div ref={mountRef} className="w-full h-[520px] sm:h-[580px] cursor-pointer" />
+      <div ref={mountRef} className="w-full h-full min-h-[580px] cursor-pointer" />
 
       {/* OVERHEAD MOBA HEALTHBAR HUD (Projected from 3D to 2D) */}
       {playerHudPos.visible && (
@@ -1363,19 +1353,6 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
         </div>
       )}
 
-      {/* TOP MOBA BOSS STATUS HUD */}
-      <div className="absolute top-3 left-1/2 transform -translate-x-1/2 bg-slate-950/90 border-2 border-amber-600/80 px-4 py-1.5 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.8)] z-10 flex flex-col items-center">
-        <div className="text-xs font-black text-amber-400 tracking-wider flex items-center gap-1.5">
-          <span>{isBossDefeated ? '✨' : '💀'}</span>
-          <span>{currentZone.boss.name}</span>
-          <span className="text-[10px] text-slate-400">({currentZone.name})</span>
-        </div>
-        <div className="w-48 bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-700 mt-1">
-          <div
-            className={`h-full transition-all duration-300 ${isBossDefeated ? 'bg-purple-500 w-0' : 'bg-red-600 w-full animate-pulse'}`}
-          />
-        </div>
-      </div>
     </div>
   );
 };
@@ -1704,30 +1681,86 @@ function createProceduralPathPBRTextures(): { diffuse: THREE.CanvasTexture; norm
   return { diffuse, normal };
 }
 
+// --- GLOBAL TEXTURE CACHING SYSTEM (ELIMINATES ZERO-DELAY MAP TRANSITIONS) ---
+const globalTextureCache: Record<string, THREE.CanvasTexture> = {};
+const globalGroundPBRCache: Record<string, { diffuse: THREE.CanvasTexture; normal: THREE.CanvasTexture }> = {};
+let cachedPathPBR: { diffuse: THREE.CanvasTexture; normal: THREE.CanvasTexture } | null = null;
+let cachedBarkTexture: THREE.CanvasTexture | null = null;
+let cachedBirchTexture: THREE.CanvasTexture | null = null;
+
+function getCachedBarkTexture(): THREE.CanvasTexture {
+  if (!cachedBarkTexture) {
+    cachedBarkTexture = createProceduralBarkTexture();
+  }
+  return cachedBarkTexture;
+}
+
+function getCachedLeafTexture(colorBase: string, colorHighlight: string): THREE.CanvasTexture {
+  const key = `${colorBase}_${colorHighlight}`;
+  if (!globalTextureCache[key]) {
+    globalTextureCache[key] = createProceduralLeafTexture(colorBase, colorHighlight);
+  }
+  return globalTextureCache[key];
+}
+
+function getCachedBirchTexture(): THREE.CanvasTexture {
+  if (!cachedBirchTexture) {
+    const birchCanvas = document.createElement('canvas');
+    birchCanvas.width = 256;
+    birchCanvas.height = 256;
+    const bCtx = birchCanvas.getContext('2d')!;
+    bCtx.fillStyle = '#f8fafc';
+    bCtx.fillRect(0, 0, 256, 256);
+    bCtx.fillStyle = '#0f172a';
+    for (let i = 0; i < 40; i++) {
+      bCtx.fillRect(Math.random() * 256, Math.random() * 256, 12 + Math.random() * 20, 3 + Math.random() * 3);
+    }
+    cachedBirchTexture = new THREE.CanvasTexture(birchCanvas);
+    cachedBirchTexture.wrapS = THREE.RepeatWrapping;
+    cachedBirchTexture.wrapT = THREE.RepeatWrapping;
+    cachedBirchTexture.repeat.set(1, 3);
+  }
+  return cachedBirchTexture;
+}
+
+function getCachedGroundPBR(zoneId: string) {
+  if (!globalGroundPBRCache[zoneId]) {
+    globalGroundPBRCache[zoneId] = createProceduralGroundPBRTextures(zoneId);
+  }
+  return globalGroundPBRCache[zoneId];
+}
+
+function getCachedPathPBR() {
+  if (!cachedPathPBR) {
+    cachedPathPBR = createProceduralPathPBRTextures();
+  }
+  return cachedPathPBR;
+}
+
 // --- PROCEDURAL BARK TEXTURE FOR REALISTIC TREE TRUNKS ---
 function createProceduralBarkTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 512;
+  canvas.width = 256;
+  canvas.height = 256;
   const ctx = canvas.getContext('2d')!;
 
   ctx.fillStyle = '#3b1c08';
-  ctx.fillRect(0, 0, 512, 512);
+  ctx.fillRect(0, 0, 256, 256);
 
   // Vertical wood grain & bark fissures
-  for (let x = 0; x < 512; x += 4) {
+  for (let x = 0; x < 256; x += 4) {
     const darkness = Math.random() * 0.4;
     ctx.fillStyle = `rgba(15, 7, 2, ${darkness})`;
-    ctx.fillRect(x, 0, 2 + Math.random() * 3, 512);
+    ctx.fillRect(x, 0, 2 + Math.random() * 3, 256);
   }
 
   // Organic bark knots & moss specks
-  for (let i = 0; i < 120; i++) {
-    const kx = Math.random() * 512;
-    const ky = Math.random() * 512;
+  for (let i = 0; i < 60; i++) {
+    const kx = Math.random() * 256;
+    const ky = Math.random() * 256;
     ctx.fillStyle = Math.random() > 0.4 ? '#211005' : '#15803d';
     ctx.beginPath();
-    ctx.ellipse(kx, ky, 6 + Math.random() * 12, 2 + Math.random() * 4, Math.PI / 2, 0, Math.PI * 2);
+    ctx.ellipse(kx, ky, 4 + Math.random() * 8, 2 + Math.random() * 3, Math.PI / 2, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -2116,7 +2149,7 @@ function create3DRichTreeMesh(posX: number, posZ: number, zoneId: string, x: num
 
   g.scale.set(widthScale, heightScale, widthScale);
 
-  const barkTexture = createProceduralBarkTexture();
+  const barkTexture = getCachedBarkTexture();
   const trunkMat = new THREE.MeshStandardMaterial({
     map: barkTexture,
     roughness: 0.9,
@@ -2160,8 +2193,8 @@ function create3DRichTreeMesh(posX: number, posZ: number, zoneId: string, x: num
       });
 
       // Layered Dense Leaf Canopies
-      const leafTexMain = createProceduralLeafTexture('#15803d', '#4ade80');
-      const leafTexAlt = createProceduralLeafTexture('#166534', '#a3e635');
+      const leafTexMain = getCachedLeafTexture('#15803d', '#4ade80');
+      const leafTexAlt = getCachedLeafTexture('#166534', '#a3e635');
       const leafMatMain = new THREE.MeshStandardMaterial({ map: leafTexMain, roughness: 0.5 });
       const leafMatAlt = new THREE.MeshStandardMaterial({ map: leafTexAlt, roughness: 0.5 });
 
@@ -2189,7 +2222,7 @@ function create3DRichTreeMesh(posX: number, posZ: number, zoneId: string, x: num
       trunk.castShadow = true;
       g.add(trunk);
 
-      const pineLeafTex = createProceduralLeafTexture('#14532d', '#22c55e');
+      const pineLeafTex = getCachedLeafTexture('#14532d', '#22c55e');
       const pineMat = new THREE.MeshStandardMaterial({ map: pineLeafTex, roughness: 0.6 });
 
       const tiers = [
@@ -2210,28 +2243,14 @@ function create3DRichTreeMesh(posX: number, posZ: number, zoneId: string, x: num
 
     } else if (modelType === 2) {
       // 3. SLENDER WHITE BIRCH (Abedul Realista con Corteza Blanca y Hojas Vibrantes)
-      const birchCanvas = document.createElement('canvas');
-      birchCanvas.width = 256;
-      birchCanvas.height = 256;
-      const bCtx = birchCanvas.getContext('2d')!;
-      bCtx.fillStyle = '#f8fafc';
-      bCtx.fillRect(0, 0, 256, 256);
-      bCtx.fillStyle = '#0f172a';
-      for (let i = 0; i < 40; i++) {
-        bCtx.fillRect(Math.random() * 256, Math.random() * 256, 12 + Math.random() * 20, 3 + Math.random() * 3);
-      }
-      const birchTex = new THREE.CanvasTexture(birchCanvas);
-      birchTex.wrapS = THREE.RepeatWrapping;
-      birchTex.wrapT = THREE.RepeatWrapping;
-      birchTex.repeat.set(1, 3);
-
+      const birchTex = getCachedBirchTexture();
       const birchTrunkMat = new THREE.MeshStandardMaterial({ map: birchTex, roughness: 0.7 });
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.28, 4.5, 10), birchTrunkMat);
       trunk.position.y = 2.25;
       trunk.castShadow = true;
       g.add(trunk);
 
-      const birchLeafTex = createProceduralLeafTexture('#65a30d', '#a3e635');
+      const birchLeafTex = getCachedLeafTexture('#65a30d', '#a3e635');
       const birchLeafMat = new THREE.MeshStandardMaterial({ map: birchLeafTex, roughness: 0.5 });
 
       const crowns = [
@@ -2253,8 +2272,8 @@ function create3DRichTreeMesh(posX: number, posZ: number, zoneId: string, x: num
       trunk.castShadow = true;
       g.add(trunk);
 
-      const autumnRedTex = createProceduralLeafTexture('#dc2626', '#fca5a5');
-      const autumnGoldTex = createProceduralLeafTexture('#d97706', '#fef08a');
+      const autumnRedTex = getCachedLeafTexture('#dc2626', '#fca5a5');
+      const autumnGoldTex = getCachedLeafTexture('#d97706', '#fef08a');
 
       const matRed = new THREE.MeshStandardMaterial({ map: autumnRedTex, roughness: 0.5 });
       const matGold = new THREE.MeshStandardMaterial({ map: autumnGoldTex, roughness: 0.5 });
