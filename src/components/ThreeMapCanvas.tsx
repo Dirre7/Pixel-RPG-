@@ -67,6 +67,9 @@ import {
   create3DOakBarrelsMesh,
   create3DMerchantCartMesh,
   create3DStonePlanterMesh,
+  create3DApothecaryBuildingMesh,
+  create3DCityHallBuildingMesh,
+  create3DTavernBuildingMesh,
 } from '../utils/three3dModels';
 
 interface ThreeMapCanvasProps {
@@ -1002,15 +1005,34 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: shopGroup, gridX: x, gridY: y });
         }
 
-        // Inn (Tavern / Inn Building)
+        // Inn (Tavern / Inn Building - Tile 5)
         if (tileType === 5) {
-          const innRes = createLowPolyCottage(0xd97706, true, 2);
-          const innGroup = innRes.group;
-          innGroup.position.set(posX, elevation, posZ);
-          innGroup.scale.set(1.3, 1.3, 1.3);
-          tileGroup.add(innGroup);
-          obstacleGroups.push({ group: innGroup, gridX: x, gridY: y });
-          if (innRes.updateAnimation) animatedBuildingUpdaters.push(innRes.updateAnimation);
+          const tavernRes = create3DTavernBuildingMesh();
+          const tavernGroup = tavernRes.group;
+          tavernGroup.position.set(posX, elevation, posZ);
+          tileGroup.add(tavernGroup);
+          obstacleGroups.push({ group: tavernGroup, gridX: x, gridY: y });
+          if (tavernRes.updateAnimation) animatedBuildingUpdaters.push(tavernRes.updateAnimation);
+        }
+
+        // 🌿 Botica Alquímica de Lynda (Tile 27)
+        if (tileType === 27) {
+          const boticaRes = create3DApothecaryBuildingMesh();
+          const boticaGroup = boticaRes.group;
+          boticaGroup.position.set(posX, elevation, posZ);
+          tileGroup.add(boticaGroup);
+          obstacleGroups.push({ group: boticaGroup, gridX: x, gridY: y });
+          if (boticaRes.updateAnimation) animatedBuildingUpdaters.push(boticaRes.updateAnimation);
+        }
+
+        // 👑 Gran Casa Consistorial / Salón del Trono del Castillo (Tile 31)
+        if (tileType === 31) {
+          const cityHallRes = create3DCityHallBuildingMesh();
+          const cityHallGroup = cityHallRes.group;
+          cityHallGroup.position.set(posX, elevation, posZ);
+          tileGroup.add(cityHallGroup);
+          obstacleGroups.push({ group: cityHallGroup, gridX: x, gridY: y });
+          if (cityHallRes.updateAnimation) animatedBuildingUpdaters.push(cityHallRes.updateAnimation);
         }
 
         // 🌾 Windmill (Tile 6)

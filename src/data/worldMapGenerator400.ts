@@ -249,32 +249,34 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[62][34] = 12; map[62][38] = 12; // Bancos de descanso
   map[56][30] = 9;  map[58][30] = 9;  // Puestos de mercado del bazar
 
-  // 🏰 Grandes Mansiones y Casonas Nobles enmarcando la Plaza
-  map[54][32] = 5;  // Gran Posada del León Dorado (Norte)
-  map[55][32] = 28; // 🚪 Puerta de Entrada a la Taberna y Posada "El Jabalí Dorado"
-  map[54][40] = 5;  // Mansión del Gremio de Comerciantes (Noreste)
-  map[64][32] = 5;  // Casona Señorial del Roble (Suroeste)
-  map[64][40] = 5;  // Casona Noble de la Ribera (Sureste)
+  // 🏰 Grandes Mansiones y Casonas Nobles enmarcando la Plaza (Ubicadas en parcelas verdes)
+  map[64][31] = 5;  // Casona Señorial del Roble (Suroeste Plaza)
+  map[64][41] = 5;  // Casona Noble de la Ribera (Sureste Plaza)
 
-  // Distrito Oeste (Forja, Posada, Almacenes)
-  map[48][24] = 5;  // Gran Posada de los Viajeros
-  map[54][24] = 10; // Gran Forja Mayor de Brom
-  map[55][24] = 28; // 🚪 Puerta de Entrada a la Gran Forja Real
-  map[54][26] = 19; // Brasero
-  map[50][20] = 5;  // Almacén de Minerales
-  map[56][20] = 5;  // Mansión Comercial Oeste
-  map[62][20] = 5;  // Taller de Curtidores
+  // 🍻 Taberna y Posada "El Jabalí Dorado" (Manzana Norte-Centro X: 31, Y: 51)
+  map[51][31] = 5;  // Edificio de la Posada
+  map[53][31] = 28; // 🚪 Puerta de Entrada a la Taberna y Posada "El Jabalí Dorado"
+  map[51][41] = 5;  // Mansión del Gremio de Comerciantes (Noreste)
 
-  // Distrito Este (Ayuntamiento, Botica, Mansiones)
-  map[48][48] = 31; // Gran Casa Consistorial / Castillo
-  map[49][48] = 28; // 🚪 Puerta de Entrada al Gran Salón del Trono
-  map[48][52] = 5;  // Mansión Solariega Noreste
-  map[54][48] = 27; // Botica de Lynda
-  map[55][48] = 28; // 🚪 Puerta de Entrada a la Botica Alquímica
-  map[54][52] = 5;  // Mansión "Villa Rosa"
-  map[60][48] = 5;  // Mansión "Los Álamos"
-  map[60][52] = 5;  // Palacio Residencial Este
-  map[66][48] = 5;  // Villa Ribereña
+  // ⚔️ Distrito Oeste: Gran Forja de Brom, Posada de Viajeros y Talleres
+  map[51][25] = 10; // Gran Forja Mayor de Brom (Edificio X: 25, Y: 51)
+  map[53][25] = 28; // 🚪 Puerta de Entrada a la Gran Forja Real
+  map[51][26] = 19; // Brasero ceremonial
+  map[51][23] = 5;  // Gran Posada de los Viajeros
+  map[57][25] = 5;  // Almacén de Minerales
+  map[57][23] = 5;  // Mansión Comercial Oeste
+  map[63][25] = 5;  // Taller de Curtidores
+
+  // 🌿 Distrito Este: Botica de Lynda, Casa Consistorial y Mansiones
+  map[45][47] = 31; // Gran Casa Consistorial / Castillo (Edificio X: 47, Y: 45)
+  map[47][47] = 28; // 🚪 Puerta de Entrada al Gran Salón del Trono
+  map[51][47] = 27; // Botica Alquímica de Lynda (Edificio X: 47, Y: 51)
+  map[53][47] = 28; // 🚪 Puerta de Entrada a la Botica Alquímica
+  map[51][49] = 5;  // Mansión Solariega Noreste
+  map[57][47] = 5;  // Mansión "Villa Rosa"
+  map[63][47] = 5;  // Mansión "Los Álamos"
+  map[63][49] = 5;  // Palacio Residencial Este
+  map[69][47] = 5;  // Villa Ribereña
 
   // 🏮 Farolas en las aceras principales
   [48, 60, 72].forEach((hy) => {

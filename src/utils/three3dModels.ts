@@ -4194,6 +4194,348 @@ export function create3DStonePlanterMesh(posX: number, posZ: number): THREE.Grou
   return group;
 }
 
+// =========================================================================
+// 🌿 1. BOTICA ALQUÍMICA 3D (APOTHECARY & POTION LABORATORY)
+// =========================================================================
+export function create3DApothecaryBuildingMesh(): BuildingMeshResult {
+  const group = new THREE.Group();
+
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.85, flatShading: true });
+  const plasterMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.7, flatShading: true });
+  const timberMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8 });
+  const greenRoofMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.65, flatShading: true });
+  const darkRoofMat = new THREE.MeshStandardMaterial({ color: 0x14532d, roughness: 0.7, flatShading: true });
+  const potionRedMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 1.5, roughness: 0.1 });
+  const potionCyanMat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, emissive: 0x0891b2, emissiveIntensity: 1.5, roughness: 0.1 });
+  const potionGreenMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x16a34a, emissiveIntensity: 1.5, roughness: 0.1 });
+  const potionPurpleMat = new THREE.MeshStandardMaterial({ color: 0xa855f7, emissive: 0x7e22ce, emissiveIntensity: 1.5, roughness: 0.1 });
+  const windowGlowMat = new THREE.MeshStandardMaterial({ color: 0x86efac, emissive: 0x22c55e, emissiveIntensity: 1.2 });
+
+  // 1. Stone Foundation Plinth
+  const plinth = new THREE.Mesh(new THREE.BoxGeometry(2.15, 0.45, 1.85), stoneMat);
+  plinth.position.y = 0.225;
+  plinth.castShadow = true;
+  plinth.receiveShadow = true;
+  group.add(plinth);
+
+  // 2. Plaster Walls (First Floor)
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.15, 1.7), plasterMat);
+  walls.position.y = 0.45 + 0.575;
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  group.add(walls);
+
+  // 3. Timber Corner Posts & Cross Beams
+  const cornerPositions = [
+    [-0.98, -0.83], [0.98, -0.83], [-0.98, 0.83], [0.98, 0.83]
+  ];
+  cornerPositions.forEach(([cx, cz]) => {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.25, 0.14), timberMat);
+    post.position.set(cx, 1.05, cz);
+    post.castShadow = true;
+    group.add(post);
+  });
+
+  // Intermediate timber frame horizontal beams
+  const beamFront = new THREE.Mesh(new THREE.BoxGeometry(2.02, 0.10, 0.08), timberMat);
+  beamFront.position.set(0, 1.55, 0.84);
+  group.add(beamFront);
+
+  // 4. Slanted Shingled Green Roof
+  const roofMain = new THREE.Mesh(new THREE.ConeGeometry(1.65, 1.10, 4), greenRoofMat);
+  roofMain.rotation.y = Math.PI / 4;
+  roofMain.position.set(0, 2.15, 0);
+  roofMain.scale.set(1.0, 0.95, 0.85);
+  roofMain.castShadow = true;
+  group.add(roofMain);
+
+  // Roof Ridge Beam
+  const ridge = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 1.65), darkRoofMat);
+  ridge.position.set(0, 2.65, 0);
+  group.add(ridge);
+
+  // 5. Front Bay Display Windows with Glowing Potions
+  const bayBox = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.55, 0.25), timberMat);
+  bayBox.position.set(-0.55, 0.95, 0.92);
+  group.add(bayBox);
+
+  const bayGlass = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.45, 0.08), windowGlowMat);
+  bayGlass.position.set(-0.55, 0.95, 1.02);
+  group.add(bayGlass);
+
+  // Potion bottles in display window
+  const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.14, 8), potionCyanMat);
+  p1.position.set(-0.70, 0.90, 1.06);
+  group.add(p1);
+
+  const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.14, 8), potionRedMat);
+  p2.position.set(-0.55, 0.90, 1.06);
+  group.add(p2);
+
+  const p3 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.14, 8), potionGreenMat);
+  p3.position.set(-0.40, 0.90, 1.06);
+  group.add(p3);
+
+  // Window on right side
+  const winR = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.06), windowGlowMat);
+  winR.position.set(0.55, 1.05, 0.86);
+  group.add(winR);
+
+  // 6. Stone Chimney with Magical Vapor
+  const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.5, 0.35), stoneMat);
+  chimney.position.set(0.65, 2.2, -0.35);
+  chimney.castShadow = true;
+  group.add(chimney);
+
+  const chimneyCap = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.10, 0.42), darkRoofMat);
+  chimneyCap.position.set(0.65, 2.98, -0.35);
+  group.add(chimneyCap);
+
+  // Smoke puffs animation
+  const smokePuffs: THREE.Mesh[] = [];
+  const smokeMat = new THREE.MeshBasicMaterial({ color: 0x86efac, transparent: true, opacity: 0.55 });
+  for (let i = 0; i < 4; i++) {
+    const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(0.12 + i * 0.03, 1), smokeMat);
+    puff.position.set(0.65, 3.05 + i * 0.25, -0.35);
+    group.add(puff);
+    smokePuffs.push(puff);
+  }
+
+  // 7. Hanging Mortar & Pestle Sign
+  const signPole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.45), timberMat);
+  signPole.rotation.z = Math.PI / 2;
+  signPole.position.set(0.18, 1.45, 0.95);
+  group.add(signPole);
+
+  const mortar = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.06, 0.12, 8), potionPurpleMat);
+  mortar.position.set(0.35, 1.35, 0.95);
+  group.add(mortar);
+
+  let smokeTimer = 0;
+  const updateAnimation = (delta: number) => {
+    smokeTimer += delta * 1.5;
+    smokePuffs.forEach((p, idx) => {
+      p.position.y = 3.05 + ((smokeTimer + idx * 0.6) % 1.6);
+      p.position.x = 0.65 + Math.sin(smokeTimer * 2 + idx) * 0.08;
+      const progress = ((smokeTimer + idx * 0.6) % 1.6) / 1.6;
+      p.scale.setScalar(0.6 + progress * 0.9);
+      (p.material as THREE.MeshBasicMaterial).opacity = (1.0 - progress) * 0.6;
+    });
+  };
+
+  return { group, updateAnimation };
+}
+
+// =========================================================================
+// 👑 2. GRAN SALÓN DEL TRONO / CASA CONSISTORIAL 3D (CASTLE CIVIC HALL)
+// =========================================================================
+export function create3DCityHallBuildingMesh(): BuildingMeshResult {
+  const group = new THREE.Group();
+
+  const ashlarMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.75, flatShading: true });
+  const darkStoneMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.85, flatShading: true });
+  const blueRoofMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.55, flatShading: true });
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8, roughness: 0.2, emissive: 0xd97706, emissiveIntensity: 0.5 });
+  const stainedGlassMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 1.5 });
+  const bannerMat = new THREE.MeshStandardMaterial({ color: 0xb91c1c, roughness: 0.6, side: THREE.DoubleSide });
+
+  // 1. Monumental Stepped Base
+  const baseStep1 = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.35, 2.3), darkStoneMat);
+  baseStep1.position.y = 0.175;
+  baseStep1.receiveShadow = true;
+  group.add(baseStep1);
+
+  // 2. Main Stone Civic Palace Body (2 Levels)
+  const mainBody = new THREE.Mesh(new THREE.BoxGeometry(2.25, 1.85, 1.95), ashlarMat);
+  mainBody.position.y = 0.35 + 0.925;
+  mainBody.castShadow = true;
+  mainBody.receiveShadow = true;
+  group.add(mainBody);
+
+  // 3. Classical Corner Pilasters
+  const pilasterPositions = [
+    [-1.10, -0.95], [1.10, -0.95], [-1.10, 0.95], [1.10, 0.95]
+  ];
+  pilasterPositions.forEach(([px, pz]) => {
+    const pilaster = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.95, 0.18), darkStoneMat);
+    pilaster.position.set(px, 1.30, pz);
+    pilaster.castShadow = true;
+    group.add(pilaster);
+  });
+
+  // 4. Arched Grand Portal Framing Front Facade
+  const portalArch = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.22, 0.25), darkStoneMat);
+  portalArch.position.set(0, 1.55, 0.98);
+  group.add(portalArch);
+
+  // Golden Royal Lion Crest above portal
+  const crest = new THREE.Mesh(new THREE.DodecahedronGeometry(0.20, 1), goldMat);
+  crest.position.set(0, 1.82, 1.0);
+  group.add(crest);
+
+  // 5. Stained Glass Windows (Upper Floor)
+  for (let i = -1; i <= 1; i++) {
+    const win = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.65, 0.06), stainedGlassMat);
+    win.position.set(i * 0.65, 1.65, 0.99);
+    group.add(win);
+
+    const winArch = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.08, 8, 1, false, 0, Math.PI), darkStoneMat);
+    winArch.rotation.z = Math.PI / 2;
+    winArch.position.set(i * 0.65, 1.98, 0.99);
+    group.add(winArch);
+  }
+
+  // 6. Royal Blue High-Pitched Mansard Roof
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(1.85, 1.25, 4), blueRoofMat);
+  roof.rotation.y = Math.PI / 4;
+  roof.position.set(0, 2.85, 0);
+  roof.scale.set(1.0, 0.9, 0.85);
+  roof.castShadow = true;
+  group.add(roof);
+
+  // 7. Twin Corner Spires with Fluttering Banners
+  const turretPositions = [[-1.12, 0.98], [1.12, 0.98]];
+  const banners: THREE.Mesh[] = [];
+  turretPositions.forEach(([tx, tz]) => {
+    const turret = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.18, 1.2, 8), darkStoneMat);
+    turret.position.set(tx, 2.5, tz);
+    turret.castShadow = true;
+    group.add(turret);
+
+    const spire = new THREE.Mesh(new THREE.ConeGeometry(0.20, 0.65, 8), blueRoofMat);
+    spire.position.set(tx, 3.4, tz);
+    group.add(spire);
+
+    const finial = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), goldMat);
+    finial.position.set(tx, 3.75, tz);
+    group.add(finial);
+
+    const banner = new THREE.Mesh(new THREE.PlaneGeometry(0.35, 0.55), bannerMat);
+    banner.position.set(tx + 0.18, 3.35, tz);
+    group.add(banner);
+    banners.push(banner);
+  });
+
+  let bannerTimer = 0;
+  const updateAnimation = (delta: number) => {
+    bannerTimer += delta * 4;
+    banners.forEach((b, idx) => {
+      b.rotation.y = Math.sin(bannerTimer + idx * Math.PI) * 0.35;
+    });
+  };
+
+  return { group, updateAnimation };
+}
+
+// =========================================================================
+// 🍻 3. GRAN TABERNA Y POSADA "EL JABALÍ DORADO" 3D
+// =========================================================================
+export function create3DTavernBuildingMesh(): BuildingMeshResult {
+  const group = new THREE.Group();
+
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x57534e, roughness: 0.9, flatShading: true });
+  const timberMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8 });
+  const plasterMat = new THREE.MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.75, flatShading: true });
+  const terracottaRoofMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.65, flatShading: true });
+  const darkTerracottaMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.7, flatShading: true });
+  const windowGlowMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xf59e0b, emissiveIntensity: 1.6 });
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8, roughness: 0.2 });
+
+  // 1. Heavy Stone Base
+  const base = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.55, 2.05), stoneMat);
+  base.position.y = 0.275;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // 2. Timber & Plaster First Floor
+  const floor1 = new THREE.Mesh(new THREE.BoxGeometry(2.20, 0.85, 1.90), plasterMat);
+  floor1.position.y = 0.55 + 0.425;
+  floor1.castShadow = true;
+  group.add(floor1);
+
+  // 3. Cantilevered Overhanging Second Floor (Classic Medieval)
+  const floor2 = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.85, 2.05), plasterMat);
+  floor2.position.y = 0.55 + 0.85 + 0.425;
+  floor2.castShadow = true;
+  group.add(floor2);
+
+  // Timber vertical framing
+  for (let x = -1.1; x <= 1.1; x += 0.55) {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.10, 1.75, 0.08), timberMat);
+    post.position.set(x, 1.45, 1.04);
+    group.add(post);
+  }
+
+  // 4. Terracotta Pitched Gable Roof
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(1.85, 1.15, 4), terracottaRoofMat);
+  roof.rotation.y = Math.PI / 4;
+  roof.position.set(0, 2.80, 0);
+  roof.scale.set(1.0, 0.95, 0.88);
+  roof.castShadow = true;
+  group.add(roof);
+
+  const ridge = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 1.85), darkTerracottaMat);
+  ridge.position.set(0, 3.35, 0);
+  group.add(ridge);
+
+  // 5. Windows with Warm Candle Glow
+  [[-0.65, 0.95], [0.65, 0.95], [-0.7, 1.85], [0, 1.85], [0.7, 1.85]].forEach(([wx, wy]) => {
+    const win = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.08), windowGlowMat);
+    win.position.set(wx, wy, 1.05);
+    group.add(win);
+  });
+
+  // 6. Stone Chimney with Smoke Puffs
+  const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.40, 1.6, 0.40), stoneMat);
+  chimney.position.set(-0.75, 2.8, -0.45);
+  chimney.castShadow = true;
+  group.add(chimney);
+
+  const smokePuffs: THREE.Mesh[] = [];
+  const smokeMat = new THREE.MeshBasicMaterial({ color: 0xd6d3d1, transparent: true, opacity: 0.5 });
+  for (let i = 0; i < 4; i++) {
+    const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(0.14 + i * 0.03, 1), smokeMat);
+    puff.position.set(-0.75, 3.6 + i * 0.25, -0.45);
+    group.add(puff);
+    smokePuffs.push(puff);
+  }
+
+  // 7. Hanging Wooden Boar Sign
+  const ironBracket = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.04, 0.04), timberMat);
+  ironBracket.position.set(0.85, 1.35, 1.15);
+  group.add(ironBracket);
+
+  const signBoard = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.22, 0.04), timberMat);
+  signBoard.position.set(0.95, 1.20, 1.15);
+  group.add(signBoard);
+
+  const boarIcon = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), goldMat);
+  boarIcon.position.set(0.95, 1.20, 1.18);
+  group.add(boarIcon);
+
+  // 8. Ale Casks by the side
+  for (let b = 0; b < 3; b++) {
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.21, 0.42, 8), timberMat);
+    barrel.position.set(1.25, 0.21, 0.5 - b * 0.45);
+    barrel.castShadow = true;
+    group.add(barrel);
+  }
+
+  let timer = 0;
+  const updateAnimation = (delta: number) => {
+    timer += delta * 1.5;
+    smokePuffs.forEach((p, idx) => {
+      p.position.y = 3.6 + ((timer + idx * 0.6) % 1.6);
+      p.position.x = -0.75 + Math.sin(timer * 2 + idx) * 0.08;
+      const progress = ((timer + idx * 0.6) % 1.6) / 1.6;
+      p.scale.setScalar(0.6 + progress * 0.9);
+      (p.material as THREE.MeshBasicMaterial).opacity = (1.0 - progress) * 0.5;
+    });
+  };
+
+  return { group, updateAnimation };
+}
+
 
 
 
