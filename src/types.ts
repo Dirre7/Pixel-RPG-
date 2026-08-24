@@ -271,6 +271,7 @@ export interface GameSaveData {
   exploredTilesByZone?: Record<string, string[]>; // zoneId -> ["x,y", ...]
   playTimeSeconds: number;
   lastSavedAt: string;
+  slotIndex?: number;
 }
 
 export type AchievementCategory = 'combat' | 'exploration' | 'progression' | 'collection' | 'special';

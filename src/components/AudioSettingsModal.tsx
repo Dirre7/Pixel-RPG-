@@ -7,9 +7,15 @@ interface AudioSettingsModalProps {
   onClose: () => void;
   onResetGame: () => void;
   onUnlockAllContent?: () => void;
+  onReturnToTitle?: () => void;
 }
 
-export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({ onClose, onResetGame, onUnlockAllContent }) => {
+export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
+  onClose,
+  onResetGame,
+  onUnlockAllContent,
+  onReturnToTitle,
+}) => {
   const [muted, setMuted] = useState(soundEngine.getMuted());
   const [musicVol, setMusicVol] = useState(soundEngine.getMusicVolume());
   const [sfxVol, setSfxVol] = useState(soundEngine.getSfxVolume());
@@ -128,18 +134,33 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({ onClose,
           </div>
         )}
 
-        {/* Danger zone: Reset Game */}
-        <div className="pt-2 border-t border-slate-800 flex justify-between items-center">
-          <button
-            onClick={() => {
-              if (confirm('¿Reiniciar la partida actual y comenzar de nuevo?')) {
-                onResetGame();
-              }
-            }}
-            className="py-1.5 px-3 bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 rounded text-xs font-bold"
-          >
-            Nueva Partida
-          </button>
+        {/* Danger zone: Reset Game & Return to Title */}
+        <div className="pt-2 border-t border-slate-800 flex flex-wrap justify-between items-center gap-2">
+          <div className="flex items-center space-x-2">
+            {onReturnToTitle && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onReturnToTitle();
+                }}
+                className="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded text-xs font-bold transition active:scale-95"
+              >
+                🚪 Menú Principal
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                if (confirm('¿Reiniciar la ranura actual y borrar este personaje?')) {
+                  onResetGame();
+                }
+              }}
+              className="py-1.5 px-3 bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 rounded text-xs font-bold"
+            >
+              Borrar Héroe
+            </button>
+          </div>
 
           <button
             onClick={onClose}

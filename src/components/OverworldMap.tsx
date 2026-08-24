@@ -62,6 +62,8 @@ interface OverworldMapProps {
   onUseConsumable?: (consumableId: string) => void;
   exploredTilesByZone?: Record<string, string[]>;
   onUpdateExploredTiles?: (zoneId: string, tiles: string[]) => void;
+  activeSlotIndex?: number;
+  onReturnToTitle?: () => void;
 }
 
 export const OverworldMap: React.FC<OverworldMapProps> = ({
@@ -95,6 +97,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   onUseConsumable,
   exploredTilesByZone: initialExploredByZone = {},
   onUpdateExploredTiles,
+  activeSlotIndex = 0,
+  onReturnToTitle,
 }) => {
   const [interactPrompt, setInteractPrompt] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -924,20 +928,35 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           </div>
         </div>
 
-        {/* Gold & Save */}
+        {/* Gold & Save & Menu */}
         <div className="flex items-center space-x-1 flex-shrink-0 bg-slate-950 px-2 py-1 rounded-xl border border-amber-500/60 shadow-inner">
           <span className="text-sm">🪙</span>
           <span className="font-black text-yellow-300 text-xs sm:text-sm">{player.gold.toLocaleString()}G</span>
           <button
             onClick={() => {
+              soundEngine.playSfx('levelup');
               onAutoSave();
-              showToast('💾 ¡Guardado!');
+              showToast(`💾 ¡Guardado en Ranura ${activeSlotIndex + 1}! (${player.name} Nv. ${player.level})`);
             }}
-            className="p-1 bg-slate-800 hover:bg-slate-700 active:scale-95 rounded text-slate-300"
-            title="Guardar partida"
+            className="p-1 bg-emerald-700 hover:bg-emerald-600 active:scale-95 rounded text-emerald-100 font-bold flex items-center space-x-0.5 border border-emerald-500 shadow"
+            title={`Guardar partida en Ranura ${activeSlotIndex + 1}`}
           >
-            <Save className="w-3 h-3" />
+            <Save className="w-3.5 h-3.5" />
+            <span className="text-[10px] hidden sm:inline">Guardar</span>
           </button>
+          {onReturnToTitle && (
+            <button
+              onClick={() => {
+                onAutoSave();
+                soundEngine.playSfx('select');
+                onReturnToTitle();
+              }}
+              className="p-1 bg-slate-800 hover:bg-slate-700 active:scale-95 rounded text-slate-300 text-[10px] font-bold border border-slate-700"
+              title="Guardar y Volver al Menú Principal / Cambiar Personaje"
+            >
+              🚪 Menú
+            </button>
+          )}
         </div>
       </div>
 

@@ -37,7 +37,61 @@ import { StoryPrologueModal } from './components/StoryPrologueModal';
 import { BossVictoryModal, BossVictoryInfo } from './components/BossVictoryModal';
 import { soundEngine } from './utils/soundEngine';
 
-const SAVE_KEY = 'cronicas_retro_rpg_save_v1';
+const LEGACY_SAVE_KEYS = ['cronicas_retro_rpg_save_v1', 'crónicas_pixel_rpg_save_v1'];
+const SLOT_KEY_PREFIX = 'cronicas_pixel_rpg_slot_';
+const TOTAL_SLOTS = 5;
+
+const getSlotKey = (slotIndex: number): string => {
+  return `${SLOT_KEY_PREFIX}${slotIndex}`;
+};
+
+const loadAllSlotsFromStorage = (): (GameSaveData | null)[] => {
+  const slots: (GameSaveData | null)[] = [null, null, null, null, null];
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return slots;
+  }
+
+  for (let i = 0; i < TOTAL_SLOTS; i++) {
+    try {
+      const raw = localStorage.getItem(getSlotKey(i));
+      if (raw) {
+        const parsed: GameSaveData = JSON.parse(raw);
+        if (parsed && parsed.player) {
+          if (parsed.playerPos && (parsed.playerPos.x >= 150 || parsed.playerPos.y >= 150 || parsed.playerPos.x < 0 || parsed.playerPos.y < 0)) {
+            parsed.playerPos = { x: 36, y: 62 };
+          }
+          slots[i] = { ...parsed, slotIndex: i };
+        }
+      }
+    } catch (e) {
+      console.error(`Error loading slot ${i}:`, e);
+    }
+  }
+
+  // If slot 0 is empty, check legacy save keys
+  if (!slots[0]) {
+    for (const legacyKey of LEGACY_SAVE_KEYS) {
+      try {
+        const rawLegacy = localStorage.getItem(legacyKey);
+        if (rawLegacy) {
+          const parsed: GameSaveData = JSON.parse(rawLegacy);
+          if (parsed && parsed.player) {
+            if (parsed.playerPos && (parsed.playerPos.x >= 150 || parsed.playerPos.y >= 150 || parsed.playerPos.x < 0 || parsed.playerPos.y < 0)) {
+              parsed.playerPos = { x: 36, y: 62 };
+            }
+            slots[0] = { ...parsed, slotIndex: 0 };
+            localStorage.setItem(getSlotKey(0), JSON.stringify(slots[0]));
+            break;
+          }
+        }
+      } catch (err) {
+        console.error('Legacy migration failed:', err);
+      }
+    }
+  }
+
+  return slots;
+}
 
 const INITIAL_LORE_IDS = [
   'lore_intro',
@@ -59,58 +113,54 @@ export default function App() {
   const [showAchievementsModal, setShowAchievementsModal] = useState(false);
   const [showPrologueModal, setShowPrologueModal] = useState(false);
   const [activeBossVictory, setActiveBossVictory] = useState<BossVictoryInfo | null>(null);
+
+  // Multi-Slot Character Save System (5 Slots)
+  const [activeSlotIndex, setActiveSlotIndex] = useState<number>(0);
+  const [characterSlots, setCharacterSlots] = useState<(GameSaveData | null)[]>(loadAllSlotsFromStorage);
+
   const [achievementNotification, setAchievementNotification] = useState<{
     title: string;
     icon: string;
     rarity: string;
   } | null>(null);
 
-  // Player & Game State
+  // Game state
   const [player, setPlayer] = useState<PlayerStats | null>(null);
   const [inventory, setInventory] = useState<Inventory>({
-    consumables: [...INITIAL_CONSUMABLES],
-    equipment: { weapon: null, armor: null, accessory: null },
+    consumables: JSON.parse(JSON.stringify(INITIAL_CONSUMABLES)),
+    equipment: {
+      weapon: null,
+      shield: null,
+      helmet: null,
+      armor: null,
+      boots: null,
+      ring: null,
+      amulet: null,
+    },
     ownedEquipment: [],
   });
-
   const [currentZoneId, setCurrentZoneId] = useState<string>('zone_forest');
   const [playerPos, setPlayerPos] = useState<{ x: number; y: number }>({ x: 36, y: 62 });
   const [defeatedBosses, setDefeatedBosses] = useState<string[]>([]);
   const [openedChests, setOpenedChests] = useState<string[]>([]);
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
   const [acceptedQuests, setAcceptedQuests] = useState<string[]>([]);
-  const [defeatedEnemyCounts, setDefeatedEnemyCounts] = useState<Record<string, number>>({});
   const [unlockedSkillIds, setUnlockedSkillIds] = useState<string[]>([]);
   const [unlockedLoreIds, setUnlockedLoreIds] = useState<string[]>(INITIAL_LORE_IDS);
+  const [defeatedEnemyCounts, setDefeatedEnemyCounts] = useState<Record<string, number>>({});
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
   const [claimedAchievements, setClaimedAchievements] = useState<string[]>([]);
   const [exploredTilesByZone, setExploredTilesByZone] = useState<Record<string, string[]>>({});
 
   const [currentEnemy, setCurrentEnemy] = useState<Enemy | null>(null);
-  const [savedGameData, setSavedGameData] = useState<GameSaveData | null>(null);
 
-  // Load Saved Game from localStorage on init
+  // Reload slots when title screen is active
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (raw) {
-        const parsed: GameSaveData = JSON.parse(raw);
-        // Clamp out-of-bounds player positions
-        if (parsed.playerPos && (parsed.playerPos.x >= 72 || parsed.playerPos.y >= 116 || parsed.playerPos.x < 0 || parsed.playerPos.y < 0)) {
-          parsed.playerPos = { x: 36, y: 62 };
-        }
-        setSavedGameData(parsed);
-        if (parsed.playerPos) {
-          setPlayerPos(parsed.playerPos);
-        }
-        if (parsed.exploredTilesByZone) {
-          setExploredTilesByZone(parsed.exploredTilesByZone);
-        }
-      }
-    } catch (err) {
-      console.error('Failed to parse save data:', err);
+    if (gameState === 'title') {
+      const refreshed = loadAllSlotsFromStorage();
+      setCharacterSlots(refreshed);
     }
-  }, []);
+  }, [gameState]);
 
   const currentZone = ZONES.find((z) => z.id === currentZoneId) || ZONES[0];
 
@@ -130,7 +180,8 @@ export default function App() {
       achievements = unlockedAchievements,
       claimed = claimedAchievements,
       enemyCounts = defeatedEnemyCounts,
-      explored = exploredTilesByZone
+      explored = exploredTilesByZone,
+      slotIdx = activeSlotIndex
     ) => {
       if (!p) return;
       try {
@@ -151,14 +202,19 @@ export default function App() {
           exploredTilesByZone: explored,
           playTimeSeconds: 0,
           lastSavedAt: new Date().toISOString(),
+          slotIndex: slotIdx,
         };
-        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-        setSavedGameData(saveData);
+        localStorage.setItem(getSlotKey(slotIdx), JSON.stringify(saveData));
+        setCharacterSlots((prev) => {
+          const next = [...prev];
+          next[slotIdx] = saveData;
+          return next;
+        });
       } catch (err) {
         console.error('Auto-save failed:', err);
       }
     },
-    [player, inventory, currentZoneId, playerPos, defeatedBosses, openedChests, completedQuests, acceptedQuests, unlockedSkillIds, unlockedLoreIds, unlockedAchievements, claimedAchievements, defeatedEnemyCounts, exploredTilesByZone]
+    [player, inventory, currentZoneId, playerPos, defeatedBosses, openedChests, completedQuests, acceptedQuests, unlockedSkillIds, unlockedLoreIds, unlockedAchievements, claimedAchievements, defeatedEnemyCounts, exploredTilesByZone, activeSlotIndex]
   );
 
   // Helper: Check and trigger achievements
@@ -252,8 +308,14 @@ export default function App() {
     defeatedEnemyCounts,
   ]);
 
-  // Start New Game
-  const handleStartNewGame = (playerName: string, heroClass: HeroClass, gender: 'male' | 'female' = 'female') => {
+  // Start New Game (in specific slot)
+  const handleStartNewGame = (
+    playerName: string,
+    heroClass: HeroClass,
+    gender: 'male' | 'female' = 'female',
+    slotIndex: number = activeSlotIndex
+  ) => {
+    setActiveSlotIndex(slotIndex);
     const classConfig = HERO_CLASSES[heroClass];
     const initialPlayerStats: PlayerStats = {
       name: playerName,
@@ -315,15 +377,40 @@ export default function App() {
     setAcceptedQuests([]);
     setUnlockedSkillIds(lvl1Skills);
     setUnlockedLoreIds(INITIAL_LORE_IDS);
+    setUnlockedAchievements([]);
+    setClaimedAchievements([]);
+    setDefeatedEnemyCounts({});
     setExploredTilesByZone({});
 
     setGameState('overworld');
     setShowPrologueModal(true);
-    triggerAutoSave(initialPlayerStats, initialInv, 'zone_forest', { x: 36, y: 62 }, [], [], [], lvl1Skills, INITIAL_LORE_IDS, []);
+    triggerAutoSave(
+      initialPlayerStats,
+      initialInv,
+      'zone_forest',
+      { x: 36, y: 62 },
+      [],
+      [],
+      [],
+      lvl1Skills,
+      INITIAL_LORE_IDS,
+      [],
+      [],
+      [],
+      {},
+      {},
+      slotIndex
+    );
   };
 
   // Start Showcase Game (Modo Creador / Todo Desbloqueado - Nivel 75 y Tier 8)
-  const handleStartShowcaseGame = (playerName: string, heroClass: HeroClass, gender: 'male' | 'female' = 'female') => {
+  const handleStartShowcaseGame = (
+    playerName: string,
+    heroClass: HeroClass,
+    gender: 'male' | 'female' = 'female',
+    slotIndex: number = activeSlotIndex
+  ) => {
+    setActiveSlotIndex(slotIndex);
     const classConfig = HERO_CLASSES[heroClass];
     const showcasePlayer: PlayerStats = {
       name: playerName.trim() || classConfig.name,
@@ -406,7 +493,23 @@ export default function App() {
     setUnlockedLoreIds(allLoreIds);
 
     setGameState('overworld');
-    triggerAutoSave(showcasePlayer, showcaseInv, 'zone_forest', { x: 36, y: 62 }, allBosses, [], allQuestIds, allSkillIds, allLoreIds, allQuestIds);
+    triggerAutoSave(
+      showcasePlayer,
+      showcaseInv,
+      'zone_forest',
+      { x: 36, y: 62 },
+      allBosses,
+      [],
+      allQuestIds,
+      allSkillIds,
+      allLoreIds,
+      allQuestIds,
+      [],
+      [],
+      {},
+      {},
+      slotIndex
+    );
   };
 
   // Unlock all content in current session
@@ -461,44 +564,78 @@ export default function App() {
     triggerAutoSave(upgradedPlayer, upgradedInv, currentZoneId, playerPos, allBosses, openedChests, allQuestIds, allSkillIds, allLoreIds, allQuestIds);
   };
 
-  // Resume Saved Game
-  const handleResumeGame = () => {
-    if (!savedGameData) return;
+  // Resume Saved Game from a specific slot
+  const handleResumeGame = (slotIndex: number = activeSlotIndex) => {
+    const slots = loadAllSlotsFromStorage();
+    const targetSave = slots[slotIndex];
+    if (!targetSave || !targetSave.player) return;
+
+    setActiveSlotIndex(slotIndex);
+
     const safeEquipment = {
-      weapon: savedGameData.inventory?.equipment?.weapon || null,
-      shield: savedGameData.inventory?.equipment?.shield || null,
-      helmet: savedGameData.inventory?.equipment?.helmet || null,
-      armor: savedGameData.inventory?.equipment?.armor || null,
-      boots: savedGameData.inventory?.equipment?.boots || null,
-      ring: savedGameData.inventory?.equipment?.ring || null,
-      amulet: savedGameData.inventory?.equipment?.amulet || null,
+      weapon: targetSave.inventory?.equipment?.weapon || null,
+      shield: targetSave.inventory?.equipment?.shield || null,
+      helmet: targetSave.inventory?.equipment?.helmet || null,
+      armor: targetSave.inventory?.equipment?.armor || null,
+      boots: targetSave.inventory?.equipment?.boots || null,
+      ring: targetSave.inventory?.equipment?.ring || null,
+      amulet: targetSave.inventory?.equipment?.amulet || null,
     };
     const safeInventory: Inventory = {
-      consumables: savedGameData.inventory?.consumables || JSON.parse(JSON.stringify(INITIAL_CONSUMABLES)),
+      consumables: targetSave.inventory?.consumables || JSON.parse(JSON.stringify(INITIAL_CONSUMABLES)),
       equipment: safeEquipment,
-      ownedEquipment: savedGameData.inventory?.ownedEquipment || [],
+      ownedEquipment: targetSave.inventory?.ownedEquipment || [],
     };
 
-    setPlayer(savedGameData.player);
+    setPlayer(targetSave.player);
     setInventory(safeInventory);
-    setCurrentZoneId(savedGameData.currentZoneId || 'zone_forest');
-    const rawPos = savedGameData.playerPos || { x: 36, y: 62 };
-    const safePos = (rawPos.x >= 72 || rawPos.y >= 116 || rawPos.x < 0 || rawPos.y < 0)
+    setCurrentZoneId(targetSave.currentZoneId || 'zone_forest');
+    const rawPos = targetSave.playerPos || { x: 36, y: 62 };
+    const safePos = (rawPos.x >= 150 || rawPos.y >= 150 || rawPos.x < 0 || rawPos.y < 0)
       ? { x: 36, y: 62 }
       : rawPos;
     setPlayerPos(safePos);
-    setDefeatedBosses(savedGameData.defeatedBosses || []);
-    setOpenedChests(savedGameData.openedChests || []);
-    setCompletedQuests(savedGameData.completedQuests || []);
-    setAcceptedQuests(savedGameData.acceptedQuests || []);
-    setUnlockedSkillIds(savedGameData.unlockedSkills || []);
-    setUnlockedLoreIds(savedGameData.unlockedLoreIds || INITIAL_LORE_IDS);
-    setUnlockedAchievements(savedGameData.unlockedAchievements || []);
-    setClaimedAchievements(savedGameData.claimedAchievements || []);
-    setDefeatedEnemyCounts(savedGameData.defeatedEnemyCounts || {});
-    setExploredTilesByZone(savedGameData.exploredTilesByZone || {});
+    setDefeatedBosses(targetSave.defeatedBosses || []);
+    setOpenedChests(targetSave.openedChests || []);
+    setCompletedQuests(targetSave.completedQuests || []);
+    setAcceptedQuests(targetSave.acceptedQuests || []);
+    setUnlockedSkillIds(targetSave.unlockedSkills || []);
+    setUnlockedLoreIds(targetSave.unlockedLoreIds || INITIAL_LORE_IDS);
+    setUnlockedAchievements(targetSave.unlockedAchievements || []);
+    setClaimedAchievements(targetSave.claimedAchievements || []);
+    setDefeatedEnemyCounts(targetSave.defeatedEnemyCounts || {});
+    setExploredTilesByZone(targetSave.exploredTilesByZone || {});
 
     setGameState('overworld');
+  };
+
+  // Delete Character Slot
+  const handleDeleteSlot = (slotIndex: number) => {
+    try {
+      localStorage.removeItem(getSlotKey(slotIndex));
+      if (slotIndex === 0) {
+        for (const legacyKey of LEGACY_SAVE_KEYS) {
+          localStorage.removeItem(legacyKey);
+        }
+      }
+      setCharacterSlots((prev) => {
+        const next = [...prev];
+        next[slotIndex] = null;
+        return next;
+      });
+    } catch (e) {
+      console.error('Delete slot failed:', e);
+    }
+  };
+
+  // Return to Title Screen & Save
+  const handleReturnToTitle = () => {
+    if (player) {
+      triggerAutoSave();
+    }
+    const refreshed = loadAllSlotsFromStorage();
+    setCharacterSlots(refreshed);
+    setGameState('title');
   };
 
   // Claim Achievement Reward
@@ -1160,10 +1297,9 @@ export default function App() {
     triggerAutoSave(updatedPlayer, inventory, zoneId, defaultPos, defeatedBosses, openedChests, completedQuests, unlockedSkillIds, updatedLore);
   };
 
-  // Reset Game
+  // Reset Game / Current Slot
   const handleResetGame = () => {
-    localStorage.removeItem(SAVE_KEY);
-    setSavedGameData(null);
+    handleDeleteSlot(activeSlotIndex);
     setPlayer(null);
     setUnlockedLoreIds(INITIAL_LORE_IDS);
     setShowSettingsModal(false);
@@ -1175,11 +1311,13 @@ export default function App() {
       {/* Title Screen */}
       {gameState === 'title' && (
         <TitleScreen
-          hasSavedGame={!!savedGameData}
-          savedGameData={savedGameData}
+          slots={characterSlots}
+          activeSlotIndex={activeSlotIndex}
+          onSelectSlot={(slotIdx) => setActiveSlotIndex(slotIdx)}
           onStartNewGame={handleStartNewGame}
           onStartShowcaseGame={handleStartShowcaseGame}
-          onResumeGame={handleResumeGame}
+          onResumeGame={(slotIdx) => handleResumeGame(slotIdx)}
+          onDeleteSlot={handleDeleteSlot}
           onOpenLeaderboard={() => setShowLeaderboardModal(true)}
           onOpenPrologue={() => setShowPrologueModal(true)}
         />
@@ -1201,6 +1339,8 @@ export default function App() {
           unlockedAchievements={unlockedAchievements}
           claimedAchievements={claimedAchievements}
           exploredTilesByZone={exploredTilesByZone}
+          activeSlotIndex={activeSlotIndex}
+          onReturnToTitle={handleReturnToTitle}
           onUpdateExploredTiles={(zId, tiles) => {
             setExploredTilesByZone((prev) => {
               const updated = { ...prev, [zId]: tiles };
@@ -1415,6 +1555,7 @@ export default function App() {
           onClose={() => setShowSettingsModal(false)}
           onResetGame={handleResetGame}
           onUnlockAllContent={handleUnlockAllInCurrentGame}
+          onReturnToTitle={handleReturnToTitle}
         />
       )}
 
