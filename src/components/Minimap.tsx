@@ -77,6 +77,20 @@ export const Minimap: React.FC<MinimapProps> = ({
 
         const tile = currentZone.tileData[y]?.[x] ?? 0;
 
+        if (tile === -1) {
+          // Off-map void / non-rendered abyss
+          ctx.fillStyle = '#060913';
+          ctx.fillRect(px, py, cellW + 0.5, cellH + 0.5);
+          continue;
+        }
+
+        if (tile === 21) {
+          // Cliff / Rocky Mountain Walls
+          ctx.fillStyle = '#475569';
+          ctx.fillRect(px, py, cellW + 0.5, cellH + 0.5);
+          continue;
+        }
+
         if (tile === 3) {
           // River / Water / Lava
           ctx.fillStyle = currentZone.id === 'zone_volcano' ? '#ea580c' : '#0284c7';

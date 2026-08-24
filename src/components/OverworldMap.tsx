@@ -555,8 +555,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
     const targetTile = currentZone.tileData[newY]?.[newX];
 
-    // Block collision on solid obstacle tiles
-    const isDirectSolid = [1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34].includes(targetTile);
+    // Block collision on void abyss, out of bounds, and solid obstacle tiles
+    const isDirectSolid = targetTile === -1 || targetTile === undefined || [-1, 1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34].includes(targetTile);
 
     if (isDirectSolid) {
       soundEngine.playSfx('error');
@@ -1124,7 +1124,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         onOpenShop={onOpenShop}
         onOpenSettings={onOpenSettings}
         onTeleportToTown={() => {
-          onMove({ x: 30, y: 30 });
+          onMove({ x: 27, y: 40 });
         }}
         onUseConsumable={(cId) => (onUseConsumable ? onUseConsumable(cId) : onHealAtInn())}
         onShowToast={(msg) => showToast(msg)}

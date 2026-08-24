@@ -489,7 +489,17 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     let tileIndex = 0;
     for (let y = 0; y < currentZone.mapHeight; y++) {
       for (let x = 0; x < currentZone.mapWidth; x++) {
-        const isWaterTile = currentZone.tileData[y]?.[x] === 3;
+        const rawTile = currentZone.tileData[y]?.[x];
+        if (rawTile === -1) {
+          // Off-map void / abyss: invisible, zero scale
+          dummyScale.set(0, 0, 0);
+          dummyMatrix.compose(dummyPos, dummyQuat, dummyScale);
+          groundInstancedMesh.setMatrixAt(tileIndex++, dummyMatrix);
+          dummyScale.set(1, 1, 1);
+          continue;
+        }
+
+        const isWaterTile = rawTile === 3;
         const posX = x * 2.5;
         const posZ = y * 2.5;
         const elevation = 0; // Flat, uniform, seamless terrain
@@ -508,6 +518,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     for (let y = 0; y < currentZone.mapHeight; y++) {
       for (let x = 0; x < currentZone.mapWidth; x++) {
         const tileType = currentZone.tileData[y]?.[x] ?? 0;
+        if (tileType === -1) continue; // Skip off-map void
+
         const posX = x * 2.5;
         const posZ = y * 2.5;
 
@@ -1108,11 +1120,11 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     if (currentZone.id === 'zone_forest') {
       // Planters around the Great Fountain & Notice Board
       const planterPositions = [
-        [28 * 2.5 - 0.9, 30 * 2.5],
-        [28 * 2.5 + 0.9, 30 * 2.5],
-        [28 * 2.5, 30 * 2.5 - 0.9],
-        [28 * 2.5, 30 * 2.5 + 0.9],
-        [31 * 2.5, 27 * 2.5 - 0.8], // Next to Mission Board
+        [27 * 2.5 - 0.9, 40 * 2.5],
+        [27 * 2.5 + 0.9, 40 * 2.5],
+        [27 * 2.5, 40 * 2.5 - 0.9],
+        [27 * 2.5, 40 * 2.5 + 0.9],
+        [30 * 2.5, 37 * 2.5 - 0.8], // Next to Mission Board
       ];
       planterPositions.forEach(([px, pz]) => {
         tileGroup.add(create3DStonePlanterMesh(px, pz));
@@ -1120,11 +1132,11 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
       // Wooden Crate Stacks at Bazaar, Corners and Inns
       const cratePositions = [
-        [23 * 2.5 + 0.6, 26 * 2.5 + 0.6], // Bazaar Stall 1
-        [23 * 2.5 + 0.6, 28 * 2.5 + 0.6], // Bazaar Stall 2
-        [33 * 2.5 - 0.5, 27 * 2.5 + 0.5], // East corner
-        [25 * 2.5 - 0.6, 23 * 2.5 + 0.6], // Inn side
-        [31 * 2.5 + 0.6, 33 * 2.5 - 0.6], // South corner
+        [22 * 2.5 + 0.6, 36 * 2.5 + 0.6], // Bazaar Stall 1
+        [22 * 2.5 + 0.6, 38 * 2.5 + 0.6], // Bazaar Stall 2
+        [32 * 2.5 - 0.5, 37 * 2.5 + 0.5], // East corner
+        [25 * 2.5 - 0.6, 34 * 2.5 + 0.6], // Inn side
+        [31 * 2.5 + 0.6, 43 * 2.5 - 0.6], // South corner
       ];
       cratePositions.forEach(([cx, cz]) => {
         tileGroup.add(create3DWoodenCratesMesh(cx, cz));
@@ -1132,17 +1144,17 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
       // Oak Barrels near Tavern and Market
       const barrelPositions = [
-        [24 * 2.5 + 0.4, 27 * 2.5 - 0.5],
-        [32 * 2.5 - 0.4, 26 * 2.5 + 0.5],
-        [27 * 2.5 - 0.6, 32 * 2.5 - 0.4],
-        [33 * 2.5 - 0.5, 29 * 2.5 - 0.5],
+        [23 * 2.5 + 0.4, 37 * 2.5 - 0.5],
+        [31 * 2.5 - 0.4, 36 * 2.5 + 0.5],
+        [26 * 2.5 - 0.6, 42 * 2.5 - 0.4],
+        [32 * 2.5 - 0.5, 39 * 2.5 - 0.5],
       ];
       barrelPositions.forEach(([bx, bz]) => {
         tileGroup.add(create3DOakBarrelsMesh(bx, bz));
       });
 
       // Traveling Merchant Caravan Cart parked at plaza side
-      tileGroup.add(create3DMerchantCartMesh(24 * 2.5, 31 * 2.5));
+      tileGroup.add(create3DMerchantCartMesh(23 * 2.5, 41 * 2.5));
     }
 
     // 5.5 SPAWN ALL ZONE NPCS WITH 3D QUEST MARKERS
