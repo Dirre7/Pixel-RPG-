@@ -109,12 +109,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     facingDirRef.current = facingDir;
   }, [facingDir]);
 
-  // Overhead MOBA HUD screen projection coordinates
-  const [playerHudPos, setPlayerHudPos] = useState<{ x: number; y: number; visible: boolean }>({
-    x: 0,
-    y: 0,
-    visible: false,
-  });
+  // Overhead MOBA HUD direct DOM ref (Eliminates 60-120 React re-renders per second)
+  const hudRef = useRef<HTMLDivElement | null>(null);
 
   // Interpolated player position in 3D world space
   const playerTargetPosRef = useRef<{ x: number; z: number }>({
@@ -196,8 +192,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const targetDPR = isTouchOrMobile ? Math.min(window.devicePixelRatio, 1.0) : Math.min(window.devicePixelRatio, 1.35);
     let currentDPR = targetDPR;
     renderer.setPixelRatio(currentDPR);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = isTouchOrMobile ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
+    renderer.shadowMap.enabled = !isTouchOrMobile;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = currentZone.id === 'zone_cave' || currentZone.id === 'zone_volcano' || currentZone.id === 'zone_castle' ? 1.25 : 1.08;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -1835,18 +1831,21 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       // Render Scene
       renderer.render(scene, camera);
 
-      // Project Player 3D Position -> 2D Screen HUD Position
+      // Project Player 3D Position -> 2D Screen HUD Position (Direct GPU transform, ZERO React Re-renders!)
       const vector = new THREE.Vector3(curr.x, 3.4, curr.z);
       vector.project(camera);
 
       const x2d = (vector.x * 0.5 + 0.5) * width;
       const y2d = (-(vector.y * 0.5) + 0.5) * height;
 
-      setPlayerHudPos({
-        x: x2d,
-        y: y2d,
-        visible: vector.z < 1,
-      });
+      if (hudRef.current) {
+        if (vector.z < 1) {
+          hudRef.current.style.display = 'block';
+          hudRef.current.style.transform = `translate3d(${x2d}px, ${y2d}px, 0)`;
+        } else {
+          hudRef.current.style.display = 'none';
+        }
+      }
     };
 
     animate();
@@ -1894,36 +1893,35 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       {/* 3D WebGL Canvas Container */}
       <div ref={mountRef} className="w-full h-full min-h-[500px] cursor-pointer" />
 
-      {/* OVERHEAD MOBA HEALTHBAR HUD (Projected from 3D to 2D) */}
-      {playerHudPos.visible && (
-        <div
-          className="absolute pointer-events-none transform -translate-x-1/2 -translate-y-full transition-all duration-75 z-20"
-          style={{ left: `${playerHudPos.x}px`, top: `${playerHudPos.y}px` }}
-        >
-          {/* Hero Nameplate */}
-          <div className="bg-slate-950/90 border border-amber-500/80 px-2 py-0.5 rounded shadow-lg text-center mb-1">
-            <span className="text-[10px] font-bold text-amber-300 whitespace-nowrap">
-              {player.name} <span className="text-slate-400">(Niv. {player.level})</span>
-            </span>
-          </div>
-
-          {/* Green HP Bar */}
-          <div className="w-24 bg-slate-900/90 h-2 rounded-full overflow-hidden border border-slate-700 shadow-inner">
-            <div
-              className="bg-emerald-500 h-full transition-all duration-200"
-              style={{ width: `${Math.max(0, Math.min(100, (player.hp / player.maxHp) * 100))}%` }}
-            />
-          </div>
-
-          {/* Blue MP Bar */}
-          <div className="w-24 bg-slate-900/90 h-1.5 rounded-full overflow-hidden border border-slate-800 shadow-inner mt-0.5">
-            <div
-              className="bg-sky-500 h-full transition-all duration-200"
-              style={{ width: `${Math.max(0, Math.min(100, (player.mp / player.maxMp) * 100))}%` }}
-            />
-          </div>
+      {/* OVERHEAD MOBA HEALTHBAR HUD (Direct hardware transform, 0 React Overhead) */}
+      <div
+        ref={hudRef}
+        className="absolute top-0 left-0 pointer-events-none -translate-x-1/2 -translate-y-full z-20 will-change-transform"
+        style={{ display: 'none' }}
+      >
+        {/* Hero Nameplate */}
+        <div className="bg-slate-950/90 border border-amber-500/80 px-2 py-0.5 rounded shadow-lg text-center mb-1">
+          <span className="text-[10px] font-bold text-amber-300 whitespace-nowrap">
+            {player.name} <span className="text-slate-400">(Niv. {player.level})</span>
+          </span>
         </div>
-      )}
+
+        {/* Green HP Bar */}
+        <div className="w-24 bg-slate-900/90 h-2 rounded-full overflow-hidden border border-slate-700 shadow-inner">
+          <div
+            className="bg-emerald-500 h-full transition-all duration-200"
+            style={{ width: `${Math.max(0, Math.min(100, (player.hp / player.maxHp) * 100))}%` }}
+          />
+        </div>
+
+        {/* Blue MP Bar */}
+        <div className="w-24 bg-slate-900/90 h-1.5 rounded-full overflow-hidden border border-slate-800 shadow-inner mt-0.5">
+          <div
+            className="bg-sky-500 h-full transition-all duration-200"
+            style={{ width: `${Math.max(0, Math.min(100, (player.mp / player.maxMp) * 100))}%` }}
+          />
+        </div>
+      </div>
 
     </div>
   );
