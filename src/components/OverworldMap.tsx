@@ -1099,8 +1099,22 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         </div>
       </div>
 
-      {/* 7. Action Button [A] (Bottom-Right) */}
-      <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 z-20 flex items-center gap-2 pointer-events-auto select-none" style={{ touchAction: 'none' }}>
+      {/* 7. Action Button [A] & Floating Backpack [🎒] (Bottom-Right) */}
+      <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 z-20 flex flex-col items-center gap-2 pointer-events-auto select-none" style={{ touchAction: 'none' }}>
+        {/* Floating Backpack / Inventory Button */}
+        <button
+          onClick={() => {
+            soundEngine.playSfx('select');
+            onOpenInventory();
+          }}
+          className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-950/85 hover:bg-slate-800 active:scale-90 text-amber-300 rounded-full border border-amber-500/70 shadow-2xl flex items-center justify-center backdrop-blur-md transition-transform"
+          title="Abrir Mochila e Inventario"
+          aria-label="Abrir Inventario"
+        >
+          <Package className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
+        </button>
+
+        {/* Action Button [A] */}
         <button
           onPointerDown={(e) => {
             e.preventDefault();
@@ -1115,8 +1129,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         </button>
       </div>
 
-      {/* 8. Bottom Center: Floating Glassmorphic Hotbar & Action Dock */}
-      <div className="absolute bottom-1 sm:bottom-2 left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto max-w-[90vw] sm:max-w-none">
+      {/* 8. Bottom Center: Floating Glassmorphic Hotbar */}
+      <div className="absolute bottom-1 sm:bottom-2 left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto">
         <BottomActionBar
           player={player}
           inventory={inventory}
@@ -1167,6 +1181,38 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
             </div>
 
             <div className="flex flex-col gap-2 my-2">
+              {/* Mochila e Inventario */}
+              <button
+                onClick={() => {
+                  soundEngine.playSfx('select');
+                  setShowGameMenuModal(false);
+                  onOpenInventory();
+                }}
+                className="flex items-center justify-between p-3 bg-slate-800/90 hover:bg-slate-750 active:scale-98 border border-amber-500/60 rounded-xl text-amber-200 font-bold transition shadow"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Package className="w-5 h-5 text-amber-400" />
+                  <span>Mochila e Inventario</span>
+                </div>
+                <span className="text-xs text-slate-400">Equipo</span>
+              </button>
+
+              {/* Bazar y Comercio */}
+              <button
+                onClick={() => {
+                  soundEngine.playSfx('select');
+                  setShowGameMenuModal(false);
+                  onOpenShop();
+                }}
+                className="flex items-center justify-between p-3 bg-slate-800/90 hover:bg-slate-750 active:scale-98 border border-emerald-500/60 rounded-xl text-emerald-300 font-bold transition shadow"
+              >
+                <div className="flex items-center gap-2.5">
+                  <ShoppingBag className="w-5 h-5 text-emerald-400" />
+                  <span>Bazar y Tienda del Reino</span>
+                </div>
+                <span className="text-xs text-emerald-400">Comercio</span>
+              </button>
+
               {/* Guardar Partida */}
               <button
                 onClick={() => {

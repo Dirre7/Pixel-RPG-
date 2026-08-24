@@ -146,64 +146,25 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
                 }
               }
             }}
-            className="relative flex flex-col items-center justify-center w-9 h-9 sm:w-11 sm:h-11 bg-slate-900/80 hover:bg-slate-800 active:scale-90 rounded-lg sm:rounded-xl border border-slate-700/80 hover:border-amber-400/80 shadow-md transition-all group"
+            className="relative flex flex-col items-center justify-center w-7 h-7 sm:w-10 sm:h-10 bg-slate-900/85 hover:bg-slate-800 active:scale-90 rounded-md sm:rounded-xl border border-slate-700/80 hover:border-amber-400/80 shadow-md transition-all group flex-shrink-0"
             title={`${slot.name} (Tecla ${slot.key})`}
           >
             {/* Slot Hotkey Label */}
-            <span className="absolute top-0.5 left-1 text-[8px] sm:text-[9px] font-mono font-black text-slate-400 group-hover:text-amber-300">
+            <span className="hidden sm:inline absolute top-0.5 left-1 text-[8px] font-mono font-black text-slate-400 group-hover:text-amber-300">
               {slot.key}
             </span>
 
             {/* Icon */}
-            <span className="text-base sm:text-xl select-none mt-1">{slot.icon}</span>
+            <span className="text-xs sm:text-lg select-none">{slot.icon}</span>
 
             {/* Count Badge */}
             {slot.count > 0 && (
-              <span className="absolute -bottom-1 -right-1 text-[8px] sm:text-[9px] font-mono font-black text-amber-200 bg-slate-950 px-1 rounded-full border border-amber-500/60 shadow">
+              <span className="absolute -bottom-1 -right-1 text-[7px] sm:text-[9px] font-mono font-black text-amber-200 bg-slate-950 px-1 rounded-full border border-amber-500/60 shadow">
                 {slot.count}
               </span>
             )}
           </button>
         ))}
-      </div>
-
-      {/* Main Bottom Action Buttons (Glassmorphic Dock) */}
-      <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-        {/* Misiones */}
-        <button
-          onClick={() => {
-            soundEngine.playSfx('select');
-            onOpenQuests();
-          }}
-          className="flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-amber-950/80 hover:bg-amber-900 active:scale-95 text-amber-200 rounded-xl border border-amber-600/70 shadow-lg font-mono text-[11px] sm:text-xs font-black backdrop-blur-md transition"
-        >
-          <Scroll className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
-          <span>Misiones</span>
-        </button>
-
-        {/* Comercio / Tienda */}
-        <button
-          onClick={() => {
-            soundEngine.playSfx('select');
-            onOpenShop();
-          }}
-          className="flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-900/80 hover:bg-slate-800 active:scale-95 text-emerald-300 rounded-xl border border-emerald-600/70 shadow-lg font-mono text-[11px] sm:text-xs font-black backdrop-blur-md transition"
-        >
-          <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
-          <span>Comercio</span>
-        </button>
-
-        {/* Inventario */}
-        <button
-          onClick={() => {
-            soundEngine.playSfx('select');
-            onOpenInventory();
-          }}
-          className="flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-900/80 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-xl border border-amber-500/70 shadow-lg font-mono text-[11px] sm:text-xs font-black backdrop-blur-md transition"
-        >
-          <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
-          <span>Inventario</span>
-        </button>
       </div>
     </div>
   );
