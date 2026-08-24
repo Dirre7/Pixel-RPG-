@@ -1013,14 +1013,14 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
               e.stopPropagation();
               setShowMinimap((prev) => !prev);
             }}
-            className="mb-1 px-2 py-1 bg-slate-950/90 active:bg-amber-500 active:text-slate-950 hover:bg-slate-800 border border-amber-500/60 rounded text-[10px] font-mono text-amber-300 shadow-lg flex items-center gap-1 backdrop-blur-sm transition"
+            className="mb-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-slate-950/80 active:bg-amber-500 active:text-slate-950 hover:bg-slate-800 border border-amber-500/50 rounded text-[9px] sm:text-[10px] font-mono text-amber-300 shadow-md flex items-center gap-1 backdrop-blur-sm transition"
             title="Mostrar / Ocultar Minimapa"
           >
-            <Compass className="w-3 h-3 text-amber-400" />
-            <span className="font-bold">{showMinimap ? 'Ocultar Mapa' : 'Ver Mapa'}</span>
+            <Compass className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />
+            <span className="font-bold">{showMinimap ? 'Ocultar' : 'Mapa'}</span>
           </button>
           {showMinimap && (
-            <div className="scale-90 sm:scale-100 origin-top-right">
+            <div className="origin-top-right">
               <Minimap
                 currentZone={currentZone}
                 playerPos={playerPos}

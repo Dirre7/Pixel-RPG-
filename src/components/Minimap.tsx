@@ -280,28 +280,28 @@ export const Minimap: React.FC<MinimapProps> = ({
   };
 
   return (
-    <div className="relative bg-slate-950/95 border-2 border-amber-500/70 rounded-xl p-1.5 shadow-2xl backdrop-blur-md flex flex-col items-center select-none font-mono">
+    <div className="relative bg-slate-950/70 border border-amber-500/50 rounded-lg sm:rounded-xl p-1 sm:p-1.5 shadow-xl backdrop-blur-md flex flex-col items-center select-none font-mono transition-all duration-200">
       {/* Header with Coordinates, Exploration % & Zoom Toggle */}
-      <div className="w-full flex items-center justify-between px-1 mb-1 text-[10px] font-bold text-amber-400">
+      <div className="w-full flex items-center justify-between px-0.5 sm:px-1 mb-0.5 sm:mb-1 text-[8px] sm:text-[10px] font-bold text-amber-400">
         <div className="flex items-center space-x-1">
-          <Compass className="w-3.5 h-3.5 text-amber-400" />
-          <span className="truncate max-w-[85px] sm:max-w-none">
-            {zoomMode === 'radar' ? 'Radar (150x150)' : 'Mundo (150x150)'}
+          <Compass className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-amber-400" />
+          <span className="hidden sm:inline">
+            {zoomMode === 'radar' ? 'Radar' : 'Mundo'}
           </span>
         </div>
-        <div className="flex items-center space-x-1.5">
-          <span className="text-emerald-400 text-[9px]">
-            {explorationPercent}% 🗺️
+        <div className="flex items-center space-x-1 sm:space-x-1.5">
+          <span className="text-emerald-400 text-[8px] sm:text-[9px]">
+            {explorationPercent}%
           </span>
-          <span className="text-slate-400">
-            [{playerPos.x}, {playerPos.y}]
+          <span className="text-slate-300 text-[8px] sm:text-[9px]">
+            [{playerPos.x},{playerPos.y}]
           </span>
           <button
             onClick={() => setZoomMode(zoomMode === 'radar' ? 'full' : 'radar')}
-            className="p-0.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-300 rounded border border-slate-700 transition"
-            title={zoomMode === 'radar' ? 'Ver Mapa Completo de 150x150' : 'Hacer Zoom Radar al Héroe'}
+            className="p-0.5 bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-amber-300 rounded border border-slate-700/80 transition"
+            title={zoomMode === 'radar' ? 'Ver Mapa Completo' : 'Hacer Zoom Radar'}
           >
-            {zoomMode === 'radar' ? <ZoomOut className="w-3 h-3" /> : <ZoomIn className="w-3 h-3" />}
+            {zoomMode === 'radar' ? <ZoomOut className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : <ZoomIn className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
           </button>
         </div>
       </div>
@@ -312,12 +312,12 @@ export const Minimap: React.FC<MinimapProps> = ({
         width={180}
         height={160}
         onClick={handleCanvasClick}
-        className="rounded-lg border border-slate-800 cursor-pointer shadow-inner bg-slate-950"
+        className="w-[105px] h-[90px] sm:w-[180px] sm:h-[160px] rounded-md sm:rounded-lg border border-slate-800/80 cursor-pointer shadow-inner bg-slate-950/80"
         title="Haz clic para inspeccionar coordenadas"
       />
 
-      {/* Legend */}
-      <div className="w-full grid grid-cols-5 gap-0.5 mt-1 text-[8px] text-slate-400 font-bold text-center">
+      {/* Legend (Visible on Tablets and PC, hidden on mobile for clean HUD) */}
+      <div className="hidden sm:grid w-full grid-cols-5 gap-0.5 mt-1 text-[8px] text-slate-400 font-bold text-center">
         <div className="flex items-center justify-center space-x-0.5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
           <span>Héroe</span>
