@@ -101,11 +101,22 @@ export const ChestLootModal: React.FC<ChestLootModalProps> = ({ loot, onClose })
 
           {/* Lore Codex Unlocked */}
           {loot.loreTitle && (
-            <div className="flex items-center space-x-3 p-3 bg-slate-900/90 rounded-xl border border-slate-700">
-              <span className="text-xl">📜</span>
-              <div>
-                <div className="text-xs font-bold text-amber-200">Códice Desbloqueado</div>
-                <div className="text-[10px] text-slate-400">{loot.loreTitle}</div>
+            <div
+              style={{
+                backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                borderColor: '#f59e0b',
+                borderWidth: '1.5px',
+              }}
+              className="flex items-center space-x-3 p-3.5 rounded-xl shadow-lg"
+            >
+              <span className="text-2xl">📜</span>
+              <div className="text-left">
+                <div style={{ color: '#fbbf24', fontWeight: 900 }} className="text-xs sm:text-sm">
+                  Códice Desbloqueado
+                </div>
+                <div style={{ color: '#f8fafc', fontWeight: 700 }} className="text-xs mt-0.5">
+                  {loot.loreTitle}
+                </div>
               </div>
             </div>
           )}
@@ -117,10 +128,16 @@ export const ChestLootModal: React.FC<ChestLootModalProps> = ({ loot, onClose })
             soundEngine.playSfx('select');
             onClose();
           }}
-          className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition shadow-lg flex items-center justify-center space-x-2 active:scale-95"
+          style={{
+            backgroundColor: '#fbbf24',
+            color: '#020617',
+            borderColor: '#fef08a',
+            boxShadow: '0 0 25px rgba(251, 191, 36, 0.6)',
+          }}
+          className="w-full py-3.5 sm:py-4 text-slate-950 font-black text-sm uppercase tracking-wider rounded-xl transition border-2 flex items-center justify-center space-x-2 active:scale-95 cursor-pointer hover:brightness-110"
         >
-          <Check className="w-4 h-4" />
-          <span>¡Guardar y Continuar Aventura!</span>
+          <Check className="w-5 h-5 text-slate-950 stroke-[3]" />
+          <span style={{ color: '#020617', fontWeight: 900 }}>¡Guardar y Continuar Aventura!</span>
         </button>
       </div>
     </div>
