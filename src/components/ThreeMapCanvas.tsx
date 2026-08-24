@@ -577,15 +577,80 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           }
 
           // Natural Soil/Dirt Border Edge Strips along non-path borders
-          if (!hasWest) {
+          if (!hasWest && !currentZone.tileData[y]?.[x - 1]) {
             const edgeW = new THREE.Mesh(edgeGeo, pathBorderMat);
             edgeW.position.set(posX - 1.28, -0.18 + elevation, posZ);
             tileGroup.add(edgeW);
           }
-          if (!hasEast) {
+          if (!hasEast && !currentZone.tileData[y]?.[x + 1]) {
             const edgeE = new THREE.Mesh(edgeGeo, pathBorderMat);
             edgeE.position.set(posX + 1.28, -0.18 + elevation, posZ);
             tileGroup.add(edgeE);
+          }
+
+          // 🌉 Wooden Bridge Handrails when path crosses water
+          const hasNorthWater = currentZone.tileData[y - 1]?.[x] === 3;
+          const hasSouthWater = currentZone.tileData[y + 1]?.[x] === 3;
+          const hasEastWater = currentZone.tileData[y]?.[x + 1] === 3;
+          const hasWestWater = currentZone.tileData[y]?.[x - 1] === 3;
+
+          const bridgeRailMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.85 });
+          const bridgePostMat = new THREE.MeshStandardMaterial({ color: 0x3b1c0a, roughness: 0.9 });
+
+          if (hasNorthWater) {
+            const railN = new THREE.Mesh(new THREE.BoxGeometry(2.52, 0.08, 0.08), bridgeRailMat);
+            railN.position.set(posX, 0.32 + elevation, posZ - 1.18);
+            railN.castShadow = true;
+            tileGroup.add(railN);
+
+            for (let p = -1; p <= 1; p++) {
+              const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
+              post.position.set(posX + p * 1.05, 0.15 + elevation, posZ - 1.18);
+              post.castShadow = true;
+              tileGroup.add(post);
+            }
+          }
+
+          if (hasSouthWater) {
+            const railS = new THREE.Mesh(new THREE.BoxGeometry(2.52, 0.08, 0.08), bridgeRailMat);
+            railS.position.set(posX, 0.32 + elevation, posZ + 1.18);
+            railS.castShadow = true;
+            tileGroup.add(railS);
+
+            for (let p = -1; p <= 1; p++) {
+              const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
+              post.position.set(posX + p * 1.05, 0.15 + elevation, posZ + 1.18);
+              post.castShadow = true;
+              tileGroup.add(post);
+            }
+          }
+
+          if (hasWestWater) {
+            const railW = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 2.52), bridgeRailMat);
+            railW.position.set(posX - 1.18, 0.32 + elevation, posZ);
+            railW.castShadow = true;
+            tileGroup.add(railW);
+
+            for (let p = -1; p <= 1; p++) {
+              const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
+              post.position.set(posX - 1.18, 0.15 + elevation, posZ + p * 1.05);
+              post.castShadow = true;
+              tileGroup.add(post);
+            }
+          }
+
+          if (hasEastWater) {
+            const railE = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 2.52), bridgeRailMat);
+            railE.position.set(posX + 1.18, 0.32 + elevation, posZ);
+            railE.castShadow = true;
+            tileGroup.add(railE);
+
+            for (let p = -1; p <= 1; p++) {
+              const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
+              post.position.set(posX + 1.18, 0.15 + elevation, posZ + p * 1.05);
+              post.castShadow = true;
+              tileGroup.add(post);
+            }
           }
         }
 

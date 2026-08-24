@@ -55,273 +55,191 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
     map[21][x] = 21; // 🪨 Acantilado de Roca / Cliff Tile
   }
 
-  // 3. Gran Aldea Central Handcrafted (Estilo Cute Fantasy RPG)
-  // Camino sinuoso de tierra y arena cálida
-  for (let y = 23; y <= 31; y++) {
-    for (let x = 25; x <= 30; x++) map[y][x] = 2;
-  }
-  for (let y = 28; y <= 33; y++) {
-    for (let x = 24; x <= 33; x++) map[y][x] = 2;
-  }
-  // Acceso al puente sur
-  for (let y = 32; y <= 36; y++) {
-    map[y][29] = 2; map[y][30] = 2;
+  // 3. Red Vial Maestra Interconectada (100% Limpia de Obstáculos)
+  // Ejes Horizontales Conectores de Cuadrantes y Puentes
+  for (let x = 10; x <= 50; x++) {
+    map[10][x] = 2; // Avenida Norte (Cruza Puente Norte en X: 35-36)
+    map[29][x] = 2; // Avenida Central / Gran Plaza (Cruza Puente Central en X: 35-36)
+    map[48][x] = 2; // Avenida Sur (Cruza Puente Sur en X: 35-36)
   }
 
-  // 🏠 Gran Mansión / Posada Medieval (X: 27, Y: 23)
-  map[23][27] = 5;
-
-  // 🌾 Huerto de Calabazas y Coles Cerrado con Vallas de Madera (X: 19..24, Y: 23..27)
-  for (let x = 19; x <= 24; x++) { map[23][x] = 14; map[27][x] = 14; }
-  for (let y = 23; y <= 27; y++) { map[y][19] = 14; }
-  map[24][20] = 13; map[24][21] = 13; map[24][22] = 13; map[24][23] = 13;
-  map[25][20] = 13; map[25][21] = 13; map[25][22] = 13; map[25][23] = 13;
-  map[26][20] = 13; map[26][21] = 13; map[26][22] = 13; map[26][23] = 13;
-
-  // 🌊 Río Fluvial del Este con Isla Verde y Puente de Madera
-  for (let y = 22; y <= 36; y++) {
-    map[y][35] = 3; map[y][36] = 3; map[y][37] = 3;
+  // Ejes Verticales Conectores
+  for (let y = 10; y <= 48; y++) {
+    map[y][18] = 2; // Gran Avenida del Oeste
+    map[y][28] = 2; // Bulevar de la Plaza Mayor
+    map[y][42] = 2; // Gran Avenida del Este
+    map[y][48] = 2; // Paseo Ribereño del Este
   }
-  for (let x = 31; x <= 37; x++) {
-    map[35][x] = 3; map[36][x] = 3;
-  }
-  // Isla verde con Roble Noble en el río
-  map[26][36] = 1;
-  // Puente de Madera rústico sobre el río
-  map[35][29] = 15; map[35][30] = 15;
-  map[36][29] = 15; map[36][30] = 15;
 
-  // 📜 Tablón de Misiones, Faroles, Fuente y Rocas de la Aldea
-  map[27][31] = 22; // Tablón de Anuncios junto al camino
-  map[26][31] = 17; // Farola forjada del tablón
+  // Calzadas y Plazas Centrales
+  for (let y = 26; y <= 32; y++) {
+    for (let x = 24; x <= 32; x++) {
+      map[y][x] = 2; // Gran Plaza de la Aldea
+    }
+  }
+
+  // Acceso Norte al Gran Portal del Jefe Rey Slime
+  for (let y = 3; y <= 10; y++) {
+    map[y][30] = 2;
+  }
+  map[2][30] = 11; // Portal del Jefe
+
+  // 🌊 Gran Río Fluvial Cristalino (Cruza todo el mapa de Norte a Sur, Y: 0..59)
+  for (let y = 0; y < MAP_SIZE; y++) {
+    map[y][35] = 3;
+    map[y][36] = 3;
+  }
+
+  // 🌉 Los 3 Puentes Viales (Restauración de Calzada de Cruce en el Río)
+  map[10][35] = 2; map[10][36] = 2; // Puente Norte
+  map[29][35] = 2; map[29][36] = 2; // Puente Central
+  map[48][35] = 2; map[48][36] = 2; // Puente Sur
+
+  // 🏮 Farolas en el Césped a los Bordes de los Caminos (Sin invadir la calzada)
+  // Farolas de la Avenida Norte
+  [12, 16, 20, 24, 32, 38, 44, 46].forEach((fx) => {
+    map[9][fx] = 17;
+    map[11][fx] = 17;
+  });
+  // Farolas del Puente Norte (en las esquinas de la hierba)
+  map[9][34] = 17; map[11][34] = 17;
+  map[9][37] = 17; map[11][37] = 17;
+
+  // Farolas de la Gran Plaza y Puente Central
+  [12, 16, 20, 24, 38, 44, 46].forEach((fx) => {
+    map[28][fx] = 17;
+    map[30][fx] = 17;
+  });
+  // Farolas del Puente Central
+  map[28][34] = 17; map[30][34] = 17;
+  map[28][37] = 17; map[30][37] = 17;
+
+  // Farolas de la Avenida Sur
+  [12, 16, 20, 24, 32, 38, 44, 46].forEach((fx) => {
+    map[47][fx] = 17;
+    map[49][fx] = 17;
+  });
+  // Farolas del Puente Sur
+  map[47][34] = 17; map[49][34] = 17;
+  map[47][37] = 17; map[49][37] = 17;
+
+  // 🏛️ Elementos de la Gran Plaza Central (Colocados en sus posiciones armoniosas)
   map[30][28] = 4;  // Gran Fuente Central (Restaura HP/MP)
-  map[28][24] = 18; // 🪨 Gran Roca Redondeada con Musgo
-  map[31][33] = 18;
-  map[28][23] = 9;  // Puestos del Bazar con toldos
-  map[30][23] = 9;
+  map[27][31] = 22; // Tablón de Misiones
+  map[28][24] = 18; // Roca decorativa de la plaza
   map[32][26] = 12; // Bancos de descanso
-  map[32][32] = 12;
+  map[32][30] = 12;
+  map[26][23] = 9;  // Puestos de mercado del bazar
+  map[28][23] = 9;
 
-  // 5. ⚔️ GRAN PORTAL DEL JEFE REY SLIME (TILE 11) EN EL EXTREMO NORTE
-  map[2][30] = 11;
-  map[2][28] = 17; map[2][32] = 17; // Farolas de piedra del portal
+  // 🏘️ GRANDES CASAS, MANSIONES Y DISTRITOS
 
-  // 7. CUADRANTE NOROESTE (Distrito Artesanal, Gremio de Exploradores, Viñedo & Círculo Sagrado)
-  // Red de calles del sector noroeste
-  for (let x = 12; x <= 28; x++) map[10][x] = 2; // Calle de los Exploradores
-  for (let y = 5; y <= 15; y++) map[y][18] = 2;  // Avenida del Oeste
-  map[10][14] = 17; map[10][22] = 17; // Farolas de la encrucijada
-
-  // Campamento y Taberna del Gremio de Exploradores (X: 12..16, Y: 6..10)
-  map[9][14] = 5;   // 🏠 Cabaña del Gremio de Exploradores
-  map[7][14] = 19;  // Hoguera de campamento con brasas vivas
-  map[7][12] = 12;  // Banco de descanso
-  map[8][16] = 17;  // Farola del campamento
-
-  // Círculo Druídico de Piedras Rúnicas & Geoda Arcana (X: 6..11, Y: 4..8) -> Recolección de Gemas 💎
-  map[6][9] = 18; map[6][11] = 18; // Columnas rúnicas de mármol
-  map[7][10] = 20; // 💎 Geoda Arcana de Cristales Mágicos (+Gemas Arcanas)
-  map[5][7] = 7;   // Cofre Secreto de los Exploradores
-
-  // Campo de Siembra y Viñedo Silvestre (X: 20..26, Y: 5..10) -> Recolección de Cosechas & Madera 🥕🪵
-  map[7][20] = 13; map[7][22] = 13; // Bancales de siembra
-  map[8][20] = 13; map[8][22] = 13;
+  // 1. DISTRITO NOROESTE (Gremio de Exploradores & Viñedo)
+  map[8][14] = 5;   // 🏠 Cabaña del Gremio de Exploradores
+  map[7][14] = 19;  // Hoguera del campamento
+  map[6][9] = 18; map[6][11] = 18; // Columnas rúnicas
+  map[7][10] = 20; // 💎 Geoda Arcana
+  map[5][7] = 7;   // Cofre Secreto
+  map[7][20] = 13; map[7][22] = 13; // Huertos
   map[6][24] = 14; map[8][24] = 14; // Pilas de leña
-  map[9][23] = 5;  // 🏠 Cabaña del Guardabosques Noroeste
+  map[8][22] = 5;  // 🏠 Mansión del Guardabosques
 
-  // Zona Artesanal Central & Fundición Oeste
-  map[16][18] = 5;  // Gran Posada del Roble
-  map[16][22] = 5;  // Casa Residencial Noroeste
-  map[22][18] = 10; // Forja Mayor de Brom
+  // 2. DISTRITO ARTESANAL OESTE (Herrería, Fundición & Posada)
+  map[16][14] = 5;  // 🏠 Gran Posada del Roble (Edificio de 2 plantas)
+  map[22][14] = 10; // Forja Mayor de Brom
   map[22][16] = 19; // Brasero de carbón
-  map[22][22] = 5;  // Casa del Artesano
-  map[20][18] = 1;  // Árbol ornamental dentro del césped
+  map[19][11] = 5;  // 🏠 Almacén de Minerales
+  map[20][9] = 18; map[20][13] = 18; // Cantera de hierro
+  map[23][11] = 5;  // 🏠 Mansión Comercial del Oeste
+  map[23][9] = 14; map[23][13] = 14;
 
-  // Distrito de Fundición, Armería & Almacén Comercial Oeste (X: 6..15, Y: 16..25)
-  for (let x = 8; x <= 16; x++) {
-    map[18][x] = 2; // Calle de la Fundición
-    map[24][x] = 2; // Calle del Almacén Comercial
+  // 3. HUERTO DE HORTALIZAS OESTE
+  for (let x = 19; x <= 23; x++) {
+    map[24][x] = 13; map[25][x] = 13;
   }
-  for (let y = 18; y <= 24; y++) map[y][10] = 2; // Callejón del Gremio
-  map[18][12] = 17; map[24][12] = 17; // Farolas de la calle
 
-  // Almacén de Minerales y Fundición de Acero (X: 8..14, Y: 18..21) -> Recolección de Hierro 🪨
-  map[19][11] = 5;  // 🏠 Almacén de Minerales y Lingotes (Cantería Gris)
-  map[20][9] = 18; map[20][13] = 18; // Bloques de metal y vetas de hierro
-  map[19][8] = 19;  // Brasero de carbón ardiente
+  // 4. DISTRITO NORESTE (Cantera, Aserradero & Gran Mansión Consistorial)
+  map[16][39] = 31; // 🏛️ Gran Casa Consistorial / Ayuntamiento Noble
+  map[16][45] = 5;  // 🏠 Gran Mansión Solariega Noreste
+  map[8][39] = 5;   // 🏠 Cabaña del Maestro Leñador
+  map[6][39] = 14; map[6][41] = 14; // Pilas de leña
+  map[6][45] = 18; map[8][45] = 18; // Cantera de piedra
+  map[7][47] = 18; map[8][47] = 18;
+  map[9][45] = 5;   // 🏠 Cabaña del Cantero Mayor
+  map[13][45] = 13; map[13][47] = 13; // Huerto de boticaria
 
-  // Depósito de Mercancías del Bazar y Taller Maderero (X: 8..14, Y: 22..25) -> Recolección de Madera 🪵
-  map[23][11] = 5;  // 🏠 Cabaña del Mercader Mayor (Tejado Rojo)
-  map[23][9] = 14; map[23][13] = 14; // Pilas de cajas y madera
-  map[22][8] = 17;  // Farola del depósito
+  // 5. DISTRITO RESIDENCIAL ESTE (Mansiones de la Ribera & Parque Floral)
+  map[22][39] = 27; // Botica de Pociones
+  map[22][45] = 5;  // 🏠 Gran Mansión Señorial "Villa Rosa"
+  map[26][39] = 5;  // 🏠 Mansión "Los Álamos"
+  map[26][45] = 5;  // 🏠 Palacio Residencial Este
+  map[21][46] = 18; map[25][46] = 18; // Columnas clásicas de jardín
+  map[20][49] = 12; map[24][49] = 12; map[28][49] = 12; // Bancos del paseo ribereño
 
-  // Puestos del Bazar flanqueando la calle (sin tapar el paso en X: 20)
-  for (let y = 25; y <= 28; y++) {
-    for (let x = 16; x <= 24; x++) map[y][x] = 2;
-  }
-  map[26][17] = 9; map[28][17] = 9; // Puestos lado oeste
-  map[26][23] = 9; map[28][23] = 9; // Puestos lado este
-
-  // Arboleda de Robles Nobles en los claros noroeste y oeste
-  map[4][10] = 1; map[4][16] = 1; map[4][22] = 1; map[4][26] = 1;
-  map[6][6] = 1; map[9][6] = 1; map[12][6] = 1; map[14][6] = 1;
-  map[12][10] = 1; map[14][12] = 1; map[14][26] = 1;
-  map[16][7] = 1; map[20][5] = 1; map[24][5] = 1;
-  map[18][6] = 1; map[22][7] = 1;
-
-  // 8. CUADRANTE NORESTE (Distrito Residencial, Aserradero, Cantera & Huerto de la Boticaria)
-  // Red de calles del sector norte
-  for (let x = 30; x <= 50; x++) map[10][x] = 2; // Calle del Aserradero y la Cantera
-  for (let y = 5; y <= 15; y++) map[y][41] = 2;  // Avenida del Este
-  map[10][36] = 17; map[10][46] = 17; // Farolas de la encrucijada
-
-  // Aserradero y Pila de Madera del Bosque Norte (X: 34..40, Y: 5..9) -> Recolección de Madera 🪵
-  map[6][36] = 14; map[6][38] = 14; // Pilas de leña
-  map[8][36] = 14; map[8][38] = 14;
-  map[9][35] = 5;   // 🏠 Cabaña del Maestro Leñador
-  map[8][34] = 17;  // Farola del aserradero
-
-  // Cantera de Minerales y Bloques de Cantería (X: 43..49, Y: 5..9) -> Recolección de Hierro y Piedra 🪨
-  map[5][44] = 14; map[5][45] = 14; map[5][46] = 14; map[5][47] = 14; // Valla de cantera
-  map[6][45] = 18; map[8][45] = 18; // Vetas de mineral y rocas de cantería
-  map[7][47] = 18; map[8][48] = 18;
-  map[9][42] = 5;   // 🏠 Cabaña del Maestro Cantero
-  map[6][43] = 17;  // Farola minera
-
-  // Huerto Silvestre y Plantación de Hierbas Medicinales (X: 43..49, Y: 11..14) -> Recolección de Cosechas 🥕
-  map[12][45] = 13; map[12][47] = 13; // Bancales de cultivo fértiles
-  map[13][45] = 13; map[13][47] = 13;
-  map[12][43] = 17; // Farola de la plantación
-
-  // Zona Residencial & Administrativa Central
-  map[16][38] = 31; // Casa Consistorial / Ayuntamiento
-  map[16][42] = 5;  // Casa Residencial Noreste
-  map[22][38] = 27; // Botica de Pociones
-  map[22][42] = 5;  // Casa de la Boticaria
-  map[26][38] = 5;  // Mansión Residencial "Los Álamos"
-  map[26][42] = 5;  // Casa Señorial
-
-  // Parque Ribereño, Paseo de los Sauces & Jardín Floral Este (X: 43..51, Y: 17..28) - 100% Decorativo
-  // Paseo Peatonal de la Ribera
-  for (let y = 18; y <= 28; y++) map[y][48] = 2; // Paseo adoquinado ribereño 100% libre
-  for (let x = 44; x <= 48; x++) {
-    map[18][x] = 2; // Conexión norte
-    map[24][x] = 2; // Conexión central
-    map[28][x] = 2; // Conexión sur
-  }
-  // Farolas en el césped bordeando el paseo (sin tapar el paso en X: 48)
-  map[19][49] = 17; map[23][49] = 17; map[27][49] = 17;
-
-  // Bancos de descanso y miradores en el césped ribereño
-  map[20][50] = 12; map[24][50] = 12; map[28][50] = 12;
-
-  // Jardín Floral & Columnas de Mármol con Hiedra (Dentro del césped)
-  map[21][45] = 18; map[25][45] = 18; // Columnas clásicas decorativas
-  map[22][45] = 12; map[24][45] = 12; // Parterres de rosas
-  map[23][44] = 12; map[23][46] = 12;
-
-  // Cabañas Pintorescas del Mirador
-  map[19][44] = 5;  // 🏠 Villa del Mirador del Río (Tejado Azul)
-  map[27][44] = 5;  // 🏠 Villa Jardín de Rosas (Tejado Púrpura)
-
-  // Arboleda de Robles Nobles 100% dentro del césped verde
-  map[4][34] = 1; map[4][38] = 1; map[4][44] = 1; map[4][48] = 1;
-  map[6][50] = 1; map[8][50] = 1; map[12][50] = 1; map[14][50] = 1;
-  map[14][34] = 1; map[14][48] = 1;
-  map[18][51] = 1; map[22][51] = 1; map[26][51] = 1;
-  map[17][46] = 1; map[25][43] = 1; // Árbol en el césped verde (sin tocar adoquines)
-  map[20][43] = 1; map[22][44] = 1;
-
-  // Cofre del Claro Noreste
-  map[5][49] = 7; // Cofre escondido en la arboleda ribereña
-
-  // 9. CUADRANTE SUROESTE (Distrito Sagrado, Molino, Camposanto & Arboleda)
-  map[34][22] = 6;  // 🌾 Molino de Viento Tradicional con Aspas Animadas
-  map[34][17] = 5;  // 🏡 Cabaña del Molinero
-  map[38][18] = 5;  // ⛪ Ermita del Clérigo
-
-  // Plazoleta Monumental del Santuario Sagrado (Tile 8)
-  map[43][18] = 2; map[44][17] = 2; map[44][18] = 8; map[44][19] = 2; map[45][18] = 2;
-  map[43][16] = 17; map[43][20] = 17; // Farolas de luz cálida
-  map[45][16] = 17; map[45][20] = 17;
-  map[42][16] = 18; map[42][20] = 18; // Columnas clásicas de mármol con hiedra
+  // 6. DISTRITO SUROESTE (Santuario Místico, Molino & Gran Casa de Campo)
+  map[34][22] = 6;  // 🌾 Molino de Viento con aspas
+  map[34][14] = 5;  // 🏠 Gran Casona del Molinero
+  map[38][14] = 5;  // 🏠 Casona de Campo Suroeste
+  map[44][18] = 8;  // 🏛️ Gran Santuario Místico
+  map[42][16] = 18; map[42][20] = 18; // Columnas sagradas
   map[44][15] = 12; map[44][21] = 12; // Parterres de rosas sagradas
-  map[45][22] = 7;  // Cofre de Reliquias Sagradas
+  map[45][22] = 7;  // Cofre sagrado
 
-  // Camposanto Histórico Cercado (Al Oeste del Santuario)
-  map[42][10] = 14; map[42][11] = 14; map[42][12] = 14; map[42][13] = 14;
-  map[47][10] = 14; map[47][11] = 14; map[47][12] = 14; map[47][13] = 14;
-  map[43][9] = 14; map[44][9] = 14; map[45][9] = 14; map[46][9] = 14;
-  map[44][14] = 2;  // Camino de entrada al camposanto
-  map[43][14] = 17; // Farol del cementerio
-  map[43][11] = 20; map[43][13] = 20; // Lápidas góticas antiguas
-  map[45][11] = 20; map[45][13] = 20;
-  map[46][11] = 20; map[46][13] = 20;
-  map[44][11] = 7;  // Cofre Secreto de los Antiguos
+  // 7. DISTRITO SURESTE (Granja Noble, Casonas Ribereñas & Muelles)
+  map[34][44] = 5;  // 🏠 Gran Mansión Ribereña Sureste
+  map[39][39] = 13; map[40][39] = 13; map[41][39] = 13; // Huertos de la granja
+  map[43][39] = 7;  // Cofre de la granja
+  map[40][45] = 5;  // 🏠 Cabaña del Pescador
+  map[44][44] = 5;  // 🏠 Casona Solariega Sureste
+  map[44][48] = 5;  // 🏠 Casona Adosada Este
 
-  // Campamento Ermitaño & Arboleda Sagrada de Robles
-  map[50][18] = 19; // Hoguera mística ardiendo con brasas
-  map[50][16] = 12; // Banco de meditación
+  // 🌳 ARBOLEDAS ORGÁNICAS Y PAISAJISMO EN EL CÉSPED (Sin tocar carreteras)
+  // Bosquetes Noroeste
+  [ [4,10], [4,16], [4,22], [4,26], [6,6], [9,6], [12,6], [14,6], [16,7], [20,5], [24,5] ].forEach(([y, x]) => {
+    map[y][x] = 1;
+  });
+  // Bosquetes Noreste
+  [ [4,34], [4,38], [4,44], [4,48], [6,50], [8,50], [12,50], [14,50], [18,51], [22,51], [26,51] ].forEach(([y, x]) => {
+    map[y][x] = 1;
+  });
+  // Bosquetes Suroeste
+  [ [34,9], [38,9], [34,13], [48,8], [51,8], [54,8], [53,18], [53,22], [49,24], [53,26], [46,26], [42,26] ].forEach(([y, x]) => {
+    map[y][x] = 1;
+  });
+  // Bosquetes Sureste
+  [ [34,48], [36,49], [43,50], [45,51], [52,38], [54,40], [54,48], [54,50] ].forEach(([y, x]) => {
+    map[y][x] = 1;
+  });
 
-  // Arboleda de robles centenarios poblando la llanura suroeste
-  map[34][9] = 1; map[38][9] = 1; map[34][13] = 1; map[38][13] = 1;
-  map[48][8] = 1; map[51][8] = 1; map[54][8] = 1;
-  map[48][14] = 1; map[53][13] = 1;
-  map[53][18] = 1; map[53][22] = 1;
-  map[49][24] = 1; map[53][26] = 1;
-  map[46][26] = 1; map[42][26] = 1;
+  // Cofres secretos en los claros del bosque
+  map[6][6] = 7;
+  map[6][50] = 7;
+  map[52][6] = 7;
+  map[52][50] = 7;
 
-  // 10. CUADRANTE SURESTE (Granja, Casas Adosadas de la Ribera & Muelle)
-  map[34][36] = 5;  // 🏠 Cabaña del Guardián de la Granja
+  // 🛡️ GARANTÍA DE SEGURIDAD VIAL TOTAL:
+  // Aseguramos que ninguna casilla de camino (tile 2) tenga obstáculos accidentales
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      // Si la casilla es parte de la red de carreteras principales o puentes, forzar paso limpio (tile 2)
+      const isNorthRoad = y === 10 && x >= 10 && x <= 50;
+      const isCentralRoad = y === 29 && x >= 10 && x <= 50;
+      const isSouthRoad = y === 48 && x >= 10 && x <= 50;
+      const isWestAve = x === 18 && y >= 10 && y <= 48;
+      const isMainPlazaAve = x === 28 && y >= 10 && y <= 48;
+      const isEastAve = x === 42 && y >= 10 && y <= 48;
+      const isRiverAve = x === 48 && y >= 10 && y <= 48;
+      const isBossRoad = x === 30 && y >= 3 && y <= 10;
+      const isPlazaSquare = y >= 26 && y <= 32 && x >= 24 && x <= 32 && !(y === 30 && x === 28); // Salvo la fuente
 
-  // Granja Municipal (Huertos, Corrales y Vallas)
-  for (let y = 37; y <= 45; y++) {
-    for (let x = 37; x <= 45; x++) {
-      if (y === 37 || y === 45 || x === 37 || x === 45) {
-        if (!(y === 37 && x === 40) && !(y === 45 && x === 40)) map[y][x] = 14; // Vallas con accesos norte y sur
+      if (isNorthRoad || isCentralRoad || isSouthRoad || isWestAve || isMainPlazaAve || isEastAve || isRiverAve || isBossRoad || isPlazaSquare) {
+        map[y][x] = 2;
       }
     }
   }
-  for (let y = 38; y <= 44; y++) map[y][41] = 14; // Valla divisoria
-  map[39][39] = 13; map[40][39] = 13; map[41][39] = 13; // Cultivos
-  map[43][39] = 7;  // Cofre de la Granja
-  map[39][43] = 13; map[40][43] = 13; // Animales
 
-  // Cabaña del Pescador & Embarcadero de Madera en el Río (X: 49, Y: 40)
-  map[40][49] = 5;  // Cabaña del Pescador
-  map[40][47] = 2; map[40][48] = 2; // Sendero de piedra al muelle
-  map[40][51] = 15; // Embarcadero / Muelle de madera sobre el agua
-  map[39][50] = 17; // Farola del puerto fluvial
-
-  // Hilera de Casas Adosadas de la Ribera (Y: 48, X: 40..48)
-  for (let x = 38; x <= 50; x++) map[46][x] = 2; // Calle adoquinada de las casas adosadas
-  map[46][40] = 2; map[46][44] = 2; map[46][48] = 2; // Entradas peatonales
-  map[46][42] = 17; map[46][46] = 17; map[46][50] = 17; // Farolas de la calle
-  map[47][42] = 12; map[47][46] = 12; // Parterres de flores entre portales
-
-  map[48][40] = 5;  // 🏡 Casa Adosada 1 (Tejado Rojo)
-  map[48][44] = 5;  // 🏡 Casa Adosada 2 (Cantería Gris)
-  map[48][48] = 5;  // 🏡 Casa Adosada 3 (Tejado Azul)
-
-  // Cercado de Pasto Sur con Abrevadero (Y: 51..54, X: 42..48)
-  for (let x = 42; x <= 48; x++) {
-    map[53][x] = 14; // Valla de madera del pasto
-  }
-  map[51][42] = 14; map[52][42] = 14;
-  map[51][48] = 14; map[52][48] = 14;
-  map[52][44] = 3;  // Abrevadero de agua fresca
-
-  // Arboleda de Robles Ribereños (Poblando la llanura sureste)
-  map[34][48] = 1; map[36][49] = 1;
-  map[43][48] = 1; map[45][50] = 1;
-  map[52][38] = 1; map[54][40] = 1;
-  map[54][48] = 1; map[54][50] = 1;
-
-  // 11. Secretos de Exploración en las esquinas del bosque
-  map[6][6] = 7;   // Cofre oculto en arboleda noroeste
-  map[6][50] = 7;  // Cofre del río noreste
-  map[52][6] = 7;  // Cofre suroeste
-  map[52][50] = 7; // Cofre del jardín este
+  // Restaurar la fuente en el centro de la plaza
+  map[30][28] = 4;
 
   return { tileData: map, width: MAP_SIZE, height: MAP_SIZE };
 }

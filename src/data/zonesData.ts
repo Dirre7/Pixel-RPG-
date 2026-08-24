@@ -276,6 +276,111 @@ export const ZONES: Zone[] = [
         tip: '💡 CONSEJO DE INSTRUCCIÓN: Combina ataques físicos y mágicos para vencer las defensas de los monstruos.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_forest_2'),
       },
+      // 🌟 ALDEANOS AMBIENTALES (Sin Misiones ni Exclamaciones)
+      {
+        id: 'npc_ambient_guard_north',
+        zoneId: 'zone_forest',
+        x: 34,
+        y: 10,
+        name: 'Centinela Garrow',
+        title: 'Guardia del Puente Norte',
+        avatarStyle: 'knight',
+        dialogue: [
+          'El paso del Puente Norte está despejado, aventurero.',
+          'Mantenemos el camino libre de alimañas para que los leñadores y artesanos puedan cruzar seguros.'
+        ],
+      },
+      {
+        id: 'npc_ambient_guard_south',
+        zoneId: 'zone_forest',
+        x: 34,
+        y: 29,
+        name: 'Centinela Vorn',
+        title: 'Guardia de la Plaza y Puente Central',
+        avatarStyle: 'knight',
+        dialogue: [
+          '¡Saludos, viajero! La plaza mayor es un lugar seguro bajo la protección de la guardia real.',
+          'Si vas hacia el este, disfrutarás de los jardines de rosas y la brisa del río.'
+        ],
+      },
+      {
+        id: 'npc_ambient_fisher',
+        zoneId: 'zone_forest',
+        x: 37,
+        y: 20,
+        name: 'Pescador Finn',
+        title: 'Pescador Ribereño',
+        avatarStyle: 'scout',
+        dialogue: [
+          'Shhh... ¡no asustes a las truchas plateadas!',
+          'Este río es una maravilla. El agua es tan pura que puedes ver los guijarros del fondo con total claridad.'
+        ],
+      },
+      {
+        id: 'npc_ambient_maiden',
+        zoneId: 'zone_forest',
+        x: 27,
+        y: 30,
+        name: 'Doncella Elira',
+        title: 'Habitante de la Aldea',
+        avatarStyle: 'wizard',
+        dialogue: [
+          '¡Qué hermoso día hace en Aethelgard!',
+          'Me encanta pasear por la plaza central y escuchar las historias de los viajeros junto a la fuente.'
+        ],
+      },
+      {
+        id: 'npc_ambient_florist',
+        zoneId: 'zone_forest',
+        x: 46,
+        y: 24,
+        name: 'Jardinera Rosalind',
+        title: 'Cuidadora de los Jardines de Rosas',
+        avatarStyle: 'elder',
+        dialogue: [
+          'Las rosas y lavandas de este paseo florecen durante todo el año gracias a la bendición del bosque.',
+          'Tómate un respiro en los bancos de descanso y disfruta del aroma.'
+        ],
+      },
+      {
+        id: 'npc_ambient_boy',
+        zoneId: 'zone_forest',
+        x: 26,
+        y: 26,
+        name: 'Joven Tobías',
+        title: 'Aprendiz Curioso',
+        avatarStyle: 'scout',
+        dialogue: [
+          '¡Guau! ¿Esa armadura es de héroe auténtico?',
+          '¡De mayor quiero ser tan fuerte como tú y explorar todos los rincones del reino!'
+        ],
+      },
+      {
+        id: 'npc_ambient_scholar',
+        zoneId: 'zone_forest',
+        x: 44,
+        y: 14,
+        name: 'Erudito Valerius',
+        title: 'Cronista del Reino',
+        avatarStyle: 'elder',
+        dialogue: [
+          'Las antiguas piedras de cantería y las vetas de hierro del este han abastecido al reino durante siglos.',
+          'El equilibrio entre la naturaleza del bosque y nuestras construcciones es lo que mantiene la paz en Aethelgard.'
+        ],
+      },
+      {
+        id: 'npc_ambient_villager_south',
+        zoneId: 'zone_forest',
+        x: 24,
+        y: 46,
+        name: 'Campesino Cedric',
+        title: 'Habitante del Distrito Sur',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          'Las tierras del sur son tranquilas y fértiles. Nos encargamos de cuidar los huertos y los depósitos de leña.',
+          'Que los caminos te sean propicios en tu viaje.'
+        ],
+      },
     ],
   },
 
