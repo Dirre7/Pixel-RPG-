@@ -893,14 +893,17 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           if (innRes.updateAnimation) animatedBuildingUpdaters.push(innRes.updateAnimation);
         }
 
-        // Boss Portal
+        // 🌾 Windmill (Tile 6)
         if (tileType === 6) {
-          const portalGroup = create3DBossPortalMesh(posX, posZ, isBossDefeated, isBossPortalUnlocked);
-          portalGroup.position.y += elevation;
-          tileGroup.add(portalGroup);
+          const windmillRes = createLowPolyWindmill();
+          const windmillGroup = windmillRes.group;
+          windmillGroup.position.set(posX, elevation, posZ);
+          tileGroup.add(windmillGroup);
+          obstacleGroups.push({ group: windmillGroup, gridX: x, gridY: y });
+          if (windmillRes.updateAnimation) animatedBuildingUpdaters.push(windmillRes.updateAnimation);
         }
 
-        // Chest
+        // Chest (Tile 7)
         if (tileType === 7) {
           const chestId = `${currentZone.id}_${x}_${y}`;
           const isOpened = openedChests.includes(chestId);
@@ -933,35 +936,17 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           if (cottageRes.updateAnimation) animatedBuildingUpdaters.push(cottageRes.updateAnimation);
         }
 
-        // Windmill / Fountain (Tile 9)
+        // 🎪 Bazaar Market Stall (Tile 9)
         if (tileType === 9) {
-          if (currentZone.id === 'zone_forest') {
-            const windmillRes = createLowPolyWindmill();
-            const windmillGroup = windmillRes.group;
-            windmillGroup.position.set(posX, elevation, posZ);
-            tileGroup.add(windmillGroup);
-            obstacleGroups.push({ group: windmillGroup, gridX: x, gridY: y });
-            if (windmillRes.updateAnimation) animatedBuildingUpdaters.push(windmillRes.updateAnimation);
-          } else {
-            const fountainId = `${currentZone.id}_${x}_${y}`;
-            const isActivated = openedChests.includes(fountainId);
-            const fountainGroup = create3DFountainMesh(posX, posZ, isActivated);
-            fountainGroup.position.y += elevation;
-            tileGroup.add(fountainGroup);
-          }
+          const stallRes = createLowPolyMarketStall((x + y) % 2 === 0 ? 'potions' : 'armor');
+          const stallGroup = stallRes.group;
+          stallGroup.position.set(posX, elevation, posZ);
+          tileGroup.add(stallGroup);
+          obstacleGroups.push({ group: stallGroup, gridX: x, gridY: y });
         }
 
-        // Village Water Well / Town Square (Tile 10)
+        // 🔨 Blacksmith Forge (Tile 10)
         if (tileType === 10) {
-          const wellRes = createLowPolyWaterWell();
-          const wellGroup = wellRes.group;
-          wellGroup.position.set(posX, elevation, posZ);
-          tileGroup.add(wellGroup);
-          obstacleGroups.push({ group: wellGroup, gridX: x, gridY: y });
-        }
-
-        // Blacksmith Forge (Tile 11)
-        if (tileType === 11) {
           let forgeGroup: THREE.Group;
           if (currentZone.id === 'zone_castle') {
             const royalForgeRes = create3DRoyalForgeMesh();
@@ -983,6 +968,14 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           forgeGroup.position.set(posX, elevation, posZ);
           tileGroup.add(forgeGroup);
           obstacleGroups.push({ group: forgeGroup, gridX: x, gridY: y });
+        }
+
+        // ⚔️ Boss Portal / Zone Travel Gateway (Tile 11)
+        if (tileType === 11) {
+          const portalGroup = create3DBossPortalMesh(posX, posZ, isBossDefeated, isBossPortalUnlocked);
+          portalGroup.position.y += elevation;
+          tileGroup.add(portalGroup);
+          obstacleGroups.push({ group: portalGroup, gridX: x, gridY: y });
         }
 
         // 🥕 Huerto de Cultivo y Parcela de Hortalizas (Tile 13)
