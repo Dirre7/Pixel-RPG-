@@ -374,48 +374,73 @@ export function createHumanHeroMesh(
   const accessoryItem = equipment?.accessory;
 
   const isFemale = player.gender === 'female';
+  const heroClass = player.heroClass || 'Guerrero';
 
   // Determine Class Palette based on reference image
-  let hairColorHex = isFemale ? '#facc15' : '#b91c1c'; // Female Elf: Golden Wavy Blonde (Reference Photo), Male: Heroic Red-Orange
-  let eyeColorHex = '#10b981';  // Emerald Green Eyes (Matching reference photo)
-  let tunicColor = isFemale ? 0x15803d : 0x1e293b;    // Emerald green adventurer dress (reference photo)
-  let accentColor = isFemale ? 0x16a34a : 0xb91c1c;   // Forest green trim
+  let hairColorHex = isFemale ? '#facc15' : '#b91c1c'; // Female: Golden Blonde, Male: Heroic Red-Orange
+  let eyeColorHex = '#10b981';
+  let tunicColor = isFemale ? 0x15803d : 0x1e293b;
+  let accentColor = isFemale ? 0x16a34a : 0xb91c1c;
+  let capeColor = 0xb91c1c;
 
-  if (player.heroClass === 'Guerrero') {
+  if (heroClass === 'Guerrero') {
     hairColorHex = isFemale ? '#facc15' : '#b91c1c';
-    tunicColor = isFemale ? 0x15803d : 0x1e293b;
+    tunicColor = 0x1e293b;      // Dark knight steel/navy
     eyeColorHex = '#10b981';
-    accentColor = isFemale ? 0x16a34a : 0x991b1b;
-  } else if (player.heroClass === 'Mago') {
+    accentColor = 0x991b1b;
+    capeColor = 0xb91c1c;       // Royal crimson cape
+  } else if (heroClass === 'Mago') {
     hairColorHex = isFemale ? '#f472b6' : '#f59e0b';   // Arcane Pink / Golden
     eyeColorHex = '#38bdf8';    // Celestial Blue
-    tunicColor = 0x1e1b4b;      // Arcane Indigo
+    tunicColor = 0x1e1b4b;      // Arcane Indigo Robes
     accentColor = 0x6366f1;
-  } else if (player.heroClass === 'Pícaro') {
+    capeColor = 0x4338ca;       // Deep mystical blue cape
+  } else if (heroClass === 'Pícaro') {
     hairColorHex = isFemale ? '#c084fc' : '#a855f7';   // Violet / Purple
     eyeColorHex = '#facc15';    // Golden Amber
-    tunicColor = 0x064e3b;      // Emerald Rogue
+    tunicColor = 0x064e3b;      // Emerald Rogue Leather
     accentColor = 0x10b981;
-  } else if (player.heroClass === 'Paladín') {
+    capeColor = 0x0f172a;       // Stealth shadow cloak
+  } else if (heroClass === 'Paladín') {
     hairColorHex = '#fde047';   // Radiant Gold
     eyeColorHex = '#38bdf8';    // Holy Cyan
     tunicColor = 0x78350f;      // Gilded Bronze
     accentColor = 0xf59e0b;
-  } else if (player.heroClass === 'Nigromante') {
+    capeColor = 0xfef08a;       // Holy white/gold cape
+  } else if (heroClass === 'Nigromante') {
     hairColorHex = isFemale ? '#e2e8f0' : '#94a3b8';   // Silver Ash
     eyeColorHex = '#c084fc';    // Void Purple
-    tunicColor = 0x09090b;      // Abyss Black
+    tunicColor = 0x09090b;      // Abyss Black Robes
     accentColor = 0x7e22ce;
-  } else if (player.heroClass === 'Arquero') {
+    capeColor = 0x3b0764;       // Tattered Void Cloak
+  } else if (heroClass === 'Arquero') {
     hairColorHex = isFemale ? '#f59e0b' : '#78350f';   // Chestnut / Honey
     eyeColorHex = '#10b981';    // Hunter Green
     tunicColor = 0x15803d;      // Forest Ranger Green
     accentColor = 0x84cc16;
-  } else if (player.heroClass === 'Berserker') {
+    capeColor = 0x14532d;       // Leaf green ranger cloak
+  } else if (heroClass === 'Berserker') {
     hairColorHex = isFemale ? '#ea580c' : '#dc2626';   // Flame Red
     eyeColorHex = '#ef4444';    // Blood Red
     tunicColor = 0x451a03;      // Rawhide Leather
     accentColor = 0x991b1b;
+    capeColor = 0x5c3a21;       // Nordic Bear Fur Mantle
+  }
+
+  // Dynamic armor overrides
+  if (armorItem) {
+    const aName = armorItem.name.toLowerCase();
+    if (aName.includes('placa') || aName.includes('acero') || aName.includes('hierro')) {
+      tunicColor = 0x334155;
+      accentColor = 0x94a3b8;
+    } else if (aName.includes('oro') || aName.includes('campeón') || aName.includes('sagrad')) {
+      tunicColor = 0x78350f;
+      accentColor = 0xf59e0b;
+    } else if (aName.includes('magma') || aName.includes('fuego') || aName.includes('dragón')) {
+      tunicColor = 0x7f1d1d;
+      accentColor = 0xef4444;
+      capeColor = 0xb91c1c;
+    }
   }
 
   const skinMat = new THREE.MeshStandardMaterial({
@@ -424,53 +449,47 @@ export function createHumanHeroMesh(
     metalness: 0.05,
   });
 
-  // 1. LEGS & SANDALS / BOOTS
+  // 1. ATHLETIC PROPORTIONED LEGS & BOOTS (Elongated athletic legs for 1:7 heroic ratio)
   const leftLeg = new THREE.Group();
-  leftLeg.position.set(-0.10, 0.48, 0);
+  leftLeg.position.set(-0.09, 0.52, 0);
 
   const rightLeg = new THREE.Group();
-  rightLeg.position.set(0.10, 0.48, 0);
+  rightLeg.position.set(0.09, 0.52, 0);
 
-  const leatherColor = 0x78350f;
-  const sandalMat = new THREE.MeshStandardMaterial({ color: leatherColor, roughness: 0.6 });
+  const leatherColor = 0x5c2b09;
+  const bootMat = new THREE.MeshStandardMaterial({ color: leatherColor, roughness: 0.6 });
 
   [leftLeg, rightLeg].forEach((leg) => {
-    // Sculpted peach thigh & calf (proportional athletic legs)
-    const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.052, 0.44, 10), skinMat);
-    thigh.position.y = -0.21;
+    // Proportional athletic thigh & calf
+    const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.038, 0.50, 10), skinMat);
+    thigh.position.y = -0.25;
     thigh.castShadow = true;
     leg.add(thigh);
 
-    if (isFemale) {
-      // Strapped Gladiator Sandals
-      const strap1 = new THREE.Mesh(new THREE.TorusGeometry(0.058, 0.012, 6, 12), sandalMat);
-      strap1.position.y = -0.28;
+    if (isFemale && heroClass !== 'Paladín' && heroClass !== 'Guerrero') {
+      // Elegant Strapped Adventurer Sandals
+      const strap1 = new THREE.Mesh(new THREE.TorusGeometry(0.042, 0.008, 6, 12), bootMat);
+      strap1.position.y = -0.32;
       strap1.rotation.x = Math.PI / 2;
       leg.add(strap1);
 
-      const strap2 = new THREE.Mesh(new THREE.TorusGeometry(0.056, 0.012, 6, 12), sandalMat);
-      strap2.position.y = -0.36;
-      strap2.rotation.x = Math.PI / 2;
-      leg.add(strap2);
-
-      // Sandal sole + sculpted feet
-      const sole = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.03, 0.17), sandalMat);
-      sole.position.set(0, -0.45, 0.03);
+      const sole = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.025, 0.15), bootMat);
+      sole.position.set(0, -0.50, 0.02);
       sole.castShadow = true;
       leg.add(sole);
 
-      const foot = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.06, 0.14), skinMat);
-      foot.position.set(0, -0.41, 0.02);
+      const foot = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.05, 0.12), skinMat);
+      foot.position.set(0, -0.47, 0.015);
       leg.add(foot);
     } else {
-      // Heroic Chunky Leather Adventure Boots
-      const bootCuff = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.072, 0.18, 10), sandalMat);
-      bootCuff.position.y = -0.32;
+      // Heroic Leather/Plated Adventure Boots
+      const bootCuff = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.052, 0.22, 10), bootMat);
+      bootCuff.position.y = -0.36;
       bootCuff.castShadow = true;
       leg.add(bootCuff);
 
-      const bootFoot = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.11, 0.19), sandalMat);
-      bootFoot.position.set(0, -0.43, 0.03);
+      const bootFoot = new THREE.Mesh(new THREE.BoxGeometry(0.095, 0.09, 0.16), bootMat);
+      bootFoot.position.set(0, -0.48, 0.025);
       bootFoot.castShadow = true;
       leg.add(bootFoot);
     }
@@ -478,9 +497,9 @@ export function createHumanHeroMesh(
     heroGroup.add(leg);
   });
 
-  // 2. TORSO & ADVENTURER TUNIC / DRESS
+  // 2. SLENDER & DETAILED TORSO
   const torsoGroup = new THREE.Group();
-  torsoGroup.position.y = 0.70;
+  torsoGroup.position.y = 0.72;
 
   const dressMat = new THREE.MeshStandardMaterial({
     color: tunicColor,
@@ -488,9 +507,9 @@ export function createHumanHeroMesh(
     flatShading: true,
   });
 
-  // Sculpted Torso
+  // Sculpted Heroic Torso
   const chest = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.15, 0.12, 0.38, 10),
+    new THREE.CylinderGeometry(0.12, 0.095, 0.36, 10),
     dressMat
   );
   chest.scale.set(1.15, 1.0, 0.95);
@@ -499,84 +518,158 @@ export function createHumanHeroMesh(
   torsoGroup.add(chest);
 
   // V-Neck / Bare shoulders skin patch for female elf
-  if (isFemale) {
-    const vNeck = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.14, 4), skinMat);
-    vNeck.position.set(0, 0.15, 0.08);
+  if (isFemale && (heroClass === 'Guerrero' || heroClass === 'Arquero')) {
+    const vNeck = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.12, 4), skinMat);
+    vNeck.position.set(0, 0.15, 0.07);
     vNeck.rotation.x = 0.4;
     torsoGroup.add(vNeck);
   }
 
   // Stitched Leather Waist Belt
-  const beltMat = new THREE.MeshStandardMaterial({ color: 0x5c2b09, roughness: 0.6 });
-  const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.135, 0.135, 0.05, 12), beltMat);
+  const beltMat = new THREE.MeshStandardMaterial({ color: 0x3d1c06, roughness: 0.6 });
+  const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.105, 0.045, 12), beltMat);
   belt.position.y = -0.06;
   torsoGroup.add(belt);
 
   // Circular Gold Belt Medallion / Buckle
   const buckleMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 });
-  const buckle = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.03, 12), buckleMat);
-  buckle.position.set(0, -0.06, 0.14);
+  const buckle = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.025, 12), buckleMat);
+  buckle.position.set(0, -0.06, 0.11);
   buckle.rotation.x = Math.PI / 2;
   torsoGroup.add(buckle);
 
-  // Flowing Peplum Skirt / Tunic Flap
-  const skirtMat = new THREE.MeshStandardMaterial({ color: accentColor, roughness: 0.55, side: THREE.DoubleSide });
-  const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.135, 0.22, 0.18, 10, 1, true), skirtMat);
-  skirt.position.y = -0.15;
-  skirt.castShadow = true;
-  torsoGroup.add(skirt);
+  // Class-specific lower garment (Robe for Mage/Necro, Skirt for Elf, Armor Tassets for Knight)
+  if (heroClass === 'Mago' || heroClass === 'Nigromante') {
+    // Flowing Long Mystic Robe down to ankles
+    const robeMat = new THREE.MeshStandardMaterial({ color: tunicColor, roughness: 0.6, side: THREE.DoubleSide });
+    const robe = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.18, 0.48, 12, 1, true), robeMat);
+    robe.position.y = -0.28;
+    robe.castShadow = true;
+    torsoGroup.add(robe);
+
+    // Gold hem at bottom of robe
+    const robeHem = new THREE.Mesh(new THREE.TorusGeometry(0.178, 0.012, 6, 16), buckleMat);
+    robeHem.position.y = -0.51;
+    robeHem.rotation.x = Math.PI / 2;
+    torsoGroup.add(robeHem);
+  } else {
+    // Adventurer Peplum Skirt / Leather Flaps
+    const skirtMat = new THREE.MeshStandardMaterial({ color: accentColor, roughness: 0.55, side: THREE.DoubleSide });
+    const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.17, 0.16, 10, 1, true), skirtMat);
+    skirt.position.y = -0.14;
+    skirt.castShadow = true;
+    torsoGroup.add(skirt);
+  }
+
+  // 🌟 3D FLOWING CAPE / MANTLE (Class-specific cape design)
+  const capeMat = new THREE.MeshStandardMaterial({
+    color: capeColor,
+    roughness: 0.65,
+    side: THREE.DoubleSide,
+    flatShading: true,
+  });
+
+  if (heroClass === 'Berserker') {
+    // Nordic Bear Fur Mantle over shoulders
+    const furMantle = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.05, 8, 16), new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 }));
+    furMantle.position.set(0, 0.20, 0.01);
+    furMantle.rotation.x = Math.PI / 2;
+    torsoGroup.add(furMantle);
+  } else {
+    // Flowing Cape on Back
+    const capeGeo = new THREE.PlaneGeometry(0.24, 0.55, 3, 4);
+    const cape = new THREE.Mesh(capeGeo, capeMat);
+    cape.position.set(0, -0.05, -0.11);
+    cape.rotation.x = 0.15;
+    cape.castShadow = true;
+    torsoGroup.add(cape);
+
+    // Golden Cape Brooch on front collar
+    const brooch = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 8), buckleMat);
+    brooch.position.set(0, 0.19, 0.10);
+    torsoGroup.add(brooch);
+  }
+
+  // Knight / Paladin / Warrior Plated Pauldrons (Hombreras metálicas)
+  if (heroClass === 'Guerrero' || heroClass === 'Paladín' || armorItem) {
+    const pauldronMat = new THREE.MeshStandardMaterial({ color: heroClass === 'Paladín' ? 0xf59e0b : 0x94a3b8, metalness: 0.85, roughness: 0.3 });
+    [-0.15, 0.15].forEach((px) => {
+      const pauldron = new THREE.Mesh(new THREE.SphereGeometry(0.048, 8, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), pauldronMat);
+      pauldron.position.set(px, 0.21, 0);
+      pauldron.scale.set(1.1, 0.8, 1.2);
+      torsoGroup.add(pauldron);
+    });
+  }
+
+  // Ranger Quiver on Back for Archer
+  if (heroClass === 'Arquero') {
+    const quiver = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.025, 0.32, 6), beltMat);
+    quiver.position.set(0.06, 0.05, -0.13);
+    quiver.rotation.z = -0.35;
+    quiver.rotation.x = -0.15;
+    torsoGroup.add(quiver);
+
+    // Arrow shafts with feathers
+    [-0.015, 0.015].forEach((ax) => {
+      const arrow = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.10, 4), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
+      arrow.position.set(0.06 + ax, 0.22, -0.14);
+      arrow.rotation.z = -0.35;
+      torsoGroup.add(arrow);
+    });
+  }
 
   heroGroup.add(torsoGroup);
 
-  // 3. SCULPTED HEAD, POINTED ELF EARS & NOSE (Well-proportioned Head)
+  // 3. PROPORTIONED HEAD & CLASS HEADGEAR (Radius 0.135 - Sleek Heroic Head)
   const headGroup = new THREE.Group();
-  headGroup.position.y = 1.15;
+  headGroup.position.y = 1.10;
 
   // Neck
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.075, 0.14, 8), skinMat);
-  neck.position.y = -0.15;
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.052, 0.12, 8), skinMat);
+  neck.position.y = -0.11;
   headGroup.add(neck);
 
-  // Sculpted Peach Head Base (Radius 0.20 for elegant anime / fantasy proportions)
-  const headBase = new THREE.Mesh(new THREE.SphereGeometry(0.20, 24, 24), skinMat);
+  // Sculpted Peach Head Base (Radius 0.135 - Well proportioned 1:7 heroic ratio)
+  const headBase = new THREE.Mesh(new THREE.SphereGeometry(0.135, 20, 20), skinMat);
   headBase.scale.set(0.95, 1.05, 0.95);
   headBase.castShadow = true;
   headGroup.add(headBase);
 
-  // 3D Pointed Elf Ears
-  [-0.19, 0.19].forEach((ex) => {
-    const earGroup = new THREE.Group();
-    earGroup.position.set(ex, 0.02, -0.03);
-    earGroup.rotation.y = ex > 0 ? 0.35 : -0.35;
-    earGroup.rotation.z = ex > 0 ? -0.85 : 0.85;
-    earGroup.rotation.x = -0.2;
+  // Pointed Elf Ears (for Female / Archer / Rogue)
+  if (isFemale || heroClass === 'Arquero') {
+    [-0.13, 0.13].forEach((ex) => {
+      const earGroup = new THREE.Group();
+      earGroup.position.set(ex, 0.01, -0.02);
+      earGroup.rotation.y = ex > 0 ? 0.35 : -0.35;
+      earGroup.rotation.z = ex > 0 ? -0.85 : 0.85;
+      earGroup.rotation.x = -0.2;
 
-    const ear = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.19, 6), skinMat);
-    ear.scale.set(0.9, 1.2, 0.35);
-    ear.castShadow = true;
-    earGroup.add(ear);
-    headGroup.add(earGroup);
-  });
+      const ear = new THREE.Mesh(new THREE.ConeGeometry(0.032, 0.13, 6), skinMat);
+      ear.scale.set(0.9, 1.2, 0.35);
+      earGroup.add(ear);
+      headGroup.add(earGroup);
+    });
+  }
 
-  // 3D Cute Sculpted Button Nose
-  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.023, 8, 8), skinMat);
-  nose.position.set(0, -0.02, 0.20);
+  // Cute Button Nose
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 8), skinMat);
+  nose.position.set(0, -0.015, 0.136);
   nose.scale.set(1.0, 0.75, 1.1);
   headGroup.add(nose);
 
-  // Front Facial Decal Plane (Cleanly positioned on front face)
+  // Front Facial Decal Plane
   const faceTex = createChibiAnimeFaceTexture(eyeColorHex, hairColorHex, 'confident', isFemale);
-  const faceDecalGeo = new THREE.PlaneGeometry(0.30, 0.30);
+  const faceDecalGeo = new THREE.PlaneGeometry(0.20, 0.20);
   const faceDecalMat = new THREE.MeshBasicMaterial({
     map: faceTex,
     transparent: true,
     depthWrite: false,
   });
   const faceDecal = new THREE.Mesh(faceDecalGeo, faceDecalMat);
-  faceDecal.position.set(0, 0.01, 0.192);
+  faceDecal.position.set(0, 0.005, 0.132);
   headGroup.add(faceDecal);
 
-  // 4. SCULPTED 3D LAYERED HAIR
+  // 4. SCULPTED HAIR & CLASS HATS / HOODS
   const hairGroup = new THREE.Group();
   const hairMat = new THREE.MeshStandardMaterial({
     color: hairColorHex,
@@ -585,71 +678,76 @@ export function createHumanHeroMesh(
   });
 
   // Hair Crown Dome
-  const hairDome = new THREE.Mesh(new THREE.SphereGeometry(0.21, 16, 16, 0, Math.PI * 2, 0, Math.PI * 0.65), hairMat);
-  hairDome.position.set(0, 0.03, -0.02);
+  const hairDome = new THREE.Mesh(new THREE.SphereGeometry(0.142, 16, 16, 0, Math.PI * 2, 0, Math.PI * 0.65), hairMat);
+  hairDome.position.set(0, 0.02, -0.015);
   hairGroup.add(hairDome);
 
   let headbandTail: THREE.Group | undefined;
 
-  if (isFemale) {
+  // 🧙‍♂️ WIZARD POINTED HAT FOR MAGE
+  if (heroClass === 'Mago') {
+    const hatMat = new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.6, flatShading: true });
+    const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.02, 16), hatMat);
+    hatBrim.position.set(0, 0.08, 0);
+    hatBrim.rotation.x = -0.12;
+    headGroup.add(hatBrim);
+
+    // Gold hat band
+    const hatBand = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.015, 6, 16), buckleMat);
+    hatBand.position.set(0, 0.09, 0);
+    hatBand.rotation.x = Math.PI / 2 - 0.12;
+    headGroup.add(hatBand);
+
+    // Cone top tilted back
+    const hatCone = new THREE.Mesh(new THREE.ConeGeometry(0.125, 0.32, 8), hatMat);
+    hatCone.position.set(0, 0.24, -0.04);
+    hatCone.rotation.x = -0.35;
+    headGroup.add(hatCone);
+  } else if (heroClass === 'Pícaro' || heroClass === 'Nigromante') {
+    // 🗡️ ROGUE / NECRO SHADOW HOOD
+    const hoodMat = new THREE.MeshStandardMaterial({ color: tunicColor, roughness: 0.7, flatShading: true });
+    const hoodDome = new THREE.Mesh(new THREE.SphereGeometry(0.155, 12, 12), hoodMat);
+    hoodDome.position.set(0, 0.03, -0.02);
+    hoodDome.scale.set(1.0, 1.1, 1.1);
+    headGroup.add(hoodDome);
+  } else if (isFemale) {
     // FEMALE ELF ADVENTURER HAIR
-    // Forehead Parted Bangs
-    [-0.09, 0, 0.09].forEach((bx, i) => {
-      const bang = new THREE.Mesh(new THREE.ConeGeometry(0.065, 0.18, 5), hairMat);
-      bang.position.set(bx, 0.15, 0.15);
+    [-0.06, 0, 0.06].forEach((bx, i) => {
+      const bang = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.12, 5), hairMat);
+      bang.position.set(bx, 0.10, 0.10);
       bang.rotation.x = 0.35;
       bang.rotation.z = (i - 1) * 0.3;
-      bang.castShadow = true;
       hairGroup.add(bang);
     });
 
-    // Cascading Shoulder Locks with Outward Curls
-    [-0.17, 0.17].forEach((sx) => {
-      const lock1 = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.26, 6), hairMat);
-      lock1.position.set(sx, -0.04, 0.04);
+    [-0.12, 0.12].forEach((sx) => {
+      const lock1 = new THREE.Mesh(new THREE.ConeGeometry(0.042, 0.18, 5), hairMat);
+      lock1.position.set(sx, -0.03, 0.03);
       lock1.rotation.z = sx > 0 ? -0.35 : 0.35;
       lock1.rotation.x = 0.15;
       hairGroup.add(lock1);
-
-      // Outward curling shoulder flick
-      const curlFlick = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.18, 5), hairMat);
-      curlFlick.position.set(sx * 1.25, -0.14, 0.03);
-      curlFlick.rotation.z = sx > 0 ? -0.8 : 0.8;
-      curlFlick.rotation.x = -0.2;
-      hairGroup.add(curlFlick);
     });
 
-    // Back Flowing Half-Up Hair Bundle
-    const backHair = new THREE.Mesh(new THREE.ConeGeometry(0.10, 0.30, 6), hairMat);
-    backHair.position.set(0, 0.02, -0.19);
+    const backHair = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.20, 5), hairMat);
+    backHair.position.set(0, 0.01, -0.13);
     backHair.rotation.x = -0.55;
     hairGroup.add(backHair);
   } else {
     // MALE HEROIC HAIR (Warrior Spikes & Headband)
     const headbandMat = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.6 });
-    const headband = new THREE.Mesh(new THREE.TorusGeometry(0.205, 0.022, 8, 24), headbandMat);
-    headband.position.set(0, 0.08, 0);
+    const headband = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.016, 8, 20), headbandMat);
+    headband.position.set(0, 0.06, 0);
     headband.rotation.x = Math.PI / 2;
     hairGroup.add(headband);
 
-    headbandTail = new THREE.Group();
-    headbandTail.position.set(0.06, 0.08, -0.20);
-    const ribbon = new THREE.Mesh(new THREE.PlaneGeometry(0.07, 0.26), headbandMat);
-    ribbon.position.set(-0.02, -0.10, 0);
-    ribbon.rotation.z = -0.3;
-    headbandTail.add(ribbon);
-    hairGroup.add(headbandTail);
-
     const spikePositions = [
-      { x: 0, y: 0.23, z: 0.05, rx: -0.3, rz: 0, scale: 0.65 },
-      { x: -0.09, y: 0.22, z: 0.03, rx: -0.2, rz: 0.4, scale: 0.60 },
-      { x: 0.09, y: 0.22, z: 0.03, rx: -0.2, rz: -0.4, scale: 0.60 },
-      { x: -0.15, y: 0.16, z: -0.05, rx: -0.1, rz: 0.7, scale: 0.55 },
-      { x: 0.15, y: 0.16, z: -0.05, rx: -0.1, rz: -0.7, scale: 0.55 },
+      { x: 0, y: 0.16, z: 0.03, rx: -0.3, rz: 0, scale: 0.5 },
+      { x: -0.06, y: 0.15, z: 0.02, rx: -0.2, rz: 0.4, scale: 0.45 },
+      { x: 0.06, y: 0.15, z: 0.02, rx: -0.2, rz: -0.4, scale: 0.45 },
     ];
 
     spikePositions.forEach((sp) => {
-      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.13 * sp.scale, 0.42 * sp.scale, 5), hairMat);
+      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.09 * sp.scale, 0.30 * sp.scale, 5), hairMat);
       spike.position.set(sp.x, sp.y, sp.z);
       spike.rotation.x = sp.rx;
       spike.rotation.z = sp.rz;
@@ -660,31 +758,28 @@ export function createHumanHeroMesh(
   headGroup.add(hairGroup);
   heroGroup.add(headGroup);
 
-  // 5. CHUNKY ARMS WITH LEATHER WRIST BRACERS
+  // 5. ARTICULATED HEROIC ARMS & BRACERS
   const leftArm = new THREE.Group();
-  leftArm.position.set(-0.21, 0.82, 0);
+  leftArm.position.set(-0.16, 0.82, 0);
 
   const rightArm = new THREE.Group();
-  rightArm.position.set(0.21, 0.82, 0);
+  rightArm.position.set(0.16, 0.82, 0);
 
-  const bracerMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.6 });
+  const bracerMat = new THREE.MeshStandardMaterial({ color: 0x5c2b09, roughness: 0.6 });
 
   [leftArm, rightArm].forEach((arm) => {
-    // Bare/Tunic Bicep & Forearm
-    const bicep = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.042, 0.24, 8), skinMat);
-    bicep.position.y = -0.10;
+    const bicep = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.032, 0.20, 8), skinMat);
+    bicep.position.y = -0.09;
     bicep.castShadow = true;
     arm.add(bicep);
 
-    // Sculpted Leather Wrist Bracer
-    const bracer = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.10, 8), bracerMat);
-    bracer.position.y = -0.18;
+    const bracer = new THREE.Mesh(new THREE.CylinderGeometry(0.046, 0.038, 0.09, 8), bracerMat);
+    bracer.position.y = -0.16;
     bracer.castShadow = true;
     arm.add(bracer);
 
-    // Modeled Hand
-    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.048, 8, 8), skinMat);
-    hand.position.y = -0.25;
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.038, 8, 8), skinMat);
+    hand.position.y = -0.22;
     arm.add(hand);
 
     heroGroup.add(arm);
@@ -692,24 +787,24 @@ export function createHumanHeroMesh(
 
   // --- MODULAR 3D LOW-POLY WEAPON ATTACHMENT ---
   const weaponGroup = new THREE.Group();
-  weaponGroup.position.set(0, -0.25, 0.08);
-  const weaponMesh = createLowPolyWeaponMesh(weaponItem, player.heroClass);
+  weaponGroup.position.set(0, -0.22, 0.08);
+  const weaponMesh = createLowPolyWeaponMesh(weaponItem, heroClass);
   weaponGroup.add(weaponMesh);
   rightArm.add(weaponGroup);
 
-  // Left hand secondary weapon for Rogue (Dual Daggers) or Shield for Warrior/Mage
-  if (player.heroClass === 'Pícaro') {
+  // Left hand secondary weapon for Rogue (Dual Daggers) or Shield for Warrior/Paladin
+  if (heroClass === 'Pícaro') {
     const leftDaggerGroup = new THREE.Group();
-    leftDaggerGroup.position.set(0, -0.25, 0.08);
+    leftDaggerGroup.position.set(0, -0.22, 0.08);
     const leftDagger = createLowPolyWeaponMesh(weaponItem, 'Pícaro');
     leftDagger.scale.set(0.85, 0.85, 0.85);
     leftDaggerGroup.add(leftDagger);
     leftArm.add(leftDaggerGroup);
-  } else if (player.heroClass === 'Guerrero' || armorItem) {
-    const shieldMesh = createLowPolyShieldMesh(armorItem, player.heroClass);
+  } else if (heroClass === 'Guerrero' || heroClass === 'Paladín' || armorItem) {
+    const shieldMesh = createLowPolyShieldMesh(armorItem, heroClass);
     if (shieldMesh) {
       const shieldGroup = new THREE.Group();
-      shieldGroup.position.set(-0.06, -0.18, 0.09);
+      shieldGroup.position.set(-0.05, -0.16, 0.08);
       shieldGroup.add(shieldMesh);
       leftArm.add(shieldGroup);
     }
@@ -877,42 +972,66 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
     return group;
   }
 
-  // 4. BOWS (ARQUERO - Mid left in image)
+  // 4. BOWS (ARQUERO - Elegante Arco Recurvado Vertical sujeto en la mano)
   if (heroClass === 'Arquero' || name.includes('arco') || name.includes('bow')) {
-    // Curved Recurve Bow Body
-    const bowMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.8, flatShading: true });
-    const bowGripMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.6, flatShading: true });
+    const bowWoodMat = new THREE.MeshStandardMaterial({ color: 0x6b3f1d, roughness: 0.7, flatShading: true });
+    const bowGripMat = new THREE.MeshStandardMaterial({ color: 0x3d1c06, roughness: 0.8, flatShading: true });
+    const bowGoldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2, flatShading: true });
 
-    const bowBody = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.03, 6, 16, Math.PI * 0.85), bowMat);
-    bowBody.position.set(-0.25, 0.40, 0);
-    bowBody.rotation.z = -Math.PI * 0.42;
-    group.add(bowBody);
-
-    // Leather Grip
-    const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.14, 6), bowGripMat);
-    grip.position.set(0, 0.40, 0);
+    // Central Hand Leather Grip at origin [0, 0, 0]
+    const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.10, 8), bowGripMat);
+    grip.position.set(0, 0, 0);
     group.add(grip);
 
-    // Bowstring
-    const stringMat = new THREE.LineBasicMaterial({ color: 0xf8fafc });
+    // Gold grip rings
+    [-0.05, 0.05].forEach((gy) => {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.026, 0.006, 6, 12), bowGoldMat);
+      ring.position.set(0, gy, 0);
+      ring.rotation.x = Math.PI / 2;
+      group.add(ring);
+    });
+
+    // Upper Bow Limb (Curving forward and up)
+    const upperLimb1 = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.016, 0.16, 6), bowWoodMat);
+    upperLimb1.position.set(0, 0.12, 0.02);
+    upperLimb1.rotation.x = 0.25;
+    group.add(upperLimb1);
+
+    const upperLimb2 = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.012, 0.16, 6), bowWoodMat);
+    upperLimb2.position.set(0, 0.25, 0.01);
+    upperLimb2.rotation.x = -0.30;
+    group.add(upperLimb2);
+
+    const topNock = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.04, 6), bowGoldMat);
+    topNock.position.set(0, 0.33, -0.01);
+    topNock.rotation.x = -0.45;
+    group.add(topNock);
+
+    // Lower Bow Limb (Curving forward and down)
+    const lowerLimb1 = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.016, 0.16, 6), bowWoodMat);
+    lowerLimb1.position.set(0, -0.12, 0.02);
+    lowerLimb1.rotation.x = -0.25;
+    group.add(lowerLimb1);
+
+    const lowerLimb2 = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.012, 0.16, 6), bowWoodMat);
+    lowerLimb2.position.set(0, -0.25, 0.01);
+    lowerLimb2.rotation.x = 0.30;
+    group.add(lowerLimb2);
+
+    const bottomNock = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.04, 6), bowGoldMat);
+    bottomNock.position.set(0, -0.33, -0.01);
+    bottomNock.rotation.x = Math.PI + 0.45;
+    group.add(bottomNock);
+
+    // Taut Bowstring connecting top and bottom nocks
+    const stringMat = new THREE.LineBasicMaterial({ color: 0xf8fafc, linewidth: 2 });
     const stringGeo = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(-0.02, 0.85, 0),
-      new THREE.Vector3(-0.24, 0.40, 0),
-      new THREE.Vector3(-0.02, -0.05, 0),
+      new THREE.Vector3(0, 0.32, -0.02),
+      new THREE.Vector3(0, 0, -0.05),
+      new THREE.Vector3(0, -0.32, -0.02),
     ]);
     const bowstring = new THREE.Line(stringGeo, stringMat);
     group.add(bowstring);
-
-    // Arrow in Notch
-    const arrowShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.70, 4), new THREE.MeshStandardMaterial({ color: 0x78350f }));
-    arrowShaft.position.set(-0.05, 0.40, 0);
-    arrowShaft.rotation.z = Math.PI / 2;
-    group.add(arrowShaft);
-
-    const arrowHead = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.10, 4), steelMat);
-    arrowHead.position.set(0.32, 0.40, 0);
-    arrowHead.rotation.z = -Math.PI / 2;
-    group.add(arrowHead);
 
     return group;
   }

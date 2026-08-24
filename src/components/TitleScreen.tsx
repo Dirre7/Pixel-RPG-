@@ -46,9 +46,9 @@ const ThreeHeroPreview: React.FC<{ heroClass: HeroClass; gender: 'male' | 'femal
     const height = container.clientHeight || 180;
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
-    camera.position.set(0, 1.05, 2.7);
-    camera.lookAt(0, 0.55, 0);
+    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 50);
+    camera.position.set(0, 0.90, 2.7);
+    camera.lookAt(0, 0.70, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
@@ -130,9 +130,9 @@ const ThreeHeroPreview: React.FC<{ heroClass: HeroClass; gender: 'male' | 'femal
 
       // Gentle revolving showcase & breathing
       heroGroup.rotation.y = time * 0.75;
-      const breath = Math.sin(time * 3) * 0.02;
-      heroMeshRes.torsoGroup.position.y = 0.70 + breath;
-      heroMeshRes.headGroup.position.y = 1.15 + breath;
+      const breath = Math.sin(time * 3) * 0.015;
+      heroMeshRes.torsoGroup.position.y = 0.72 + breath;
+      heroMeshRes.headGroup.position.y = 1.10 + breath;
       heroMeshRes.leftArm.rotation.x = Math.sin(time * 3) * 0.05;
       heroMeshRes.rightArm.rotation.x = -Math.sin(time * 3) * 0.05;
 
