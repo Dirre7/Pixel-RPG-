@@ -580,11 +580,11 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     // COMBAT ENCOUNTERS IN THE WILD:
     // 1. Roads, paved avenues, bridges (tile 2, 15) are 100% SAFE.
     // 2. All POIs, shops, forges, shrines, wells (tile 4..11, 16..19) are 100% SAFE.
-    // 3. Inside the 150-building Citadel (radius 17 from center 30,30) is 100% peaceful.
-    // 4. Outside in the 4 wild grasslands (targetTile === 0), monster combat begins!
+    // 3. Inside the Great Citadel of Aethelgard (around center 36,60) is 100% peaceful.
+    // 4. Outside in the wild grasslands (targetTile === 0), monster combat begins!
     const isPavedRoad = targetTile === 2 || targetTile === 15;
     const isSpecialPoi = [4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19].includes(targetTile);
-    const isInsideTown = currentZone.id === 'zone_forest' && (Math.abs(newX - 30) <= 17 && Math.abs(newY - 30) <= 17);
+    const isInsideTown = currentZone.id === 'zone_forest' && (Math.abs(newX - 36) <= 18 && Math.abs(newY - 60) <= 16);
 
     const isSafeZone = isPavedRoad || isSpecialPoi || isInsideTown;
 
@@ -1124,7 +1124,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         onOpenShop={onOpenShop}
         onOpenSettings={onOpenSettings}
         onTeleportToTown={() => {
-          onMove({ x: 27, y: 40 });
+          onMove({ x: 36, y: 60 });
         }}
         onUseConsumable={(cId) => (onUseConsumable ? onUseConsumable(cId) : onHealAtInn())}
         onShowToast={(msg) => showToast(msg)}

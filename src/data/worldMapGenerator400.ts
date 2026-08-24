@@ -27,11 +27,11 @@ function createEmptyMap(fillTile: number = 0): number[][] {
 }
 
 /**
- * 1. BOSQUE ESMERALDA / GRAN REINO ORGÁNICO DE AETHELGARD (54x84 - Silueta Alargada y Asimétrica)
+ * 1. BOSQUE ESMERALDA / GRAN REINO ORGÁNICO DE AETHELGARD (72x116 - Escala Colosal con 8 Regiones de Descubrimiento)
  */
 export function generateForest400(): { tileData: number[][]; width: number; height: number } {
-  const WIDTH = 54;
-  const HEIGHT = 84;
+  const WIDTH = 72;
+  const HEIGHT = 116;
   const map: number[][] = [];
 
   // Inicializar todo con -1 (Abismo / Vacío exterior no renderizado)
@@ -44,159 +44,235 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   }
 
   // =========================================================================
-  // 1. CARVE REGION 1: EL GRAN NÚCLEO URBANO DE AETHELGARD (X: 8..46, Y: 24..56)
+  // 1. CARVE REGION 1: EL GRAN NÚCLEO URBANO DE AETHELGARD (X: 18..54, Y: 46..76)
   // =========================================================================
-  for (let y = 24; y <= 56; y++) {
-    for (let x = 8; x <= 46; x++) {
+  for (let y = 46; y <= 76; y++) {
+    for (let x = 18; x <= 54; x++) {
       map[y][x] = 0; // Hierba base del núcleo
     }
   }
 
   // =========================================================================
-  // 2. CARVE REGION 2: EL DESFILADERO DEL BOSQUE PROFUNDO (Brazo Norte, X: 18..36, Y: 2..24)
+  // 2. CARVE REGION 2: 🌸 LA ARBOLEDA MÁGICA DEL ÁRBOL MILENARIO (Noroeste Oculto, X: 6..24, Y: 12..38)
   // =========================================================================
-  for (let y = 2; y <= 24; y++) {
-    for (let x = 18; x <= 36; x++) {
+  for (let y = 12; y <= 38; y++) {
+    for (let x = 6; x <= 24; x++) {
+      map[y][x] = 0;
+    }
+  }
+  // Senda que conecta la ciudad con la Arboleda Mágica
+  for (let y = 36; y <= 48; y++) {
+    map[y][22] = 2; map[y][23] = 2;
+  }
+  for (let y = 18; y <= 36; y++) {
+    map[y][14] = 2; map[y][15] = 2;
+  }
+  map[24][14] = 8;  // 🏛️ Santuario Druídico Ancestral
+  map[22][12] = 20; map[22][16] = 20; // 💎 Geodas de cristal feérico
+  map[26][12] = 12; map[26][16] = 12; // Parterres de rosas sagradas
+  map[18][14] = 7;  // 🎁 Cofre Secreto de la Arboleda Mágica
+  // Robles milenarios de la arboleda
+  [ [14,8], [14,12], [14,18], [16,10], [16,20], [28,8], [28,20], [32,10], [32,18] ].forEach(([y, x]) => {
+    map[y][x] = 1;
+  });
+
+  // =========================================================================
+  // 3. CARVE REGION 3: 🏰 CLAUSTRO Y CRIPTA DEL MONASTERIO CAÍDO (Noreste Montañoso, X: 48..66, Y: 12..38)
+  // =========================================================================
+  for (let y = 12; y <= 38; y++) {
+    for (let x = 48; x <= 66; x++) {
+      map[y][x] = 0;
+    }
+  }
+  // Senda que conecta la ciudad con el monasterio
+  for (let y = 36; y <= 48; y++) {
+    map[y][49] = 2; map[y][50] = 2;
+  }
+  for (let y = 18; y <= 36; y++) {
+    map[y][57] = 2; map[y][58] = 2;
+  }
+  map[24][58] = 8;  // 🏛️ Claustro en Ruinas del Monasterio
+  map[22][56] = 18; map[22][60] = 18; // Columnas de mármol derruidas
+  map[26][56] = 18; map[26][60] = 18;
+  map[18][58] = 7;  // 🎁 Cofre de Reliquias del Monasterio Caído
+  // Robles y lápidas del camposanto
+  [ [14,52], [14,62], [16,50], [16,64], [28,52], [28,64], [32,50], [32,62] ].forEach(([y, x]) => {
+    map[y][x] = 1;
+  });
+
+  // =========================================================================
+  // 4. CARVE REGION 4: 🌋 EL CAÑÓN DE AZUFRE Y PORTAL DEL REY SLIME (Norte Profundo, X: 28..44, Y: 2..44)
+  // =========================================================================
+  for (let y = 2; y <= 44; y++) {
+    for (let x = 28; x <= 44; x++) {
       map[y][x] = 0; // Hierba del cañón
     }
   }
   // Paredes de acantilados escarpados y robles en los márgenes del cañón norte
-  for (let y = 2; y <= 22; y++) {
-    map[y][18] = 21; map[y][19] = 21; map[y][20] = 1;
-    map[y][34] = 1; map[y][35] = 21; map[y][36] = 21;
+  for (let y = 2; y <= 42; y++) {
+    map[y][28] = 21; map[y][29] = 21; map[y][30] = 1;
+    map[y][42] = 1; map[y][43] = 21; map[y][44] = 21;
   }
-  // Senda del Cañón Norte al Portal del Boss
-  for (let y = 3; y <= 24; y++) {
-    map[y][26] = 2; map[y][27] = 2; map[y][28] = 2;
+  // Calzada real del Cañón Norte al Portal del Boss
+  for (let y = 3; y <= 46; y++) {
+    map[y][35] = 2; map[y][36] = 2; map[y][37] = 2;
   }
-  map[3][27] = 11; // 🌀 Portal del Rey Slime
-  map[4][25] = 18; map[4][29] = 18; // Columnas rúnicas
+  map[4][36] = 11; // 🌀 Gran Portal Rúnico del Rey Slime
+  map[5][33] = 18; map[5][39] = 18; // Columnas rúnicas
+  map[7][33] = 19; map[7][39] = 19; // Braseros de fuego sagrado
 
   // Bosque salvaje para combates de slimes en el cañón norte
-  [ [8,22], [8,32], [11,23], [11,31], [14,22], [14,32], [17,23], [17,31], [20,22], [20,32] ].forEach(([y, x]) => {
+  [ [12,32], [12,40], [16,33], [16,39], [20,32], [20,40], [24,33], [24,39], [28,32], [28,40], [32,33], [32,39] ].forEach(([y, x]) => {
     map[y][x] = 1; // Robles del bosque salvaje
   });
-  map[6][23] = 7; // Cofre secreto del cañón norte
+  map[10][32] = 7; // Cofre secreto del cañón norte
 
   // =========================================================================
-  // 3. CARVE REGION 3: EL PASO DE LA GARGANTA MINERA (Brazo Este, X: 46..53, Y: 32..44)
+  // 5. CARVE REGION 5: 🌿 EL JARDÍN PROHIBIDO Y LABERINTO DE SETOS (Oeste Lejano, X: 4..18, Y: 46..74)
   // =========================================================================
-  for (let y = 32; y <= 44; y++) {
-    for (let x = 46; x <= 53; x++) {
+  for (let y = 46; y <= 74; y++) {
+    for (let x = 4; x <= 18; x++) {
       map[y][x] = 0;
     }
   }
-  for (let x = 44; x <= 52; x++) {
-    map[38][x] = 2; map[39][x] = 2; // Calzada minera
+  // Conexión vial al laberinto
+  for (let x = 14; x <= 20; x++) {
+    map[60][x] = 2;
   }
-  map[35][50] = 18; map[41][50] = 18; // Canteras
-  map[35][52] = 20; map[41][52] = 20; // 💎 Geodas arcanas
-  map[38][52] = 7;  // 🎁 Cofre secreto minero
+  // Setos del laberinto
+  for (let y = 48; y <= 72; y++) {
+    map[y][6] = 1;
+    map[y][16] = 1;
+  }
+  for (let x = 6; x <= 16; x++) {
+    map[48][x] = 1;
+    map[72][x] = 1;
+  }
+  map[60][11] = 18; // Estatua central del laberinto
+  map[60][9] = 7;   // 🎁 Cofre Secreto del Laberinto
 
   // =========================================================================
-  // 4. CARVE REGION 4: EL VALLE DE LAS COLINAS Y SANTUARIO (Brazo Suroeste, X: 4..20, Y: 56..80)
+  // 6. CARVE REGION 6: 🌾 VALLE DE LOS VIÑEDOS, MOLINOS Y SANTUARIO (Suroeste, X: 8..28, Y: 76..112)
   // =========================================================================
-  for (let y = 56; y <= 80; y++) {
-    for (let x = 4; x <= 20; x++) {
+  for (let y = 76; y <= 112; y++) {
+    for (let x = 8; x <= 28; x++) {
       map[y][x] = 0;
     }
   }
-  for (let y = 54; y <= 76; y++) {
-    map[y][10] = 2; map[y][11] = 2; // Sendero del valle
+  for (let y = 74; y <= 108; y++) {
+    map[y][18] = 2; map[y][19] = 2; // Sendero del valle
   }
-  map[58][16] = 6;  // 🌾 Molino de Viento con aspas
-  map[58][12] = 5;  // Casona del molinero
-  for (let y = 62; y <= 66; y++) {
-    for (let x = 6; x <= 14; x++) {
-      if (x !== 10 && x !== 11) map[y][x] = 13; // Huertos de cultivo
+  map[82][24] = 6;  // 🌾 Molino de Viento con aspas animadas
+  map[82][20] = 5;  // Casona del molinero
+  for (let y = 88; y <= 96; y++) {
+    for (let x = 10; x <= 16; x++) {
+      map[y][x] = 13; // Huertos de cultivo
     }
   }
-  map[74][10] = 8;  // 🏛️ Gran Santuario Místico de los Valles
-  map[73][8] = 18; map[73][12] = 18; // Columnas sagradas
-  map[75][8] = 12; map[75][12] = 12; // Parterres florales
-  map[75][10] = 7;  // 🎁 Cofre sagrado de reliquias
+  map[106][18] = 8;  // 🏛️ Gran Santuario Místico de los Valles
+  map[105][16] = 18; map[105][20] = 18; // Columnas sagradas
+  map[107][16] = 12; map[107][20] = 12; // Parterres florales
+  map[108][18] = 7;  // 🎁 Cofre Sagrado del Valle
 
   // =========================================================================
-  // 5. CARVE REGION 5: EL GRAN DELTA FLUVIAL Y ESTUARIO (Brazo Sur, X: 24..38, Y: 56..83)
+  // 7. CARVE REGION 7: 🏴‍☠️ ENSENADA DE LOS CONTRABANDISTAS Y PUERTO (Sureste, X: 44..66, Y: 76..112)
   // =========================================================================
-  for (let y = 56; y <= 83; y++) {
-    for (let x = 24; x <= 38; x++) {
+  for (let y = 76; y <= 112; y++) {
+    for (let x = 44; x <= 66; x++) {
       map[y][x] = 0;
     }
   }
-  // 🌊 Gran Río Fluvial Cristalino (Norte a Sur)
-  for (let y = 24; y <= 56; y++) {
-    map[y][29] = 3; map[y][30] = 3;
+  for (let y = 74; y <= 108; y++) {
+    map[y][52] = 2; map[y][53] = 2; // Senda del puerto
   }
-  for (let y = 56; y <= 83; y++) {
-    map[y][28] = 3; map[y][29] = 3; map[y][30] = 3; map[y][31] = 3; // Río ensanchado del estuario
-  }
-  map[72][29] = 0; map[72][30] = 0; // Islote
-  map[73][29] = 0; map[73][30] = 0;
-  map[72][29] = 7;  // 🎁 Cofre del tesoro del estuario
-  map[80][26] = 18; map[80][33] = 18; // Torres vigía del estuario
+  map[86][56] = 5;   // 🏠 Almacén Clandestino de Contrabando
+  map[86][50] = 14;  // Pilas de leña y suministros
+  map[96][60] = 18; map[98][60] = 18; // Canteras de pizarra
+  map[97][62] = 20;  // 💎 Geoda de cristal de la cala
+  map[106][56] = 7;  // 🎁 Cofre del Tesoro de los Contrabandistas
+  map[108][52] = 18; map[108][56] = 18; // Torres vigía del muelle
 
   // =========================================================================
-  // 6. RED VIAL DE LA GRAN CIUDAD (Calles y Avenidas en el núcleo urbano)
+  // 8. CARVE REGION 8: 🌊 EL GRAN DELTA FLUVIAL Y ESTUARIO (Sur Fluvial, X: 30..42, Y: 76..115)
   // =========================================================================
-  const cityHorizontal = [28, 34, 40, 46, 52];
+  for (let y = 76; y <= 115; y++) {
+    for (let x = 30; x <= 42; x++) {
+      map[y][x] = 0;
+    }
+  }
+  // Gran Río Fluvial Cristalino (Norte a Sur, Y: 20..115)
+  for (let y = 20; y <= 76; y++) {
+    map[y][35] = 3; map[y][36] = 3;
+  }
+  for (let y = 76; y <= 115; y++) {
+    map[y][34] = 3; map[y][35] = 3; map[y][36] = 3; map[y][37] = 3; // Río ensanchado del estuario
+  }
+  map[98][35] = 0; map[98][36] = 0; // Islote central del delta
+  map[99][35] = 0; map[99][36] = 0;
+  map[98][35] = 7;  // 🎁 Cofre del tesoro del estuario
+  map[112][32] = 18; map[112][39] = 18; // Torres vigía de la desembocadura
+
+  // =========================================================================
+  // 9. RED VIAL DE LA GRAN CIUDAD (Calles y Avenidas en el núcleo urbano)
+  // =========================================================================
+  const cityHorizontal = [48, 54, 60, 66, 72];
   cityHorizontal.forEach((hy) => {
-    for (let x = 12; x <= 42; x++) {
-      if (x !== 29 && x !== 30) map[hy][x] = 2;
+    for (let x = 20; x <= 52; x++) {
+      if (x !== 35 && x !== 36) map[hy][x] = 2;
     }
   });
-  const cityVertical = [14, 20, 26, 34, 40];
+  const cityVertical = [22, 28, 34, 38, 44, 50];
   cityVertical.forEach((vx) => {
-    for (let y = 26; y <= 54; y++) {
+    for (let y = 48; y <= 74; y++) {
       map[y][vx] = 2;
     }
   });
 
   // Gran Plaza Mayor Central
-  for (let y = 37; y <= 43; y++) {
-    for (let x = 24; x <= 32; x++) {
+  for (let y = 57; y <= 63; y++) {
+    for (let x = 30; x <= 42; x++) {
       map[y][x] = 2;
     }
   }
 
-  // 🌉 Los 3 Puentes Viales (Sobre el río en X: 29..30)
-  map[28][29] = 2; map[28][30] = 2; // Puente Norte
-  map[40][29] = 2; map[40][30] = 2; // Puente Central
-  map[52][29] = 2; map[52][30] = 2; // Puente Sur
+  // 🌉 Los 3 Puentes Viales (Sobre el río en X: 35..36)
+  map[48][35] = 2; map[48][36] = 2; // Puente Norte
+  map[60][35] = 2; map[60][36] = 2; // Puente Central
+  map[72][35] = 2; map[72][36] = 2; // Puente Sur
 
   // 🏛️ Elementos de la Gran Plaza Central
-  map[40][27] = 4;  // Gran Fuente Central
-  map[37][30] = 22; // Tablón de Misiones
-  map[38][24] = 18; // Roca decorativa
-  map[42][25] = 12; map[42][29] = 12; // Bancos de descanso
-  map[36][22] = 9;  map[38][22] = 9;  // Puestos de mercado del bazar
+  map[60][36] = 4;  // Gran Fuente Central
+  map[57][39] = 22; // Tablón de Misiones
+  map[58][32] = 18; // Roca decorativa
+  map[62][34] = 12; map[62][38] = 12; // Bancos de descanso
+  map[56][30] = 9;  map[58][30] = 9;  // Puestos de mercado del bazar
 
   // 🏰 Grandes Mansiones y Casonas Nobles enmarcando la Plaza
-  map[34][25] = 5;  // Gran Posada del León Dorado (Norte)
-  map[34][31] = 5;  // Mansión del Gremio de Comerciantes (Noreste)
-  map[44][25] = 5;  // Casona Señorial del Roble (Suroeste)
-  map[44][31] = 5;  // Casona Noble de la Ribera (Sureste)
+  map[54][32] = 5;  // Gran Posada del León Dorado (Norte)
+  map[54][40] = 5;  // Mansión del Gremio de Comerciantes (Noreste)
+  map[64][32] = 5;  // Casona Señorial del Roble (Suroeste)
+  map[64][40] = 5;  // Casona Noble de la Ribera (Sureste)
 
   // Distrito Oeste (Forja, Posada, Almacenes)
-  map[28][16] = 5;  // Gran Posada de los Viajeros
-  map[34][18] = 10; // Gran Forja Mayor de Brom
-  map[34][20] = 19; // Brasero
-  map[29][12] = 5;  // Almacén de Minerales
-  map[35][12] = 5;  // Mansión Comercial Oeste
-  map[41][12] = 5;  // Taller de Curtidores
+  map[48][24] = 5;  // Gran Posada de los Viajeros
+  map[54][24] = 10; // Gran Forja Mayor de Brom
+  map[54][26] = 19; // Brasero
+  map[50][20] = 5;  // Almacén de Minerales
+  map[56][20] = 5;  // Mansión Comercial Oeste
+  map[62][20] = 5;  // Taller de Curtidores
 
   // Distrito Este (Ayuntamiento, Botica, Mansiones)
-  map[28][37] = 31; // Gran Casa Consistorial
-  map[28][41] = 5;  // Mansión Solariega Noreste
-  map[34][37] = 27; // Botica de Lynda
-  map[34][41] = 5;  // Mansión "Villa Rosa"
-  map[40][37] = 5;  // Mansión "Los Álamos"
-  map[40][41] = 5;  // Palacio Residencial Este
-  map[46][37] = 5;  // Villa Ribereña
+  map[48][48] = 31; // Gran Casa Consistorial
+  map[48][52] = 5;  // Mansión Solariega Noreste
+  map[54][48] = 27; // Botica de Lynda
+  map[54][52] = 5;  // Mansión "Villa Rosa"
+  map[60][48] = 5;  // Mansión "Los Álamos"
+  map[60][52] = 5;  // Palacio Residencial Este
+  map[66][48] = 5;  // Villa Ribereña
 
   // 🏮 Farolas en las aceras principales
-  [28, 40, 52].forEach((hy) => {
-    [14, 20, 24, 32, 38, 42].forEach((fx) => {
+  [48, 60, 72].forEach((hy) => {
+    [22, 28, 32, 40, 44, 50].forEach((fx) => {
       if (map[hy - 1]?.[fx] === 0) map[hy - 1][fx] = 17;
       if (map[hy + 1]?.[fx] === 0) map[hy + 1][fx] = 17;
     });
@@ -221,7 +297,7 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   }
 
   // Restaurar la fuente en el centro
-  map[40][27] = 4;
+  map[60][36] = 4;
 
   return { tileData: map, width: WIDTH, height: HEIGHT };
 }

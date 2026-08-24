@@ -1120,11 +1120,11 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     if (currentZone.id === 'zone_forest') {
       // Planters around the Great Fountain & Notice Board
       const planterPositions = [
-        [27 * 2.5 - 0.9, 40 * 2.5],
-        [27 * 2.5 + 0.9, 40 * 2.5],
-        [27 * 2.5, 40 * 2.5 - 0.9],
-        [27 * 2.5, 40 * 2.5 + 0.9],
-        [30 * 2.5, 37 * 2.5 - 0.8], // Next to Mission Board
+        [36 * 2.5 - 0.9, 60 * 2.5],
+        [36 * 2.5 + 0.9, 60 * 2.5],
+        [36 * 2.5, 60 * 2.5 - 0.9],
+        [36 * 2.5, 60 * 2.5 + 0.9],
+        [39 * 2.5, 57 * 2.5 - 0.8], // Next to Mission Board
       ];
       planterPositions.forEach(([px, pz]) => {
         tileGroup.add(create3DStonePlanterMesh(px, pz));
@@ -1132,11 +1132,11 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
       // Wooden Crate Stacks at Bazaar, Corners and Inns
       const cratePositions = [
-        [22 * 2.5 + 0.6, 36 * 2.5 + 0.6], // Bazaar Stall 1
-        [22 * 2.5 + 0.6, 38 * 2.5 + 0.6], // Bazaar Stall 2
-        [32 * 2.5 - 0.5, 37 * 2.5 + 0.5], // East corner
-        [25 * 2.5 - 0.6, 34 * 2.5 + 0.6], // Inn side
-        [31 * 2.5 + 0.6, 43 * 2.5 - 0.6], // South corner
+        [30 * 2.5 + 0.6, 56 * 2.5 + 0.6], // Bazaar Stall 1
+        [30 * 2.5 + 0.6, 58 * 2.5 + 0.6], // Bazaar Stall 2
+        [42 * 2.5 - 0.5, 57 * 2.5 + 0.5], // East corner
+        [32 * 2.5 - 0.6, 54 * 2.5 + 0.6], // Inn side
+        [41 * 2.5 + 0.6, 63 * 2.5 - 0.6], // South corner
       ];
       cratePositions.forEach(([cx, cz]) => {
         tileGroup.add(create3DWoodenCratesMesh(cx, cz));
@@ -1144,17 +1144,17 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
       // Oak Barrels near Tavern and Market
       const barrelPositions = [
-        [23 * 2.5 + 0.4, 37 * 2.5 - 0.5],
-        [31 * 2.5 - 0.4, 36 * 2.5 + 0.5],
-        [26 * 2.5 - 0.6, 42 * 2.5 - 0.4],
-        [32 * 2.5 - 0.5, 39 * 2.5 - 0.5],
+        [31 * 2.5 + 0.4, 57 * 2.5 - 0.5],
+        [41 * 2.5 - 0.4, 56 * 2.5 + 0.5],
+        [34 * 2.5 - 0.6, 62 * 2.5 - 0.4],
+        [40 * 2.5 - 0.5, 59 * 2.5 - 0.5],
       ];
       barrelPositions.forEach(([bx, bz]) => {
         tileGroup.add(create3DOakBarrelsMesh(bx, bz));
       });
 
       // Traveling Merchant Caravan Cart parked at plaza side
-      tileGroup.add(create3DMerchantCartMesh(23 * 2.5, 41 * 2.5));
+      tileGroup.add(create3DMerchantCartMesh(30 * 2.5, 61 * 2.5));
     }
 
     // 5.5 SPAWN ALL ZONE NPCS WITH 3D QUEST MARKERS
