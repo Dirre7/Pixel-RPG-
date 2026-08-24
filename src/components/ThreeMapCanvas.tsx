@@ -424,7 +424,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const pathMat = new THREE.MeshStandardMaterial({
       map: pathPBR.diffuse,
       normalMap: pathPBR.normal,
-      normalScale: new THREE.Vector2(1.5, 1.5),
+      normalScale: new THREE.Vector2(3.5, 3.5),
       roughness: 0.55,
       metalness: 0.12,
     });
@@ -486,7 +486,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const groundMat = new THREE.MeshStandardMaterial({
       map: groundPBR.diffuse,
       normalMap: groundPBR.normal,
-      normalScale: new THREE.Vector2(1.4, 1.4),
+      normalScale: new THREE.Vector2(3.2, 3.2),
       roughness: currentZone.id === 'zone_castle' ? 0.45 : currentZone.id === 'zone_cave' ? 0.6 : 0.85,
       metalness: currentZone.id === 'zone_castle' ? 0.15 : currentZone.id === 'zone_cave' ? 0.18 : 0.05,
     });

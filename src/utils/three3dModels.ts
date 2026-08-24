@@ -506,6 +506,373 @@ export function createProceduralFabricTexture(baseColorHex: string, trimColorHex
 }
 
 // ==========================================
+// 1.2 PROCEDURAL HIGH-RESOLUTION PBR TEXTURES FOR BUILDINGS & WORLD PROPS
+// ==========================================
+
+const globalBuildingTextureCache: Record<string, THREE.CanvasTexture> = {};
+
+function getCachedBuildingTexture(key: string, generator: () => THREE.CanvasTexture): THREE.CanvasTexture {
+  if (!globalBuildingTextureCache[key]) {
+    const tex = generator();
+    tex.generateMipmaps = true;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.anisotropy = 4;
+    globalBuildingTextureCache[key] = tex;
+  }
+  return globalBuildingTextureCache[key];
+}
+
+// 🧱 1. Medieval Stone Masonry / Brickwork Texture
+export function createProceduralStoneBrickTexture(stoneTone: 'grey' | 'sandstone' | 'dark' = 'grey'): THREE.CanvasTexture {
+  return getCachedBuildingTexture(`stone_${stoneTone}`, () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d')!;
+
+    // Mortar deep dark base
+    ctx.fillStyle = stoneTone === 'dark' ? '#0f172a' : stoneTone === 'sandstone' ? '#29180c' : '#1e293b';
+    ctx.fillRect(0, 0, 512, 512);
+
+    const rows = 12;
+    const rowH = 512 / rows;
+
+    for (let r = 0; r < rows; r++) {
+      const y = r * rowH;
+      const cols = 6;
+      const colW = 512 / cols;
+      const offset = (r % 2 === 0) ? 0 : colW / 2;
+
+      for (let c = -1; c <= cols; c++) {
+        const x = c * colW + offset;
+        const pad = 4;
+        const bw = colW - pad * 2;
+        const bh = rowH - pad * 2;
+
+        // Base Stone Gradient
+        const sGrad = ctx.createLinearGradient(x, y, x + bw, y + bh);
+        if (stoneTone === 'sandstone') {
+          sGrad.addColorStop(0, '#d97706');
+          sGrad.addColorStop(0.5, '#b45309');
+          sGrad.addColorStop(1, '#78350f');
+        } else if (stoneTone === 'dark') {
+          sGrad.addColorStop(0, '#475569');
+          sGrad.addColorStop(0.5, '#334155');
+          sGrad.addColorStop(1, '#1e293b');
+        } else {
+          sGrad.addColorStop(0, '#94a3b8');
+          sGrad.addColorStop(0.5, '#64748b');
+          sGrad.addColorStop(1, '#475569');
+        }
+
+        ctx.fillStyle = sGrad;
+        ctx.fillRect(x + pad, y + pad, bw, bh);
+
+        // Top-Left Sunlight Chamfer Highlight
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(x + pad, y + pad + bh);
+        ctx.lineTo(x + pad, y + pad);
+        ctx.lineTo(x + pad + bw, y + pad);
+        ctx.stroke();
+
+        // Bottom-Right Deep Shadow Crevice
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
+        ctx.lineWidth = 3.0;
+        ctx.beginPath();
+        ctx.moveTo(x + pad + bw, y + pad);
+        ctx.lineTo(x + pad + bw, y + pad + bh);
+        ctx.lineTo(x + pad, y + pad + bh);
+        ctx.stroke();
+
+        // Surface pitting & weathered fissures
+        for (let p = 0; p < 12; p++) {
+          ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.25)';
+          ctx.fillRect(x + pad + 4 + Math.random() * (bw - 8), y + pad + 4 + Math.random() * (bh - 8), 2, 2);
+        }
+
+        // Green Moss in bottom corners
+        if ((r + c) % 3 === 0) {
+          ctx.fillStyle = 'rgba(22, 101, 52, 0.65)';
+          ctx.fillRect(x + pad + Math.random() * (bw - 6), y + pad + bh - 6, 6, 4);
+        }
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(2, 2);
+    return tex;
+  });
+}
+
+// 🏠 2. Terracotta & Slate Roof Shingles Texture
+export function createProceduralRoofShinglesTexture(theme: 'terracotta' | 'slate' | 'wood' = 'terracotta'): THREE.CanvasTexture {
+  return getCachedBuildingTexture(`roof_${theme}`, () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d')!;
+
+    // Shingle rows
+    const rows = 16;
+    const rowH = 512 / rows;
+
+    for (let r = 0; r < rows; r++) {
+      const y = r * rowH;
+      const cols = 12;
+      const colW = 512 / cols;
+      const offset = (r % 2 === 0) ? 0 : colW / 2;
+
+      for (let c = -1; c <= cols; c++) {
+        const x = c * colW + offset;
+        const tw = colW - 2;
+        const th = rowH * 1.35; // overlapping tile
+
+        const tGrad = ctx.createLinearGradient(x, y, x, y + th);
+        if (theme === 'terracotta') {
+          tGrad.addColorStop(0, '#ea580c');
+          tGrad.addColorStop(0.6, '#c2410c');
+          tGrad.addColorStop(1, '#7c2d12');
+        } else if (theme === 'slate') {
+          tGrad.addColorStop(0, '#475569');
+          tGrad.addColorStop(0.6, '#334155');
+          tGrad.addColorStop(1, '#0f172a');
+        } else {
+          tGrad.addColorStop(0, '#854d0e');
+          tGrad.addColorStop(0.6, '#713f12');
+          tGrad.addColorStop(1, '#422006');
+        }
+
+        ctx.fillStyle = tGrad;
+        ctx.beginPath();
+        ctx.roundRect(x + 1, y, tw, th, [0, 0, 8, 8]);
+        ctx.fill();
+
+        // Top Sunlit Rim
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Bottom Drop Shadow under tile lip
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.fillRect(x + 1, y + th - 4, tw, 4);
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(2, 2);
+    return tex;
+  });
+}
+
+// 🪵 3. Oak / Pine Vertical Wood Plank Texture
+export function createProceduralWoodPlankTexture(tone: 'oak' | 'pine' | 'dark' = 'oak'): THREE.CanvasTexture {
+  return getCachedBuildingTexture(`wood_${tone}`, () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d')!;
+
+    // Base Plank Background
+    const baseColor = tone === 'pine' ? '#a16207' : tone === 'dark' ? '#3b1c08' : '#78350f';
+    ctx.fillStyle = baseColor;
+    ctx.fillRect(0, 0, 512, 512);
+
+    const plankWidth = 512 / 8; // 8 vertical planks
+
+    for (let p = 0; p < 8; p++) {
+      const px = p * plankWidth;
+
+      // Dark crevice gap between planks
+      ctx.fillStyle = '#1c0d02';
+      ctx.fillRect(px, 0, 3, 512);
+
+      // Wood grain lines
+      for (let g = 0; g < 15; g++) {
+        const gx = px + 4 + Math.random() * (plankWidth - 8);
+        ctx.fillStyle = Math.random() > 0.5 ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.12)';
+        ctx.fillRect(gx, 0, 1 + Math.random() * 2, 512);
+      }
+
+      // Wood knot whorls
+      if (p % 2 === 0) {
+        const ky = 60 + (p * 85) % 400;
+        ctx.fillStyle = '#271202';
+        ctx.beginPath();
+        ctx.ellipse(px + plankWidth / 2, ky, 8, 16, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Iron forged nail heads
+      for (let ny of [30, 256, 480]) {
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(px + plankWidth / 2, ny, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.beginPath();
+        ctx.arc(px + plankWidth / 2 - 1, ny - 1, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(1, 1);
+    return tex;
+  });
+}
+
+// 🛢️ 4. Oak Barrel Staves & Iron Hoops Texture
+export function createProceduralOakBarrelTexture(): THREE.CanvasTexture {
+  return getCachedBuildingTexture('barrel_oak', () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d')!;
+
+    // Rich aged oak staves
+    ctx.fillStyle = '#5c2b09';
+    ctx.fillRect(0, 0, 512, 512);
+
+    for (let x = 0; x < 512; x += 32) {
+      ctx.fillStyle = '#2d1404';
+      ctx.fillRect(x, 0, 3, 512);
+      for (let g = 0; g < 6; g++) {
+        ctx.fillStyle = 'rgba(0,0,0,0.12)';
+        ctx.fillRect(x + 4 + Math.random() * 24, 0, 1.5, 512);
+      }
+    }
+
+    // 4 Heavy Riveted Black Iron Hoops
+    for (let hy of [50, 180, 332, 462]) {
+      const hoopGrad = ctx.createLinearGradient(0, hy, 0, hy + 30);
+      hoopGrad.addColorStop(0, '#64748b');
+      hoopGrad.addColorStop(0.3, '#334155');
+      hoopGrad.addColorStop(0.7, '#1e293b');
+      hoopGrad.addColorStop(1, '#0f172a');
+      ctx.fillStyle = hoopGrad;
+      ctx.fillRect(0, hy, 512, 30);
+
+      // Silver Rivets on Hoops
+      for (let rx = 16; rx < 512; rx += 48) {
+        ctx.fillStyle = '#cbd5e1';
+        ctx.beginPath();
+        ctx.arc(rx, hy + 15, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(rx - 1, hy + 13, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  });
+}
+
+// 📦 5. Cross-Braced Wooden Crate Texture
+export function createProceduralWoodenCrateTexture(): THREE.CanvasTexture {
+  return getCachedBuildingTexture('crate_wood', () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d')!;
+
+    // Inner Plank Fill
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(0, 0, 256, 256);
+
+    for (let y = 0; y < 256; y += 42) {
+      ctx.fillStyle = '#451a03';
+      ctx.fillRect(0, y, 256, 3);
+    }
+
+    // Outer Wooden Frame
+    const frameBorder = 26;
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(0, 0, 256, frameBorder);
+    ctx.fillRect(0, 256 - frameBorder, 256, frameBorder);
+    ctx.fillRect(0, 0, frameBorder, 256);
+    ctx.fillRect(256 - frameBorder, 0, frameBorder, 256);
+
+    // Diagonal Cross Brace
+    ctx.lineWidth = 26;
+    ctx.strokeStyle = '#78350f';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(256, 256);
+    ctx.stroke();
+
+    // Steel Corner Reinforcement Brackets & Screws
+    ctx.fillStyle = '#334155';
+    const bSize = 34;
+    [[0, 0], [256 - bSize, 0], [0, 256 - bSize], [256 - bSize, 256 - bSize]].forEach(([bx, by]) => {
+      ctx.fillRect(bx, by, bSize, bSize);
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath();
+      ctx.arc(bx + bSize / 2, by + bSize / 2, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#334155';
+    });
+
+    const tex = new THREE.CanvasTexture(canvas);
+    return tex;
+  });
+}
+
+// 🪟 6. Leaded Stained Diamond Glass Window Texture
+export function createProceduralWindowGlassTexture(): THREE.CanvasTexture {
+  return getCachedBuildingTexture('window_diamond', () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d')!;
+
+    // Warm Amber Candlelit Interior Glow
+    const glow = ctx.createRadialGradient(128, 128, 10, 128, 128, 128);
+    glow.addColorStop(0, '#fef08a');
+    glow.addColorStop(0.5, '#f59e0b');
+    glow.addColorStop(1, '#b45309');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, 256, 256);
+
+    // Leaded Diamond Lattice Grid
+    ctx.strokeStyle = '#1e1b4b';
+    ctx.lineWidth = 5;
+    for (let i = -256; i <= 512; i += 36) {
+      ctx.beginPath();
+      ctx.moveTo(i, 0);
+      ctx.lineTo(i + 256, 256);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(i + 256, 0);
+      ctx.lineTo(i, 256);
+      ctx.stroke();
+    }
+
+    // Heavy Wooden Window Frame
+    ctx.strokeStyle = '#451a03';
+    ctx.lineWidth = 16;
+    ctx.strokeRect(8, 8, 240, 240);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    return tex;
+  });
+}
+
+// ==========================================
 // 2. CHIBI CARTOON HERO MESH GENERATOR (Matching the Reference Image)
 // ==========================================
 
@@ -2000,47 +2367,53 @@ export function createLowPolyCottage(
   const baseStoneColor = stoneColors[v];
   const baseRoofColor = customRoofColor !== undefined ? customRoofColor : roofColors[v];
 
-  // Materials
+  // Textures and Materials
+  const stoneTex = createProceduralStoneBrickTexture(v % 2 === 0 ? 'grey' : 'sandstone');
+  const woodTex = createProceduralWoodPlankTexture(v % 2 === 0 ? 'oak' : 'dark');
+  const roofTex = createProceduralRoofShinglesTexture(v % 3 === 0 ? 'terracotta' : v % 3 === 1 ? 'slate' : 'wood');
+  const windowTex = createProceduralWindowGlassTexture();
+
   const stoneMat = new THREE.MeshStandardMaterial({
-    color: baseStoneColor,
+    map: stoneTex,
+    color: 0xffffff,
     roughness: 0.85,
-    flatShading: true,
   });
 
   const darkStoneMat = new THREE.MeshStandardMaterial({
-    color: new THREE.Color(baseStoneColor).multiplyScalar(0.75),
+    map: stoneTex,
+    color: 0xcccccc,
     roughness: 0.9,
-    flatShading: true,
   });
 
   const timberMat = new THREE.MeshStandardMaterial({
-    color: baseWoodColor,
+    map: woodTex,
+    color: 0xffffff,
     roughness: 0.7,
-    flatShading: true,
   });
 
   const darkTimberMat = new THREE.MeshStandardMaterial({
-    color: new THREE.Color(baseWoodColor).multiplyScalar(0.7),
+    map: woodTex,
+    color: 0x888888,
     roughness: 0.75,
-    flatShading: true,
   });
 
   const plankMat = new THREE.MeshStandardMaterial({
-    color: basePlankColor,
+    map: woodTex,
+    color: 0xffffff,
     roughness: 0.8,
-    flatShading: true,
   });
 
   const roofMat = new THREE.MeshStandardMaterial({
-    color: baseRoofColor,
-    roughness: 0.65,
-    flatShading: true,
+    map: roofTex,
+    color: 0xffffff,
+    roughness: 0.60,
   });
 
   const windowGlowMat = new THREE.MeshStandardMaterial({
-    color: 0xfde047,
+    map: windowTex,
+    color: 0xffffff,
     emissive: 0xf59e0b,
-    emissiveIntensity: 1.6,
+    emissiveIntensity: 1.8,
     roughness: 0.2,
   });
 
@@ -2387,22 +2760,25 @@ export function createLowPolyCottage(
 export function createLowPolyWindmill(): BuildingMeshResult {
   const group = new THREE.Group();
 
-  // Stone base & wood tower
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8, flatShading: true });
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.05, 0.7, 8), stoneMat);
+  const stoneTex = createProceduralStoneBrickTexture('grey');
+  const woodTex = createProceduralWoodPlankTexture('oak');
+  const roofTex = createProceduralRoofShinglesTexture('wood');
+
+  const stoneMat = new THREE.MeshStandardMaterial({ map: stoneTex, color: 0xffffff, roughness: 0.85 });
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.05, 0.7, 12), stoneMat);
   base.position.y = 0.35;
   base.castShadow = true;
   group.add(base);
 
-  const woodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.6, flatShading: true });
-  const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.85, 1.4, 8), woodMat);
+  const woodMat = new THREE.MeshStandardMaterial({ map: woodTex, color: 0xffffff, roughness: 0.7 });
+  const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.85, 1.4, 12), woodMat);
   tower.position.y = 1.4;
   tower.castShadow = true;
   group.add(tower);
 
-  // Conical Thatch Roof
-  const roofMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.8, flatShading: true });
-  const roof = new THREE.Mesh(new THREE.ConeGeometry(0.85, 0.9, 8), roofMat);
+  // Conical Shingle Roof
+  const roofMat = new THREE.MeshStandardMaterial({ map: roofTex, color: 0xd97706, roughness: 0.65 });
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(0.85, 0.9, 12), roofMat);
   roof.position.y = 2.55;
   roof.castShadow = true;
   group.add(roof);
@@ -2411,12 +2787,12 @@ export function createLowPolyWindmill(): BuildingMeshResult {
   const sailGroup = new THREE.Group();
   sailGroup.position.set(0, 2.0, 0.72);
 
-  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.15, 8), woodMat);
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.15, 10), woodMat);
   hub.rotation.x = Math.PI / 2;
   sailGroup.add(hub);
 
   const sailClothMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.5, side: THREE.DoubleSide });
-  const beamMat = new THREE.MeshStandardMaterial({ color: 0x451a03 });
+  const beamMat = new THREE.MeshStandardMaterial({ map: woodTex, color: 0x5c2b09, roughness: 0.7 });
 
   // 4 Windmill Blades
   for (let i = 0; i < 4; i++) {
@@ -2438,7 +2814,7 @@ export function createLowPolyWindmill(): BuildingMeshResult {
   group.add(sailGroup);
 
   const updateAnimation = (time: number) => {
-    sailGroup.rotation.z = time * 0.8; // Smooth rotational speed
+    sailGroup.rotation.z = time * 0.8;
   };
 
   return { group, updateAnimation };
@@ -2450,9 +2826,13 @@ export function createLowPolyWindmill(): BuildingMeshResult {
 export function createLowPolyWaterWell(): BuildingMeshResult {
   const group = new THREE.Group();
 
+  const stoneTex = createProceduralStoneBrickTexture('grey');
+  const woodTex = createProceduralWoodPlankTexture('dark');
+  const roofTex = createProceduralRoofShinglesTexture('terracotta');
+
   // Cobblestone Circular Wall
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.8, flatShading: true });
-  const wellRim = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.70, 0.45, 12, 1, true), stoneMat);
+  const stoneMat = new THREE.MeshStandardMaterial({ map: stoneTex, color: 0xffffff, roughness: 0.85 });
+  const wellRim = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.70, 0.45, 16, 1, true), stoneMat);
   wellRim.position.y = 0.225;
   wellRim.castShadow = true;
   group.add(wellRim);
@@ -2463,13 +2843,13 @@ export function createLowPolyWaterWell(): BuildingMeshResult {
     roughness: 0.1,
     metalness: 0.8,
   });
-  const water = new THREE.Mesh(new THREE.CircleGeometry(0.60, 12), waterMat);
+  const water = new THREE.Mesh(new THREE.CircleGeometry(0.60, 16), waterMat);
   water.position.y = 0.20;
   water.rotation.x = -Math.PI / 2;
   group.add(water);
 
   // Wooden Posts
-  const woodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.6 });
+  const woodMat = new THREE.MeshStandardMaterial({ map: woodTex, color: 0xffffff, roughness: 0.7 });
   [-0.55, 0.55].forEach((px) => {
     const post = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.9, 0.08), woodMat);
     post.position.set(px, 0.65, 0);
@@ -2483,7 +2863,7 @@ export function createLowPolyWaterWell(): BuildingMeshResult {
   group.add(crossBeam);
 
   // Little Canopy Roof
-  const roofMat = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.5, flatShading: true });
+  const roofMat = new THREE.MeshStandardMaterial({ map: roofTex, color: 0xffffff, roughness: 0.6 });
   const roof = new THREE.Mesh(new THREE.ConeGeometry(0.85, 0.45, 4), roofMat);
   roof.position.set(0, 1.25, 0);
   roof.rotation.y = Math.PI / 4;
@@ -2491,8 +2871,8 @@ export function createLowPolyWaterWell(): BuildingMeshResult {
   group.add(roof);
 
   // Bucket hanging from rope
-  const bucketMat = new THREE.MeshStandardMaterial({ color: 0x5c2b09 });
-  const bucket = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.08, 0.15, 8), bucketMat);
+  const bucketMat = new THREE.MeshStandardMaterial({ map: woodTex, color: 0xffffff, roughness: 0.7 });
+  const bucket = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.08, 0.15, 10), bucketMat);
   bucket.position.set(0, 0.55, 0);
   group.add(bucket);
 
@@ -2505,7 +2885,10 @@ export function createLowPolyWaterWell(): BuildingMeshResult {
 export function createLowPolyMarketStall(type: 'weapons' | 'potions' | 'food' = 'weapons'): BuildingMeshResult {
   const group = new THREE.Group();
 
-  const woodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.7 });
+  const woodTex = createProceduralWoodPlankTexture('oak');
+  const crateTex = createProceduralWoodenCrateTexture();
+  const woodMat = new THREE.MeshStandardMaterial({ map: woodTex, color: 0xffffff, roughness: 0.75 });
+
   // Table / Wooden Cart
   const table = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.45, 0.8), woodMat);
   table.position.y = 0.225;
@@ -2519,7 +2902,7 @@ export function createLowPolyMarketStall(type: 'weapons' | 'potions' | 'food' = 
     [-0.55, 0.35],
     [0.55, 0.35],
   ].forEach(([px, pz]) => {
-    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.1, 6), woodMat);
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.1, 8), woodMat);
     post.position.set(px, 0.75, pz);
     group.add(post);
   });
@@ -2537,17 +2920,17 @@ export function createLowPolyMarketStall(type: 'weapons' | 'potions' | 'food' = 
   group.add(canopy);
 
   // Goods on Table (Crates, potion bottles, swords)
-  const crateMat = new THREE.MeshStandardMaterial({ color: 0xb45309 });
+  const crateMat = new THREE.MeshStandardMaterial({ map: crateTex, color: 0xffffff, roughness: 0.75 });
   const crate = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.3), crateMat);
   crate.position.set(-0.35, 0.55, 0);
   group.add(crate);
 
-  const potionMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.1 });
+  const potionMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 1.2, roughness: 0.1 });
   const pot = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), potionMat);
   pot.position.set(0.15, 0.52, 0.1);
   group.add(pot);
 
-  const pot2 = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), new THREE.MeshStandardMaterial({ color: 0x3b82f6 }));
+  const pot2 = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), new THREE.MeshStandardMaterial({ color: 0x3b82f6, emissive: 0x1d4ed8, emissiveIntensity: 1.2, roughness: 0.1 }));
   pot2.position.set(0.35, 0.52, -0.1);
   group.add(pot2);
 
@@ -2560,8 +2943,8 @@ export function createLowPolyMarketStall(type: 'weapons' | 'potions' | 'food' = 
 export function createLowPolyForge(): BuildingMeshResult {
   const group = new THREE.Group();
 
-  // Stone Hearth Furnace
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9, flatShading: true });
+  const stoneTex = createProceduralStoneBrickTexture('dark');
+  const stoneMat = new THREE.MeshStandardMaterial({ map: stoneTex, color: 0xffffff, roughness: 0.9 });
   const hearth = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.7, 0.8), stoneMat);
   hearth.position.set(0, 0.35, 0);
   hearth.castShadow = true;
@@ -4231,9 +4614,10 @@ export function create3DWoodenCratesMesh(posX: number, posZ: number): THREE.Grou
   const group = new THREE.Group();
   group.position.set(posX, 0, posZ);
 
-  const woodMat = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.8 });
-  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.85 });
-  const ironMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.3 });
+  const crateTex = createProceduralWoodenCrateTexture();
+  const woodMat = new THREE.MeshStandardMaterial({ map: crateTex, color: 0xffffff, roughness: 0.75 });
+  const darkWoodMat = new THREE.MeshStandardMaterial({ map: crateTex, color: 0xcccccc, roughness: 0.8 });
+  const ironMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.9, roughness: 0.2 });
 
   // Crate 1 (Bottom Left)
   const crate1 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.45, 0.55), woodMat);
@@ -4269,35 +4653,36 @@ export function create3DOakBarrelsMesh(posX: number, posZ: number): THREE.Group 
   const group = new THREE.Group();
   group.position.set(posX, 0, posZ);
 
-  const barrelMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.75 });
-  const bandMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.85, roughness: 0.25 });
+  const barrelTex = createProceduralOakBarrelTexture();
+  const barrelMat = new THREE.MeshStandardMaterial({ map: barrelTex, color: 0xffffff, roughness: 0.70 });
+  const bandMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.92, roughness: 0.20 });
 
   // Barrel 1 (Standing upright)
-  const barrel1 = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.28, 0.65, 12), barrelMat);
+  const barrel1 = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.28, 0.65, 16), barrelMat);
   barrel1.position.set(-0.20, 0.325, 0.10);
   barrel1.castShadow = true;
   group.add(barrel1);
 
-  const band1Top = new THREE.Mesh(new THREE.CylinderGeometry(0.265, 0.275, 0.05, 12), bandMat);
+  const band1Top = new THREE.Mesh(new THREE.CylinderGeometry(0.265, 0.275, 0.05, 16), bandMat);
   band1Top.position.set(-0.20, 0.48, 0.10);
   group.add(band1Top);
 
-  const band1Bot = new THREE.Mesh(new THREE.CylinderGeometry(0.275, 0.285, 0.05, 12), bandMat);
+  const band1Bot = new THREE.Mesh(new THREE.CylinderGeometry(0.275, 0.285, 0.05, 16), bandMat);
   band1Bot.position.set(-0.20, 0.18, 0.10);
   group.add(band1Bot);
 
   // Barrel 2 (Standing upright slightly smaller)
-  const barrel2 = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.58, 12), barrelMat);
+  const barrel2 = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.58, 16), barrelMat);
   barrel2.position.set(0.22, 0.29, -0.12);
   barrel2.castShadow = true;
   group.add(barrel2);
 
-  const band2Top = new THREE.Mesh(new THREE.CylinderGeometry(0.245, 0.255, 0.04, 12), bandMat);
+  const band2Top = new THREE.Mesh(new THREE.CylinderGeometry(0.245, 0.255, 0.04, 16), bandMat);
   band2Top.position.set(0.22, 0.44, -0.12);
   group.add(band2Top);
 
   // Barrel 3 (Laying sideways on ground)
-  const barrel3 = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.23, 0.55, 10), barrelMat);
+  const barrel3 = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.23, 0.55, 14), barrelMat);
   barrel3.rotation.z = Math.PI / 2;
   barrel3.rotation.y = 0.4;
   barrel3.position.set(0.05, 0.20, 0.30);
@@ -4311,11 +4696,14 @@ export function create3DMerchantCartMesh(posX: number, posZ: number): THREE.Grou
   const group = new THREE.Group();
   group.position.set(posX, 0, posZ);
 
-  const woodMat = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.85 });
-  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.9 });
-  const ironMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.85, roughness: 0.3 });
-  const sackMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.9 });
-  const fruitMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
+  const woodTex = createProceduralWoodPlankTexture('oak');
+  const darkWoodTex = createProceduralWoodPlankTexture('dark');
+
+  const woodMat = new THREE.MeshStandardMaterial({ map: woodTex, color: 0xffffff, roughness: 0.75 });
+  const darkWoodMat = new THREE.MeshStandardMaterial({ map: darkWoodTex, color: 0xffffff, roughness: 0.80 });
+  const ironMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.9, roughness: 0.25 });
+  const sackMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.85 });
+  const fruitMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.3 });
 
   // Cart Wooden Bed
   const bed = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.12, 1.8), woodMat);
@@ -4338,36 +4726,36 @@ export function create3DMerchantCartMesh(posX: number, posZ: number): THREE.Grou
 
   // Spoked Wooden Wheels
   [-0.68, 0.68].forEach((wx) => {
-    const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.10, 14), darkWoodMat);
+    const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.10, 16), darkWoodMat);
     wheel.rotation.z = Math.PI / 2;
     wheel.position.set(wx, 0.38, 0.10);
     wheel.castShadow = true;
     group.add(wheel);
 
-    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.37, 0.03, 6, 16), ironMat);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.37, 0.03, 8, 20), ironMat);
     rim.rotation.y = Math.PI / 2;
     rim.position.set(wx, 0.38, 0.10);
     group.add(rim);
   });
 
   // Pulling Shafts
-  const shaftL = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 6), darkWoodMat);
+  const shaftL = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 8), darkWoodMat);
   shaftL.rotation.x = Math.PI / 2 + 0.15;
   shaftL.position.set(-0.40, 0.30, 1.3);
   group.add(shaftL);
 
-  const shaftR = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 6), darkWoodMat);
+  const shaftR = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 8), darkWoodMat);
   shaftR.rotation.x = Math.PI / 2 + 0.15;
   shaftR.position.set(0.40, 0.30, 1.3);
   group.add(shaftR);
 
   // Cargo on the cart: Sacks & Fruit Crates
-  const sack1 = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 8), sackMat);
+  const sack1 = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 10), sackMat);
   sack1.scale.set(1.1, 0.7, 1.3);
   sack1.position.set(-0.20, 0.68, -0.35);
   group.add(sack1);
 
-  const sack2 = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 8), sackMat);
+  const sack2 = new THREE.Mesh(new THREE.SphereGeometry(0.25, 10, 10), sackMat);
   sack2.scale.set(1.0, 0.7, 1.2);
   sack2.position.set(0.22, 0.68, -0.20);
   group.add(sack2);
@@ -4377,7 +4765,7 @@ export function create3DMerchantCartMesh(posX: number, posZ: number): THREE.Grou
   group.add(fruitCrate);
 
   for (let i = 0; i < 4; i++) {
-    const apple = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), fruitMat);
+    const apple = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), fruitMat);
     apple.position.set(-0.10 + (i % 2) * 0.2, 0.80, 0.32 + Math.floor(i / 2) * 0.16);
     group.add(apple);
   }
@@ -4389,18 +4777,19 @@ export function create3DStonePlanterMesh(posX: number, posZ: number): THREE.Grou
   const group = new THREE.Group();
   group.position.set(posX, 0, posZ);
 
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.85, flatShading: true });
-  const soilMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 });
+  const stoneTex = createProceduralStoneBrickTexture('grey');
+  const stoneMat = new THREE.MeshStandardMaterial({ map: stoneTex, color: 0xffffff, roughness: 0.85 });
+  const soilMat = new THREE.MeshStandardMaterial({ color: 0x3d1c06, roughness: 0.95 });
   const bushMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.6 });
-  const flowerMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e, roughness: 0.3, emissive: 0x9f1239, emissiveIntensity: 0.3 });
+  const flowerMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e, roughness: 0.3, emissive: 0x9f1239, emissiveIntensity: 0.5 });
 
   // Hexagonal Stone Planter Basin
-  const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.30, 0.42, 6), stoneMat);
+  const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.30, 0.42, 8), stoneMat);
   basin.position.y = 0.21;
   basin.castShadow = true;
   group.add(basin);
 
-  const soil = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.05, 6), soilMat);
+  const soil = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.05, 8), soilMat);
   soil.position.y = 0.41;
   group.add(soil);
 
@@ -4411,9 +4800,9 @@ export function create3DStonePlanterMesh(posX: number, posZ: number): THREE.Grou
   group.add(bush);
 
   // Colorful Flowers
-  for (let i = 0; i < 5; i++) {
-    const angle = (i / 5) * Math.PI * 2;
-    const flower = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), flowerMat);
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2;
+    const flower = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), flowerMat);
     flower.position.set(Math.cos(angle) * 0.22, 0.65 + (i % 2) * 0.08, Math.sin(angle) * 0.22);
     group.add(flower);
   }
@@ -4427,16 +4816,21 @@ export function create3DStonePlanterMesh(posX: number, posZ: number): THREE.Grou
 export function create3DApothecaryBuildingMesh(): BuildingMeshResult {
   const group = new THREE.Group();
 
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.85, flatShading: true });
-  const plasterMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.7, flatShading: true });
-  const timberMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8 });
-  const greenRoofMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.65, flatShading: true });
-  const darkRoofMat = new THREE.MeshStandardMaterial({ color: 0x14532d, roughness: 0.7, flatShading: true });
+  const stoneTex = createProceduralStoneBrickTexture('dark');
+  const woodTex = createProceduralWoodPlankTexture('dark');
+  const roofTex = createProceduralRoofShinglesTexture('terracotta');
+  const windowTex = createProceduralWindowGlassTexture();
+
+  const stoneMat = new THREE.MeshStandardMaterial({ map: stoneTex, color: 0xffffff, roughness: 0.85 });
+  const plasterMat = new THREE.MeshStandardMaterial({ map: stoneTex, color: 0xfef08a, roughness: 0.7 });
+  const timberMat = new THREE.MeshStandardMaterial({ map: woodTex, color: 0xffffff, roughness: 0.75 });
+  const greenRoofMat = new THREE.MeshStandardMaterial({ map: roofTex, color: 0x22c55e, roughness: 0.60 });
+  const darkRoofMat = new THREE.MeshStandardMaterial({ map: roofTex, color: 0x14532d, roughness: 0.70 });
   const potionRedMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 1.5, roughness: 0.1 });
   const potionCyanMat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, emissive: 0x0891b2, emissiveIntensity: 1.5, roughness: 0.1 });
   const potionGreenMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x16a34a, emissiveIntensity: 1.5, roughness: 0.1 });
   const potionPurpleMat = new THREE.MeshStandardMaterial({ color: 0xa855f7, emissive: 0x7e22ce, emissiveIntensity: 1.5, roughness: 0.1 });
-  const windowGlowMat = new THREE.MeshStandardMaterial({ color: 0x86efac, emissive: 0x22c55e, emissiveIntensity: 1.2 });
+  const windowGlowMat = new THREE.MeshStandardMaterial({ map: windowTex, color: 0xffffff, emissive: 0x22c55e, emissiveIntensity: 1.4 });
 
   // 1. Stone Foundation Plinth
   const plinth = new THREE.Mesh(new THREE.BoxGeometry(2.15, 0.45, 1.85), stoneMat);
@@ -4559,11 +4953,16 @@ export function create3DApothecaryBuildingMesh(): BuildingMeshResult {
 export function create3DCityHallBuildingMesh(): BuildingMeshResult {
   const group = new THREE.Group();
 
-  const ashlarMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.75, flatShading: true });
-  const darkStoneMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.85, flatShading: true });
-  const blueRoofMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.55, flatShading: true });
-  const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8, roughness: 0.2, emissive: 0xd97706, emissiveIntensity: 0.5 });
-  const stainedGlassMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 1.5 });
+  const ashlarTex = createProceduralStoneBrickTexture('grey');
+  const darkStoneTex = createProceduralStoneBrickTexture('dark');
+  const roofTex = createProceduralRoofShinglesTexture('slate');
+  const windowTex = createProceduralWindowGlassTexture();
+
+  const ashlarMat = new THREE.MeshStandardMaterial({ map: ashlarTex, color: 0xffffff, roughness: 0.75 });
+  const darkStoneMat = new THREE.MeshStandardMaterial({ map: darkStoneTex, color: 0xffffff, roughness: 0.85 });
+  const blueRoofMat = new THREE.MeshStandardMaterial({ map: roofTex, color: 0x38bdf8, roughness: 0.55 });
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.16 });
+  const stainedGlassMat = new THREE.MeshStandardMaterial({ map: windowTex, color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 1.5 });
   const bannerMat = new THREE.MeshStandardMaterial({ color: 0xb91c1c, roughness: 0.6, side: THREE.DoubleSide });
 
   // 1. Monumental Stepped Base
@@ -4660,13 +5059,18 @@ export function create3DCityHallBuildingMesh(): BuildingMeshResult {
 export function create3DTavernBuildingMesh(): BuildingMeshResult {
   const group = new THREE.Group();
 
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x57534e, roughness: 0.9, flatShading: true });
-  const timberMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8 });
-  const plasterMat = new THREE.MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.75, flatShading: true });
-  const terracottaRoofMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.65, flatShading: true });
-  const darkTerracottaMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.7, flatShading: true });
-  const windowGlowMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xf59e0b, emissiveIntensity: 1.6 });
-  const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8, roughness: 0.2 });
+  const stoneTex = createProceduralStoneBrickTexture('grey');
+  const woodTex = createProceduralWoodPlankTexture('dark');
+  const roofTex = createProceduralRoofShinglesTexture('terracotta');
+  const windowTex = createProceduralWindowGlassTexture();
+
+  const stoneMat = new THREE.MeshStandardMaterial({ map: stoneTex, color: 0xffffff, roughness: 0.9 });
+  const timberMat = new THREE.MeshStandardMaterial({ map: woodTex, color: 0xffffff, roughness: 0.8 });
+  const plasterMat = new THREE.MeshStandardMaterial({ map: stoneTex, color: 0xfef3c7, roughness: 0.75 });
+  const terracottaRoofMat = new THREE.MeshStandardMaterial({ map: roofTex, color: 0xffffff, roughness: 0.65 });
+  const darkTerracottaMat = new THREE.MeshStandardMaterial({ map: roofTex, color: 0x888888, roughness: 0.7 });
+  const windowGlowMat = new THREE.MeshStandardMaterial({ map: windowTex, color: 0xffffff, emissive: 0xf59e0b, emissiveIntensity: 1.8 });
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.92, roughness: 0.18 });
 
   // 1. Heavy Stone Base
   const base = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.55, 2.05), stoneMat);
