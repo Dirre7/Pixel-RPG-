@@ -2589,70 +2589,71 @@ export function createHumanNPCMesh(
   const markerGroup = new THREE.Group();
   markerGroup.position.set(0, 1.95, 0);
 
-  // Quest marker color scheme: Golden/Amber for available quest, Emerald Green if ready to turn in, Radiant Pink for dialogue
-  const markerColor = isQuestReady ? 0x22c55e : hasQuest ? 0xfbbf24 : 0xf59e0b;
-  const markerEmissive = isQuestReady ? 0x16a34a : hasQuest ? 0xd97706 : 0xb45309;
+  let haloRing: THREE.Mesh | null = null;
 
-  const markerMat = new THREE.MeshStandardMaterial({
-    color: markerColor,
-    emissive: markerEmissive,
-    emissiveIntensity: 2.8,
-    metalness: 0.3,
-    roughness: 0.15,
-  });
+  if (hasQuest || isQuestReady) {
+    // Quest marker color scheme: Golden/Amber for available quest, Emerald Green if ready to turn in
+    const markerColor = isQuestReady ? 0x22c55e : 0xfbbf24;
+    const markerEmissive = isQuestReady ? 0x16a34a : 0xd97706;
 
-  // 3D Exclamation Stalk (Tapered faceted column matching classic RPG quests)
-  const exclStalk = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.045, 0.38, 8), markerMat);
-  exclStalk.position.y = 0.24;
-  markerGroup.add(exclStalk);
-
-  // 3D Exclamation Dot
-  const exclDot = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 10), markerMat);
-  exclDot.position.y = -0.06;
-  markerGroup.add(exclDot);
-
-  // Radiant Glowing Halo Ring around the exclamation
-  const haloRing = new THREE.Mesh(
-    new THREE.TorusGeometry(0.24, 0.02, 8, 24),
-    new THREE.MeshStandardMaterial({
+    const markerMat = new THREE.MeshStandardMaterial({
       color: markerColor,
       emissive: markerEmissive,
-      emissiveIntensity: 2.2,
-      transparent: true,
-      opacity: 0.85,
-    })
-  );
-  haloRing.position.y = 0.14;
-  haloRing.rotation.x = Math.PI / 2;
-  markerGroup.add(haloRing);
+      emissiveIntensity: 2.8,
+      metalness: 0.3,
+      roughness: 0.15,
+    });
 
-  group.add(markerGroup);
+    // 3D Exclamation Stalk (Tapered faceted column matching classic RPG quests)
+    const exclStalk = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.045, 0.38, 8), markerMat);
+    exclStalk.position.y = 0.24;
+    markerGroup.add(exclStalk);
 
-  // Ground Interaction Aura Ring (At the NPC's feet)
-  const auraRing = new THREE.Mesh(
-    new THREE.RingGeometry(0.55, 0.68, 32),
-    new THREE.MeshBasicMaterial({
-      color: markerColor,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.75,
-    })
-  );
-  auraRing.rotation.x = -Math.PI / 2;
-  auraRing.position.y = 0.02;
-  group.add(auraRing);
+    // 3D Exclamation Dot
+    const exclDot = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 10), markerMat);
+    exclDot.position.y = -0.06;
+    markerGroup.add(exclDot);
 
-  // Dedicated NPC Point Light
-  const npcLight = new THREE.PointLight(markerColor, 2.2, 5);
-  npcLight.position.set(0, 2.0, 0);
-  group.add(npcLight);
+    // Radiant Glowing Halo Ring around the exclamation
+    haloRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.24, 0.02, 8, 24),
+      new THREE.MeshStandardMaterial({
+        color: markerColor,
+        emissive: markerEmissive,
+        emissiveIntensity: 2.2,
+        transparent: true,
+        opacity: 0.85,
+      })
+    );
+    haloRing.position.y = 0.14;
+    haloRing.rotation.x = Math.PI / 2;
+    markerGroup.add(haloRing);
+
+    group.add(markerGroup);
+
+    // Ground Interaction Aura Ring (At the NPC's feet)
+    const auraRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.55, 0.68, 32),
+      new THREE.MeshBasicMaterial({
+        color: markerColor,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.75,
+      })
+    );
+    auraRing.rotation.x = -Math.PI / 2;
+    auraRing.position.y = 0.02;
+    group.add(auraRing);
+  }
 
   // Animation Updater Loop for NPC Breathing & Exclamation Bobbing/Spinning
   const updateAnimation = (time: number) => {
     // Floating exclamation mark bobbing up and down + rotating
-    markerGroup.position.y = 1.95 + Math.sin(time * 3.5) * 0.08;
-    markerGroup.rotation.y = time * 1.8;
-    haloRing.rotation.z = time * 2.5;
+    if (hasQuest || isQuestReady) {
+      markerGroup.position.y = 1.95 + Math.sin(time * 3.5) * 0.08;
+      markerGroup.rotation.y = time * 1.8;
+      if (haloRing) haloRing.rotation.z = time * 2.5;
+    }
 
     // Breathing posture
     torsoGroup.position.y = 0.70 + Math.sin(time * 2.5) * 0.012;
