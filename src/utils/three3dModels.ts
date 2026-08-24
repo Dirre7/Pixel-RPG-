@@ -3877,6 +3877,204 @@ export function createStylizedChestMesh(isOpened: boolean = false): ChestMeshRes
   return { group, lidGroup, updateAnimation };
 }
 
+// ==========================================
+// 8. VILLAGE DETAIL PROPS & DECORATIONS (Crates, Barrels, Merchant Carts & Planters)
+// ==========================================
+
+export function create3DWoodenCratesMesh(posX: number, posZ: number): THREE.Group {
+  const group = new THREE.Group();
+  group.position.set(posX, 0, posZ);
+
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.8 });
+  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.85 });
+  const ironMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.3 });
+
+  // Crate 1 (Bottom Left)
+  const crate1 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.45, 0.55), woodMat);
+  crate1.position.set(-0.25, 0.225, 0.15);
+  crate1.rotation.y = 0.1;
+  crate1.castShadow = true;
+  group.add(crate1);
+
+  // Crate 2 (Bottom Right)
+  const crate2 = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.40, 0.50), darkWoodMat);
+  crate2.position.set(0.25, 0.20, -0.10);
+  crate2.rotation.y = -0.25;
+  crate2.castShadow = true;
+  group.add(crate2);
+
+  // Crate 3 (Top Stacked)
+  const crate3 = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.35, 0.42), woodMat);
+  crate3.position.set(-0.10, 0.60, 0.05);
+  crate3.rotation.y = 0.35;
+  crate3.castShadow = true;
+  group.add(crate3);
+
+  // Metal Corner Brackets on top crate
+  const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.04, 0.44), ironMat);
+  bracket.position.set(-0.10, 0.60, 0.05);
+  bracket.rotation.y = 0.35;
+  group.add(bracket);
+
+  return group;
+}
+
+export function create3DOakBarrelsMesh(posX: number, posZ: number): THREE.Group {
+  const group = new THREE.Group();
+  group.position.set(posX, 0, posZ);
+
+  const barrelMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.75 });
+  const bandMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.85, roughness: 0.25 });
+
+  // Barrel 1 (Standing upright)
+  const barrel1 = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.28, 0.65, 12), barrelMat);
+  barrel1.position.set(-0.20, 0.325, 0.10);
+  barrel1.castShadow = true;
+  group.add(barrel1);
+
+  const band1Top = new THREE.Mesh(new THREE.CylinderGeometry(0.265, 0.275, 0.05, 12), bandMat);
+  band1Top.position.set(-0.20, 0.48, 0.10);
+  group.add(band1Top);
+
+  const band1Bot = new THREE.Mesh(new THREE.CylinderGeometry(0.275, 0.285, 0.05, 12), bandMat);
+  band1Bot.position.set(-0.20, 0.18, 0.10);
+  group.add(band1Bot);
+
+  // Barrel 2 (Standing upright slightly smaller)
+  const barrel2 = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.58, 12), barrelMat);
+  barrel2.position.set(0.22, 0.29, -0.12);
+  barrel2.castShadow = true;
+  group.add(barrel2);
+
+  const band2Top = new THREE.Mesh(new THREE.CylinderGeometry(0.245, 0.255, 0.04, 12), bandMat);
+  band2Top.position.set(0.22, 0.44, -0.12);
+  group.add(band2Top);
+
+  // Barrel 3 (Laying sideways on ground)
+  const barrel3 = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.23, 0.55, 10), barrelMat);
+  barrel3.rotation.z = Math.PI / 2;
+  barrel3.rotation.y = 0.4;
+  barrel3.position.set(0.05, 0.20, 0.30);
+  barrel3.castShadow = true;
+  group.add(barrel3);
+
+  return group;
+}
+
+export function create3DMerchantCartMesh(posX: number, posZ: number): THREE.Group {
+  const group = new THREE.Group();
+  group.position.set(posX, 0, posZ);
+
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.85 });
+  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.9 });
+  const ironMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.85, roughness: 0.3 });
+  const sackMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.9 });
+  const fruitMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
+
+  // Cart Wooden Bed
+  const bed = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.12, 1.8), woodMat);
+  bed.position.set(0, 0.45, 0);
+  bed.castShadow = true;
+  group.add(bed);
+
+  // Side Rails
+  const sideL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.35, 1.8), darkWoodMat);
+  sideL.position.set(-0.56, 0.65, 0);
+  group.add(sideL);
+
+  const sideR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.35, 1.8), darkWoodMat);
+  sideR.position.set(0.56, 0.65, 0);
+  group.add(sideR);
+
+  const frontBack = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.35, 0.08), darkWoodMat);
+  frontBack.position.set(0, 0.65, -0.86);
+  group.add(frontBack);
+
+  // Spoked Wooden Wheels
+  [-0.68, 0.68].forEach((wx) => {
+    const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.10, 14), darkWoodMat);
+    wheel.rotation.z = Math.PI / 2;
+    wheel.position.set(wx, 0.38, 0.10);
+    wheel.castShadow = true;
+    group.add(wheel);
+
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.37, 0.03, 6, 16), ironMat);
+    rim.rotation.y = Math.PI / 2;
+    rim.position.set(wx, 0.38, 0.10);
+    group.add(rim);
+  });
+
+  // Pulling Shafts
+  const shaftL = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 6), darkWoodMat);
+  shaftL.rotation.x = Math.PI / 2 + 0.15;
+  shaftL.position.set(-0.40, 0.30, 1.3);
+  group.add(shaftL);
+
+  const shaftR = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 6), darkWoodMat);
+  shaftR.rotation.x = Math.PI / 2 + 0.15;
+  shaftR.position.set(0.40, 0.30, 1.3);
+  group.add(shaftR);
+
+  // Cargo on the cart: Sacks & Fruit Crates
+  const sack1 = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 8), sackMat);
+  sack1.scale.set(1.1, 0.7, 1.3);
+  sack1.position.set(-0.20, 0.68, -0.35);
+  group.add(sack1);
+
+  const sack2 = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 8), sackMat);
+  sack2.scale.set(1.0, 0.7, 1.2);
+  sack2.position.set(0.22, 0.68, -0.20);
+  group.add(sack2);
+
+  const fruitCrate = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.28, 0.45), woodMat);
+  fruitCrate.position.set(0, 0.62, 0.40);
+  group.add(fruitCrate);
+
+  for (let i = 0; i < 4; i++) {
+    const apple = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), fruitMat);
+    apple.position.set(-0.10 + (i % 2) * 0.2, 0.80, 0.32 + Math.floor(i / 2) * 0.16);
+    group.add(apple);
+  }
+
+  return group;
+}
+
+export function create3DStonePlanterMesh(posX: number, posZ: number): THREE.Group {
+  const group = new THREE.Group();
+  group.position.set(posX, 0, posZ);
+
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.85, flatShading: true });
+  const soilMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 });
+  const bushMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.6 });
+  const flowerMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e, roughness: 0.3, emissive: 0x9f1239, emissiveIntensity: 0.3 });
+
+  // Hexagonal Stone Planter Basin
+  const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.30, 0.42, 6), stoneMat);
+  basin.position.y = 0.21;
+  basin.castShadow = true;
+  group.add(basin);
+
+  const soil = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.05, 6), soilMat);
+  soil.position.y = 0.41;
+  group.add(soil);
+
+  // Lush Blooming Bush in Planter
+  const bush = new THREE.Mesh(new THREE.DodecahedronGeometry(0.32, 1), bushMat);
+  bush.position.y = 0.58;
+  bush.castShadow = true;
+  group.add(bush);
+
+  // Colorful Flowers
+  for (let i = 0; i < 5; i++) {
+    const angle = (i / 5) * Math.PI * 2;
+    const flower = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), flowerMat);
+    flower.position.set(Math.cos(angle) * 0.22, 0.65 + (i % 2) * 0.08, Math.sin(angle) * 0.22);
+    group.add(flower);
+  }
+
+  return group;
+}
+
 
 
 

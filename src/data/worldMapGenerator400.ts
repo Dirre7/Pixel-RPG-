@@ -132,6 +132,12 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[26][23] = 9;  // Puestos de mercado del bazar
   map[28][23] = 9;
 
+  // 🏰 Grandes Mansiones y Casonas Nobles enmarcando la Plaza Central
+  map[23][25] = 5;  // 🏠 Gran Posada del León Dorado (Norte de la Plaza)
+  map[23][31] = 5;  // 🏠 Mansión del Gremio de Comerciantes (Noreste)
+  map[33][24] = 5;  // 🏠 Casona Señorial del Roble (Suroeste)
+  map[33][32] = 5;  // 🏠 Casona Noble de la Ribera (Sureste)
+
   // 🏘️ GRANDES CASAS, MANSIONES Y DISTRITOS
 
   // 1. DISTRITO NOROESTE (Gremio de Exploradores & Viñedo)

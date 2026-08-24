@@ -60,10 +60,13 @@ import {
   create3DDragonForgeMesh,
   create3DCastleRotundaTowerMesh,
   create3DCastleArchedWallMesh,
-  create3DCastleWaterfallRiverMesh,
   create3DRoyalRelicCrystalMesh,
   create3DRoyalForgeMesh,
   createStylizedChestMesh,
+  create3DWoodenCratesMesh,
+  create3DOakBarrelsMesh,
+  create3DMerchantCartMesh,
+  create3DStonePlanterMesh,
 } from '../utils/three3dModels';
 
 interface ThreeMapCanvasProps {
@@ -1099,6 +1102,47 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: geodeGroup, gridX: x, gridY: y });
         }
       }
+    }
+
+    // 5.3 SPAWN ATMOSPHERIC VILLAGE PROPS IN FOREST (Crates, Barrels, Merchant Carts, Planters)
+    if (currentZone.id === 'zone_forest') {
+      // Planters around the Great Fountain & Notice Board
+      const planterPositions = [
+        [28 * 2.5 - 0.9, 30 * 2.5],
+        [28 * 2.5 + 0.9, 30 * 2.5],
+        [28 * 2.5, 30 * 2.5 - 0.9],
+        [28 * 2.5, 30 * 2.5 + 0.9],
+        [31 * 2.5, 27 * 2.5 - 0.8], // Next to Mission Board
+      ];
+      planterPositions.forEach(([px, pz]) => {
+        tileGroup.add(create3DStonePlanterMesh(px, pz));
+      });
+
+      // Wooden Crate Stacks at Bazaar, Corners and Inns
+      const cratePositions = [
+        [23 * 2.5 + 0.6, 26 * 2.5 + 0.6], // Bazaar Stall 1
+        [23 * 2.5 + 0.6, 28 * 2.5 + 0.6], // Bazaar Stall 2
+        [33 * 2.5 - 0.5, 27 * 2.5 + 0.5], // East corner
+        [25 * 2.5 - 0.6, 23 * 2.5 + 0.6], // Inn side
+        [31 * 2.5 + 0.6, 33 * 2.5 - 0.6], // South corner
+      ];
+      cratePositions.forEach(([cx, cz]) => {
+        tileGroup.add(create3DWoodenCratesMesh(cx, cz));
+      });
+
+      // Oak Barrels near Tavern and Market
+      const barrelPositions = [
+        [24 * 2.5 + 0.4, 27 * 2.5 - 0.5],
+        [32 * 2.5 - 0.4, 26 * 2.5 + 0.5],
+        [27 * 2.5 - 0.6, 32 * 2.5 - 0.4],
+        [33 * 2.5 - 0.5, 29 * 2.5 - 0.5],
+      ];
+      barrelPositions.forEach(([bx, bz]) => {
+        tileGroup.add(create3DOakBarrelsMesh(bx, bz));
+      });
+
+      // Traveling Merchant Caravan Cart parked at plaza side
+      tileGroup.add(create3DMerchantCartMesh(24 * 2.5, 31 * 2.5));
     }
 
     // 5.5 SPAWN ALL ZONE NPCS WITH 3D QUEST MARKERS
