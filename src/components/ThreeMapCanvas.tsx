@@ -919,6 +919,46 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           tileGroup.add(forgeGroup);
           obstacleGroups.push({ group: forgeGroup, gridX: x, gridY: y });
         }
+
+        // 🥕 Huerto de Cultivo y Parcela de Hortalizas (Tile 13)
+        if (tileType === 13) {
+          const cropGroup = create3DCropPatchMesh(posX, posZ);
+          cropGroup.position.y += elevation;
+          tileGroup.add(cropGroup);
+          obstacleGroups.push({ group: cropGroup, gridX: x, gridY: y });
+        }
+
+        // 🪵 Depósito de Leña y Pila de Troncos (Tile 14)
+        if (tileType === 14) {
+          const woodGroup = create3DWoodpileMesh(posX, posZ);
+          woodGroup.position.y += elevation;
+          tileGroup.add(woodGroup);
+          obstacleGroups.push({ group: woodGroup, gridX: x, gridY: y });
+        }
+
+        // 🏮 Farola de la Calle / Poste de Luz (Tile 17)
+        if (tileType === 17) {
+          const lampGroup = create3DLanternPostMesh(posX, posZ);
+          lampGroup.position.y += elevation;
+          tileGroup.add(lampGroup);
+          obstacleGroups.push({ group: lampGroup, gridX: x, gridY: y });
+        }
+
+        // 🪨 Cantera de Piedra Natural & Veta de Mineral (Tile 18)
+        if (tileType === 18) {
+          const quarryGroup = create3DStoneQuarryMesh(posX, posZ, x * 7 + y * 13);
+          quarryGroup.position.y += elevation;
+          tileGroup.add(quarryGroup);
+          obstacleGroups.push({ group: quarryGroup, gridX: x, gridY: y });
+        }
+
+        // 💎 Geoda de Cristal Arcano (Tile 20)
+        if (tileType === 20) {
+          const geodeGroup = create3DGeodeCrystalMesh(posX, posZ, x * 11 + y * 17);
+          geodeGroup.position.y += elevation;
+          tileGroup.add(geodeGroup);
+          obstacleGroups.push({ group: geodeGroup, gridX: x, gridY: y });
+        }
       }
     }
 
@@ -2565,6 +2605,238 @@ function create3DRuinsMesh(posX: number, posZ: number): THREE.Group {
   rune.position.y = 0.1;
   rune.castShadow = true;
   g.add(rune);
+
+  return g;
+}
+
+// 🪨 Cantera de Piedra Natural & Veta de Mineral (Tile 18)
+function create3DStoneQuarryMesh(posX: number, posZ: number, seed: number): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  const rockMat = new THREE.MeshStandardMaterial({ color: 0x52525b, roughness: 0.85, flatShading: true });
+  const lightRockMat = new THREE.MeshStandardMaterial({ color: 0x71717a, roughness: 0.8, flatShading: true });
+  const ironMat = new THREE.MeshStandardMaterial({ color: 0xa1a1aa, metalness: 0.8, roughness: 0.3 });
+
+  // Base Excavated Gravel Circle
+  const baseGravel = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.15, 1.25, 0.08, 10),
+    new THREE.MeshStandardMaterial({ color: 0x3f3f46, roughness: 0.95 })
+  );
+  baseGravel.position.y = 0.04;
+  baseGravel.receiveShadow = true;
+  g.add(baseGravel);
+
+  // Main Massive Boulder
+  const mainRock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.72, 1), rockMat);
+  mainRock.position.set(-0.15, 0.55, -0.1);
+  mainRock.scale.set(1.1, 0.95, 1.2);
+  mainRock.rotation.set(0.3, seed * 0.5, -0.2);
+  mainRock.castShadow = true;
+  mainRock.receiveShadow = true;
+  g.add(mainRock);
+
+  // Secondary Boulder
+  const secRock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.48, 1), lightRockMat);
+  secRock.position.set(0.55, 0.38, 0.3);
+  secRock.rotation.set(-0.2, seed * 0.8, 0.4);
+  secRock.castShadow = true;
+  g.add(secRock);
+
+  // Cut Masonry Stone Slabs (Bloques tallados)
+  const slab1 = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.28, 0.42), lightRockMat);
+  slab1.position.set(-0.55, 0.14, 0.45);
+  slab1.rotation.y = 0.35;
+  slab1.castShadow = true;
+  g.add(slab1);
+
+  const slab2 = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.22, 0.35), rockMat);
+  slab2.position.set(-0.5, 0.38, 0.42);
+  slab2.rotation.y = -0.2;
+  slab2.castShadow = true;
+  g.add(slab2);
+
+  // Metallic Iron Ore Deposit Nuggets (Vetas brillantes incrustadas)
+  for (let i = 0; i < 4; i++) {
+    const ore = new THREE.Mesh(new THREE.OctahedronGeometry(0.12), ironMat);
+    ore.position.set(
+      -0.25 + (i % 2) * 0.4,
+      0.45 + (i > 1 ? 0.3 : 0),
+      -0.05 + (i % 3) * 0.25
+    );
+    g.add(ore);
+  }
+
+  // Miner Pickaxe leaning against stone
+  const handle = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.025, 0.025, 0.75, 6),
+    new THREE.MeshStandardMaterial({ color: 0x78350f })
+  );
+  handle.position.set(0.35, 0.35, -0.45);
+  handle.rotation.z = -0.55;
+  handle.rotation.x = 0.25;
+  g.add(handle);
+
+  const pickHead = new THREE.Mesh(
+    new THREE.ConeGeometry(0.06, 0.32, 4),
+    new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.85, roughness: 0.2 })
+  );
+  pickHead.position.set(0.52, 0.65, -0.4);
+  pickHead.rotation.z = Math.PI / 2;
+  g.add(pickHead);
+
+  return g;
+}
+
+// 🥕 Huerto de Cultivo y Parcela de Hortalizas (Tile 13)
+function create3DCropPatchMesh(posX: number, posZ: number): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  // Raised Fertile Soil Bed
+  const soilMat = new THREE.MeshStandardMaterial({ color: 0x3d2314, roughness: 0.95 });
+  const soilBed = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.14, 2.1), soilMat);
+  soilBed.position.y = 0.07;
+  soilBed.receiveShadow = true;
+  g.add(soilBed);
+
+  // Wooden Edge Frame
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.85 });
+  [
+    [0, 1.02, 2.18, 0.08],
+    [0, -1.02, 2.18, 0.08],
+    [1.02, 0, 0.08, 2.18],
+    [-1.02, 0, 0.08, 2.18],
+  ].forEach(([fx, fz, fw, fd]) => {
+    const plank = new THREE.Mesh(new THREE.BoxGeometry(fw, 0.16, fd), frameMat);
+    plank.position.set(fx, 0.08, fz);
+    g.add(plank);
+  });
+
+  const carrotMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.6 });
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.7 });
+  const cabbageMat = new THREE.MeshStandardMaterial({ color: 0x4ade80, roughness: 0.8 });
+
+  // Rows of Crops (Zanahorias y Coles)
+  for (let row = -1; row <= 1; row++) {
+    for (let col = -1; col <= 1; col++) {
+      const cx = col * 0.6;
+      const cz = row * 0.6;
+
+      if ((row + col) % 2 === 0) {
+        // Carrot with Green Foliage Top
+        const carrotTop = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.04, 0.12, 6), carrotMat);
+        carrotTop.position.set(cx, 0.18, cz);
+        g.add(carrotTop);
+
+        for (let l = 0; l < 3; l++) {
+          const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.18, 4), leafMat);
+          leaf.position.set(cx, 0.28, cz);
+          leaf.rotation.z = (l - 1) * 0.35;
+          leaf.rotation.x = ((l % 2) - 0.5) * 0.3;
+          g.add(leaf);
+        }
+      } else {
+        // Big Lush Cabbage
+        const cabbage = new THREE.Mesh(new THREE.DodecahedronGeometry(0.16, 1), cabbageMat);
+        cabbage.position.set(cx, 0.2, cz);
+        cabbage.scale.set(1.2, 0.85, 1.2);
+        g.add(cabbage);
+      }
+    }
+  }
+
+  return g;
+}
+
+// 🪵 Depósito de Leña y Pila de Troncos (Tile 14)
+function create3DWoodpileMesh(posX: number, posZ: number): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  const barkMat = new THREE.MeshStandardMaterial({ color: 0x543822, roughness: 0.9 });
+  const woodEndMat = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.7 });
+
+  // Wooden Ground Stand / Stakes
+  const stakeMat = new THREE.MeshStandardMaterial({ color: 0x3d2314, roughness: 0.9 });
+  [
+    [-0.65, -0.45],
+    [-0.65, 0.45],
+    [0.65, -0.45],
+    [0.65, 0.45],
+  ].forEach(([sx, sz]) => {
+    const stake = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.85, 0.12), stakeMat);
+    stake.position.set(sx, 0.42, sz);
+    stake.castShadow = true;
+    g.add(stake);
+  });
+
+  // Stacked Cylindrical Logs Pyramid (3 at bottom, 2 in middle, 1 at top)
+  const logRadius = 0.16;
+  const logLength = 1.35;
+  const layers = [
+    { count: 3, y: logRadius, offsetZ: -0.32 },
+    { count: 2, y: logRadius * 2.5, offsetZ: -0.16 },
+    { count: 1, y: logRadius * 4.0, offsetZ: 0 },
+  ];
+
+  layers.forEach(({ count, y, offsetZ }) => {
+    for (let i = 0; i < count; i++) {
+      const log = new THREE.Group();
+      const trunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(logRadius, logRadius, logLength, 8),
+        [woodEndMat, barkMat, woodEndMat]
+      );
+      trunk.rotation.z = Math.PI / 2;
+      trunk.castShadow = true;
+      log.add(trunk);
+
+      log.position.set(0, y, offsetZ + i * (logRadius * 2.1));
+      g.add(log);
+    }
+  });
+
+  return g;
+}
+
+// 💎 Geoda de Cristal Arcano (Tile 20)
+function create3DGeodeCrystalMesh(posX: number, posZ: number, seed: number): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  const geodeRockMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.9, flatShading: true });
+  const crystalColors = [0xc084fc, 0x38bdf8, 0xec4899, 0xa855f7];
+  const crystalColor = crystalColors[seed % crystalColors.length];
+
+  const crystalMat = new THREE.MeshStandardMaterial({
+    color: crystalColor,
+    emissive: crystalColor,
+    emissiveIntensity: 1.8,
+    roughness: 0.15,
+    metalness: 0.4,
+  });
+
+  // Hollow Rocky Crater Base
+  const baseRock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.75, 1), geodeRockMat);
+  baseRock.position.y = 0.35;
+  baseRock.scale.set(1.3, 0.65, 1.3);
+  baseRock.castShadow = true;
+  baseRock.receiveShadow = true;
+  g.add(baseRock);
+
+  // Cluster of 6 Arcane Crystals radiating upwards
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2 + seed;
+    const dist = 0.18 + (i % 3) * 0.12;
+    const height = 0.45 + ((seed + i) % 4) * 0.18;
+
+    const crystal = new THREE.Mesh(new THREE.ConeGeometry(0.12, height, 6), crystalMat);
+    crystal.position.set(Math.cos(angle) * dist, 0.45 + height / 2, Math.sin(angle) * dist);
+    crystal.rotation.x = Math.cos(angle) * 0.35;
+    crystal.rotation.z = Math.sin(angle) * 0.35;
+    crystal.castShadow = true;
+    g.add(crystal);
+  }
 
   return g;
 }
