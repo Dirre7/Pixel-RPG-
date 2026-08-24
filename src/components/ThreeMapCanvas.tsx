@@ -179,6 +179,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       (typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 0) ||
       window.innerWidth < 1024
     );
+    const isMobile = isTouchOrMobile;
 
     // 2. RENDERER SETUP WITH HIGH PERFORMANCE FOR MOBILE & TABLETS
     const renderer = new THREE.WebGLRenderer({
