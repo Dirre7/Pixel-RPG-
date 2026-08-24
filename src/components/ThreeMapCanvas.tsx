@@ -804,8 +804,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
               tileGroup.add(pebble);
             }
           } else if (hasNeighborPath && currentZone.id === 'zone_forest') {
-            // 🏙️ Diversified, balanced urban & garden street decorations (Sensible, non-cluttered distribution)
-            const propType = decSeed % 8;
+            // 🏙️ Diversified, balanced urban & garden street decorations
+            const propType = decSeed % 10;
             if (propType === 1) {
               // 🪑 Medieval Wooden Park Bench
               const benchOrientation = (x + y) % 2 === 0 ? 0 : Math.PI / 2;
@@ -838,8 +838,19 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
               tileGroup.add(lanternGroup);
               const lanternLight = lanternGroup.children.find((c) => c instanceof THREE.PointLight) as THREE.PointLight;
               if (lanternLight) animatedLanterns.push(lanternLight);
+            } else if (propType === 6 && (x + y) % 12 === 0) {
+              // ⛲ Stone Village Well
+              const well = create3DStoneWellMesh(posX, posZ);
+              well.position.y += elevation;
+              tileGroup.add(well);
+              obstacleGroups.push({ group: well, gridX: x, gridY: y });
+            } else if (propType === 7 && (x + y) % 14 === 0) {
+              // 🛒 Rustic Wooden Cargo Cart
+              const cart = create3DWoodenCartMesh(posX, posZ, (x % 2) * Math.PI / 2);
+              cart.position.y += elevation;
+              tileGroup.add(cart);
+              obstacleGroups.push({ group: cart, gridX: x, gridY: y });
             }
-            // Other ~40% remains clean, open lawn with grass tufts and wildflower blossoms!
           } else if (decSeed % 11 === 0) {
             const flowerGroup = create3DFlowerPatchMesh(posX, posZ, decSeed);
             flowerGroup.position.y += elevation;
@@ -851,17 +862,72 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
             const lanternLight = lanternGroup.children.find((c) => c instanceof THREE.PointLight) as THREE.PointLight;
             if (lanternLight) animatedLanterns.push(lanternLight);
           } else if (currentZone.id === 'zone_forest') {
-            // 3D Grass Tuft clusters
-            if (decSeed % 2 === 0) {
-              const grassTuft = create3DGrassTuftMesh(posX + ((decSeed % 5) - 2) * 0.2, posZ + ((decSeed % 7) - 3) * 0.2, decSeed);
-              grassTuft.position.y += elevation;
-              tileGroup.add(grassTuft);
-            }
-            // Mossy Pebble
-            if (decSeed % 5 === 1) {
-              const pebble = create3DRockPebbleMesh(posX + ((decSeed % 3) - 1) * 0.3, posZ + ((decSeed % 4) - 2) * 0.3, decSeed);
-              pebble.position.y += elevation;
-              tileGroup.add(pebble);
+            // 🌳 Rich RPG Wilderness & Rural Environment Decorators (+300 Props)
+            if (decSeed % 23 === 0) {
+              // 🍎 Orchard Fruit Tree with Red Apples
+              const fruitTree = create3DFruitTreeMesh(posX, posZ, decSeed);
+              fruitTree.position.y += elevation;
+              tileGroup.add(fruitTree);
+              animatedSwayObjects.push(fruitTree);
+              obstacleGroups.push({ group: fruitTree, gridX: x, gridY: y });
+            } else if (decSeed % 37 === 0) {
+              // 🌿 Weeping Willow Tree
+              const willow = create3DWillowTreeMesh(posX, posZ, decSeed);
+              willow.position.y += elevation;
+              tileGroup.add(willow);
+              animatedSwayObjects.push(willow);
+              obstacleGroups.push({ group: willow, gridX: x, gridY: y });
+            } else if (decSeed % 41 === 0) {
+              // 🌾 Golden Rolled Hay Bales
+              const hay = create3DHayBaleMesh(posX, posZ, decSeed);
+              hay.position.y += elevation;
+              tileGroup.add(hay);
+              obstacleGroups.push({ group: hay, gridX: x, gridY: y });
+            } else if (decSeed % 53 === 0) {
+              // 🌾 Straw Scarecrow
+              const scarecrow = create3DScarecrowMesh(posX, posZ);
+              scarecrow.position.y += elevation;
+              tileGroup.add(scarecrow);
+              obstacleGroups.push({ group: scarecrow, gridX: x, gridY: y });
+            } else if (decSeed % 67 === 0) {
+              // 🔥 Glowing Campfire with Embers
+              const campfire = create3DCampfireMesh(posX, posZ);
+              campfire.position.y += elevation;
+              tileGroup.add(campfire);
+              const fireLight = campfire.children.find((c) => c instanceof THREE.PointLight) as THREE.PointLight;
+              if (fireLight) animatedLanterns.push(fireLight);
+              obstacleGroups.push({ group: campfire, gridX: x, gridY: y });
+            } else if (decSeed % 71 === 0) {
+              // 🛒 Wooden Cargo Cart
+              const cart = create3DWoodenCartMesh(posX, posZ, (decSeed % 4) * (Math.PI / 2));
+              cart.position.y += elevation;
+              tileGroup.add(cart);
+              obstacleGroups.push({ group: cart, gridX: x, gridY: y });
+            } else if (decSeed % 79 === 0) {
+              // 🗿 Ancient Runic Monolith
+              const monolith = create3DRunicMonolithMesh(posX, posZ, decSeed);
+              monolith.position.y += elevation;
+              tileGroup.add(monolith);
+              obstacleGroups.push({ group: monolith, gridX: x, gridY: y });
+            } else if (decSeed % 83 === 0) {
+              // 🍻 Outdoor Tavern Patio with benches & ale tankards
+              const patio = create3DTavernPatioMesh(posX, posZ, (decSeed % 2) * (Math.PI / 2));
+              patio.position.y += elevation;
+              tileGroup.add(patio);
+              obstacleGroups.push({ group: patio, gridX: x, gridY: y });
+            } else {
+              // 3D Grass Tuft clusters
+              if (decSeed % 2 === 0) {
+                const grassTuft = create3DGrassTuftMesh(posX + ((decSeed % 5) - 2) * 0.2, posZ + ((decSeed % 7) - 3) * 0.2, decSeed);
+                grassTuft.position.y += elevation;
+                tileGroup.add(grassTuft);
+              }
+              // Mossy Pebble
+              if (decSeed % 5 === 1) {
+                const pebble = create3DRockPebbleMesh(posX + ((decSeed % 3) - 1) * 0.3, posZ + ((decSeed % 4) - 2) * 0.3, decSeed);
+                pebble.position.y += elevation;
+                tileGroup.add(pebble);
+              }
             }
           }
         }
@@ -2752,6 +2818,341 @@ function create3DMarketCratesMesh(posX: number, posZ: number, seed: number = 0):
     apple.castShadow = true;
     g.add(apple);
   }
+
+  return g;
+}
+
+// 5. 🍎 Orchard Apple / Cherry Fruit Tree
+function create3DFruitTreeMesh(posX: number, posZ: number, seed: number = 0): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  // Trunk
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.85 });
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.28, 1.4, 8), woodMat);
+  trunk.position.y = 0.7;
+  trunk.castShadow = true;
+  trunk.receiveShadow = true;
+  g.add(trunk);
+
+  // Foliage Spheres
+  const leafMat = new THREE.MeshStandardMaterial({ color: seed % 2 === 0 ? 0x16a34a : 0x22c55e, roughness: 0.55 });
+  const mainCrown = new THREE.Mesh(new THREE.DodecahedronGeometry(0.9, 1), leafMat);
+  mainCrown.position.y = 1.9;
+  mainCrown.castShadow = true;
+  g.add(mainCrown);
+
+  const subCrown1 = new THREE.Mesh(new THREE.DodecahedronGeometry(0.65, 1), leafMat);
+  subCrown1.position.set(0.4, 1.6, 0.3);
+  subCrown1.castShadow = true;
+  g.add(subCrown1);
+
+  const subCrown2 = new THREE.Mesh(new THREE.DodecahedronGeometry(0.6, 1), leafMat);
+  subCrown2.position.set(-0.35, 1.7, -0.3);
+  subCrown2.castShadow = true;
+  g.add(subCrown2);
+
+  // Ripe Red / Golden Apples
+  const appleMat = new THREE.MeshStandardMaterial({ color: seed % 3 === 0 ? 0xfacc15 : 0xef4444, roughness: 0.3 });
+  for (let a = 0; a < 8; a++) {
+    const apple = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 6), appleMat);
+    const ang = (a * Math.PI * 2) / 8;
+    const rad = 0.75 + ((a % 3) * 0.1);
+    apple.position.set(Math.cos(ang) * rad, 1.5 + ((a % 4) * 0.25), Math.sin(ang) * rad);
+    apple.castShadow = true;
+    g.add(apple);
+  }
+
+  return g;
+}
+
+// 6. 🌿 Weeping Willow Tree with Cascading Foliage
+function create3DWillowTreeMesh(posX: number, posZ: number, seed: number = 0): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 });
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.36, 1.6, 8), woodMat);
+  trunk.position.y = 0.8;
+  trunk.castShadow = true;
+  g.add(trunk);
+
+  // Hanging Willow Vines Canopy
+  const willowLeafMat = new THREE.MeshStandardMaterial({ color: 0x4ade80, roughness: 0.6 });
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(1.2, 10, 10, 0, Math.PI * 2, 0, Math.PI * 0.6), willowLeafMat);
+  dome.position.y = 1.9;
+  dome.castShadow = true;
+  g.add(dome);
+
+  // Drooping vine tendrils
+  for (let v = 0; v < 8; v++) {
+    const ang = (v * Math.PI * 2) / 8;
+    const vine = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.04, 1.1, 6), willowLeafMat);
+    vine.position.set(Math.cos(ang) * 1.0, 1.4, Math.sin(ang) * 1.0);
+    vine.castShadow = true;
+    g.add(vine);
+  }
+
+  return g;
+}
+
+// 7. ⛲ Stone Village Well with Wooden Canopy & Bucket
+function create3DStoneWellMesh(posX: number, posZ: number): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.85 });
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.75 });
+  const waterMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.1, metalness: 0.3 });
+
+  // Stone Circular Base Basin
+  const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.9, 0.65, 14), stoneMat);
+  basin.position.y = 0.325;
+  basin.castShadow = true;
+  basin.receiveShadow = true;
+  g.add(basin);
+
+  // Well Water Surface Inside
+  const water = new THREE.Mesh(new THREE.CircleGeometry(0.68, 12), waterMat);
+  water.rotation.x = -Math.PI / 2;
+  water.position.y = 0.45;
+  g.add(water);
+
+  // Wooden Support Posts
+  [-0.6, 0.6].forEach((px) => {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.5, 6), woodMat);
+    post.position.set(px, 1.0, 0);
+    post.castShadow = true;
+    g.add(post);
+  });
+
+  // Roof Canopy
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(1.05, 0.6, 4), woodMat);
+  roof.rotation.y = Math.PI / 4;
+  roof.position.y = 1.95;
+  roof.castShadow = true;
+  g.add(roof);
+
+  return g;
+}
+
+// 8. 🌾 Golden Rolled Hay Bales
+function create3DHayBaleMesh(posX: number, posZ: number, seed: number = 0): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  const hayMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.9 });
+  const ropeMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 });
+
+  // Main Hay Cylinder
+  const bale1 = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.95, 12), hayMat);
+  bale1.rotation.z = Math.PI / 2;
+  bale1.position.set(0, 0.42, 0);
+  bale1.castShadow = true;
+  bale1.receiveShadow = true;
+  g.add(bale1);
+
+  // Twine rope bindings
+  [-0.22, 0.22].forEach((rx) => {
+    const rope = new THREE.Mesh(new THREE.TorusGeometry(0.43, 0.02, 6, 16), ropeMat);
+    rope.rotation.y = Math.PI / 2;
+    rope.position.set(rx, 0.42, 0);
+    g.add(rope);
+  });
+
+  if (seed % 2 === 0) {
+    const bale2 = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.85, 12), hayMat);
+    bale2.rotation.z = Math.PI / 2;
+    bale2.position.set(0.15, 0.85, 0.1);
+    bale2.castShadow = true;
+    g.add(bale2);
+  }
+
+  return g;
+}
+
+// 9. 🌾 Straw Scarecrow
+function create3DScarecrowMesh(posX: number, posZ: number): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 });
+  const clothMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.7 });
+  const hatMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.85 });
+
+  // Main Wooden Post
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 1.8, 6), woodMat);
+  pole.position.y = 0.9;
+  pole.castShadow = true;
+  g.add(pole);
+
+  // Cross Arms
+  const arms = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.2, 6), woodMat);
+  arms.rotation.z = Math.PI / 2;
+  arms.position.y = 1.35;
+  g.add(arms);
+
+  // Tattered Shirt
+  const shirt = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.55, 0.28), clothMat);
+  shirt.position.y = 1.2;
+  shirt.castShadow = true;
+  g.add(shirt);
+
+  // Pumpkin / Straw Head & Hat
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), hatMat);
+  head.position.y = 1.62;
+  head.castShadow = true;
+  g.add(head);
+
+  const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.04, 10), hatMat);
+  hatBrim.position.y = 1.74;
+  g.add(hatBrim);
+
+  return g;
+}
+
+// 10. 🔥 Animated Campfire with Stones & Kettle
+function create3DCampfireMesh(posX: number, posZ: number): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 });
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x292524, roughness: 0.85 });
+  const emberMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xea580c, emissiveIntensity: 2.5 });
+
+  // Stone Ring
+  for (let s = 0; s < 8; s++) {
+    const ang = (s * Math.PI * 2) / 8;
+    const stone = new THREE.Mesh(new THREE.DodecahedronGeometry(0.14, 1), stoneMat);
+    stone.position.set(Math.cos(ang) * 0.48, 0.08, Math.sin(ang) * 0.48);
+    stone.castShadow = true;
+    g.add(stone);
+  }
+
+  // Crossed Logs
+  for (let l = 0; l < 3; l++) {
+    const log = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.65, 6), woodMat);
+    log.rotation.y = (l * Math.PI) / 3;
+    log.rotation.z = 0.2;
+    log.position.y = 0.12;
+    log.castShadow = true;
+    g.add(log);
+  }
+
+  // Glowing Fire Core & Flame Light
+  const flame = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.45, 6), emberMat);
+  flame.position.y = 0.28;
+  g.add(flame);
+
+  const fireLight = new THREE.PointLight(0xf97316, 2.2, 12, 1.8);
+  fireLight.position.set(0, 0.45, 0);
+  g.add(fireLight);
+
+  return g;
+}
+
+// 11. 🍻 Outdoor Tavern Patio (Wooden Table, Benches & Ale Tankards)
+function create3DTavernPatioMesh(posX: number, posZ: number, rotY: number = 0): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+  g.rotation.y = rotY;
+
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.75 });
+  const mugMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.6, roughness: 0.3 });
+
+  // Table Top & Legs
+  const table = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 0.75), woodMat);
+  table.position.y = 0.52;
+  table.castShadow = true;
+  table.receiveShadow = true;
+  g.add(table);
+
+  [-0.55, 0.55].forEach((tx) => {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.5, 0.55), woodMat);
+    leg.position.set(tx, 0.25, 0);
+    leg.castShadow = true;
+    g.add(leg);
+  });
+
+  // Benches on both sides
+  [-0.6, 0.6].forEach((bz) => {
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.06, 0.28), woodMat);
+    bench.position.set(0, 0.32, bz);
+    bench.castShadow = true;
+    g.add(bench);
+  });
+
+  // Ale Tankards on table
+  for (let m = 0; m < 3; m++) {
+    const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.12, 8), mugMat);
+    mug.position.set(-0.35 + m * 0.35, 0.62, (m % 2 === 0 ? 0.12 : -0.12));
+    mug.castShadow = true;
+    g.add(mug);
+  }
+
+  return g;
+}
+
+// 12. 🛒 Wooden Cargo Cart with Spoked Wheels
+function create3DWoodenCartMesh(posX: number, posZ: number, rotY: number = 0): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+  g.rotation.y = rotY;
+
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x854d0e, roughness: 0.8 });
+  const ironMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6, metalness: 0.6 });
+
+  // Cart Bed
+  const bed = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.35, 0.95), woodMat);
+  bed.position.y = 0.45;
+  bed.castShadow = true;
+  bed.receiveShadow = true;
+  g.add(bed);
+
+  // Spoked Wheels
+  [-0.55, 0.55].forEach((wz) => {
+    const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.04, 8, 16), ironMat);
+    wheel.position.set(0, 0.35, wz);
+    wheel.castShadow = true;
+    g.add(wheel);
+  });
+
+  // Cargo Sacks inside
+  const sackMat = new THREE.MeshStandardMaterial({ color: 0xd4d4d8, roughness: 0.9 });
+  for (let s = 0; s < 3; s++) {
+    const sack = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), sackMat);
+    sack.scale.set(1.2, 0.8, 1.0);
+    sack.position.set(-0.35 + s * 0.35, 0.58, 0);
+    sack.castShadow = true;
+    g.add(sack);
+  }
+
+  return g;
+}
+
+// 13. 🗿 Ancient Runic Monolith Standing Stone
+function create3DRunicMonolithMesh(posX: number, posZ: number, seed: number = 0): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.85 });
+  const runeMat = new THREE.MeshStandardMaterial({
+    color: seed % 2 === 0 ? 0x38bdf8 : 0xfacc15,
+    emissive: seed % 2 === 0 ? 0x0284c7 : 0xd97706,
+    emissiveIntensity: 2.2,
+  });
+
+  // Obelisk monolith
+  const monolith = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.42, 1.8, 6), stoneMat);
+  monolith.position.y = 0.9;
+  monolith.castShadow = true;
+  monolith.receiveShadow = true;
+  g.add(monolith);
+
+  // Glowing Runic Core Band
+  const runeBand = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.22, 6), runeMat);
+  runeBand.position.y = 1.05;
+  g.add(runeBand);
 
   return g;
 }

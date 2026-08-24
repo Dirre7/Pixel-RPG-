@@ -169,6 +169,11 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   }
   map[82][24] = 6;  // 🌾 Molino de Viento con aspas animadas
   map[82][20] = 5;  // Casona del molinero
+  map[78][12] = 5;  // Granja del Valle Alto
+  map[84][12] = 5;  // Granero y Establo
+  map[90][22] = 5;  // Cabaña de los Hortelanos
+  map[96][22] = 5;  // Cobertizo de Herramientas
+  map[88][18] = 4;  // Pozo de agua de la granja
   for (let y = 88; y <= 96; y++) {
     for (let x = 10; x <= 16; x++) {
       map[y][x] = 13; // Huertos de cultivo
@@ -192,7 +197,11 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   }
   map[86][56] = 5;   // 🏠 Almacén Clandestino de Contrabando
   map[87][56] = 28;  // 🚪 Entrada a la Mazmorra: Cueva Secreta de los Contrabandistas
+  map[80][58] = 5;   // Cabaña del Contramaestre
+  map[84][58] = 5;   // Almacén de Velámenes
+  map[92][56] = 5;   // Taller del Calafate
   map[86][50] = 14;  // Pilas de leña y suministros
+  map[90][50] = 14;  map[94][50] = 14; // Cajas de provisiones marítimas
   map[96][60] = 18; map[98][60] = 18; // Canteras de pizarra
   map[97][62] = 20;  // 💎 Geoda de cristal de la cala
   map[106][56] = 7;  // 🎁 Cofre del Tesoro de los Contrabandistas
@@ -213,9 +222,13 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   for (let y = 76; y <= 115; y++) {
     map[y][34] = 3; map[y][35] = 3; map[y][36] = 3; map[y][37] = 3; // Río ensanchado del estuario
   }
+  map[84][32] = 17; map[88][32] = 17; map[92][32] = 17; // Farolas ribera oeste
+  map[84][39] = 17; map[88][39] = 17; map[92][39] = 17; // Farolas ribera este
+  map[88][33] = 14; map[92][38] = 14; // Redes y barriles de pesca
   map[98][35] = 0; map[98][36] = 0; // Islote central del delta
   map[99][35] = 0; map[99][36] = 0;
   map[98][35] = 7;  // 🎁 Cofre del tesoro del estuario
+  map[104][35] = 19; map[104][36] = 19; // Braseros del estuario
   map[112][32] = 18; map[112][39] = 18; // Torres vigía de la desembocadura
 
   // =========================================================================
@@ -270,6 +283,9 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[57][25] = 5;  // Almacén de Minerales
   map[57][23] = 5;  // Mansión Comercial Oeste
   map[63][25] = 5;  // Taller de Curtidores
+  map[63][23] = 5;  // Cabaña de Armeros
+  map[69][23] = 5;  // Casa de Artesanos
+  map[69][25] = 5;  // Almacén de Cuero
 
   // 🌿 Distrito Este: Botica de Lynda, Casa Consistorial y Mansiones
   map[45][47] = 31; // Gran Casa Consistorial / Castillo (Edificio X: 47, Y: 45)
@@ -277,10 +293,29 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[51][47] = 27; // Botica Alquímica de Lynda (Edificio X: 47, Y: 51)
   map[53][47] = 28; // 🚪 Puerta de Entrada a la Botica Alquímica
   map[51][49] = 5;  // Mansión Solariega Noreste
+  map[51][51] = 5;  // Villa del Erudito
   map[57][47] = 5;  // Mansión "Villa Rosa"
+  map[57][49] = 5;  // Casa del Bibliotecario
+  map[57][51] = 5;  // Taller de Joyeros
   map[63][47] = 5;  // Mansión "Los Álamos"
   map[63][49] = 5;  // Palacio Residencial Este
+  map[63][51] = 5;  // Casona de Seda
   map[69][47] = 5;  // Villa Ribereña
+  map[69][49] = 5;  // Casa del Jardín
+  map[69][51] = 5;  // Cabaña del Guarda
+
+  // 🏘️ Nuevas Viviendas Residenciales del Distrito Central
+  map[51][39] = 5;  // Residencia de los Mercaderes
+  map[69][31] = 5;  // Residencia Sur del Molinero
+  map[69][41] = 5;  // Residencia Sur Fluvial
+  map[51][21] = 5;  // Cabaña Forestal Oeste
+  map[57][21] = 5;  // Casa de Cazadores
+  map[63][21] = 5;  // Casa de Leñadores
+  map[69][21] = 5;  // Casa del Pastor
+
+  // 🎪 Puestos de Mercado Adicionales en el Paseo Fluvial
+  map[54][34] = 9;  map[54][38] = 9;
+  map[66][34] = 9;  map[66][38] = 9;
 
   // 🏮 Farolas en las aceras principales
   [48, 60, 72].forEach((hy) => {
