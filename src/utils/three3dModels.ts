@@ -337,12 +337,173 @@ export function createDragonScaleTexture(): THREE.CanvasTexture {
     }
   }
 
+  for (let y = 0; y < 256; y += 16) {
+    const offsetX = (y / 16) % 2 === 0 ? 0 : 8;
+    for (let x = -8; x < 256; x += 16) {
+      ctx.beginPath();
+      ctx.arc(x + offsetX, y, 10, 0, Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+
   const tex = new THREE.CanvasTexture(canvas);
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
   return tex;
 }
 
+// ==========================================
+// 1.1 PROCEDURAL HIGH-RESOLUTION PBR TEXTURES FOR CHARACTER EQUIPMENT
+// ==========================================
+
+export function createProceduralSteelBladeTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  // Polished Damascus Steel Sheen Gradient
+  const grad = ctx.createLinearGradient(0, 0, 256, 0);
+  grad.addColorStop(0, '#64748b');
+  grad.addColorStop(0.2, '#cbd5e1');
+  grad.addColorStop(0.45, '#f8fafc');
+  grad.addColorStop(0.5, '#475569'); // Central fuller groove
+  grad.addColorStop(0.55, '#f8fafc');
+  grad.addColorStop(0.8, '#cbd5e1');
+  grad.addColorStop(1, '#64748b');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 256, 512);
+
+  // Brushed metal longitudinal grain
+  for (let y = 0; y < 512; y += 3) {
+    const alpha = Math.random() * 0.12;
+    ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+    ctx.fillRect(0, y, 256, 1);
+  }
+
+  // Edge bevel highlights
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.fillRect(4, 0, 10, 512);
+  ctx.fillRect(242, 0, 10, 512);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.ClampToEdgeWrapping;
+  tex.wrapT = THREE.ClampToEdgeWrapping;
+  return tex;
+}
+
+export function createProceduralEngravedGoldTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d')!;
+
+  // 24k Radiant Gold base
+  const grad = ctx.createLinearGradient(0, 0, 256, 256);
+  grad.addColorStop(0, '#fde047');
+  grad.addColorStop(0.5, '#eab308');
+  grad.addColorStop(1, '#a16207');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Royal filigree scrollwork engraving
+  ctx.strokeStyle = 'rgba(113, 63, 18, 0.5)';
+  ctx.lineWidth = 4;
+  for (let i = 20; i < 256; i += 40) {
+    ctx.beginPath();
+    ctx.arc(i, 128, 16, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(128, i, 16, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Polished specular highlight rim
+  ctx.strokeStyle = 'rgba(254, 240, 138, 0.8)';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(4, 4, 248, 248);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  return tex;
+}
+
+export function createProceduralStitchedLeatherTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d')!;
+
+  // Saddle Tan/Chestnut leather base
+  ctx.fillStyle = '#5c2b09';
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Organic leather pores & grain
+  for (let i = 0; i < 800; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    ctx.fillStyle = Math.random() > 0.5 ? 'rgba(39, 18, 5, 0.3)' : 'rgba(146, 64, 14, 0.25)';
+    ctx.beginPath();
+    ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Golden-yellow waxed thread stitches along seams
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 2.5;
+  for (let y = 10; y < 256; y += 14) {
+    ctx.beginPath();
+    ctx.moveTo(12, y);
+    ctx.lineTo(12, y + 8);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(244, y);
+    ctx.lineTo(244, y + 8);
+    ctx.stroke();
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+
+export function createProceduralFabricTexture(baseColorHex: string, trimColorHex: string): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.fillStyle = baseColorHex;
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Micro-weave crosshatch pattern
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+  for (let x = 0; x < 256; x += 4) {
+    ctx.fillRect(x, 0, 2, 256);
+  }
+  for (let y = 0; y < 256; y += 4) {
+    ctx.fillRect(0, y, 256, 2);
+  }
+
+  // Embroidered Gold / Silver Hem Trim
+  ctx.fillStyle = trimColorHex;
+  ctx.fillRect(0, 236, 256, 20);
+
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.lineWidth = 2;
+  for (let x = 8; x < 256; x += 16) {
+    ctx.beginPath();
+    ctx.arc(x, 246, 5, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
 
 // ==========================================
 // 2. CHIBI CARTOON HERO MESH GENERATOR (Matching the Reference Image)
@@ -445,9 +606,13 @@ export function createHumanHeroMesh(
 
   const skinMat = new THREE.MeshStandardMaterial({
     color: 0xfed7aa,
-    roughness: 0.42,
-    metalness: 0.05,
+    roughness: 0.38,
+    metalness: 0.02,
   });
+
+  const leatherPBRTex = createProceduralStitchedLeatherTexture();
+  const goldPBRTex = createProceduralEngravedGoldTexture();
+  const steelPBRTex = createProceduralSteelBladeTexture();
 
   // 1. ATHLETIC PROPORTIONED LEGS & BOOTS (Elongated athletic legs for 1:7 heroic ratio)
   const leftLeg = new THREE.Group();
@@ -456,8 +621,7 @@ export function createHumanHeroMesh(
   const rightLeg = new THREE.Group();
   rightLeg.position.set(0.09, 0.52, 0);
 
-  const leatherColor = 0x5c2b09;
-  const bootMat = new THREE.MeshStandardMaterial({ color: leatherColor, roughness: 0.6 });
+  const bootMat = new THREE.MeshStandardMaterial({ map: leatherPBRTex, color: 0xffffff, roughness: 0.55 });
 
   [leftLeg, rightLeg].forEach((leg) => {
     // Proportional athletic thigh & calf
@@ -526,14 +690,14 @@ export function createHumanHeroMesh(
   }
 
   // Stitched Leather Waist Belt
-  const beltMat = new THREE.MeshStandardMaterial({ color: 0x3d1c06, roughness: 0.6 });
-  const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.105, 0.045, 12), beltMat);
+  const beltMat = new THREE.MeshStandardMaterial({ map: leatherPBRTex, color: 0xffffff, roughness: 0.55 });
+  const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.105, 0.045, 14), beltMat);
   belt.position.y = -0.06;
   torsoGroup.add(belt);
 
   // Circular Gold Belt Medallion / Buckle
-  const buckleMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 });
-  const buckle = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.025, 12), buckleMat);
+  const buckleMat = new THREE.MeshStandardMaterial({ map: goldPBRTex, color: 0xffffff, metalness: 0.96, roughness: 0.16 });
+  const buckle = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.025, 14), buckleMat);
   buckle.position.set(0, -0.06, 0.11);
   buckle.rotation.x = Math.PI / 2;
   torsoGroup.add(buckle);
@@ -541,21 +705,21 @@ export function createHumanHeroMesh(
   // Class-specific lower garment (Robe for Mage/Necro, Skirt for Elf, Armor Tassets for Knight)
   if (heroClass === 'Mago' || heroClass === 'Nigromante') {
     // Flowing Long Mystic Robe down to ankles
-    const robeMat = new THREE.MeshStandardMaterial({ color: tunicColor, roughness: 0.6, side: THREE.DoubleSide });
-    const robe = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.18, 0.48, 12, 1, true), robeMat);
+    const robeMat = new THREE.MeshStandardMaterial({ color: tunicColor, roughness: 0.55, side: THREE.DoubleSide });
+    const robe = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.18, 0.48, 14, 1, true), robeMat);
     robe.position.y = -0.28;
     robe.castShadow = true;
     torsoGroup.add(robe);
 
     // Gold hem at bottom of robe
-    const robeHem = new THREE.Mesh(new THREE.TorusGeometry(0.178, 0.012, 6, 16), buckleMat);
+    const robeHem = new THREE.Mesh(new THREE.TorusGeometry(0.178, 0.012, 8, 20), buckleMat);
     robeHem.position.y = -0.51;
     robeHem.rotation.x = Math.PI / 2;
     torsoGroup.add(robeHem);
   } else {
     // Adventurer Peplum Skirt / Leather Flaps
     const skirtMat = new THREE.MeshStandardMaterial({ color: accentColor, roughness: 0.55, side: THREE.DoubleSide });
-    const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.17, 0.16, 10, 1, true), skirtMat);
+    const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.17, 0.16, 12, 1, true), skirtMat);
     skirt.position.y = -0.14;
     skirt.castShadow = true;
     torsoGroup.add(skirt);
@@ -564,14 +728,13 @@ export function createHumanHeroMesh(
   // 🌟 3D FLOWING CAPE / MANTLE (Class-specific cape design)
   const capeMat = new THREE.MeshStandardMaterial({
     color: capeColor,
-    roughness: 0.65,
+    roughness: 0.55,
     side: THREE.DoubleSide,
-    flatShading: true,
   });
 
   if (heroClass === 'Berserker') {
     // Nordic Bear Fur Mantle over shoulders
-    const furMantle = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.05, 8, 16), new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 }));
+    const furMantle = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.05, 8, 16), new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.85 }));
     furMantle.position.set(0, 0.20, 0.01);
     furMantle.rotation.x = Math.PI / 2;
     torsoGroup.add(furMantle);
@@ -585,25 +748,35 @@ export function createHumanHeroMesh(
     torsoGroup.add(cape);
 
     // Golden Cape Brooch on front collar
-    const brooch = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 8), buckleMat);
+    const brooch = new THREE.Mesh(new THREE.SphereGeometry(0.024, 10, 10), buckleMat);
     brooch.position.set(0, 0.19, 0.10);
     torsoGroup.add(brooch);
   }
 
-  // Knight / Paladin / Warrior Plated Pauldrons (Hombreras metálicas)
+  // Knight / Paladin / Warrior Plated Pauldrons (Hombreras metálicas con remaches dorados)
   if (heroClass === 'Guerrero' || heroClass === 'Paladín' || armorItem) {
-    const pauldronMat = new THREE.MeshStandardMaterial({ color: heroClass === 'Paladín' ? 0xf59e0b : 0x94a3b8, metalness: 0.85, roughness: 0.3 });
+    const pauldronMat = new THREE.MeshStandardMaterial({
+      map: heroClass === 'Paladín' ? goldPBRTex : steelPBRTex,
+      color: 0xffffff,
+      metalness: 0.94,
+      roughness: 0.16,
+    });
     [-0.15, 0.15].forEach((px) => {
-      const pauldron = new THREE.Mesh(new THREE.SphereGeometry(0.048, 8, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), pauldronMat);
+      const pauldron = new THREE.Mesh(new THREE.SphereGeometry(0.048, 10, 10, 0, Math.PI * 2, 0, Math.PI * 0.5), pauldronMat);
       pauldron.position.set(px, 0.21, 0);
       pauldron.scale.set(1.1, 0.8, 1.2);
       torsoGroup.add(pauldron);
+
+      // Gold rivet on pauldron
+      const rivet = new THREE.Mesh(new THREE.SphereGeometry(0.012, 6, 6), buckleMat);
+      rivet.position.set(px, 0.24, 0.02);
+      torsoGroup.add(rivet);
     });
   }
 
   // Ranger Quiver on Back for Archer
   if (heroClass === 'Arquero') {
-    const quiver = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.025, 0.32, 6), beltMat);
+    const quiver = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.025, 0.32, 8), beltMat);
     quiver.position.set(0.06, 0.05, -0.13);
     quiver.rotation.z = -0.35;
     quiver.rotation.x = -0.15;
@@ -842,72 +1015,94 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
   const name = (weaponItem?.name || '').toLowerCase();
   const id = (weaponItem?.id || '').toLowerCase();
 
-  // Materials with low-poly stylized shading
-  const steelMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.85, roughness: 0.25, flatShading: true });
-  const darkSteelMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.9, roughness: 0.3, flatShading: true });
-  const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.2, flatShading: true });
-  const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.85, flatShading: true });
-  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x271c19, roughness: 0.9, flatShading: true });
-  const leatherMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.7, flatShading: true });
+  // PBR Materials with high-definition textures & reflections
+  const steelBladeTex = createProceduralSteelBladeTexture();
+  const goldEngravedTex = createProceduralEngravedGoldTexture();
+  const leatherStitchedTex = createProceduralStitchedLeatherTexture();
+
+  const steelMat = new THREE.MeshStandardMaterial({
+    map: steelBladeTex,
+    color: 0xffffff,
+    metalness: 0.94,
+    roughness: 0.15,
+  });
+  const darkSteelMat = new THREE.MeshStandardMaterial({
+    color: 0x334155,
+    metalness: 0.92,
+    roughness: 0.22,
+  });
+  const goldMat = new THREE.MeshStandardMaterial({
+    map: goldEngravedTex,
+    color: 0xffffff,
+    metalness: 0.96,
+    roughness: 0.16,
+  });
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.85 });
+  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x271c19, roughness: 0.9 });
+  const leatherMat = new THREE.MeshStandardMaterial({
+    map: leatherStitchedTex,
+    color: 0xffffff,
+    roughness: 0.60,
+  });
 
   // 1. STAVES (BÁCULOS - Top-left in image)
   if (heroClass === 'Mago' || name.includes('báculo') || name.includes('varita') || id.includes('staff')) {
-    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.03, 1.25, 6), woodMat);
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.03, 1.25, 8), woodMat);
     shaft.position.y = 0.40;
     shaft.castShadow = true;
     group.add(shaft);
 
     // Leather shaft wraps
     for (let y of [0.15, 0.35, 0.55]) {
-      const wrap = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.08, 6), leatherMat);
+      const wrap = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.08, 8), leatherMat);
       wrap.position.y = y;
       group.add(wrap);
     }
 
     if (name.includes('celestial') || name.includes('luna') || name.includes('moon')) {
-      // Crescent Moon Staff (Row 1 #10)
-      const moonMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xfacc15, emissiveIntensity: 0.8, flatShading: true });
-      const crescent = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.035, 6, 12, Math.PI * 1.35), moonMat);
+      // Crescent Moon Staff
+      const moonMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xfacc15, emissiveIntensity: 1.0, metalness: 0.8, roughness: 0.2 });
+      const crescent = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.035, 8, 16, Math.PI * 1.35), moonMat);
       crescent.position.y = 1.05;
       crescent.rotation.z = Math.PI * 0.3;
       group.add(crescent);
 
-      const starGem = new THREE.Mesh(new THREE.OctahedronGeometry(0.07, 0), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+      const starGem = new THREE.Mesh(new THREE.OctahedronGeometry(0.08, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x38bdf8, emissiveIntensity: 2.0 }));
       starGem.position.set(0.05, 1.05, 0);
       group.add(starGem);
     } else if (name.includes('volcán') || name.includes('fuego') || name.includes('sol')) {
-      // Sunburst / Fire Orb Staff (Row 1 #9)
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.03, 6, 16), goldMat);
+      // Sunburst / Fire Orb Staff
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.03, 8, 16), goldMat);
       ring.position.y = 1.05;
       group.add(ring);
 
       const flameOrb = new THREE.Mesh(
-        new THREE.DodecahedronGeometry(0.11, 0),
-        new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xf97316, emissiveIntensity: 2.0, flatShading: true })
+        new THREE.DodecahedronGeometry(0.11, 1),
+        new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xf97316, emissiveIntensity: 2.5 })
       );
       flameOrb.position.y = 1.05;
       group.add(flameOrb);
     } else {
-      // Archmage Crystal Staff with Curved Branch Arms & Floating Octahedron (Row 1 #2 & #3)
-      const branchL = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.02, 0.30, 5), darkWoodMat);
+      // Archmage Crystal Staff with Curved Branch Arms & Floating Arcane Crystal
+      const branchL = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.02, 0.30, 6), darkWoodMat);
       branchL.position.set(-0.09, 1.0, 0);
       branchL.rotation.z = -0.45;
       group.add(branchL);
 
-      const branchR = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.02, 0.30, 5), darkWoodMat);
+      const branchR = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.02, 0.30, 6), darkWoodMat);
       branchR.position.set(0.09, 1.0, 0);
       branchR.rotation.z = 0.45;
       group.add(branchR);
 
-      // Floating Cyan Magic Gem
+      // Floating Cyan Magic Gem with intense glow
       const gemMat = new THREE.MeshStandardMaterial({
         color: 0x38bdf8,
         emissive: 0x0284c7,
-        emissiveIntensity: 2.2,
-        roughness: 0.1,
-        flatShading: true,
+        emissiveIntensity: 2.8,
+        metalness: 0.9,
+        roughness: 0.05,
       });
-      const floatingGem = new THREE.Mesh(new THREE.OctahedronGeometry(0.12, 0), gemMat);
+      const floatingGem = new THREE.Mesh(new THREE.OctahedronGeometry(0.13, 0), gemMat);
       floatingGem.position.y = 1.08;
       group.add(floatingGem);
     }
@@ -915,11 +1110,11 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
     return group;
   }
 
-  // 2. DAGGERS & KATARS (PÍCARO - Top center in image)
+  // 2. DAGGERS & KATARS (PÍCARO)
   if (heroClass === 'Pícaro' || name.includes('daga') || name.includes('sombrío') || name.includes('katar')) {
-    // Dagger Blade (Pointed Diamond Cross-Section)
+    // Dagger Blade (Pointed Diamond Cross-Section with Steel PBR)
     const daggerBladeMat = name.includes('veneno')
-      ? new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x059669, emissiveIntensity: 0.9, flatShading: true })
+      ? new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x059669, emissiveIntensity: 1.2, metalness: 0.85, roughness: 0.15 })
       : steelMat;
 
     const blade = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.65, 4), daggerBladeMat);
@@ -934,21 +1129,20 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
     group.add(guard);
 
     // Leather Grip & Gold Pommel
-    const hilt = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.16, 6), leatherMat);
+    const hilt = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.16, 8), leatherMat);
     hilt.position.y = -0.06;
     group.add(hilt);
 
-    const pommel = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), goldMat);
+    const pommel = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), goldMat);
     pommel.position.y = -0.16;
     group.add(pommel);
 
     return group;
   }
 
-  // 3. WARHAMMERS & MACES (MARTILLOS Y MAZAS - Top right in image)
+  // 3. WARHAMMERS & MACES
   if (name.includes('martillo') || name.includes('maza') || name.includes('titán')) {
-    // Heavy wooden/iron haft
-    const haft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.95, 6), darkWoodMat);
+    const haft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.95, 8), darkWoodMat);
     haft.position.y = 0.32;
     group.add(haft);
 
@@ -964,7 +1158,7 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
     group.add(trim);
 
     // Rear armor piercing spike
-    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.18, 4), darkSteelMat);
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.18, 6), darkSteelMat);
     spike.position.set(-0.16, 0.72, 0);
     spike.rotation.z = Math.PI / 2;
     group.add(spike);
@@ -972,13 +1166,13 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
     return group;
   }
 
-  // 4. BOWS (ARQUERO - Elegante Arco Recurvado Vertical sujeto en la mano)
+  // 4. BOWS
   if (heroClass === 'Arquero' || name.includes('arco') || name.includes('bow')) {
-    const bowWoodMat = new THREE.MeshStandardMaterial({ color: 0x6b3f1d, roughness: 0.7, flatShading: true });
-    const bowGripMat = new THREE.MeshStandardMaterial({ color: 0x3d1c06, roughness: 0.8, flatShading: true });
-    const bowGoldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2, flatShading: true });
+    const bowWoodMat = new THREE.MeshStandardMaterial({ color: 0x6b3f1d, roughness: 0.65 });
+    const bowGripMat = leatherMat;
+    const bowGoldMat = goldMat;
 
-    // Central Hand Leather Grip at origin [0, 0, 0]
+    // Central Hand Leather Grip
     const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.10, 8), bowGripMat);
     grip.position.set(0, 0, 0);
     group.add(grip);
@@ -991,13 +1185,13 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
       group.add(ring);
     });
 
-    // Upper Bow Limb (Curving forward and up)
-    const upperLimb1 = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.016, 0.16, 6), bowWoodMat);
+    // Upper Bow Limb
+    const upperLimb1 = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.016, 0.16, 8), bowWoodMat);
     upperLimb1.position.set(0, 0.12, 0.02);
     upperLimb1.rotation.x = 0.25;
     group.add(upperLimb1);
 
-    const upperLimb2 = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.012, 0.16, 6), bowWoodMat);
+    const upperLimb2 = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.012, 0.16, 8), bowWoodMat);
     upperLimb2.position.set(0, 0.25, 0.01);
     upperLimb2.rotation.x = -0.30;
     group.add(upperLimb2);
@@ -1007,8 +1201,8 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
     topNock.rotation.x = -0.45;
     group.add(topNock);
 
-    // Lower Bow Limb (Curving forward and down)
-    const lowerLimb1 = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.016, 0.16, 6), bowWoodMat);
+    // Lower Bow Limb
+    const lowerLimb1 = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.016, 0.16, 8), bowWoodMat);
     lowerLimb1.position.set(0, -0.12, 0.02);
     lowerLimb1.rotation.x = -0.25;
     group.add(lowerLimb1);
@@ -1023,7 +1217,7 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
     bottomNock.rotation.x = Math.PI + 0.45;
     group.add(bottomNock);
 
-    // Taut Bowstring connecting top and bottom nocks
+    // Taut Bowstring
     const stringMat = new THREE.LineBasicMaterial({ color: 0xf8fafc, linewidth: 2 });
     const stringGeo = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0.32, -0.02),
@@ -1036,13 +1230,13 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
     return group;
   }
 
-  // 5. BATTLEAXES (HACHAS DE GUERRA / BERSERKER - Mid right in image)
+  // 5. BATTLEAXES
   if (heroClass === 'Berserker' || name.includes('hacha') || name.includes('axe')) {
-    const haft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.0, 6), woodMat);
+    const haft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.0, 8), woodMat);
     haft.position.y = 0.35;
     group.add(haft);
 
-    // Double Crescent Blades
+    // Double Crescent Blades with Steel PBR
     const bladeLeft = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.36, 0.03), steelMat);
     bladeLeft.position.set(-0.16, 0.70, 0);
     bladeLeft.scale.set(1, 1, 0.5);
@@ -1054,28 +1248,23 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
     group.add(bladeRight);
 
     // Top Spike
-    const topSpike = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.20, 4), darkSteelMat);
+    const topSpike = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.20, 6), darkSteelMat);
     topSpike.position.y = 0.95;
     group.add(topSpike);
 
     return group;
   }
 
-  // 5. SWORDS & GREATSWORDS (ESPADA / MANDOBLE - Mid center in image)
-  // Check weapon tier / theme
+  // 6. SWORDS & GREATSWORDS (ESPADA / MANDOBLE / HOJA CELESTIAL)
   const isVolcanic = name.includes('volcán') || name.includes('fuego') || id.includes('w3');
   const isCelestial = name.includes('celestial') || name.includes('campeón') || id.includes('w4');
   const isSteel = name.includes('acero') || name.includes('mandoble') || id.includes('w2');
 
-  const bladeColor = isVolcanic ? 0x1c1917 : isCelestial ? 0xffffff : 0xe2e8f0;
-  const bladeMat = new THREE.MeshStandardMaterial({
-    color: bladeColor,
-    emissive: isVolcanic ? 0xea580c : isCelestial ? 0x38bdf8 : 0x000000,
-    emissiveIntensity: isVolcanic ? 1.5 : isCelestial ? 0.8 : 0,
-    metalness: isVolcanic ? 0.4 : 0.9,
-    roughness: 0.2,
-    flatShading: true,
-  });
+  const bladeMat = isVolcanic
+    ? new THREE.MeshStandardMaterial({ color: 0x1c1917, emissive: 0xea580c, emissiveIntensity: 1.8, metalness: 0.7, roughness: 0.2 })
+    : isCelestial
+    ? new THREE.MeshStandardMaterial({ map: steelBladeTex, color: 0xffffff, emissive: 0x38bdf8, emissiveIntensity: 0.9, metalness: 0.96, roughness: 0.10 })
+    : steelMat;
 
   // Long Stylized Blade
   const bladeHeight = isSteel || isCelestial ? 1.05 : 0.88;
@@ -1090,39 +1279,49 @@ export function createLowPolyWeaponMesh(weaponItem: EquipmentItem | null, heroCl
   tip.rotation.y = Math.PI / 4;
   group.add(tip);
 
-  // Crossguard (Golden / Winged)
+  // Crossguard (Engraved 24k Gold)
   const guardWidth = isCelestial ? 0.42 : isSteel ? 0.36 : 0.28;
   const guard = new THREE.Mesh(new THREE.BoxGeometry(guardWidth, 0.06, 0.08), goldMat);
   guard.position.y = 0.06;
   guard.castShadow = true;
   group.add(guard);
 
-  // Central Crossguard Sapphire Gem for Celestial
-  if (isCelestial) {
-    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.06, 0), new THREE.MeshStandardMaterial({ color: 0x0284c7, emissive: 0x38bdf8, emissiveIntensity: 1.5 }));
-    gem.position.set(0, 0.06, 0.05);
-    group.add(gem);
-  }
+  // Central Gem Inset in Crossguard
+  const gemColor = isVolcanic ? 0xef4444 : isCelestial ? 0x0284c7 : 0x10b981;
+  const gemEmissive = isVolcanic ? 0xf97316 : isCelestial ? 0x38bdf8 : 0x34d399;
+  const centerGem = new THREE.Mesh(
+    new THREE.OctahedronGeometry(0.05, 0),
+    new THREE.MeshStandardMaterial({ color: gemColor, emissive: gemEmissive, emissiveIntensity: 1.6, metalness: 0.9, roughness: 0.1 })
+  );
+  centerGem.position.set(0, 0.06, 0.045);
+  group.add(centerGem);
 
-  // Leather Hilt & Golden Pommel
+  // Stitched Leather Wrapped Hilt & Golden Pommel
   const hiltLen = isSteel ? 0.24 : 0.16;
-  const hilt = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, hiltLen, 6), leatherMat);
+  const hilt = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, hiltLen, 8), leatherMat);
   hilt.position.y = -hiltLen / 2;
   group.add(hilt);
 
-  const pommel = new THREE.Mesh(new THREE.SphereGeometry(0.05, 6, 6), goldMat);
+  const pommel = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), goldMat);
   pommel.position.y = -hiltLen - 0.04;
   group.add(pommel);
+
+  // Faceted Ruby in Pommel
+  const pommelGem = new THREE.Mesh(
+    new THREE.DodecahedronGeometry(0.025, 0),
+    new THREE.MeshStandardMaterial({ color: 0xb91c1c, emissive: 0xef4444, emissiveIntensity: 1.2, roughness: 0.1 })
+  );
+  pommelGem.position.set(0, -hiltLen - 0.04, 0.035);
+  group.add(pommelGem);
 
   return group;
 }
 
 /**
- * Creates 3D Low-Poly Shields matching the bottom-right collection in reference image
+ * Creates 3D Low-Poly Shields with realistic wood and riveted steel PBR materials
  */
 export function createLowPolyShieldMesh(armorItem: EquipmentItem | null, heroClass: string): THREE.Group | null {
   if (heroClass === 'Mago' && !armorItem?.id.includes('a3') && !armorItem?.id.includes('a4')) {
-    // Mages carry spell grimoire in left hand
     return createLowPolyBookMesh();
   }
 
@@ -1130,63 +1329,87 @@ export function createLowPolyShieldMesh(armorItem: EquipmentItem | null, heroCla
   const name = (armorItem?.name || '').toLowerCase();
   const id = (armorItem?.id || '').toLowerCase();
 
-  const steelMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.85, roughness: 0.25, flatShading: true });
-  const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.2, flatShading: true });
-  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8, flatShading: true });
+  const steelBladeTex = createProceduralSteelBladeTexture();
+  const goldEngravedTex = createProceduralEngravedGoldTexture();
+  const leatherStitchedTex = createProceduralStitchedLeatherTexture();
+
+  const steelMat = new THREE.MeshStandardMaterial({
+    map: steelBladeTex,
+    color: 0xffffff,
+    metalness: 0.94,
+    roughness: 0.16,
+  });
+  const goldMat = new THREE.MeshStandardMaterial({
+    map: goldEngravedTex,
+    color: 0xffffff,
+    metalness: 0.96,
+    roughness: 0.15,
+  });
+  const darkWoodMat = new THREE.MeshStandardMaterial({
+    color: 0x3b1c08,
+    roughness: 0.75,
+  });
 
   if (name.includes('campeón') || id.includes('a4')) {
-    // Crusader / Herald Blue Cross Shield (Bottom-right #5 in image)
-    const baseMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.4, flatShading: true });
+    // Crusader / Herald Blue Cross Shield
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.35, metalness: 0.4 });
     const shieldBody = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.65, 0.05), baseMat);
     shieldBody.castShadow = true;
     group.add(shieldBody);
 
-    // White Cross Heraldry
-    const crossH = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.55, 0.06), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }));
+    // White Cross Heraldry with gold filigree
+    const crossH = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.55, 0.06), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.2 }));
     crossH.position.z = 0.01;
     group.add(crossH);
 
-    const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.10, 0.06), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }));
+    const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.10, 0.06), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.2 }));
     crossV.position.set(0, 0.08, 0.01);
     group.add(crossV);
 
-    // Steel Border Trim
+    // Riveted Steel Border Trim
     const rim = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.69, 0.03), steelMat);
     rim.position.z = -0.01;
     group.add(rim);
+
+    // 4 Corner Gold Rivets
+    [[-0.22, 0.30], [0.22, 0.30], [-0.22, -0.30], [0.22, -0.30]].forEach(([rx, ry]) => {
+      const rivet = new THREE.Mesh(new THREE.SphereGeometry(0.02, 6, 6), goldMat);
+      rivet.position.set(rx, ry, 0.02);
+      group.add(rivet);
+    });
   } else if (name.includes('magma') || id.includes('a3')) {
-    // Spiked Round Buckler (Bottom-right #6 in image)
-    const buckler = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.06, 12), steelMat);
+    // Spiked Round Buckler
+    const buckler = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.06, 16), steelMat);
     buckler.rotation.x = Math.PI / 2;
     buckler.castShadow = true;
     group.add(buckler);
 
-    // Conical spikes around rim
-    for (let i = 0; i < 6; i++) {
-      const angle = (i / 6) * Math.PI * 2;
-      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.14, 5), goldMat);
-      spike.position.set(Math.cos(angle) * 0.22, Math.sin(angle) * 0.22, 0.05);
+    // Conical gold spikes around rim
+    for (let i = 0; i < 8; i++) {
+      const angle = (i / 8) * Math.PI * 2;
+      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.14, 6), goldMat);
+      spike.position.set(Math.cos(angle) * 0.23, Math.sin(angle) * 0.23, 0.05);
       spike.rotation.x = Math.PI / 2;
       group.add(spike);
     }
 
-    const centerBoss = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.15, 6), goldMat);
+    const centerBoss = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.15, 8), goldMat);
     centerBoss.position.z = 0.06;
     centerBoss.rotation.x = Math.PI / 2;
     group.add(centerBoss);
   } else {
-    // Viking Wooden Round Shield with Iron Trim & Center Boss (Bottom-right #2 & #4)
-    const woodShield = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.05, 12), darkWoodMat);
+    // Nordic Plank Round Shield with Steel Rim & Center Boss
+    const woodShield = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.05, 16), darkWoodMat);
     woodShield.rotation.x = Math.PI / 2;
     woodShield.castShadow = true;
     group.add(woodShield);
 
-    // Iron Rim Ring
-    const rimRing = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.025, 6, 16), steelMat);
+    // Steel Rim Ring with metallic shine
+    const rimRing = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.025, 8, 20), steelMat);
     group.add(rimRing);
 
-    // Iron Center Boss
-    const boss = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), steelMat);
+    // Steel Center Boss
+    const boss = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 10), steelMat);
     boss.position.z = 0.04;
     group.add(boss);
   }
@@ -2427,14 +2650,18 @@ export function createHumanNPCMesh(
 
   const skinMat = new THREE.MeshStandardMaterial({
     color: 0xfed7aa,
-    roughness: 0.42,
-    metalness: 0.05,
+    roughness: 0.38,
+    metalness: 0.02,
   });
 
-  const leatherMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.65 });
-  const darkLeatherMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.7 });
-  const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 });
-  const steelMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.85, roughness: 0.25 });
+  const leatherPBRTex = createProceduralStitchedLeatherTexture();
+  const goldPBRTex = createProceduralEngravedGoldTexture();
+  const steelPBRTex = createProceduralSteelBladeTexture();
+
+  const leatherMat = new THREE.MeshStandardMaterial({ map: leatherPBRTex, color: 0xffffff, roughness: 0.55 });
+  const darkLeatherMat = new THREE.MeshStandardMaterial({ color: 0x3d1c06, roughness: 0.65 });
+  const goldMat = new THREE.MeshStandardMaterial({ map: goldPBRTex, color: 0xffffff, metalness: 0.96, roughness: 0.16 });
+  const steelMat = new THREE.MeshStandardMaterial({ map: steelPBRTex, color: 0xffffff, metalness: 0.94, roughness: 0.15 });
   const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.8 });
 
   // 1. Determine NPC Role Palette & Attire Details

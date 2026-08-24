@@ -184,11 +184,12 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       precision: isMobile ? 'mediump' : 'highp',
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(isMobile ? 1.0 : Math.min(window.devicePixelRatio, 1.5));
+    renderer.setPixelRatio(isMobile ? 1.0 : Math.min(window.devicePixelRatio, 1.75));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = currentZone.id === 'zone_cave' || currentZone.id === 'zone_volcano' || currentZone.id === 'zone_castle' ? 1.4 : 1.15;
+    renderer.toneMappingExposure = currentZone.id === 'zone_cave' || currentZone.id === 'zone_volcano' || currentZone.id === 'zone_castle' ? 1.25 : 1.08;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
@@ -266,16 +267,18 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const sunPosZ = centerZ - 130;
     sunLight.position.set(sunPosX, sunPosY, sunPosZ);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = isMobile ? 512 : 1024;
-    sunLight.shadow.mapSize.height = isMobile ? 512 : 1024;
+    sunLight.shadow.mapSize.width = isMobile ? 1024 : 2048;
+    sunLight.shadow.mapSize.height = isMobile ? 1024 : 2048;
     sunLight.shadow.camera.near = 0.5;
     sunLight.shadow.camera.far = 250;
-    const shadowD = 35;
+    const shadowD = 40;
     sunLight.shadow.camera.left = -shadowD;
     sunLight.shadow.camera.right = shadowD;
     sunLight.shadow.camera.top = shadowD;
     sunLight.shadow.camera.bottom = -shadowD;
-    sunLight.shadow.bias = -0.0005;
+    sunLight.shadow.bias = -0.0002;
+    sunLight.shadow.normalBias = 0.025;
+    sunLight.shadow.radius = isMobile ? 1 : 2.5;
     scene.add(sunLight);
 
     // --- BACKGROUND MAP ENVIRONMENT: OCEAN, SUN, CLOUDS & COASTAL CLIFFS ---
@@ -2461,9 +2464,22 @@ let cachedPathPBR: { diffuse: THREE.CanvasTexture; normal: THREE.CanvasTexture }
 let cachedBarkTexture: THREE.CanvasTexture | null = null;
 let cachedBirchTexture: THREE.CanvasTexture | null = null;
 
+function applyHighFidelityTextureSettings(tex: THREE.CanvasTexture, repeatX: number = 1, repeatY: number = 1) {
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(repeatX, repeatY);
+  tex.generateMipmaps = true;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.anisotropy = 4;
+}
+
 function getCachedWaterPBR(zoneId: string) {
   if (!globalWaterPBRCache[zoneId]) {
-    globalWaterPBRCache[zoneId] = createProceduralWaterPBRTextures(zoneId);
+    const pbr = createProceduralWaterPBRTextures(zoneId);
+    applyHighFidelityTextureSettings(pbr.diffuse, 48, 48);
+    applyHighFidelityTextureSettings(pbr.normal, 48, 48);
+    globalWaterPBRCache[zoneId] = pbr;
   }
   return globalWaterPBRCache[zoneId];
 }
@@ -2471,6 +2487,7 @@ function getCachedWaterPBR(zoneId: string) {
 function getCachedBarkTexture(): THREE.CanvasTexture {
   if (!cachedBarkTexture) {
     cachedBarkTexture = createProceduralBarkTexture();
+    applyHighFidelityTextureSettings(cachedBarkTexture, 1, 4);
   }
   return cachedBarkTexture;
 }
@@ -2478,7 +2495,9 @@ function getCachedBarkTexture(): THREE.CanvasTexture {
 function getCachedLeafTexture(colorBase: string, colorHighlight: string): THREE.CanvasTexture {
   const key = `${colorBase}_${colorHighlight}`;
   if (!globalTextureCache[key]) {
-    globalTextureCache[key] = createProceduralLeafTexture(colorBase, colorHighlight);
+    const tex = createProceduralLeafTexture(colorBase, colorHighlight);
+    applyHighFidelityTextureSettings(tex, 2, 2);
+    globalTextureCache[key] = tex;
   }
   return globalTextureCache[key];
 }
@@ -2496,23 +2515,27 @@ function getCachedBirchTexture(): THREE.CanvasTexture {
       bCtx.fillRect(Math.random() * 256, Math.random() * 256, 12 + Math.random() * 20, 3 + Math.random() * 3);
     }
     cachedBirchTexture = new THREE.CanvasTexture(birchCanvas);
-    cachedBirchTexture.wrapS = THREE.RepeatWrapping;
-    cachedBirchTexture.wrapT = THREE.RepeatWrapping;
-    cachedBirchTexture.repeat.set(1, 3);
+    applyHighFidelityTextureSettings(cachedBirchTexture, 1, 3);
   }
   return cachedBirchTexture;
 }
 
 function getCachedGroundPBR(zoneId: string) {
   if (!globalGroundPBRCache[zoneId]) {
-    globalGroundPBRCache[zoneId] = createProceduralGroundPBRTextures(zoneId);
+    const pbr = createProceduralGroundPBRTextures(zoneId);
+    applyHighFidelityTextureSettings(pbr.diffuse, 1, 1);
+    applyHighFidelityTextureSettings(pbr.normal, 1, 1);
+    globalGroundPBRCache[zoneId] = pbr;
   }
   return globalGroundPBRCache[zoneId];
 }
 
 function getCachedPathPBR() {
   if (!cachedPathPBR) {
-    cachedPathPBR = createProceduralPathPBRTextures();
+    const pbr = createProceduralPathPBRTextures();
+    applyHighFidelityTextureSettings(pbr.diffuse, 1, 1);
+    applyHighFidelityTextureSettings(pbr.normal, 1, 1);
+    cachedPathPBR = pbr;
   }
   return cachedPathPBR;
 }
