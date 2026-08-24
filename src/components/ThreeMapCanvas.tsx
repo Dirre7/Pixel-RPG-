@@ -803,11 +803,43 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
               pebble.position.y += elevation;
               tileGroup.add(pebble);
             }
-          } else if (hasNeighborPath && decSeed % 3 === 0 && currentZone.id === 'zone_forest') {
-            const hedgeGroup = create3DHedgeMesh(posX, posZ);
-            hedgeGroup.position.y += elevation;
-            tileGroup.add(hedgeGroup);
-            obstacleGroups.push({ group: hedgeGroup, gridX: x, gridY: y });
+          } else if (hasNeighborPath && currentZone.id === 'zone_forest') {
+            // 🏙️ Diversified, balanced urban & garden street decorations (Sensible, non-cluttered distribution)
+            const propType = decSeed % 8;
+            if (propType === 1) {
+              // 🪑 Medieval Wooden Park Bench
+              const benchOrientation = (x + y) % 2 === 0 ? 0 : Math.PI / 2;
+              const bench = create3DWoodenBenchMesh(posX, posZ, benchOrientation);
+              bench.position.y += elevation;
+              tileGroup.add(bench);
+              obstacleGroups.push({ group: bench, gridX: x, gridY: y });
+            } else if (propType === 2) {
+              // 🪴 Terracotta / Oak Flower Planter Box with blooming flowers
+              const planter = create3DFlowerPlanterMesh(posX, posZ, decSeed);
+              planter.position.y += elevation;
+              tileGroup.add(planter);
+              obstacleGroups.push({ group: planter, gridX: x, gridY: y });
+            } else if (propType === 3) {
+              // 🫐 Natural Organic Berry Bush
+              const berryBush = create3DBerryBushMesh(posX, posZ, decSeed);
+              berryBush.position.y += elevation;
+              tileGroup.add(berryBush);
+              obstacleGroups.push({ group: berryBush, gridX: x, gridY: y });
+            } else if (propType === 4) {
+              // 📦 Rustic Market Crates & Barrel Stacks
+              const crates = create3DMarketCratesMesh(posX, posZ, decSeed);
+              crates.position.y += elevation;
+              tileGroup.add(crates);
+              obstacleGroups.push({ group: crates, gridX: x, gridY: y });
+            } else if (propType === 5) {
+              // 🏮 Medieval Wrought-Iron Street Lantern Post with warm glow
+              const lanternGroup = create3DLanternPostMesh(posX, posZ);
+              lanternGroup.position.y += elevation;
+              tileGroup.add(lanternGroup);
+              const lanternLight = lanternGroup.children.find((c) => c instanceof THREE.PointLight) as THREE.PointLight;
+              if (lanternLight) animatedLanterns.push(lanternLight);
+            }
+            // Other ~40% remains clean, open lawn with grass tufts and wildflower blossoms!
           } else if (decSeed % 11 === 0) {
             const flowerGroup = create3DFlowerPatchMesh(posX, posZ, decSeed);
             flowerGroup.position.y += elevation;
@@ -2541,38 +2573,192 @@ function create3DRockPebbleMesh(posX: number, posZ: number, seed: number): THREE
   return g;
 }
 
-// --- 3D GREEN HEDGE BUSH MESH FOR PATH BORDERS ---
-function create3DHedgeMesh(posX: number, posZ: number): THREE.Group {
+// --- 3D DIVERSIFIED RPG STREET & GARDEN PROPS ---
+
+// 1. 🪑 Medieval Wooden Park Bench
+function create3DWoodenBenchMesh(posX: number, posZ: number, rotY: number = 0): THREE.Group {
   const g = new THREE.Group();
   g.position.set(posX, 0, posZ);
+  g.rotation.y = rotY;
 
-  const hedgeMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.6 });
-  const bush = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.8, 0.9), hedgeMat);
-  bush.position.y = 0.4;
-  bush.castShadow = true;
-  bush.receiveShadow = true;
-  g.add(bush);
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.75 });
+  const ironMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.6 });
 
-  // Top rounded leaves
-  for (let i = -0.7; i <= 0.7; i += 0.7) {
-    const topLeaf = new THREE.Mesh(
-      new THREE.DodecahedronGeometry(0.45, 1),
-      new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.5 })
-    );
-    topLeaf.position.set(i, 0.75, 0);
-    topLeaf.castShadow = true;
-    g.add(topLeaf);
+  // Iron legs
+  const legGeo = new THREE.BoxGeometry(0.08, 0.45, 0.45);
+  const leftLeg = new THREE.Mesh(legGeo, ironMat);
+  leftLeg.position.set(-0.65, 0.225, 0);
+  leftLeg.castShadow = true;
+  g.add(leftLeg);
+
+  const rightLeg = new THREE.Mesh(legGeo, ironMat);
+  rightLeg.position.set(0.65, 0.225, 0);
+  rightLeg.castShadow = true;
+  g.add(rightLeg);
+
+  // Seat slats
+  for (let s = -0.15; s <= 0.15; s += 0.12) {
+    const slat = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.05, 0.09), woodMat);
+    slat.position.set(0, 0.46, s);
+    slat.castShadow = true;
+    slat.receiveShadow = true;
+    g.add(slat);
   }
 
-  // Pink flower accents along hedge
-  const flowerMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.5 });
-  for (let f = 0; f < 3; f++) {
-    const fl = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 6), flowerMat);
-    fl.position.set(-0.6 + f * 0.6, 0.8, 0.4);
-    g.add(fl);
+  // Backrest slats
+  for (let b = 0.58; b <= 0.82; b += 0.11) {
+    const backSlat = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 0.04), woodMat);
+    backSlat.position.set(0, b, -0.2);
+    backSlat.castShadow = true;
+    g.add(backSlat);
   }
 
   return g;
+}
+
+// 2. 🪴 Terracotta / Oak Flower Planter Box with Blooming Flowers
+function create3DFlowerPlanterMesh(posX: number, posZ: number, seed: number = 0): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  // Planter Box Trough
+  const boxMat = new THREE.MeshStandardMaterial({
+    color: seed % 2 === 0 ? 0x9a3412 : 0x5c3a21,
+    roughness: 0.85,
+  });
+  const box = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.38, 0.65), boxMat);
+  box.position.y = 0.19;
+  box.castShadow = true;
+  box.receiveShadow = true;
+  g.add(box);
+
+  // Potting Soil
+  const soil = new THREE.Mesh(
+    new THREE.BoxGeometry(1.28, 0.05, 0.53),
+    new THREE.MeshStandardMaterial({ color: 0x1c1917, roughness: 0.95 })
+  );
+  soil.position.y = 0.37;
+  g.add(soil);
+
+  // Foliage Base
+  const foliageMat = new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.6 });
+  for (let i = -0.45; i <= 0.45; i += 0.45) {
+    const fol = new THREE.Mesh(new THREE.DodecahedronGeometry(0.22, 1), foliageMat);
+    fol.position.set(i, 0.48, (seed % 3 - 1) * 0.05);
+    fol.castShadow = true;
+    g.add(fol);
+  }
+
+  // Colorful Blossoms (Tulips, Poppies, Roses, Cornflowers)
+  const flowerCols = [0xef4444, 0xfacc15, 0xf472b6, 0x38bdf8, 0xffffff];
+  for (let f = 0; f < 5; f++) {
+    const col = flowerCols[(f + seed) % flowerCols.length];
+    const blossom = new THREE.Mesh(
+      new THREE.SphereGeometry(0.09, 6, 6),
+      new THREE.MeshStandardMaterial({ color: col, roughness: 0.4 })
+    );
+    blossom.position.set(-0.5 + f * 0.25, 0.62 + ((f % 2) * 0.06), ((f * 17) % 3 - 1) * 0.12);
+    blossom.castShadow = true;
+    g.add(blossom);
+  }
+
+  return g;
+}
+
+// 3. 🫐 Natural Organic Berry Bush (Spherical with red/golden berries)
+function create3DBerryBushMesh(posX: number, posZ: number, seed: number = 0): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  const bushMat = new THREE.MeshStandardMaterial({
+    color: seed % 2 === 0 ? 0x15803d : 0x166534,
+    roughness: 0.6,
+  });
+
+  // Main natural bush clusters
+  const mainCluster = new THREE.Mesh(new THREE.DodecahedronGeometry(0.55, 1), bushMat);
+  mainCluster.position.set(0, 0.45, 0);
+  mainCluster.castShadow = true;
+  mainCluster.receiveShadow = true;
+  g.add(mainCluster);
+
+  const sideCluster1 = new THREE.Mesh(new THREE.DodecahedronGeometry(0.38, 1), bushMat);
+  sideCluster1.position.set(0.35, 0.35, 0.15);
+  sideCluster1.castShadow = true;
+  g.add(sideCluster1);
+
+  const sideCluster2 = new THREE.Mesh(new THREE.DodecahedronGeometry(0.35, 1), bushMat);
+  sideCluster2.position.set(-0.32, 0.32, -0.15);
+  sideCluster2.castShadow = true;
+  g.add(sideCluster2);
+
+  // Red / Gold berries
+  const berryMat = new THREE.MeshStandardMaterial({
+    color: seed % 3 === 0 ? 0xfacc15 : 0xdc2626,
+    roughness: 0.3,
+  });
+  for (let b = 0; b < 6; b++) {
+    const berry = new THREE.Mesh(new THREE.SphereGeometry(0.06, 5, 5), berryMat);
+    const ang = (b * Math.PI * 2) / 6;
+    berry.position.set(Math.cos(ang) * 0.45, 0.4 + ((b % 3) * 0.1), Math.sin(ang) * 0.45);
+    berry.castShadow = true;
+    g.add(berry);
+  }
+
+  return g;
+}
+
+// 4. 📦 Rustic Market Crates & Barrel Stacks
+function create3DMarketCratesMesh(posX: number, posZ: number, seed: number = 0): THREE.Group {
+  const g = new THREE.Group();
+  g.position.set(posX, 0, posZ);
+
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.8 });
+  const ironMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6, metalness: 0.6 });
+
+  // Wooden Barrel
+  const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.72, 12), woodMat);
+  barrel.position.set(-0.35, 0.36, 0.1);
+  barrel.castShadow = true;
+  barrel.receiveShadow = true;
+  g.add(barrel);
+
+  // Barrel metal rings
+  const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.02, 8, 16), ironMat);
+  ring1.rotation.x = Math.PI / 2;
+  ring1.position.set(-0.35, 0.52, 0.1);
+  g.add(ring1);
+
+  const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.02, 8, 16), ironMat);
+  ring2.rotation.x = Math.PI / 2;
+  ring2.position.set(-0.35, 0.20, 0.1);
+  g.add(ring2);
+
+  // Fruit Crate
+  const crate = new THREE.Mesh(
+    new THREE.BoxGeometry(0.65, 0.42, 0.55),
+    new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.85 })
+  );
+  crate.position.set(0.35, 0.21, -0.1);
+  crate.castShadow = true;
+  crate.receiveShadow = true;
+  g.add(crate);
+
+  // Red Apples inside crate
+  const appleMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.3 });
+  for (let a = 0; a < 4; a++) {
+    const apple = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 6), appleMat);
+    apple.position.set(0.25 + (a % 2) * 0.18, 0.44, -0.18 + Math.floor(a / 2) * 0.18);
+    apple.castShadow = true;
+    g.add(apple);
+  }
+
+  return g;
+}
+
+// --- 3D GREEN HEDGE BUSH MESH (LEGACY / RETAINED) ---
+function create3DHedgeMesh(posX: number, posZ: number): THREE.Group {
+  return create3DBerryBushMesh(posX, posZ, 0);
 }
 
 // --- 3D ENVIRONMENT BUILDINGS & OBJECTS ---
