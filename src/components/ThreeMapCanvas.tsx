@@ -174,19 +174,29 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     camera.position.set(centerX + 8.5, 11.5, centerZ + 8.5);
     camera.lookAt(centerX, 0.8, centerZ);
 
-    const isMobile = typeof window !== 'undefined' && (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 900);
+    const isTouchOrMobile = typeof window !== 'undefined' && (
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      (typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 0) ||
+      window.innerWidth < 1024
+    );
 
-    // 2. RENDERER SETUP
+    // 2. RENDERER SETUP WITH HIGH PERFORMANCE FOR MOBILE & TABLETS
     const renderer = new THREE.WebGLRenderer({
-      antialias: !isMobile,
+      antialias: !isTouchOrMobile,
       alpha: false,
       powerPreference: 'high-performance',
-      precision: isMobile ? 'mediump' : 'highp',
+      precision: isTouchOrMobile ? 'mediump' : 'highp',
+      stencil: false,
+      depth: true,
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(isMobile ? 1.0 : Math.min(window.devicePixelRatio, 1.75));
+    
+    // Calibrated Pixel Ratio (Retina displays on iPads/iPhones render ultra-crisp at 1.0 - 1.25)
+    const targetDPR = isTouchOrMobile ? Math.min(window.devicePixelRatio, 1.0) : Math.min(window.devicePixelRatio, 1.35);
+    let currentDPR = targetDPR;
+    renderer.setPixelRatio(currentDPR);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = isTouchOrMobile ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = currentZone.id === 'zone_cave' || currentZone.id === 'zone_volcano' || currentZone.id === 'zone_castle' ? 1.25 : 1.08;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -267,8 +277,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const sunPosZ = centerZ - 130;
     sunLight.position.set(sunPosX, sunPosY, sunPosZ);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = isMobile ? 1024 : 2048;
-    sunLight.shadow.mapSize.height = isMobile ? 1024 : 2048;
+    sunLight.shadow.mapSize.width = isTouchOrMobile ? 1024 : 2048;
+    sunLight.shadow.mapSize.height = isTouchOrMobile ? 1024 : 2048;
     sunLight.shadow.camera.near = 0.5;
     sunLight.shadow.camera.far = 250;
     const shadowD = 40;
@@ -278,7 +288,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     sunLight.shadow.camera.bottom = -shadowD;
     sunLight.shadow.bias = -0.0002;
     sunLight.shadow.normalBias = 0.025;
-    sunLight.shadow.radius = isMobile ? 1 : 2.5;
+    sunLight.shadow.radius = isTouchOrMobile ? 1 : 2.5;
     scene.add(sunLight);
 
     // --- BACKGROUND MAP ENVIRONMENT: OCEAN, SUN, CLOUDS & COASTAL CLIFFS ---
@@ -291,14 +301,14 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     waterPBR.normal.wrapT = THREE.RepeatWrapping;
     waterPBR.normal.repeat.set(48, 48);
 
-    const oceanGeo = new THREE.PlaneGeometry(1200, 1200, isMobile ? 16 : 48, isMobile ? 16 : 48);
+    const oceanGeo = new THREE.PlaneGeometry(1200, 1200, isTouchOrMobile ? 16 : 32, isTouchOrMobile ? 16 : 32);
     const oceanMat = new THREE.MeshPhysicalMaterial({
       map: waterPBR.diffuse,
       normalMap: waterPBR.normal,
       normalScale: new THREE.Vector2(2.2, 2.2),
       roughness: 0.05,
       metalness: 0.2,
-      transmission: isMobile ? 0 : 0.45,
+      transmission: 0,
       ior: 1.333,
       clearcoat: 1.0,
       clearcoatRoughness: 0.04,
@@ -1569,11 +1579,36 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     let clock = new THREE.Clock();
     let lastRippleTime = 0;
     let walkPhase = 0;
+    let frameCount = 0;
+    let lastFpsCheckTime = performance.now();
+    let lowFpsStreak = 0;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
       const delta = Math.min(clock.getDelta(), 0.08);
       const time = clock.getElapsedTime();
+
+      // 🚀 ADAPTIVE FPS DYNAMIC RESOLUTION ENGINE (Ensures 60 FPS on any iPad/iPhone/Android)
+      frameCount++;
+      const now = performance.now();
+      if (now - lastFpsCheckTime >= 1000) {
+        const measuredFps = (frameCount * 1000) / (now - lastFpsCheckTime);
+        frameCount = 0;
+        lastFpsCheckTime = now;
+
+        if (measuredFps < 48) {
+          lowFpsStreak++;
+          if (lowFpsStreak >= 2 && currentDPR > 0.70) {
+            currentDPR = Math.max(0.70, Number((currentDPR - 0.15).toFixed(2)));
+            renderer.setPixelRatio(currentDPR);
+            lowFpsStreak = 0;
+          }
+        } else if (measuredFps >= 57 && currentDPR < targetDPR) {
+          currentDPR = Math.min(targetDPR, Number((currentDPR + 0.10).toFixed(2)));
+          renderer.setPixelRatio(currentDPR);
+          lowFpsStreak = 0;
+        }
+      }
 
       // Smoothly move hero position with exponential delta-time damper (Immune to FPS drops)
       const curr = playerCurrentPosRef.current;
@@ -1683,12 +1718,19 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       arrowMesh.rotation.y = time * 2.5;
       beamMat.opacity = 0.25 + Math.sin(time * 3) * 0.12;
 
-      // 🌟 ENVIRONMENTAL WIND & WAVE DYNAMICS
+      // 🌟 ENVIRONMENTAL WIND & WAVE DYNAMICS (Distance Culled for 60 FPS on mobile/tablets)
       const windSpeed = 1.6;
-      animatedSwayObjects.forEach((tree, idx) => {
-        const windPhase = time * windSpeed + (tree.position.x * 0.4 + tree.position.z * 0.3);
-        tree.rotation.z = Math.sin(windPhase) * 0.028;
-        tree.rotation.x = Math.cos(windPhase * 0.85) * 0.018;
+      const heroX = curr.x;
+      const heroZ = curr.z;
+      const maxSwayDistSq = 32 * 32; // 32 units radius from player
+      animatedSwayObjects.forEach((tree) => {
+        const dx = tree.position.x - heroX;
+        const dz = tree.position.z - heroZ;
+        if (dx * dx + dz * dz < maxSwayDistSq) {
+          const windPhase = time * windSpeed + (tree.position.x * 0.4 + tree.position.z * 0.3);
+          tree.rotation.z = Math.sin(windPhase) * 0.028;
+          tree.rotation.x = Math.cos(windPhase * 0.85) * 0.018;
+        }
       });
 
       // 🌊 Continuous Dynamic River & Ocean Flow Dynamics
@@ -1714,7 +1756,11 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       });
 
       animatedLanterns.forEach((l, idx) => {
-        l.intensity = 1.8 + Math.sin(time * 8 + idx * 2) * 0.4;
+        const dx = l.position.x - heroX;
+        const dz = l.position.z - heroZ;
+        if (dx * dx + dz * dz < 900) {
+          l.intensity = 1.8 + Math.sin(time * 8 + idx * 2) * 0.4;
+        }
       });
 
       animatedSmokes.forEach((s, idx) => {
