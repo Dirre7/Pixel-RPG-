@@ -499,11 +499,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     groundInstancedMesh.instanceMatrix.needsUpdate = true;
     tileGroup.add(groundInstancedMesh);
 
-    const pathMainGeo = new THREE.BoxGeometry(2.52, 0.42, 2.52);
-    const bridgeNorthGeo = new THREE.BoxGeometry(2.52, 0.42, 0.4);
-    const bridgeEastGeo = new THREE.BoxGeometry(0.4, 0.42, 2.52);
-    const filletGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.42, 8);
-    const edgeGeo = new THREE.BoxGeometry(0.15, 0.41, 2.52);
+    const pathMainGeo = new THREE.BoxGeometry(2.505, 0.40, 2.505);
 
     // Populate Map Tiles Details, Paths, Buildings & Obstacles
     for (let y = 0; y < currentZone.mapHeight; y++) {
@@ -515,78 +511,12 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
         // Perfectly flat and uniform terrain level
         const elevation = 0;
 
-        // CONTINUOUS SEAMLESS PATH (Blended Connection Overlays & Rounded Corner Fillets)
+        // SOLID CONTINUOUS SEAMLESS PATH (Single clean tile mesh, 0% Z-Fighting Moiré stripes)
         if (tileType === 2) {
-          const hasNorth = currentZone.tileData[y - 1]?.[x] === 2;
-          const hasSouth = currentZone.tileData[y + 1]?.[x] === 2;
-          const hasEast = currentZone.tileData[y]?.[x + 1] === 2;
-          const hasWest = currentZone.tileData[y]?.[x - 1] === 2;
-
-          // Main Base Path Mesh spanning full cell width seamlessly
           const pathMesh = new THREE.Mesh(pathMainGeo, pathMat);
-          pathMesh.position.set(posX, -0.19 + elevation, posZ);
+          pathMesh.position.set(posX, -0.18, posZ);
           pathMesh.receiveShadow = true;
           tileGroup.add(pathMesh);
-
-          // Directional Overlap Connectors bridging seamlessly into connected path neighbor tiles
-          if (hasNorth) {
-            const bridgeN = new THREE.Mesh(bridgeNorthGeo, pathMat);
-            bridgeN.position.set(posX, -0.19 + elevation, posZ - 1.28);
-            bridgeN.receiveShadow = true;
-            tileGroup.add(bridgeN);
-          }
-          if (hasSouth) {
-            const bridgeS = new THREE.Mesh(bridgeNorthGeo, pathMat);
-            bridgeS.position.set(posX, -0.19 + elevation, posZ + 1.28);
-            bridgeS.receiveShadow = true;
-            tileGroup.add(bridgeS);
-          }
-          if (hasEast) {
-            const bridgeE = new THREE.Mesh(bridgeEastGeo, pathMat);
-            bridgeE.position.set(posX + 1.28, -0.19 + elevation, posZ);
-            bridgeE.receiveShadow = true;
-            tileGroup.add(bridgeE);
-          }
-          if (hasWest) {
-            const bridgeW = new THREE.Mesh(bridgeEastGeo, pathMat);
-            bridgeW.position.set(posX - 1.28, -0.19 + elevation, posZ);
-            bridgeW.receiveShadow = true;
-            tileGroup.add(bridgeW);
-          }
-
-          // Curved Rounded Fillets on Turn Corners
-          if (hasNorth && hasEast) {
-            const filletNE = new THREE.Mesh(filletGeo, pathMat);
-            filletNE.position.set(posX + 1.0, -0.19 + elevation, posZ - 1.0);
-            tileGroup.add(filletNE);
-          }
-          if (hasNorth && hasWest) {
-            const filletNW = new THREE.Mesh(filletGeo, pathMat);
-            filletNW.position.set(posX - 1.0, -0.19 + elevation, posZ - 1.0);
-            tileGroup.add(filletNW);
-          }
-          if (hasSouth && hasEast) {
-            const filletSE = new THREE.Mesh(filletGeo, pathMat);
-            filletSE.position.set(posX + 1.0, -0.19 + elevation, posZ + 1.0);
-            tileGroup.add(filletSE);
-          }
-          if (hasSouth && hasWest) {
-            const filletSW = new THREE.Mesh(filletGeo, pathMat);
-            filletSW.position.set(posX - 1.0, -0.19 + elevation, posZ + 1.0);
-            tileGroup.add(filletSW);
-          }
-
-          // Natural Soil/Dirt Border Edge Strips along non-path borders
-          if (!hasWest && !currentZone.tileData[y]?.[x - 1]) {
-            const edgeW = new THREE.Mesh(edgeGeo, pathBorderMat);
-            edgeW.position.set(posX - 1.28, -0.18 + elevation, posZ);
-            tileGroup.add(edgeW);
-          }
-          if (!hasEast && !currentZone.tileData[y]?.[x + 1]) {
-            const edgeE = new THREE.Mesh(edgeGeo, pathBorderMat);
-            edgeE.position.set(posX + 1.28, -0.18 + elevation, posZ);
-            tileGroup.add(edgeE);
-          }
 
           // 🌉 Wooden Bridge Handrails when path crosses water
           const hasNorthWater = currentZone.tileData[y - 1]?.[x] === 3;
@@ -599,13 +529,13 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
           if (hasNorthWater) {
             const railN = new THREE.Mesh(new THREE.BoxGeometry(2.52, 0.08, 0.08), bridgeRailMat);
-            railN.position.set(posX, 0.32 + elevation, posZ - 1.18);
+            railN.position.set(posX, 0.32, posZ - 1.18);
             railN.castShadow = true;
             tileGroup.add(railN);
 
             for (let p = -1; p <= 1; p++) {
               const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
-              post.position.set(posX + p * 1.05, 0.15 + elevation, posZ - 1.18);
+              post.position.set(posX + p * 1.05, 0.15, posZ - 1.18);
               post.castShadow = true;
               tileGroup.add(post);
             }
@@ -613,13 +543,13 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
           if (hasSouthWater) {
             const railS = new THREE.Mesh(new THREE.BoxGeometry(2.52, 0.08, 0.08), bridgeRailMat);
-            railS.position.set(posX, 0.32 + elevation, posZ + 1.18);
+            railS.position.set(posX, 0.32, posZ + 1.18);
             railS.castShadow = true;
             tileGroup.add(railS);
 
             for (let p = -1; p <= 1; p++) {
               const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
-              post.position.set(posX + p * 1.05, 0.15 + elevation, posZ + 1.18);
+              post.position.set(posX + p * 1.05, 0.15, posZ + 1.18);
               post.castShadow = true;
               tileGroup.add(post);
             }
@@ -627,13 +557,13 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
           if (hasWestWater) {
             const railW = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 2.52), bridgeRailMat);
-            railW.position.set(posX - 1.18, 0.32 + elevation, posZ);
+            railW.position.set(posX - 1.18, 0.32, posZ);
             railW.castShadow = true;
             tileGroup.add(railW);
 
             for (let p = -1; p <= 1; p++) {
               const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
-              post.position.set(posX - 1.18, 0.15 + elevation, posZ + p * 1.05);
+              post.position.set(posX - 1.18, 0.15, posZ + p * 1.05);
               post.castShadow = true;
               tileGroup.add(post);
             }
@@ -641,13 +571,13 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
           if (hasEastWater) {
             const railE = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 2.52), bridgeRailMat);
-            railE.position.set(posX + 1.18, 0.32 + elevation, posZ);
+            railE.position.set(posX + 1.18, 0.32, posZ);
             railE.castShadow = true;
             tileGroup.add(railE);
 
             for (let p = -1; p <= 1; p++) {
               const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
-              post.position.set(posX + 1.18, 0.15 + elevation, posZ + p * 1.05);
+              post.position.set(posX + 1.18, 0.15, posZ + p * 1.05);
               post.castShadow = true;
               tileGroup.add(post);
             }
