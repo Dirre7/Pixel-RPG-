@@ -465,7 +465,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     // Track obstacles for dynamic X-Ray transparency when near player
     const obstacleGroups: { group: THREE.Group; gridX: number; gridY: number }[] = [];
 
-    // Ground Tile Mesh with True PBR Physical Shader (Reused instance for high performance)
+    // Ground Tile Material with True PBR Physical Shader (Reused instance for high performance)
     const groundMat = new THREE.MeshStandardMaterial({
       map: groundPBR.diffuse,
       normalMap: groundPBR.normal,
@@ -474,13 +474,36 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       metalness: currentZone.id === 'zone_castle' ? 0.15 : currentZone.id === 'zone_cave' ? 0.18 : 0.05,
     });
 
+    // Ground Tile Instanced Mesh with True PBR Physical Shader (1 single draw call for all 3600 tiles!)
+    const totalTiles = currentZone.mapWidth * currentZone.mapHeight;
+    const groundInstancedMesh = new THREE.InstancedMesh(tileGeo, groundMat, totalTiles);
+    groundInstancedMesh.receiveShadow = true;
+    const dummyMatrix = new THREE.Matrix4();
+    const dummyPos = new THREE.Vector3();
+    const dummyQuat = new THREE.Quaternion();
+    const dummyScale = new THREE.Vector3(1, 1, 1);
+
+    let tileIndex = 0;
+    for (let y = 0; y < currentZone.mapHeight; y++) {
+      for (let x = 0; x < currentZone.mapWidth; x++) {
+        const posX = x * 2.5;
+        const posZ = y * 2.5;
+        const elevation = (Math.sin(x * 1.3 + y * 1.7) * 0.05) + (Math.cos(x * 0.8 - y * 1.2) * 0.04);
+        dummyPos.set(posX, -0.2 + elevation, posZ);
+        dummyMatrix.compose(dummyPos, dummyQuat, dummyScale);
+        groundInstancedMesh.setMatrixAt(tileIndex++, dummyMatrix);
+      }
+    }
+    groundInstancedMesh.instanceMatrix.needsUpdate = true;
+    tileGroup.add(groundInstancedMesh);
+
     const pathMainGeo = new THREE.BoxGeometry(2.52, 0.42, 2.52);
     const bridgeNorthGeo = new THREE.BoxGeometry(2.52, 0.42, 0.4);
     const bridgeEastGeo = new THREE.BoxGeometry(0.4, 0.42, 2.52);
     const filletGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.42, 8);
     const edgeGeo = new THREE.BoxGeometry(0.15, 0.41, 2.52);
 
-    // Populate Map Tiles
+    // Populate Map Tiles Details, Paths, Buildings & Obstacles
     for (let y = 0; y < currentZone.mapHeight; y++) {
       for (let x = 0; x < currentZone.mapWidth; x++) {
         const tileType = currentZone.tileData[y]?.[x] ?? 0;
@@ -489,11 +512,6 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
         // Micro-elevation height variation for natural organic terrain
         const elevation = (Math.sin(x * 1.3 + y * 1.7) * 0.05) + (Math.cos(x * 0.8 - y * 1.2) * 0.04);
-
-        const tileMesh = new THREE.Mesh(tileGeo, groundMat);
-        tileMesh.position.set(posX, -0.2 + elevation, posZ);
-        tileMesh.receiveShadow = true;
-        tileGroup.add(tileMesh);
 
         // CONTINUOUS SEAMLESS PATH (Blended Connection Overlays & Rounded Corner Fillets)
         if (tileType === 2) {
@@ -1035,25 +1053,28 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     let animationFrameId: number;
     let clock = new THREE.Clock();
     let lastRippleTime = 0;
+    let walkPhase = 0;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
-      const delta = Math.min(clock.getDelta(), 0.1);
+      const delta = Math.min(clock.getDelta(), 0.08);
       const time = clock.getElapsedTime();
 
-      // Smoothly move hero position with spring-damper interpolation
+      // Smoothly move hero position with exponential delta-time damper (Immune to FPS drops)
       const curr = playerCurrentPosRef.current;
       const targ = playerTargetPosRef.current;
 
       const prevX = curr.x;
       const prevZ = curr.z;
 
-      curr.x += (targ.x - curr.x) * 0.18;
-      curr.z += (targ.z - curr.z) * 0.18;
+      const decay = 13.5;
+      const lerpFactor = 1.0 - Math.exp(-decay * delta);
+      curr.x += (targ.x - curr.x) * lerpFactor;
+      curr.z += (targ.z - curr.z) * lerpFactor;
 
       // Realistic Kinematics & Velocity vector
       const distToTarget = Math.hypot(targ.x - curr.x, targ.z - curr.z);
-      const isMoving = distToTarget > 0.04;
+      const isMoving = distToTarget > 0.02;
 
       // Hero Character Rotation based on Facing Direction
       let targetRotY = Math.PI; // default facing up (away down the path into screen)
@@ -1065,35 +1086,35 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       let rotDiff = targetRotY - heroGroup.rotation.y;
       while (rotDiff < -Math.PI) rotDiff += Math.PI * 2;
       while (rotDiff > Math.PI) rotDiff -= Math.PI * 2;
-      heroGroup.rotation.y += rotDiff * 0.22;
+      heroGroup.rotation.y += rotDiff * (1.0 - Math.exp(-16 * delta));
 
       // 🌟 PHYSICAL INERTIA & BANKING: Lean hero into corners and turns
       const velX = (curr.x - prevX) / Math.max(delta, 0.001);
       const velZ = (curr.z - prevZ) / Math.max(delta, 0.001);
       const targetBankZ = THREE.MathUtils.clamp(-velX * 0.045, -0.22, 0.22);
       const targetBankX = THREE.MathUtils.clamp(velZ * 0.045, -0.22, 0.22);
-      heroGroup.rotation.z = THREE.MathUtils.lerp(heroGroup.rotation.z, targetBankZ, 0.18);
-      heroGroup.rotation.x = THREE.MathUtils.lerp(heroGroup.rotation.x, targetBankX, 0.18);
+      heroGroup.rotation.z = THREE.MathUtils.damp(heroGroup.rotation.z, targetBankZ, 12, delta);
+      heroGroup.rotation.x = THREE.MathUtils.damp(heroGroup.rotation.x, targetBankX, 12, delta);
 
       // 🌟 STEP WEIGHT SPRING BOUNCE: Footstep ground compression
-      const stepBounce = isMoving ? Math.abs(Math.sin(time * 14)) * 0.06 : Math.sin(time * 2.8) * 0.015;
-      heroGroup.position.set(curr.x, -stepBounce, curr.z);
-
-      // Human Character Walking & Dynamic Skeletal Physics
       if (isMoving) {
-        const walkCycle = time * 14;
-        heroMeshResult.leftLeg.rotation.x = Math.sin(walkCycle) * 0.72;
-        heroMeshResult.rightLeg.rotation.x = -Math.sin(walkCycle) * 0.72;
-        heroMeshResult.leftArm.rotation.x = -Math.sin(walkCycle) * 0.62;
-        heroMeshResult.rightArm.rotation.x = Math.sin(walkCycle) * 0.62;
-        heroMeshResult.torsoGroup.rotation.y = Math.sin(walkCycle) * 0.12;
-        heroMeshResult.torsoGroup.position.y = 0.70 + Math.abs(Math.sin(walkCycle)) * 0.05;
-        heroMeshResult.headGroup.position.y = 1.15 + Math.abs(Math.sin(walkCycle)) * 0.05;
+        walkPhase += delta * 15.5;
+        const stepBounce = Math.abs(Math.sin(walkPhase)) * 0.055;
+        heroGroup.position.set(curr.x, -stepBounce, curr.z);
+
+        // Human Character Walking & Dynamic Skeletal Physics
+        heroMeshResult.leftLeg.rotation.x = Math.sin(walkPhase) * 0.74;
+        heroMeshResult.rightLeg.rotation.x = -Math.sin(walkPhase) * 0.74;
+        heroMeshResult.leftArm.rotation.x = -Math.sin(walkPhase) * 0.62;
+        heroMeshResult.rightArm.rotation.x = Math.sin(walkPhase) * 0.62;
+        heroMeshResult.torsoGroup.rotation.y = Math.sin(walkPhase) * 0.12;
+        heroMeshResult.torsoGroup.position.y = 0.70 + Math.abs(Math.sin(walkPhase)) * 0.045;
+        heroMeshResult.headGroup.position.y = 1.15 + Math.abs(Math.sin(walkPhase)) * 0.045;
         
         // 🌟 VERLET CLOTH & HAIR LAG: Cape / Headband sways against movement direction
         if (heroMeshResult.headbandTail) {
-          heroMeshResult.headbandTail.rotation.z = -0.3 + Math.sin(walkCycle) * 0.35;
-          heroMeshResult.headbandTail.rotation.x = THREE.MathUtils.lerp(heroMeshResult.headbandTail.rotation.x, 0.55, 0.2);
+          heroMeshResult.headbandTail.rotation.z = -0.3 + Math.sin(walkPhase) * 0.35;
+          heroMeshResult.headbandTail.rotation.x = THREE.MathUtils.damp(heroMeshResult.headbandTail.rotation.x, 0.55, 10, delta);
         }
 
         // 🌟 INTERACTIVE FLUID SHOCKWAVES: Spawn concentric ripples when near water / lava
@@ -1112,17 +1133,20 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
           }
         }
       } else {
+        const stepBounce = Math.sin(time * 2.8) * 0.015;
+        heroGroup.position.set(curr.x, -stepBounce, curr.z);
+
         const breathCycle = time * 3;
-        heroMeshResult.leftLeg.rotation.x = THREE.MathUtils.lerp(heroMeshResult.leftLeg.rotation.x, 0, 0.2);
-        heroMeshResult.rightLeg.rotation.x = THREE.MathUtils.lerp(heroMeshResult.rightLeg.rotation.x, 0, 0.2);
-        heroMeshResult.leftArm.rotation.x = Math.sin(breathCycle) * 0.06;
-        heroMeshResult.rightArm.rotation.x = -Math.sin(breathCycle) * 0.06;
-        heroMeshResult.torsoGroup.rotation.y = 0;
+        heroMeshResult.leftLeg.rotation.x = THREE.MathUtils.damp(heroMeshResult.leftLeg.rotation.x, 0, 14, delta);
+        heroMeshResult.rightLeg.rotation.x = THREE.MathUtils.damp(heroMeshResult.rightLeg.rotation.x, 0, 14, delta);
+        heroMeshResult.leftArm.rotation.x = THREE.MathUtils.damp(heroMeshResult.leftArm.rotation.x, Math.sin(breathCycle) * 0.06, 10, delta);
+        heroMeshResult.rightArm.rotation.x = THREE.MathUtils.damp(heroMeshResult.rightArm.rotation.x, -Math.sin(breathCycle) * 0.06, 10, delta);
+        heroMeshResult.torsoGroup.rotation.y = THREE.MathUtils.damp(heroMeshResult.torsoGroup.rotation.y, 0, 12, delta);
         heroMeshResult.torsoGroup.position.y = 0.70 + Math.sin(breathCycle) * 0.015;
         heroMeshResult.headGroup.position.y = 1.15 + Math.sin(breathCycle) * 0.02;
         if (heroMeshResult.headbandTail) {
           heroMeshResult.headbandTail.rotation.z = -0.3 + Math.sin(time * 4) * 0.1;
-          heroMeshResult.headbandTail.rotation.x = THREE.MathUtils.lerp(heroMeshResult.headbandTail.rotation.x, 0, 0.1);
+          heroMeshResult.headbandTail.rotation.x = THREE.MathUtils.damp(heroMeshResult.headbandTail.rotation.x, 0, 8, delta);
         }
       }
 
@@ -1240,19 +1264,6 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       camera.lookAt(curr.x, 0.8, curr.z);
 
       // Keep sunlight positioned relative to player for crisp dynamic shadows
-      sunLight.position.set(curr.x + 12, 28, curr.z - 8);
-
-      // Animate floating particles
-      const positions = particleSystem.geometry.attributes.position.array as Float32Array;
-      for (let i = 0; i < particleCount * 3; i += 3) {
-        positions[i + 1] -= delta * 1.5;
-        positions[i] += Math.sin(time + i) * 0.02;
-        if (positions[i + 1] < 0) {
-          positions[i + 1] = 8;
-        }
-      }
-      particleSystem.geometry.attributes.position.needsUpdate = true;
-
       // Render Scene
       renderer.render(scene, camera);
 
@@ -1311,9 +1322,9 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
   }, [currentZone, player.heroClass, equipment, openedChests, defeatedBosses, isBossDefeated]);
 
   return (
-    <div className="relative flex justify-center items-center w-full h-full min-h-[580px] flex-1 select-none overflow-hidden rounded-xl border-2 border-amber-900/60 shadow-[0_0_30px_rgba(0,0,0,0.9)] bg-slate-950">
+    <div className="relative w-full h-full min-h-[500px] flex-1 select-none overflow-hidden bg-slate-950">
       {/* 3D WebGL Canvas Container */}
-      <div ref={mountRef} className="w-full h-full min-h-[580px] cursor-pointer" />
+      <div ref={mountRef} className="w-full h-full min-h-[500px] cursor-pointer" />
 
       {/* OVERHEAD MOBA HEALTHBAR HUD (Projected from 3D to 2D) */}
       {playerHudPos.visible && (
