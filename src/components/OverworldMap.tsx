@@ -439,7 +439,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         return;
       }
       soundEngine.playSfx('attack');
-      const woodGain = Math.floor(Math.random() * 5) + 6; // 6 - 10 wood
+      const woodGain = Math.floor(Math.random() * 3) + 4; // 4 - 6 wood
       player.resources.wood = (player.resources.wood || 0) + woodGain;
       setDepletedNodes((prev) => [...prev, treeNodeId]);
       onAutoSave();
@@ -456,9 +456,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       if (!openedChests.includes(chestId)) {
         soundEngine.playSfx('gold');
         onOpenChest(chestId);
-        player.resources.crops = (player.resources.crops || 0) + 30;
+        player.resources.crops = (player.resources.crops || 0) + 15;
         onAutoSave();
-        showToast('🌾 ¡Molino de Viento! Has recolectado +30 Cosechas y Trigo.');
+        showToast('🌾 ¡Molino de Viento! Has recolectado +15 Cosechas y Harina.');
       } else {
         showToast('🌾 El molino está moliendo grano para la siguiente cosecha.');
       }
@@ -469,8 +469,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         if (loot) {
           setActiveChestLoot(loot);
         }
-        player.resources.stone = (player.resources.stone || 0) + 15;
-        player.resources.gems = (player.resources.gems || 0) + 5;
+        player.resources.stone = (player.resources.stone || 0) + 8;
+        player.resources.gems = (player.resources.gems || 0) + 2;
         onAutoSave();
       }
     } else if (tile === 8) {
@@ -478,9 +478,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         soundEngine.playSfx('level_up');
         onOpenChest(chestId);
         onHealAtInn();
-        player.resources.gems = (player.resources.gems || 0) + 10;
+        player.resources.gems = (player.resources.gems || 0) + 5;
         onAutoSave();
-        showToast('🏛️ ¡Meditación en el santuario! +10 Gemas Arcanas y HP/MP Restaurados.');
+        showToast('🏛️ ¡Meditación en el santuario! +5 Gemas Arcanas y HP/MP Restaurados.');
       } else {
         onHealAtInn();
         showToast('🏛️ La paz del santuario restaura tu energía vital.');
@@ -498,7 +498,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         return;
       }
       soundEngine.playSfx('select');
-      const cropsGain = Math.floor(Math.random() * 6) + 8; // 8 - 13 crops
+      const cropsGain = Math.floor(Math.random() * 4) + 4; // 4 - 7 crops
       player.resources.crops = (player.resources.crops || 0) + cropsGain;
       setDepletedNodes((prev) => [...prev, cropNodeId]);
       onAutoSave();
@@ -510,7 +510,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         return;
       }
       soundEngine.playSfx('select');
-      const woodGain = Math.floor(Math.random() * 6) + 10; // 10 - 15 wood
+      const woodGain = Math.floor(Math.random() * 3) + 6; // 6 - 8 wood
       player.resources.wood = (player.resources.wood || 0) + woodGain;
       setDepletedNodes((prev) => [...prev, treeNodeId]);
       onAutoSave();
@@ -522,10 +522,10 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         return;
       }
       soundEngine.playSfx('attack');
-      const stoneGain = Math.floor(Math.random() * 6) + 8; // 8 - 13 stone
+      const stoneGain = Math.floor(Math.random() * 4) + 5; // 5 - 8 stone
       player.resources.stone = (player.resources.stone || 0) + stoneGain;
-      // 20% chance of small gem found in mineral vein
-      const foundGem = Math.random() < 0.25;
+      // 10% chance of small gem found in mineral vein
+      const foundGem = Math.random() < 0.10;
       if (foundGem) {
         player.resources.gems = (player.resources.gems || 0) + 1;
       }
@@ -534,7 +534,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       showToast(`🪨 ¡Has picado la veta de mineral! (+${stoneGain} Piedra/Hierro${foundGem ? ', +1 Gema 💎' : ''})`);
     } else if (tile === 20) {
       soundEngine.playSfx('level_up');
-      const gemGain = Math.floor(Math.random() * 3) + 2; // 2 - 4 gems
+      const gemGain = Math.floor(Math.random() * 2) + 1; // 1 - 2 gems
       player.resources.gems = (player.resources.gems || 0) + gemGain;
       onAutoSave();
       showToast(`💎 ¡Has extraído cristales arcanos de la geoda! (+${gemGain} Gemas Arcanas)`);

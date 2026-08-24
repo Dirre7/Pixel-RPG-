@@ -341,10 +341,10 @@ export default function App() {
       gold: 35,
       score: 0,
       resources: {
-        wood: 35,
-        stone: 20,
-        crops: 25,
-        gems: 5,
+        wood: 15,
+        stone: 10,
+        crops: 10,
+        gems: 0,
       },
     };
 
@@ -877,8 +877,12 @@ export default function App() {
     let finalLore = [...unlockedLoreIds];
 
     if (result.won) {
-      const stoneGained = currentEnemy?.isBoss ? 45 : Math.floor(Math.random() * 8) + 4;
-      const gemsGained = currentEnemy?.isBoss ? 25 : Math.floor(Math.random() * 3) + 1;
+      const stoneGained = currentEnemy?.isBoss
+        ? 35
+        : Math.random() < 0.35
+        ? Math.floor(Math.random() * 3) + 1
+        : 0;
+      const gemsGained = currentEnemy?.isBoss ? 15 : 0;
       finalPlayer = {
         ...finalPlayer,
         resources: {
