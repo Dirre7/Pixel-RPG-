@@ -682,25 +682,9 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
               obsGroup = create3DFenceMesh(posX, posZ);
               obsGroup.position.y += elevation;
             } else {
-              // 3D Fantasy Tree GLTF Model
-              const treeContainer = new THREE.Group();
-              treeContainer.position.set(posX, elevation, posZ);
-
-              const rotY = ((seed * 73) % 360) * (Math.PI / 180);
-              const scaleVar = 0.44 + (seed % 5) * 0.02;
-
-              const fallbackTree = create3DRichTreeMesh(0, 0, currentZone.id, x, y);
-              treeContainer.add(fallbackTree);
-
-              loadFantasyTreeGLTF((treeModel) => {
-                fallbackTree.visible = false;
-                const clone = treeModel.clone();
-                clone.scale.set(scaleVar, scaleVar, scaleVar);
-                clone.rotation.y = rotY;
-                treeContainer.add(clone);
-              });
-
-              obsGroup = treeContainer;
+              // 3D Optimized Procedural Tree with Cached PBR Shaders
+              obsGroup = create3DRichTreeMesh(posX, posZ, currentZone.id, x, y);
+              obsGroup.position.y += elevation;
               animatedSwayObjects.push(obsGroup);
             }
           } else {
@@ -2400,11 +2384,6 @@ function create3DCottageMesh(posX: number, posZ: number, variant: number): THREE
   door.position.set(0.3, 0.65, 0.76);
   g.add(door);
 
-  // Warm Lantern Light
-  const houseLight = new THREE.PointLight(0xfba107, 1.5, 4);
-  houseLight.position.set(0.3, 1.2, 0.9);
-  g.add(houseLight);
-
   return g;
 }
 
@@ -2462,15 +2441,12 @@ function create3DLanternPostMesh(posX: number, posZ: number): THREE.Group {
     new THREE.MeshStandardMaterial({
       color: 0xfde047,
       emissive: 0xeab308,
-      emissiveIntensity: 1.8,
+      emissiveIntensity: 2.2,
+      roughness: 0.2,
     })
   );
   lantern.position.set(0.3, 1.5, 0);
   g.add(lantern);
-
-  const light = new THREE.PointLight(0xfab107, 2.0, 5);
-  light.position.set(0.3, 1.5, 0);
-  g.add(light);
 
   return g;
 }
