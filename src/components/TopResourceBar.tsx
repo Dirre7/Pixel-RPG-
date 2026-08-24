@@ -32,41 +32,41 @@ export const TopResourceBar: React.FC<TopResourceBarProps> = ({
       {/* Top Resources Bar - Pixel Tribe Style */}
       {/* Desktop / Expanded View */}
       <div
-        className={`w-full items-center justify-between bg-amber-950/95 border-b-2 border-amber-600/80 px-2 sm:px-4 py-0.5 sm:py-1 shadow-2xl backdrop-blur-md text-amber-100 font-mono text-[10px] sm:text-xs pointer-events-auto transition-all ${
+        className={`w-full items-center justify-between bg-amber-950/95 border-b-2 border-amber-600/80 px-2 sm:px-4 py-1 sm:py-1.5 shadow-2xl backdrop-blur-md text-amber-100 font-mono text-xs sm:text-sm pointer-events-auto transition-all ${
           showResourcesMobile ? 'flex' : 'hidden sm:flex'
         }`}
       >
         {/* Left: Resource Badges */}
-        <div className="flex items-center gap-1 sm:gap-2.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 sm:gap-3 overflow-x-auto no-scrollbar">
           {/* Wood */}
-          <div className="flex items-center gap-1 bg-amber-900/70 px-1.5 py-0.5 rounded border border-amber-500/40 shadow-inner" title="Madera de Roble">
-            <span className="text-amber-400 font-bold">🪵</span>
-            <span className="font-bold text-amber-200">{(player.resources?.wood || 0).toLocaleString()}</span>
+          <div className="flex items-center gap-1.5 bg-amber-900/80 px-2 py-1 rounded-xl border border-amber-500/50 shadow-inner" title="Madera de Roble">
+            <span className="text-amber-400 font-bold text-sm sm:text-base">🪵</span>
+            <span className="font-black text-amber-200 text-xs sm:text-sm">{(player.resources?.wood || 0).toLocaleString()}</span>
           </div>
 
           {/* Stone / Mineral */}
-          <div className="flex items-center gap-1 bg-amber-900/70 px-1.5 py-0.5 rounded border border-amber-500/40 shadow-inner" title="Piedra y Mineral">
-            <span className="text-slate-300 font-bold">🪨</span>
-            <span className="font-bold text-slate-200">{(player.resources?.stone || 0).toLocaleString()}</span>
+          <div className="flex items-center gap-1.5 bg-amber-900/80 px-2 py-1 rounded-xl border border-amber-500/50 shadow-inner" title="Piedra y Mineral">
+            <span className="text-slate-300 font-bold text-sm sm:text-base">🪨</span>
+            <span className="font-black text-slate-200 text-xs sm:text-sm">{(player.resources?.stone || 0).toLocaleString()}</span>
           </div>
 
           {/* Crops / Food */}
-          <div className="flex items-center gap-1 bg-amber-900/70 px-1.5 py-0.5 rounded border border-amber-500/40 shadow-inner" title="Cosechas">
-            <span className="text-orange-400 font-bold">🥕</span>
-            <span className="font-bold text-orange-200">{(player.resources?.crops || 0).toLocaleString()}</span>
+          <div className="flex items-center gap-1.5 bg-amber-900/80 px-2 py-1 rounded-xl border border-amber-500/50 shadow-inner" title="Cosechas">
+            <span className="text-orange-400 font-bold text-sm sm:text-base">🥕</span>
+            <span className="font-black text-orange-200 text-xs sm:text-sm">{(player.resources?.crops || 0).toLocaleString()}</span>
           </div>
 
           {/* Gems / Arcane Essences */}
-          <div className="flex items-center gap-1 bg-amber-900/70 px-1.5 py-0.5 rounded border border-amber-500/40 shadow-inner" title="Gemas">
-            <span className="text-cyan-400 font-bold">💎</span>
-            <span className="font-bold text-cyan-200">{(player.resources?.gems || 0).toLocaleString()}</span>
+          <div className="flex items-center gap-1.5 bg-amber-900/80 px-2 py-1 rounded-xl border border-amber-500/50 shadow-inner" title="Gemas">
+            <span className="text-cyan-400 font-bold text-sm sm:text-base">💎</span>
+            <span className="font-black text-cyan-200 text-xs sm:text-sm">{(player.resources?.gems || 0).toLocaleString()}</span>
           </div>
         </div>
 
         {/* Right: Date & Season */}
-        <div className="flex items-center gap-1 bg-amber-900/80 px-2 py-0.5 rounded border border-amber-400/50 shadow-inner ml-2 flex-shrink-0">
-          <Calendar className="w-3 h-3 text-amber-300" />
-          <span className="font-bold text-amber-200 whitespace-nowrap text-[9px] sm:text-[10px]">Día 15, Primavera</span>
+        <div className="flex items-center gap-1.5 bg-amber-900/90 px-2.5 py-1 rounded-xl border border-amber-400/60 shadow-inner ml-2 flex-shrink-0">
+          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300" />
+          <span className="font-black text-amber-200 whitespace-nowrap text-xs sm:text-sm">Día 15, Primavera</span>
         </div>
       </div>
 

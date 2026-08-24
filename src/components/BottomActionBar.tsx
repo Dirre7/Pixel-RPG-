@@ -141,20 +141,20 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
                 }
               }
             }}
-            className="relative group w-9 h-9 sm:w-11 sm:h-11 bg-slate-900/90 hover:bg-slate-800 active:scale-90 border-2 border-slate-700 hover:border-amber-400 rounded-xl flex flex-col items-center justify-center transition shadow-inner flex-shrink-0"
+            className="relative group w-11 h-11 sm:w-13 sm:h-13 bg-slate-900/95 hover:bg-slate-800 active:scale-90 border-2 border-slate-700 hover:border-amber-400 rounded-2xl flex flex-col items-center justify-center transition shadow-lg flex-shrink-0"
             title={`${slot.name} (Tecla ${slot.key})`}
           >
             {/* Key shortcut badge */}
-            <span className="absolute top-0.5 left-1 text-[8px] font-mono text-slate-400 group-hover:text-amber-300 font-bold">
+            <span className="absolute top-0.5 left-1.5 text-[9px] font-mono text-slate-400 group-hover:text-amber-300 font-bold">
               {slot.key}
             </span>
 
             {/* Icon */}
-            <span className="text-base sm:text-lg select-none">{slot.icon}</span>
+            <span className="text-xl sm:text-2xl select-none">{slot.icon}</span>
 
             {/* Count Badge */}
             {slot.count > 0 && (
-              <span className="absolute bottom-0.5 right-1 text-[8px] sm:text-[9px] font-mono font-bold text-amber-200 bg-slate-950/90 px-1 rounded-full border border-amber-500/40">
+              <span className="absolute bottom-0.5 right-1 text-[9px] sm:text-[10px] font-mono font-black text-amber-200 bg-slate-950 px-1.5 py-0.2 rounded-full border border-amber-500/60 shadow">
                 {slot.count}
               </span>
             )}
@@ -163,8 +163,7 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
       </div>
 
       {/* Village Management Navigation Bar (Pixel Tribe Style) */}
-      <div className="flex items-center justify-center gap-1 sm:gap-2 overflow-x-auto max-w-full no-scrollbar py-0.5">
-
+      <div className="flex items-center justify-center gap-1.5 sm:gap-3 overflow-x-auto max-w-full no-scrollbar py-1">
 
         {/* Misiones */}
         <button
@@ -172,9 +171,9 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
             soundEngine.playSfx('select');
             onOpenQuests();
           }}
-          className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-amber-950/90 hover:bg-amber-900 active:scale-95 text-amber-200 rounded-xl border border-amber-600 shadow-lg font-mono text-[10px] sm:text-xs font-bold transition"
+          className="flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 bg-amber-950/95 hover:bg-amber-900 active:scale-95 text-amber-200 rounded-2xl border-2 border-amber-600 shadow-xl font-mono text-xs sm:text-sm font-black transition"
         >
-          <Scroll className="w-3.5 h-3.5 text-amber-400" />
+          <Scroll className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
           <span>Misiones</span>
         </button>
 
@@ -184,9 +183,9 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
             soundEngine.playSfx('select');
             onOpenShop();
           }}
-          className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-slate-900/90 hover:bg-slate-800 active:scale-95 text-emerald-300 rounded-xl border border-slate-700 shadow-lg font-mono text-[10px] sm:text-xs font-bold transition"
+          className="flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 bg-slate-900/95 hover:bg-slate-800 active:scale-95 text-emerald-300 rounded-2xl border-2 border-emerald-600 shadow-xl font-mono text-xs sm:text-sm font-black transition"
         >
-          <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />
+          <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
           <span>Comercio</span>
         </button>
 
@@ -196,9 +195,9 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
             soundEngine.playSfx('select');
             onOpenInventory();
           }}
-          className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-slate-900/90 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-xl border border-slate-700 shadow-lg font-mono text-[10px] sm:text-xs font-bold transition"
+          className="flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 bg-slate-900/95 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-2xl border-2 border-amber-500 shadow-xl font-mono text-xs sm:text-sm font-black transition"
         >
-          <Package className="w-3.5 h-3.5 text-amber-400" />
+          <Package className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
           <span>Inventario</span>
         </button>
 
@@ -208,9 +207,9 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
             soundEngine.playSfx('select');
             onOpenSettings();
           }}
-          className="flex items-center gap-1 px-2 py-1.5 bg-slate-900/90 hover:bg-slate-800 active:scale-95 text-slate-300 rounded-xl border border-slate-700 shadow-lg font-mono text-[10px] sm:text-xs font-bold transition"
+          className="flex items-center gap-1 p-2 sm:p-2.5 bg-slate-900/95 hover:bg-slate-800 active:scale-95 text-slate-300 rounded-2xl border-2 border-slate-700 shadow-xl font-mono text-xs sm:text-sm font-bold transition"
         >
-          <Settings className="w-3.5 h-3.5 text-slate-400" />
+          <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
         </button>
       </div>
     </div>
