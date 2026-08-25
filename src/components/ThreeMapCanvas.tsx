@@ -578,209 +578,207 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           const hasWestWater = currentZone.tileData[y]?.[x - 1] === 3;
 
           if (hasNorthWater) {
+            const bridgeGroupN = new THREE.Group();
             const railN = new THREE.Mesh(new THREE.BoxGeometry(2.52, 0.08, 0.08), bridgeRailMat);
             railN.position.set(posX, 0.32, posZ - 1.18);
-            railN.castShadow = true;
-            tileGroup.add(railN);
+            railN.castShadow = !isMobile;
+            bridgeGroupN.add(railN);
 
             for (let p = -1; p <= 1; p++) {
               const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
               post.position.set(posX + p * 1.05, 0.15, posZ - 1.18);
-              post.castShadow = true;
-              tileGroup.add(post);
+              post.castShadow = !isMobile;
+              bridgeGroupN.add(post);
             }
+            addWorldEntity(bridgeGroupN, x, y);
           }
 
           if (hasSouthWater) {
+            const bridgeGroupS = new THREE.Group();
             const railS = new THREE.Mesh(new THREE.BoxGeometry(2.52, 0.08, 0.08), bridgeRailMat);
             railS.position.set(posX, 0.32, posZ + 1.18);
-            railS.castShadow = true;
-            tileGroup.add(railS);
+            railS.castShadow = !isMobile;
+            bridgeGroupS.add(railS);
 
             for (let p = -1; p <= 1; p++) {
               const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
               post.position.set(posX + p * 1.05, 0.15, posZ + 1.18);
-              post.castShadow = true;
-              tileGroup.add(post);
+              post.castShadow = !isMobile;
+              bridgeGroupS.add(post);
             }
+            addWorldEntity(bridgeGroupS, x, y);
           }
 
           if (hasWestWater) {
+            const bridgeGroupW = new THREE.Group();
             const railW = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 2.52), bridgeRailMat);
             railW.position.set(posX - 1.18, 0.32, posZ);
-            railW.castShadow = true;
-            tileGroup.add(railW);
+            railW.castShadow = !isMobile;
+            bridgeGroupW.add(railW);
 
             for (let p = -1; p <= 1; p++) {
               const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
               post.position.set(posX - 1.18, 0.15, posZ + p * 1.05);
-              post.castShadow = true;
-              tileGroup.add(post);
+              post.castShadow = !isMobile;
+              bridgeGroupW.add(post);
             }
+            addWorldEntity(bridgeGroupW, x, y);
           }
 
           if (hasEastWater) {
+            const bridgeGroupE = new THREE.Group();
             const railE = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 2.52), bridgeRailMat);
             railE.position.set(posX + 1.18, 0.32, posZ);
-            railE.castShadow = true;
-            tileGroup.add(railE);
+            railE.castShadow = !isMobile;
+            bridgeGroupE.add(railE);
 
             for (let p = -1; p <= 1; p++) {
               const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.44, 0.12), bridgePostMat);
               post.position.set(posX + 1.18, 0.15, posZ + p * 1.05);
-              post.castShadow = true;
-              tileGroup.add(post);
+              post.castShadow = !isMobile;
+              bridgeGroupE.add(post);
             }
+            addWorldEntity(bridgeGroupE, x, y);
           }
 
-          // 🌿 Organic RPG Roadside Transitions: Stone Curbs, Wild Grass, Pebbles & Wooden Fences
-          const hasNorthGrass = currentZone.tileData[y - 1]?.[x] !== 2 && currentZone.tileData[y - 1]?.[x] !== 3;
-          const hasSouthGrass = currentZone.tileData[y + 1]?.[x] !== 2 && currentZone.tileData[y + 1]?.[x] !== 3;
-          const hasEastGrass = currentZone.tileData[y]?.[x + 1] !== 2 && currentZone.tileData[y]?.[x + 1] !== 3;
-          const hasWestGrass = currentZone.tileData[y]?.[x - 1] !== 2 && currentZone.tileData[y]?.[x - 1] !== 3;
+          // 🌿 Organic RPG Roadside Transitions: Stone Curbs, Wild Grass, Pebbles & Wooden Fences (Desktop Only)
+          if (!isMobile) {
+            const hasNorthGrass = currentZone.tileData[y - 1]?.[x] !== 2 && currentZone.tileData[y - 1]?.[x] !== 3;
+            const hasSouthGrass = currentZone.tileData[y + 1]?.[x] !== 2 && currentZone.tileData[y + 1]?.[x] !== 3;
+            const hasEastGrass = currentZone.tileData[y]?.[x + 1] !== 2 && currentZone.tileData[y]?.[x + 1] !== 3;
+            const hasWestGrass = currentZone.tileData[y]?.[x - 1] !== 2 && currentZone.tileData[y]?.[x - 1] !== 3;
 
-          const curbMat = new THREE.MeshStandardMaterial({ color: 0x78716c, roughness: 0.85 });
-          const pebbleMat = new THREE.MeshStandardMaterial({ color: 0x57534e, roughness: 0.9 });
-          const grassMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.6 });
-          const fenceMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.85 });
+            const curbMat = new THREE.MeshStandardMaterial({ color: 0x78716c, roughness: 0.85 });
+            const pebbleMat = new THREE.MeshStandardMaterial({ color: 0x57534e, roughness: 0.9 });
+            const grassMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.6 });
+            const fenceMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.85 });
 
-          if (hasNorthGrass) {
-            const curbN = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.04, 0.12), curbMat);
-            curbN.position.set(posX, 0.02, posZ - 1.20);
-            tileGroup.add(curbN);
+            if (hasNorthGrass) {
+              const curbN = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.04, 0.12), curbMat);
+              curbN.position.set(posX, 0.02, posZ - 1.20);
+              addWorldEntity(curbN, x, y);
 
-            if ((x + y) % 2 === 0) {
-              const pN = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
-              pN.position.set(posX + 0.45, 0.05, posZ - 1.16);
-              tileGroup.add(pN);
+              if ((x + y) % 2 === 0) {
+                const pN = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
+                pN.position.set(posX + 0.45, 0.05, posZ - 1.16);
+                addWorldEntity(pN, x, y);
+              }
+
+              if ((x * 7 + y * 11) % 3 === 0) {
+                const gN = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
+                gN.position.set(posX - 0.5, 0.08, posZ - 1.18);
+                addWorldEntity(gN, x, y);
+              }
+
+              if ((x * 13 + y * 19) % 4 === 0 && currentZone.id === 'zone_forest') {
+                const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+                post1.position.set(posX - 0.7, 0.25, posZ - 1.22);
+                addWorldEntity(post1, x, y);
+
+                const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+                post2.position.set(posX + 0.7, 0.25, posZ - 1.22);
+                addWorldEntity(post2, x, y);
+
+                const rail = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 0.04), fenceMat);
+                rail.position.set(posX, 0.35, posZ - 1.22);
+                addWorldEntity(rail, x, y);
+              }
             }
 
-            if ((x * 7 + y * 11) % 3 === 0) {
-              const gN = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
-              gN.position.set(posX - 0.5, 0.08, posZ - 1.18);
-              tileGroup.add(gN);
+            if (hasSouthGrass) {
+              const curbS = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.04, 0.12), curbMat);
+              curbS.position.set(posX, 0.02, posZ + 1.20);
+              addWorldEntity(curbS, x, y);
+
+              if ((x + y) % 2 === 1) {
+                const pS = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
+                pS.position.set(posX - 0.45, 0.05, posZ + 1.16);
+                addWorldEntity(pS, x, y);
+              }
+
+              if ((x * 11 + y * 13) % 3 === 0) {
+                const gS = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
+                gS.position.set(posX + 0.5, 0.08, posZ + 1.18);
+                addWorldEntity(gS, x, y);
+              }
+
+              if ((x * 17 + y * 23) % 4 === 0 && currentZone.id === 'zone_forest') {
+                const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+                post1.position.set(posX - 0.7, 0.25, posZ + 1.22);
+                addWorldEntity(post1, x, y);
+
+                const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+                post2.position.set(posX + 0.7, 0.25, posZ + 1.22);
+                addWorldEntity(post2, x, y);
+
+                const rail = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 0.04), fenceMat);
+                rail.position.set(posX, 0.35, posZ + 1.22);
+                addWorldEntity(rail, x, y);
+              }
             }
 
-            if ((x * 13 + y * 19) % 4 === 0 && currentZone.id === 'zone_forest') {
-              const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
-              post1.position.set(posX - 0.7, 0.25, posZ - 1.22);
-              post1.castShadow = true;
-              tileGroup.add(post1);
+            if (hasWestGrass) {
+              const curbW = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.04, 2.505), curbMat);
+              curbW.position.set(posX - 1.20, 0.02, posZ);
+              addWorldEntity(curbW, x, y);
 
-              const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
-              post2.position.set(posX + 0.7, 0.25, posZ - 1.22);
-              post2.castShadow = true;
-              tileGroup.add(post2);
+              if ((x + y) % 2 === 0) {
+                const pW = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
+                pW.position.set(posX - 1.16, 0.05, posZ + 0.45);
+                addWorldEntity(pW, x, y);
+              }
 
-              const rail = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 0.04), fenceMat);
-              rail.position.set(posX, 0.35, posZ - 1.22);
-              rail.castShadow = true;
-              tileGroup.add(rail);
-            }
-          }
+              if ((x * 13 + y * 17) % 3 === 0) {
+                const gW = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
+                gW.position.set(posX - 1.18, 0.08, posZ - 0.5);
+                addWorldEntity(gW, x, y);
+              }
 
-          if (hasSouthGrass) {
-            const curbS = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.04, 0.12), curbMat);
-            curbS.position.set(posX, 0.02, posZ + 1.20);
-            tileGroup.add(curbS);
+              if ((x * 19 + y * 29) % 4 === 0 && currentZone.id === 'zone_forest') {
+                const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+                post1.position.set(posX - 1.22, 0.25, posZ - 0.7);
+                addWorldEntity(post1, x, y);
 
-            if ((x + y) % 2 === 1) {
-              const pS = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
-              pS.position.set(posX - 0.45, 0.05, posZ + 1.16);
-              tileGroup.add(pS);
-            }
+                const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+                post2.position.set(posX - 1.22, 0.25, posZ + 0.7);
+                addWorldEntity(post2, x, y);
 
-            if ((x * 11 + y * 13) % 3 === 0) {
-              const gS = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
-              gS.position.set(posX + 0.5, 0.08, posZ + 1.18);
-              tileGroup.add(gS);
+                const rail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 1.6), fenceMat);
+                rail.position.set(posX - 1.22, 0.35, posZ);
+                addWorldEntity(rail, x, y);
+              }
             }
 
-            if ((x * 17 + y * 23) % 4 === 0 && currentZone.id === 'zone_forest') {
-              const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
-              post1.position.set(posX - 0.7, 0.25, posZ + 1.22);
-              post1.castShadow = true;
-              tileGroup.add(post1);
+            if (hasEastGrass) {
+              const curbE = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.04, 2.505), curbMat);
+              curbE.position.set(posX + 1.20, 0.02, posZ);
+              addWorldEntity(curbE, x, y);
 
-              const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
-              post2.position.set(posX + 0.7, 0.25, posZ + 1.22);
-              post2.castShadow = true;
-              tileGroup.add(post2);
+              if ((x + y) % 2 === 1) {
+                const pE = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
+                pE.position.set(posX + 1.16, 0.05, posZ - 0.45);
+                addWorldEntity(pE, x, y);
+              }
 
-              const rail = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 0.04), fenceMat);
-              rail.position.set(posX, 0.35, posZ + 1.22);
-              rail.castShadow = true;
-              tileGroup.add(rail);
-            }
-          }
+              if ((x * 17 + y * 23) % 3 === 0) {
+                const gE = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
+                gE.position.set(posX + 1.18, 0.08, posZ + 0.5);
+                addWorldEntity(gE, x, y);
+              }
 
-          if (hasWestGrass) {
-            const curbW = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.04, 2.505), curbMat);
-            curbW.position.set(posX - 1.20, 0.02, posZ);
-            tileGroup.add(curbW);
+              if ((x * 23 + y * 31) % 4 === 0 && currentZone.id === 'zone_forest') {
+                const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+                post1.position.set(posX + 1.22, 0.25, posZ - 0.7);
+                addWorldEntity(post1, x, y);
 
-            if ((x + y) % 2 === 0) {
-              const pW = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
-              pW.position.set(posX - 1.16, 0.05, posZ + 0.45);
-              tileGroup.add(pW);
-            }
+                const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
+                post2.position.set(posX + 1.22, 0.25, posZ + 0.7);
+                addWorldEntity(post2, x, y);
 
-            if ((x * 13 + y * 17) % 3 === 0) {
-              const gW = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
-              gW.position.set(posX - 1.18, 0.08, posZ - 0.5);
-              tileGroup.add(gW);
-            }
-
-            if ((x * 19 + y * 29) % 4 === 0 && currentZone.id === 'zone_forest') {
-              const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
-              post1.position.set(posX - 1.22, 0.25, posZ - 0.7);
-              post1.castShadow = true;
-              tileGroup.add(post1);
-
-              const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
-              post2.position.set(posX - 1.22, 0.25, posZ + 0.7);
-              post2.castShadow = true;
-              tileGroup.add(post2);
-
-              const rail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 1.6), fenceMat);
-              rail.position.set(posX - 1.22, 0.35, posZ);
-              rail.castShadow = true;
-              tileGroup.add(rail);
-            }
-          }
-
-          if (hasEastGrass) {
-            const curbE = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.04, 2.505), curbMat);
-            curbE.position.set(posX + 1.20, 0.02, posZ);
-            tileGroup.add(curbE);
-
-            if ((x + y) % 2 === 1) {
-              const pE = new THREE.Mesh(new THREE.DodecahedronGeometry(0.09, 1), pebbleMat);
-              pE.position.set(posX + 1.16, 0.05, posZ - 0.45);
-              tileGroup.add(pE);
-            }
-
-            if ((x * 17 + y * 23) % 3 === 0) {
-              const gE = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 4), grassMat);
-              gE.position.set(posX + 1.18, 0.08, posZ + 0.5);
-              tileGroup.add(gE);
-            }
-
-            if ((x * 23 + y * 31) % 4 === 0 && currentZone.id === 'zone_forest') {
-              const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
-              post1.position.set(posX + 1.22, 0.25, posZ - 0.7);
-              post1.castShadow = true;
-              tileGroup.add(post1);
-
-              const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.55, 6), fenceMat);
-              post2.position.set(posX + 1.22, 0.25, posZ + 0.7);
-              post2.castShadow = true;
-              tileGroup.add(post2);
-
-              const rail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 1.6), fenceMat);
-              rail.position.set(posX + 1.22, 0.35, posZ);
-              rail.castShadow = true;
-              tileGroup.add(rail);
+                const rail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 1.6), fenceMat);
+                rail.position.set(posX + 1.22, 0.35, posZ);
+                addWorldEntity(rail, x, y);
+              }
             }
           }
         }
@@ -799,33 +797,33 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
             if (decSeed % 7 === 0) {
               const crystalCluster = create3DGlowingCrystalClusterMesh(x, y);
               crystalCluster.position.set(posX, elevation, posZ);
-              tileGroup.add(crystalCluster);
-            } else if (decSeed % 17 === 0) {
+              addWorldEntity(crystalCluster, x, y);
+            } else if (decSeed % 17 === 0 && !isMobile) {
               const pebble = create3DRockPebbleMesh(posX, posZ, decSeed);
               pebble.position.y += elevation;
-              tileGroup.add(pebble);
+              addWorldEntity(pebble, x, y);
             }
           } else if (currentZone.id === 'zone_volcano') {
             // Volcanic Ruby Crystals & Basalt Debris
             if (decSeed % 7 === 0) {
               const rubyCluster = create3DVolcanicRubyCrystalMesh(x, y);
               rubyCluster.position.set(posX, elevation, posZ);
-              tileGroup.add(rubyCluster);
-            } else if (decSeed % 13 === 0) {
+              addWorldEntity(rubyCluster, x, y);
+            } else if (decSeed % 13 === 0 && !isMobile) {
               const pebble = create3DRockPebbleMesh(posX, posZ, decSeed);
               pebble.position.y += elevation;
-              tileGroup.add(pebble);
+              addWorldEntity(pebble, x, y);
             }
           } else if (currentZone.id === 'zone_castle') {
             // Celestial Relic Crystals & Mossy Stone Plinths
             if (decSeed % 7 === 0) {
               const relicCluster = create3DRoyalRelicCrystalMesh(x, y);
               relicCluster.position.set(posX, elevation, posZ);
-              tileGroup.add(relicCluster);
-            } else if (decSeed % 13 === 0) {
+              addWorldEntity(relicCluster, x, y);
+            } else if (decSeed % 13 === 0 && !isMobile) {
               const pebble = create3DRockPebbleMesh(posX, posZ, decSeed);
               pebble.position.y += elevation;
-              tileGroup.add(pebble);
+              addWorldEntity(pebble, x, y);
             }
           } else if (hasNeighborPath && currentZone.id === 'zone_forest') {
             // 🏙️ Diversified, balanced urban & garden street decorations
@@ -835,122 +833,122 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
               const benchOrientation = (x + y) % 2 === 0 ? 0 : Math.PI / 2;
               const bench = create3DWoodenBenchMesh(posX, posZ, benchOrientation);
               bench.position.y += elevation;
-              tileGroup.add(bench);
+              addWorldEntity(bench, x, y);
               obstacleGroups.push({ group: bench, gridX: x, gridY: y });
             } else if (propType === 2) {
               // 🪴 Terracotta / Oak Flower Planter Box with blooming flowers
               const planter = create3DFlowerPlanterMesh(posX, posZ, decSeed);
               planter.position.y += elevation;
-              tileGroup.add(planter);
+              addWorldEntity(planter, x, y);
               obstacleGroups.push({ group: planter, gridX: x, gridY: y });
             } else if (propType === 3) {
               // 🫐 Natural Organic Berry Bush
               const berryBush = create3DBerryBushMesh(posX, posZ, decSeed);
               berryBush.position.y += elevation;
-              tileGroup.add(berryBush);
+              addWorldEntity(berryBush, x, y);
               obstacleGroups.push({ group: berryBush, gridX: x, gridY: y });
             } else if (propType === 4) {
               // 📦 Rustic Market Crates & Barrel Stacks
               const crates = create3DMarketCratesMesh(posX, posZ, decSeed);
               crates.position.y += elevation;
-              tileGroup.add(crates);
+              addWorldEntity(crates, x, y);
               obstacleGroups.push({ group: crates, gridX: x, gridY: y });
             } else if (propType === 5) {
               // 🏮 Medieval Wrought-Iron Street Lantern Post with warm glow
               const lanternGroup = create3DLanternPostMesh(posX, posZ);
               lanternGroup.position.y += elevation;
-              tileGroup.add(lanternGroup);
+              addWorldEntity(lanternGroup, x, y);
               const lanternLight = lanternGroup.children.find((c) => c instanceof THREE.PointLight) as THREE.PointLight;
-              if (lanternLight) animatedLanterns.push(lanternLight);
+              if (lanternLight && !isMobile) animatedLanterns.push(lanternLight);
             } else if (propType === 6 && (x + y) % 12 === 0) {
               // ⛲ Stone Village Well
               const well = create3DStoneWellMesh(posX, posZ);
               well.position.y += elevation;
-              tileGroup.add(well);
+              addWorldEntity(well, x, y);
               obstacleGroups.push({ group: well, gridX: x, gridY: y });
             } else if (propType === 7 && (x + y) % 14 === 0) {
               // 🛒 Rustic Wooden Cargo Cart
               const cart = create3DWoodenCartMesh(posX, posZ, (x % 2) * Math.PI / 2);
               cart.position.y += elevation;
-              tileGroup.add(cart);
+              addWorldEntity(cart, x, y);
               obstacleGroups.push({ group: cart, gridX: x, gridY: y });
             }
-          } else if (decSeed % 11 === 0) {
+          } else if (decSeed % 11 === 0 && !isMobile) {
             const flowerGroup = create3DFlowerPatchMesh(posX, posZ, decSeed);
             flowerGroup.position.y += elevation;
-            tileGroup.add(flowerGroup);
+            addWorldEntity(flowerGroup, x, y);
           } else if (decSeed % 29 === 0) {
             const lanternGroup = create3DLanternPostMesh(posX, posZ);
             lanternGroup.position.y += elevation;
-            tileGroup.add(lanternGroup);
+            addWorldEntity(lanternGroup, x, y);
             const lanternLight = lanternGroup.children.find((c) => c instanceof THREE.PointLight) as THREE.PointLight;
-            if (lanternLight) animatedLanterns.push(lanternLight);
+            if (lanternLight && !isMobile) animatedLanterns.push(lanternLight);
           } else if (currentZone.id === 'zone_forest') {
-            // 🌳 Rich RPG Wilderness & Rural Environment Decorators (+300 Props)
+            // 🌳 Rich RPG Wilderness & Rural Environment Decorators
             if (decSeed % 23 === 0) {
               // 🍎 Orchard Fruit Tree with Red Apples
               const fruitTree = create3DFruitTreeMesh(posX, posZ, decSeed);
               fruitTree.position.y += elevation;
-              tileGroup.add(fruitTree);
-              animatedSwayObjects.push(fruitTree);
+              addWorldEntity(fruitTree, x, y);
+              if (!isMobile) animatedSwayObjects.push(fruitTree);
               obstacleGroups.push({ group: fruitTree, gridX: x, gridY: y });
             } else if (decSeed % 37 === 0) {
               // 🌿 Weeping Willow Tree
               const willow = create3DWillowTreeMesh(posX, posZ, decSeed);
               willow.position.y += elevation;
-              tileGroup.add(willow);
-              animatedSwayObjects.push(willow);
+              addWorldEntity(willow, x, y);
+              if (!isMobile) animatedSwayObjects.push(willow);
               obstacleGroups.push({ group: willow, gridX: x, gridY: y });
             } else if (decSeed % 41 === 0) {
               // 🌾 Golden Rolled Hay Bales
               const hay = create3DHayBaleMesh(posX, posZ, decSeed);
               hay.position.y += elevation;
-              tileGroup.add(hay);
+              addWorldEntity(hay, x, y);
               obstacleGroups.push({ group: hay, gridX: x, gridY: y });
             } else if (decSeed % 53 === 0) {
               // 🌾 Straw Scarecrow
               const scarecrow = create3DScarecrowMesh(posX, posZ);
               scarecrow.position.y += elevation;
-              tileGroup.add(scarecrow);
+              addWorldEntity(scarecrow, x, y);
               obstacleGroups.push({ group: scarecrow, gridX: x, gridY: y });
             } else if (decSeed % 67 === 0) {
               // 🔥 Glowing Campfire with Embers
               const campfire = create3DCampfireMesh(posX, posZ);
               campfire.position.y += elevation;
-              tileGroup.add(campfire);
+              addWorldEntity(campfire, x, y);
               const fireLight = campfire.children.find((c) => c instanceof THREE.PointLight) as THREE.PointLight;
-              if (fireLight) animatedLanterns.push(fireLight);
+              if (fireLight && !isMobile) animatedLanterns.push(fireLight);
               obstacleGroups.push({ group: campfire, gridX: x, gridY: y });
             } else if (decSeed % 71 === 0) {
               // 🛒 Wooden Cargo Cart
               const cart = create3DWoodenCartMesh(posX, posZ, (decSeed % 4) * (Math.PI / 2));
               cart.position.y += elevation;
-              tileGroup.add(cart);
+              addWorldEntity(cart, x, y);
               obstacleGroups.push({ group: cart, gridX: x, gridY: y });
             } else if (decSeed % 79 === 0) {
               // 🗿 Ancient Runic Monolith
               const monolith = create3DRunicMonolithMesh(posX, posZ, decSeed);
               monolith.position.y += elevation;
-              tileGroup.add(monolith);
+              addWorldEntity(monolith, x, y);
               obstacleGroups.push({ group: monolith, gridX: x, gridY: y });
             } else if (decSeed % 83 === 0) {
               // 🍻 Outdoor Tavern Patio with benches & ale tankards
               const patio = create3DTavernPatioMesh(posX, posZ, (decSeed % 2) * (Math.PI / 2));
               patio.position.y += elevation;
-              tileGroup.add(patio);
+              addWorldEntity(patio, x, y);
               obstacleGroups.push({ group: patio, gridX: x, gridY: y });
-            } else {
-              // 3D Grass Tuft clusters
+            } else if (!isMobile) {
+              // 3D Grass Tuft clusters (Desktop Only)
               if (decSeed % 2 === 0) {
                 const grassTuft = create3DGrassTuftMesh(posX + ((decSeed % 5) - 2) * 0.2, posZ + ((decSeed % 7) - 3) * 0.2, decSeed);
                 grassTuft.position.y += elevation;
-                tileGroup.add(grassTuft);
+                addWorldEntity(grassTuft, x, y);
               }
-              // Mossy Pebble
+              // Mossy Pebble (Desktop Only)
               if (decSeed % 5 === 1) {
                 const pebble = create3DRockPebbleMesh(posX + ((decSeed % 3) - 1) * 0.3, posZ + ((decSeed % 4) - 2) * 0.3, decSeed);
                 pebble.position.y += elevation;
-                tileGroup.add(pebble);
+                addWorldEntity(pebble, x, y);
               }
             }
           }
@@ -1031,7 +1029,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
             animatedSwayObjects.push(obsGroup);
           }
 
-          tileGroup.add(obsGroup);
+          addWorldEntity(obsGroup, x, y);
           obstacleGroups.push({ group: obsGroup, gridX: x, gridY: y });
         }
 
@@ -1042,21 +1040,21 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
             const waterRes = create3DCastleWaterfallRiverMesh(x, y);
             const waterGroup = waterRes.group;
             waterGroup.position.set(posX, elevation, posZ);
-            tileGroup.add(waterGroup);
+            addWorldEntity(waterGroup, x, y);
             if (waterRes.updateAnimation) animatedBuildingUpdaters.push(waterRes.updateAnimation);
           } else if (currentZone.id === 'zone_volcano') {
             // Glowing Magma River Channels with Heat Waves & Crust Borders
             const lavaRes = create3DLavaRiverTileMesh(x, y);
             const lavaGroup = lavaRes.group;
             lavaGroup.position.set(posX, elevation, posZ);
-            tileGroup.add(lavaGroup);
+            addWorldEntity(lavaGroup, x, y);
             if (lavaRes.updateAnimation) animatedBuildingUpdaters.push(lavaRes.updateAnimation);
           } else if (currentZone.id === 'zone_cave') {
             // Iconic Turquoise Cavern Pool with Stone Rim
             const grottoRes = create3DTurquoiseGrottoMesh(x, y);
             const grottoGroup = grottoRes.group;
             grottoGroup.position.set(posX, elevation, posZ);
-            tileGroup.add(grottoGroup);
+            addWorldEntity(grottoGroup, x, y);
             if (grottoRes.updateAnimation) animatedBuildingUpdaters.push(grottoRes.updateAnimation);
           } else {
             const liquidMat = new THREE.MeshPhysicalMaterial({
@@ -1073,55 +1071,57 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
             });
             const liquidMesh = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.42, 2.505), liquidMat);
             liquidMesh.position.set(posX, -0.10 + elevation, posZ);
-            tileGroup.add(liquidMesh);
+            addWorldEntity(liquidMesh, x, y);
             animatedWaters.push(liquidMesh);
 
-            // Natural Riverbanks & Pebble Borders around grass boundaries
-            const bankMat = new THREE.MeshStandardMaterial({
-              color: currentZone.id === 'zone_volcano' ? 0x451a03 : currentZone.id === 'zone_cave' ? 0x334155 : 0xc89d68,
-              roughness: 0.9,
-            });
-            const pebbleMat = new THREE.MeshStandardMaterial({
-              color: 0x475569,
-              roughness: 0.75,
-            });
+            // Natural Riverbanks & Pebble Borders around grass boundaries (Desktop Only)
+            if (!isMobile) {
+              const bankMat = new THREE.MeshStandardMaterial({
+                color: currentZone.id === 'zone_volcano' ? 0x451a03 : currentZone.id === 'zone_cave' ? 0x334155 : 0xc89d68,
+                roughness: 0.9,
+              });
+              const pebbleMat = new THREE.MeshStandardMaterial({
+                color: 0x475569,
+                roughness: 0.75,
+              });
 
-            const hasNorthGrass = currentZone.tileData[y - 1]?.[x] !== 3;
-            const hasSouthGrass = currentZone.tileData[y + 1]?.[x] !== 3;
-            const hasEastGrass = currentZone.tileData[y]?.[x + 1] !== 3;
-            const hasWestGrass = currentZone.tileData[y]?.[x - 1] !== 3;
+              const hasNorthGrass = currentZone.tileData[y - 1]?.[x] !== 3;
+              const hasSouthGrass = currentZone.tileData[y + 1]?.[x] !== 3;
+              const hasEastGrass = currentZone.tileData[y]?.[x + 1] !== 3;
+              const hasWestGrass = currentZone.tileData[y]?.[x - 1] !== 3;
 
-            if (hasNorthGrass) {
-              const bankN = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.16, 0.28), bankMat);
-              bankN.position.set(posX, 0.04 + elevation, posZ - 1.15);
-              tileGroup.add(bankN);
-              const pN = new THREE.Mesh(new THREE.DodecahedronGeometry(0.16, 1), pebbleMat);
-              pN.position.set(posX + 0.5, 0.08 + elevation, posZ - 1.12);
-              tileGroup.add(pN);
-            }
-            if (hasSouthGrass) {
-              const bankS = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.16, 0.28), bankMat);
-              bankS.position.set(posX, 0.04 + elevation, posZ + 1.15);
-              tileGroup.add(bankS);
-              const pS = new THREE.Mesh(new THREE.DodecahedronGeometry(0.18, 1), pebbleMat);
-              pS.position.set(posX - 0.4, 0.08 + elevation, posZ + 1.12);
-              tileGroup.add(pS);
-            }
-            if (hasWestGrass) {
-              const bankW = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.16, 2.505), bankMat);
-              bankW.position.set(posX - 1.15, 0.04 + elevation, posZ);
-              tileGroup.add(bankW);
-              const pW = new THREE.Mesh(new THREE.DodecahedronGeometry(0.15, 1), pebbleMat);
-              pW.position.set(posX - 1.12, 0.08 + elevation, posZ + 0.3);
-              tileGroup.add(pW);
-            }
-            if (hasEastGrass) {
-              const bankE = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.16, 2.505), bankMat);
-              bankE.position.set(posX + 1.15, 0.04 + elevation, posZ);
-              tileGroup.add(bankE);
-              const pE = new THREE.Mesh(new THREE.DodecahedronGeometry(0.17, 1), pebbleMat);
-              pE.position.set(posX + 1.12, 0.08 + elevation, posZ - 0.4);
-              tileGroup.add(pE);
+              if (hasNorthGrass) {
+                const bankN = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.16, 0.28), bankMat);
+                bankN.position.set(posX, 0.04 + elevation, posZ - 1.15);
+                addWorldEntity(bankN, x, y);
+                const pN = new THREE.Mesh(new THREE.DodecahedronGeometry(0.16, 1), pebbleMat);
+                pN.position.set(posX + 0.5, 0.08 + elevation, posZ - 1.12);
+                addWorldEntity(pN, x, y);
+              }
+              if (hasSouthGrass) {
+                const bankS = new THREE.Mesh(new THREE.BoxGeometry(2.505, 0.16, 0.28), bankMat);
+                bankS.position.set(posX, 0.04 + elevation, posZ + 1.15);
+                addWorldEntity(bankS, x, y);
+                const pS = new THREE.Mesh(new THREE.DodecahedronGeometry(0.18, 1), pebbleMat);
+                pS.position.set(posX - 0.4, 0.08 + elevation, posZ + 1.12);
+                addWorldEntity(pS, x, y);
+              }
+              if (hasWestGrass) {
+                const bankW = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.16, 2.505), bankMat);
+                bankW.position.set(posX - 1.15, 0.04 + elevation, posZ);
+                addWorldEntity(bankW, x, y);
+                const pW = new THREE.Mesh(new THREE.DodecahedronGeometry(0.15, 1), pebbleMat);
+                pW.position.set(posX - 1.12, 0.08 + elevation, posZ + 0.3);
+                addWorldEntity(pW, x, y);
+              }
+              if (hasEastGrass) {
+                const bankE = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.16, 2.505), bankMat);
+                bankE.position.set(posX + 1.15, 0.04 + elevation, posZ);
+                addWorldEntity(bankE, x, y);
+                const pE = new THREE.Mesh(new THREE.DodecahedronGeometry(0.17, 1), pebbleMat);
+                pE.position.set(posX + 1.12, 0.08 + elevation, posZ - 0.4);
+                addWorldEntity(pE, x, y);
+              }
             }
           }
         }
@@ -1131,7 +1131,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           const shopRes = createLowPolyMarketStall('weapons');
           const shopGroup = shopRes.group;
           shopGroup.position.set(posX, elevation, posZ);
-          tileGroup.add(shopGroup);
+          addWorldEntity(shopGroup, x, y);
           obstacleGroups.push({ group: shopGroup, gridX: x, gridY: y });
         }
 
@@ -1140,7 +1140,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           const tavernRes = create3DTavernBuildingMesh();
           const tavernGroup = tavernRes.group;
           tavernGroup.position.set(posX, elevation, posZ);
-          tileGroup.add(tavernGroup);
+          addWorldEntity(tavernGroup, x, y);
           obstacleGroups.push({ group: tavernGroup, gridX: x, gridY: y });
           if (tavernRes.updateAnimation) animatedBuildingUpdaters.push(tavernRes.updateAnimation);
         }
@@ -1150,7 +1150,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           const boticaRes = create3DApothecaryBuildingMesh();
           const boticaGroup = boticaRes.group;
           boticaGroup.position.set(posX, elevation, posZ);
-          tileGroup.add(boticaGroup);
+          addWorldEntity(boticaGroup, x, y);
           obstacleGroups.push({ group: boticaGroup, gridX: x, gridY: y });
           if (boticaRes.updateAnimation) animatedBuildingUpdaters.push(boticaRes.updateAnimation);
         }
@@ -1160,7 +1160,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           const cityHallRes = create3DCityHallBuildingMesh();
           const cityHallGroup = cityHallRes.group;
           cityHallGroup.position.set(posX, elevation, posZ);
-          tileGroup.add(cityHallGroup);
+          addWorldEntity(cityHallGroup, x, y);
           obstacleGroups.push({ group: cityHallGroup, gridX: x, gridY: y });
           if (cityHallRes.updateAnimation) animatedBuildingUpdaters.push(cityHallRes.updateAnimation);
         }
@@ -1170,7 +1170,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           const windmillRes = createLowPolyWindmill();
           const windmillGroup = windmillRes.group;
           windmillGroup.position.set(posX, elevation, posZ);
-          tileGroup.add(windmillGroup);
+          addWorldEntity(windmillGroup, x, y);
           obstacleGroups.push({ group: windmillGroup, gridX: x, gridY: y });
           if (windmillRes.updateAnimation) animatedBuildingUpdaters.push(windmillRes.updateAnimation);
         }
@@ -1182,7 +1182,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           const chestRes = createStylizedChestMesh(isOpened);
           const chestGroup = chestRes.group;
           chestGroup.position.set(posX, elevation, posZ);
-          tileGroup.add(chestGroup);
+          addWorldEntity(chestGroup, x, y);
           if (chestRes.updateAnimation) animatedBuildingUpdaters.push(chestRes.updateAnimation);
         }
 
@@ -1203,7 +1203,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           cottageGroup.position.set(posX, elevation, posZ);
           const randScale = 0.95 + ((x * 3 + y * 5) % 4) * 0.08;
           cottageGroup.scale.set(randScale, randScale, randScale);
-          tileGroup.add(cottageGroup);
+          addWorldEntity(cottageGroup, x, y);
           obstacleGroups.push({ group: cottageGroup, gridX: x, gridY: y });
           if (cottageRes.updateAnimation) animatedBuildingUpdaters.push(cottageRes.updateAnimation);
         }
@@ -1213,7 +1213,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           const stallRes = createLowPolyMarketStall((x + y) % 2 === 0 ? 'potions' : 'armor');
           const stallGroup = stallRes.group;
           stallGroup.position.set(posX, elevation, posZ);
-          tileGroup.add(stallGroup);
+          addWorldEntity(stallGroup, x, y);
           obstacleGroups.push({ group: stallGroup, gridX: x, gridY: y });
         }
 
@@ -1238,7 +1238,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
             if (forgeRes.updateAnimation) animatedBuildingUpdaters.push(forgeRes.updateAnimation);
           }
           forgeGroup.position.set(posX, elevation, posZ);
-          tileGroup.add(forgeGroup);
+          addWorldEntity(forgeGroup, x, y);
           obstacleGroups.push({ group: forgeGroup, gridX: x, gridY: y });
         }
 
@@ -1246,7 +1246,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
         if (tileType === 11) {
           const portalGroup = create3DBossPortalMesh(posX, posZ, defeatedBossesRef.current.includes(currentZone.boss.name), isBossPortalUnlocked);
           portalGroup.position.y += elevation;
-          tileGroup.add(portalGroup);
+          addWorldEntity(portalGroup, x, y);
           obstacleGroups.push({ group: portalGroup, gridX: x, gridY: y });
         }
 
@@ -1254,7 +1254,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
         if (tileType === 13) {
           const cropGroup = create3DCropPatchMesh(posX, posZ);
           cropGroup.position.y += elevation;
-          tileGroup.add(cropGroup);
+          addWorldEntity(cropGroup, x, y);
           obstacleGroups.push({ group: cropGroup, gridX: x, gridY: y });
         }
 
@@ -1262,7 +1262,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
         if (tileType === 14) {
           const woodGroup = create3DWoodpileMesh(posX, posZ);
           woodGroup.position.y += elevation;
-          tileGroup.add(woodGroup);
+          addWorldEntity(woodGroup, x, y);
           obstacleGroups.push({ group: woodGroup, gridX: x, gridY: y });
         }
 
@@ -1270,7 +1270,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
         if (tileType === 17) {
           const lampGroup = create3DLanternPostMesh(posX, posZ);
           lampGroup.position.y += elevation;
-          tileGroup.add(lampGroup);
+          addWorldEntity(lampGroup, x, y);
           obstacleGroups.push({ group: lampGroup, gridX: x, gridY: y });
         }
 
@@ -1278,7 +1278,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
         if (tileType === 18) {
           const quarryGroup = create3DStoneQuarryMesh(posX, posZ, x * 7 + y * 13);
           quarryGroup.position.y += elevation;
-          tileGroup.add(quarryGroup);
+          addWorldEntity(quarryGroup, x, y);
           obstacleGroups.push({ group: quarryGroup, gridX: x, gridY: y });
         }
 
@@ -1286,7 +1286,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
         if (tileType === 20) {
           const geodeGroup = create3DGeodeCrystalMesh(posX, posZ, x * 11 + y * 17);
           geodeGroup.position.y += elevation;
-          tileGroup.add(geodeGroup);
+          addWorldEntity(geodeGroup, x, y);
           obstacleGroups.push({ group: geodeGroup, gridX: x, gridY: y });
         }
 
@@ -1371,7 +1371,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           signSprite.position.set(0, 2.9, 0);
           doorGroup.add(signSprite);
 
-          tileGroup.add(doorGroup);
+          addWorldEntity(doorGroup, x, y);
         }
       }
     }
@@ -1383,44 +1383,44 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
     }
 
     // 5.3 SPAWN ATMOSPHERIC VILLAGE PROPS IN FOREST (Crates, Barrels, Merchant Carts, Planters)
-    if (currentZone.id === 'zone_forest') {
+    if (currentZone.id === 'zone_forest' && !isMobile) {
       // Planters around the Great Fountain & Notice Board
       const planterPositions = [
-        [36 * 2.5 - 0.9, 60 * 2.5],
-        [36 * 2.5 + 0.9, 60 * 2.5],
-        [36 * 2.5, 60 * 2.5 - 0.9],
-        [36 * 2.5, 60 * 2.5 + 0.9],
-        [39 * 2.5, 57 * 2.5 - 0.8], // Next to Mission Board
+        [36 * 2.5 - 0.9, 60 * 2.5, 36, 60],
+        [36 * 2.5 + 0.9, 60 * 2.5, 36, 60],
+        [36 * 2.5, 60 * 2.5 - 0.9, 36, 60],
+        [36 * 2.5, 60 * 2.5 + 0.9, 36, 60],
+        [39 * 2.5, 57 * 2.5 - 0.8, 39, 57], // Next to Mission Board
       ];
-      planterPositions.forEach(([px, pz]) => {
-        tileGroup.add(create3DStonePlanterMesh(px, pz));
+      planterPositions.forEach(([px, pz, gx, gy]) => {
+        addWorldEntity(create3DStonePlanterMesh(px, pz), gx, gy);
       });
 
       // Wooden Crate Stacks at Bazaar, Corners and Inns
       const cratePositions = [
-        [30 * 2.5 + 0.6, 56 * 2.5 + 0.6], // Bazaar Stall 1
-        [30 * 2.5 + 0.6, 58 * 2.5 + 0.6], // Bazaar Stall 2
-        [42 * 2.5 - 0.5, 57 * 2.5 + 0.5], // East corner
-        [32 * 2.5 - 0.6, 54 * 2.5 + 0.6], // Inn side
-        [41 * 2.5 + 0.6, 63 * 2.5 - 0.6], // South corner
+        [30 * 2.5 + 0.6, 56 * 2.5 + 0.6, 30, 56], // Bazaar Stall 1
+        [30 * 2.5 + 0.6, 58 * 2.5 + 0.6, 30, 58], // Bazaar Stall 2
+        [42 * 2.5 - 0.5, 57 * 2.5 + 0.5, 42, 57], // East corner
+        [32 * 2.5 - 0.6, 54 * 2.5 + 0.6, 32, 54], // Inn side
+        [41 * 2.5 + 0.6, 63 * 2.5 - 0.6, 41, 63], // South corner
       ];
-      cratePositions.forEach(([cx, cz]) => {
-        tileGroup.add(create3DWoodenCratesMesh(cx, cz));
+      cratePositions.forEach(([cx, cz, gx, gy]) => {
+        addWorldEntity(create3DWoodenCratesMesh(cx, cz), gx, gy);
       });
 
       // Oak Barrels near Tavern and Market
       const barrelPositions = [
-        [31 * 2.5 + 0.4, 57 * 2.5 - 0.5],
-        [41 * 2.5 - 0.4, 56 * 2.5 + 0.5],
-        [34 * 2.5 - 0.6, 62 * 2.5 - 0.4],
-        [40 * 2.5 - 0.5, 59 * 2.5 - 0.5],
+        [31 * 2.5 + 0.4, 57 * 2.5 - 0.5, 31, 57],
+        [41 * 2.5 - 0.4, 56 * 2.5 + 0.5, 41, 56],
+        [34 * 2.5 - 0.6, 62 * 2.5 - 0.4, 34, 62],
+        [40 * 2.5 - 0.5, 59 * 2.5 - 0.5, 40, 59],
       ];
-      barrelPositions.forEach(([bx, bz]) => {
-        tileGroup.add(create3DOakBarrelsMesh(bx, bz));
+      barrelPositions.forEach(([bx, bz, gx, gy]) => {
+        addWorldEntity(create3DOakBarrelsMesh(bx, bz), gx, gy);
       });
 
       // Traveling Merchant Caravan Cart parked at plaza side
-      tileGroup.add(create3DMerchantCartMesh(30 * 2.5, 61 * 2.5));
+      addWorldEntity(create3DMerchantCartMesh(30 * 2.5, 61 * 2.5), 30, 61);
     }
 
     // 5.5 SPAWN ALL ZONE NPCS WITH 3D QUEST MARKERS
@@ -1444,7 +1444,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
         const npcRes = createHumanNPCMesh(npc.avatarStyle, hasQuest, isQuestReady);
         const npcMesh = npcRes.group;
         npcMesh.position.set(npcX, 0, npcZ);
-        tileGroup.add(npcMesh);
+        addWorldEntity(npcMesh, npc.x, npc.y);
         obstacleGroups.push({ group: npcMesh, gridX: npc.x, gridY: npc.y });
         animatedNPCUpdaters.push(npcRes.updateAnimation);
       });
