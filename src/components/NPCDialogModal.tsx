@@ -129,22 +129,22 @@ export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn"
       style={{
         paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0.75rem))',
         paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))',
       }}
     >
-      <div className="relative w-full max-w-xl max-h-[96dvh] bg-slate-900/95 border-2 border-emerald-500/40 rounded-2xl shadow-2xl text-slate-100 overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-xl max-h-[85dvh] sm:max-h-[90dvh] bg-slate-900 border-2 border-emerald-500/50 rounded-2xl shadow-2xl text-slate-100 overflow-hidden flex flex-col">
         {/* Header Bar */}
-        <div className="flex items-center justify-between px-6 py-4 bg-slate-800/80 border-b border-slate-700/60">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-slate-900 border border-slate-700 rounded-xl shadow-inner">
+        <div className="flex items-center justify-between px-4 py-3 bg-slate-800/90 border-b border-slate-700/80 flex-shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-1.5 bg-slate-900 border border-slate-700 rounded-xl shadow-inner flex-shrink-0">
               {getAvatarBadge()}
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-emerald-400 tracking-wide">{npc.name}</h2>
-              <span className="text-xs text-slate-400 font-medium px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700">
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-lg font-bold text-emerald-400 tracking-wide truncate">{npc.name}</h2>
+              <span className="text-[10px] sm:text-xs text-slate-400 font-medium px-2 py-0.2 rounded-full bg-slate-800 border border-slate-700">
                 {npc.title}
               </span>
             </div>
@@ -154,19 +154,20 @@ export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
               soundEngine.playSfx('select');
               onClose();
             }}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition"
+            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition flex-shrink-0"
+            aria-label="Cerrar"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        <div className="p-3.5 sm:p-5 space-y-3.5 overflow-y-auto">
           {/* Dialogue Box */}
-          <div className="relative p-5 bg-slate-950/80 border border-emerald-500/30 rounded-xl shadow-inner">
-            <div className="flex items-start gap-3">
+          <div className="relative p-4 bg-slate-950/90 border border-emerald-500/40 rounded-xl shadow-inner">
+            <div className="flex items-start gap-2.5">
               <MessageSquare className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-              <p className="text-slate-200 text-sm md:text-base leading-relaxed font-sans">
+              <p className="text-slate-100 text-sm sm:text-base leading-relaxed font-sans font-medium">
                 "{npc.dialogue[dialogPageIndex]}"
               </p>
             </div>

@@ -218,224 +218,161 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-start w-full max-w-5xl mx-auto p-2 sm:p-4 bg-slate-950 text-slate-100 rounded-xl border-2 border-amber-500/60 shadow-2xl font-mono relative overflow-y-auto max-h-[96dvh] touch-pan-y select-none">
+    <div
+      className="flex flex-col justify-between w-full max-w-4xl mx-auto p-2 sm:p-4 bg-slate-950 text-slate-100 rounded-2xl border-2 border-amber-500/60 shadow-2xl font-mono relative overflow-hidden h-full max-h-[100dvh] select-none"
+      style={{
+        paddingTop: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))',
+        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
+      }}
+    >
       {/* Retro Atmospheric Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-purple-950/20 to-slate-950 pointer-events-none" />
 
-      {/* Main Game Logo */}
-      <div className="relative text-center my-1 space-y-0.5 z-10">
-        <div className="inline-flex items-center space-x-1 px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/40 rounded-full text-amber-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
-          <Sparkles className="w-3 h-3" />
-          <span>Crónicas Pixel RPG Retro</span>
+      {/* 1. Header: Logo & System Buttons */}
+      <div className="relative z-10 flex items-center justify-between gap-2 border-b border-amber-500/30 pb-1.5 flex-shrink-0">
+        <div className="flex items-center gap-1.5">
+          <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+          <h1 className="text-sm sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-200 tracking-tight">
+            CRÓNICAS PIXEL RPG
+          </h1>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-200 drop-shadow-md tracking-tight">
-          CRÓNICAS PIXEL
-        </h1>
+
+        <div className="flex items-center gap-1">
+          {onOpenPrologue && (
+            <button
+              type="button"
+              onClick={onOpenPrologue}
+              className="px-2 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold rounded-lg text-[10px] sm:text-xs transition flex items-center gap-1"
+            >
+              <span>📜 Lore</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onOpenLeaderboard}
+            className="p-1 px-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 font-bold rounded-lg text-xs transition"
+            title="Salón de la Fama"
+          >
+            <Trophy className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
-      {/* 🎭 5 RANURAS DE PERSONAJES (SLOTS 1 AL 5) */}
-      <div className="relative z-10 w-full mb-3 bg-slate-900/90 border border-amber-500/60 rounded-xl p-2.5 shadow-xl">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-400">
-            <span>💾</span>
-            <span>Ranuras de Personajes (Slots 1 a 5)</span>
-          </div>
-          <span className="text-[10px] text-slate-400 font-bold">
-            Selecciona una ranura para jugar o crear un héroe
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+      {/* 2. Horizontal Slot Selector Carousel (Píldoras Ergonómicas de Ranuras) */}
+      <div className="relative z-10 my-1 flex-shrink-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
           {(slots || []).map((slotData, idx) => {
             const isSelected = selectedSlot === idx;
             const player = slotData?.player;
             const isOccupied = !!player;
 
             return (
-              <div
+              <button
                 key={idx}
+                type="button"
                 onClick={() => {
                   soundEngine.unlock();
                   soundEngine.playSfx('select');
                   setSelectedSlot(idx);
                   onSelectSlot(idx);
                 }}
-                className={`p-2 rounded-lg border transition cursor-pointer flex flex-col justify-between relative ${
+                className={`flex-shrink-0 px-3 py-1.5 rounded-xl border transition flex items-center gap-2 ${
                   isSelected
-                    ? 'bg-amber-950/40 border-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.35)] ring-1 ring-amber-400'
+                    ? 'bg-amber-500 text-slate-950 border-amber-300 font-black shadow-lg scale-102 ring-2 ring-amber-400/50'
                     : isOccupied
-                    ? 'bg-slate-950/80 border-slate-700 hover:border-slate-500'
-                    : 'bg-slate-950/40 border-dashed border-slate-800 hover:border-slate-600'
+                    ? 'bg-slate-900/90 text-amber-300 border-slate-700 hover:border-slate-500 font-bold'
+                    : 'bg-slate-950/60 text-slate-400 border-dashed border-slate-800 hover:border-slate-600'
                 }`}
               >
-                {/* Header Slot Title */}
-                <div className="flex items-center justify-between text-[10px] font-bold mb-1">
-                  <span className={isSelected ? 'text-amber-300' : 'text-slate-400'}>
-                    Ranura {idx + 1}
-                  </span>
-                  {isOccupied && player && (
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
-                      Nv. {player.level || 1}
-                    </span>
-                  )}
+                <span className="text-xs">
+                  {isOccupied ? (player ? CLASS_TAGS[player.heroClass]?.icon || '⚔️' : '💾') : '➕'}
+                </span>
+                <div className="text-left leading-tight">
+                  <div className="text-[11px] font-bold">
+                    {isOccupied && player ? player.name : `Ranura ${idx + 1}`}
+                  </div>
+                  <div className={`text-[9px] ${isSelected ? 'text-slate-900/80 font-bold' : 'text-slate-400'}`}>
+                    {isOccupied && player ? `Nv.${player.level}` : 'Vacía'}
+                  </div>
                 </div>
-
-                {isOccupied && player ? (
-                  <div className="space-y-1 my-0.5">
-                    <div className="flex items-center space-x-1 font-bold text-xs text-slate-100 truncate">
-                      <span>{CLASS_TAGS[player.heroClass]?.icon || '⚔️'}</span>
-                      <span className="truncate">{player.name || 'Héroe'}</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 truncate">
-                      {player.gender === 'female' ? 'Mujer' : 'Hombre'} · {player.heroClass || 'Guerrero'}
-                    </div>
-                    <div className="text-[9px] text-slate-400 flex items-center justify-between">
-                      <span className="text-yellow-300 font-bold">🪙 {(player.gold || 0).toLocaleString()}G</span>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex items-center space-x-1 pt-1 mt-1 border-t border-slate-800">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          soundEngine.unlock();
-                          soundEngine.playSfx('select');
-                          onResumeGame(idx);
-                        }}
-                        className="flex-1 py-1 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded text-[10px] transition shadow flex items-center justify-center space-x-1 active:scale-95"
-                      >
-                        <Play className="w-2.5 h-2.5" />
-                        <span>Jugar</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (confirm(`¿Borrar el personaje "${player.name || 'Héroe'}" (Nv. ${player.level || 1}) de la Ranura ${idx + 1}?`)) {
-                            soundEngine.playSfx('error');
-                            onDeleteSlot(idx);
-                          }
-                        }}
-                        className="p-1 bg-red-950 hover:bg-red-900 border border-red-800 text-red-300 rounded text-[10px] transition active:scale-95"
-                        title="Borrar Personaje"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-3 text-center space-y-1">
-                    <span className="text-slate-500 text-base">➕</span>
-                    <span className="text-[10px] font-bold text-slate-400">
-                      {isSelected ? 'Crear Héroe' : 'Vacía'}
-                    </span>
-                  </div>
-                )}
-              </div>
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* Hero Creation Form & 3D Character Showcase Split View */}
-      <div className="relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3 bg-slate-900/85 rounded-xl p-2.5 sm:p-3 border border-slate-800 shadow-xl">
-        {/* LEFT COLUMN: 3D REALISTIC FIGURINE SHOWCASE */}
-        <div className="lg:col-span-5 flex flex-col items-center justify-between bg-slate-950/80 rounded-xl p-2.5 border border-slate-800 shadow-inner relative overflow-hidden">
-          <div className="w-full flex justify-between items-center text-xs font-bold text-slate-300 mb-1 z-10">
-            <span className="text-amber-400 flex items-center space-x-1">
-              <Eye className="w-3.5 h-3.5" />
-              <span>Modelo 3D del Héroe</span>
-            </span>
-            <span className="px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300 border border-slate-700">
-              {gender === 'female' ? '👧 Femenino' : '👦 Masculino'}
-            </span>
-          </div>
-
-          {/* 🌟 2.5D Retro HD Pixel Art Hero Preview */}
-          <div className="relative w-full flex items-center justify-center">
+      {/* 3. Hero Stage Card & Creation Form (Zero-Scroll Compact View) */}
+      <div className="relative z-10 flex-1 grid grid-cols-1 md:grid-cols-12 gap-2 bg-slate-900/85 rounded-xl p-2 sm:p-3 border border-slate-800 shadow-xl overflow-hidden min-h-0">
+        {/* Left Column: 2.5D Hero Stage & Name */}
+        <div className="md:col-span-5 flex flex-row md:flex-col items-center justify-between bg-slate-950/80 rounded-xl p-2 border border-slate-800/80 shadow-inner">
+          {/* 2.5D Hero Canvas */}
+          <div className="w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0 flex items-center justify-center">
             <PixelHeroPreview heroClass={selectedClass} gender={gender} />
           </div>
 
-          {/* Character Tag & Lore Snippet */}
-          <div className="w-full text-center mt-1 z-10">
-            <h3 className="text-sm font-bold text-amber-300 flex items-center justify-center space-x-1.5">
-              <span>{CLASS_TAGS[selectedClass].icon}</span>
-              <span>{classInfo.name}</span>
-            </h3>
-            <p className="text-[10px] text-slate-400 mt-0.5 leading-snug px-1">
+          {/* Character Quick Info */}
+          <div className="flex-1 md:w-full flex flex-col justify-center text-left md:text-center pl-2 md:pl-0">
+            <div className="text-xs sm:text-sm font-black text-amber-300 truncate">
+              {CLASS_TAGS[selectedClass].icon} {classInfo.name}
+            </div>
+            <div className="text-[10px] text-slate-400 line-clamp-2 mt-0.5">
               {classInfo.description}
-            </p>
+            </div>
+            {/* Gender Toggle */}
+            <div className="flex gap-1 mt-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.unlock();
+                  soundEngine.playSfx('select');
+                  setGender('female');
+                }}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-bold border transition ${
+                  gender === 'female'
+                    ? 'bg-emerald-950 border-emerald-400 text-emerald-300'
+                    : 'bg-slate-900 border-slate-700 text-slate-400'
+                }`}
+              >
+                👧 Mujer
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.unlock();
+                  soundEngine.playSfx('select');
+                  setGender('male');
+                }}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-bold border transition ${
+                  gender === 'male'
+                    ? 'bg-sky-950 border-sky-400 text-sky-300'
+                    : 'bg-slate-900 border-slate-700 text-slate-400'
+                }`}
+              >
+                👦 Hombre
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: CLASS SELECTION, GENDER & ATTRIBUTES */}
-        <div className="lg:col-span-7 flex flex-col justify-between space-y-2">
-          {/* Active Slot Indicator for Creation */}
-          <div className="px-2.5 py-1 bg-amber-500/10 border border-amber-500/30 rounded-lg text-[11px] font-bold text-amber-300 flex items-center justify-between">
-            <span>✨ Creando personaje en: <strong>Ranura {selectedSlot + 1}</strong></span>
-            {slots?.[selectedSlot] && (
-              <span className="text-[10px] text-amber-400">⚠️ Se sobreescribirá la ranura</span>
-            )}
-          </div>
-
-          {/* Row: Name Input & Gender Selection */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-1.5">
-            <div className="sm:col-span-6">
-              <label className="block text-[11px] font-bold text-slate-300 mb-0.5">Nombre del Héroe:</label>
-              <input
-                type="text"
-                maxLength={16}
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-1.5 text-xs text-amber-300 font-bold focus:outline-none focus:border-amber-500 shadow-inner"
-                placeholder="Introduce tu nombre de héroe"
-              />
-            </div>
-
-            {/* Gender Toggle: Hombre vs Mujer */}
-            <div className="sm:col-span-6">
-              <label className="block text-[11px] font-bold text-slate-300 mb-0.5">Género del Personaje:</label>
-              <div className="grid grid-cols-2 gap-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundEngine.unlock();
-                    soundEngine.playSfx('select');
-                    setGender('female');
-                  }}
-                  className={`py-1.5 px-2 rounded-lg text-xs font-bold border transition flex items-center justify-center space-x-1 ${
-                    gender === 'female'
-                      ? 'bg-emerald-950/70 border-emerald-400 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
-                      : 'bg-slate-950/60 border-slate-700 text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <span>👧 Mujer (Elfa)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundEngine.unlock();
-                    soundEngine.playSfx('select');
-                    setGender('male');
-                  }}
-                  className={`py-1.5 px-2 rounded-lg text-xs font-bold border transition flex items-center justify-center space-x-1 ${
-                    gender === 'male'
-                      ? 'bg-sky-950/70 border-sky-400 text-sky-300 shadow-[0_0_12px_rgba(56,189,248,0.3)]'
-                      : 'bg-slate-950/60 border-slate-700 text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <span>👦 Hombre</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Class Selection Grid */}
+        {/* Right Column: Name Input & Class Selection Pills */}
+        <div className="md:col-span-7 flex flex-col justify-between gap-1.5 overflow-hidden">
+          {/* Name Input */}
           <div>
-            <label className="block text-[11px] font-bold text-slate-300 mb-1">Selecciona tu Clase:</label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
+            <label className="block text-[10px] sm:text-xs font-bold text-slate-300 mb-0.5">Nombre del Héroe:</label>
+            <input
+              type="text"
+              maxLength={16}
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 font-bold focus:outline-none focus:border-amber-500 shadow-inner"
+              placeholder="Introduce tu nombre"
+            />
+          </div>
+
+          {/* Class Grid Selector */}
+          <div className="flex-1 overflow-y-auto min-h-0">
+            <label className="block text-[10px] sm:text-xs font-bold text-slate-300 mb-1">Clase del Personaje:</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
               {ALL_HERO_CLASSES.map((cls) => {
                 const isSelected = selectedClass === cls;
                 return (
@@ -447,67 +384,63 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
                       soundEngine.playSfx('select');
                       setSelectedClass(cls);
                     }}
-                    className={`p-1.5 rounded-lg border text-left transition flex items-center space-x-1.5 ${
+                    className={`p-1.5 sm:p-2 rounded-xl border text-left transition flex items-center gap-1.5 min-h-[38px] ${
                       isSelected
-                        ? 'bg-amber-950/80 border-amber-400 text-amber-300 shadow-md ring-1 ring-amber-400'
-                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                        ? 'bg-amber-500 text-slate-950 border-amber-300 font-black shadow-md ring-1 ring-amber-400'
+                        : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-600'
                     }`}
                   >
-                    <span className="text-base">{CLASS_TAGS[cls].icon}</span>
-                    <div className="leading-tight truncate">
-                      <div className="text-xs font-bold truncate">{cls}</div>
-                      <div className="text-[9px] text-slate-400 truncate">{CLASS_TAGS[cls].tag.split('/')[0]}</div>
-                    </div>
+                    <span className="text-base flex-shrink-0">{CLASS_TAGS[cls].icon}</span>
+                    <span className="text-[11px] font-bold truncate">{cls}</span>
                   </button>
                 );
               })}
             </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="pt-1 flex flex-wrap items-center gap-1.5">
-            <button
-              type="button"
-              onClick={handleStart}
-              className="flex-1 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-lg text-xs transition shadow-lg flex items-center justify-center space-x-1.5 active:scale-95"
-            >
-              <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Comenzar Aventura en Ranura {selectedSlot + 1}</span>
-            </button>
-
-            {onStartShowcaseGame && (
-              <button
-                type="button"
-                onClick={handleShowcase}
-                className="py-2 px-3 bg-purple-950/80 hover:bg-purple-900 border border-purple-500/80 text-purple-300 font-bold rounded-lg text-xs transition flex items-center space-x-1 active:scale-95"
-                title="Modo Creador (Nivel 75 y Tier 8)"
-              >
-                <Sparkles className="w-3 h-3 text-purple-400" />
-                <span className="hidden sm:inline">Desbloqueado</span>
-              </button>
-            )}
-
-            {onOpenPrologue && (
-              <button
-                type="button"
-                onClick={onOpenPrologue}
-                className="py-2 px-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold rounded-lg text-xs transition flex items-center space-x-1"
-                title="Historia y Prólogo"
-              >
-                <span>📜 Lore</span>
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={onOpenLeaderboard}
-              className="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold rounded-lg text-xs transition"
-              title="Salón de la Fama"
-            >
-              <Trophy className="w-3.5 h-3.5" />
-            </button>
-          </div>
         </div>
+      </div>
+
+      {/* 4. Bottom Action Bar: Big Touch-Friendly Buttons (Min 48px height) */}
+      <div className="relative z-10 mt-2 pt-1 flex items-center gap-2 flex-shrink-0">
+        {slots?.[selectedSlot]?.player ? (
+          <button
+            type="button"
+            onClick={() => {
+              soundEngine.unlock();
+              soundEngine.playSfx('select');
+              onResumeGame(selectedSlot);
+            }}
+            className="flex-1 h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-xl flex items-center justify-center gap-2"
+          >
+            <Play className="w-4 h-4 fill-current" />
+            <span>CONTINUAR PARTIDA (Nv.{slots[selectedSlot]?.player?.level})</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleStart}
+            className="flex-1 h-12 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-xl flex items-center justify-center gap-2"
+          >
+            <Play className="w-4 h-4 fill-current" />
+            <span>¡COMENZAR AVENTURA EN RANURA {selectedSlot + 1}!</span>
+          </button>
+        )}
+
+        {slots?.[selectedSlot]?.player && (
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm(`¿Borrar el personaje de la Ranura ${selectedSlot + 1}?`)) {
+                soundEngine.playSfx('error');
+                onDeleteSlot(selectedSlot);
+              }
+            }}
+            className="h-12 px-3 bg-red-950 hover:bg-red-900 border border-red-800 text-red-300 font-bold rounded-xl text-xs transition active:scale-95 flex items-center justify-center"
+            title="Borrar Personaje"
+          >
+            🗑️
+          </button>
+        )}
       </div>
     </div>
   );

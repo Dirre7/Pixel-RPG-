@@ -47,8 +47,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
   onClose,
   onUpdatePlayerAndInventory,
 }) => {
-  const [activeTab, setActiveTab] = useState<'inventory' | 'shop' | 'equipment'>(initialTab);
-  const [mobileSubTab, setMobileSubTab] = useState<'stats' | 'equipment' | 'backpack'>('equipment');
+  const [activeTab, setActiveTab] = useState<'inventory' | 'shop' | 'equipment' | 'stats'>(initialTab);
   const [shopCategory, setShopCategory] = useState<'consumables' | 'equipment'>('equipment');
   const [filterSlot, setFilterSlot] = useState<EquipmentSlot | 'all'>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -277,43 +276,55 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-slate-800 bg-slate-950/70 p-1.5 text-xs font-bold gap-1">
+        {/* 4 Direct Navigation Tabs (Estilo RPG Ergonómico Móvil) */}
+        <div className="flex border-b border-slate-800 bg-slate-950/70 p-1 text-xs font-bold gap-1 flex-shrink-0">
           <button
             onClick={() => {
               soundEngine.playSfx('select');
               setActiveTab('equipment');
             }}
-            className={`flex-1 py-2.5 rounded-lg transition flex items-center justify-center space-x-1.5 ${
-              activeTab === 'equipment' ? 'bg-amber-500 text-slate-950 font-black shadow' : 'text-slate-400 hover:bg-slate-800'
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl transition flex items-center justify-center space-x-1 min-h-[40px] ${
+              activeTab === 'equipment' ? 'bg-amber-500 text-slate-950 font-black shadow-md' : 'text-slate-400 hover:bg-slate-800'
             }`}
           >
-            <span>🛡️</span>
-            <span>Equipo & Stats</span>
+            <span>⚔️</span>
+            <span className="text-[11px] sm:text-xs">Equipo ({Object.values(inventory.equipment).filter(Boolean).length}/7)</span>
           </button>
           <button
             onClick={() => {
               soundEngine.playSfx('select');
               setActiveTab('inventory');
             }}
-            className={`flex-1 py-2.5 rounded-lg transition flex items-center justify-center space-x-1.5 ${
-              activeTab === 'inventory' ? 'bg-amber-500 text-slate-950 font-black shadow' : 'text-slate-400 hover:bg-slate-800'
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl transition flex items-center justify-center space-x-1 min-h-[40px] ${
+              activeTab === 'inventory' ? 'bg-amber-500 text-slate-950 font-black shadow-md' : 'text-slate-400 hover:bg-slate-800'
             }`}
           >
-            <span>🧪</span>
-            <span>Consumibles ({inventory.consumables.reduce((acc, c) => acc + c.quantity, 0)})</span>
+            <span>🎒</span>
+            <span className="text-[11px] sm:text-xs">Mochila ({filteredOwnedEquipment.length + inventory.consumables.reduce((a, c) => a + c.quantity, 0)})</span>
+          </button>
+          <button
+            onClick={() => {
+              soundEngine.playSfx('select');
+              setActiveTab('stats');
+            }}
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl transition flex items-center justify-center space-x-1 min-h-[40px] ${
+              activeTab === 'stats' ? 'bg-amber-500 text-slate-950 font-black shadow-md' : 'text-slate-400 hover:bg-slate-800'
+            }`}
+          >
+            <span>👤</span>
+            <span className="text-[11px] sm:text-xs">Stats</span>
           </button>
           <button
             onClick={() => {
               soundEngine.playSfx('select');
               setActiveTab('shop');
             }}
-            className={`flex-1 py-2.5 rounded-lg transition flex items-center justify-center space-x-1.5 ${
-              activeTab === 'shop' ? 'bg-emerald-500 text-slate-950 font-black shadow' : 'text-slate-400 hover:bg-slate-800'
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl transition flex items-center justify-center space-x-1 min-h-[40px] ${
+              activeTab === 'shop' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-slate-400 hover:bg-slate-800'
             }`}
           >
             <span>🛒</span>
-            <span>Bazar / Tienda</span>
+            <span className="text-[11px] sm:text-xs">Bazar</span>
           </button>
         </div>
 
@@ -325,455 +336,188 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
         )}
 
         {/* Modal Body */}
-        <div className="flex-1 p-3 sm:p-4 overflow-y-auto">
-          {/* TAB 1: EQUIPMENT & STATS */}
+        <div className="flex-1 p-2.5 sm:p-4 overflow-y-auto">
+          {/* TAB 1: EQUIPMENT (7 SLOTS VISUALES CON BOTONES GRANDES) */}
           {activeTab === 'equipment' && (
-            <div>
-              {/* Mobile Sub-Navigation Pills (Only on mobile screens < 1024px) */}
-              <div className="lg:hidden flex bg-slate-950 p-1 rounded-xl border border-slate-800 mb-3 text-xs font-bold gap-1 shadow-md">
-                <button
-                  onClick={() => setMobileSubTab('equipment')}
-                  className={`flex-1 py-2 rounded-lg transition flex items-center justify-center space-x-1 ${
-                    mobileSubTab === 'equipment'
-                      ? 'bg-amber-500 text-slate-950 font-black shadow'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <span>⚔️</span>
-                  <span>Equipo ({Object.values(inventory.equipment).filter(Boolean).length}/7)</span>
-                </button>
-                <button
-                  onClick={() => setMobileSubTab('stats')}
-                  className={`flex-1 py-2 rounded-lg transition flex items-center justify-center space-x-1 ${
-                    mobileSubTab === 'stats'
-                      ? 'bg-amber-500 text-slate-950 font-black shadow'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <span>👤</span>
-                  <span>Estadísticas</span>
-                </button>
-                <button
-                  onClick={() => setMobileSubTab('backpack')}
-                  className={`flex-1 py-2 rounded-lg transition flex items-center justify-center space-x-1 ${
-                    mobileSubTab === 'backpack'
-                      ? 'bg-amber-500 text-slate-950 font-black shadow'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <span>🎒</span>
-                  <span>Mochila ({filteredOwnedEquipment.length})</span>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                {/* SIDEBAR: CHARACTER STATS SHEET */}
-                <div
-                  className={`lg:col-span-5 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between shadow-lg ${
-                    mobileSubTab === 'stats' ? 'flex' : 'hidden lg:flex'
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-center space-x-3 pb-3 border-b border-slate-800">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-2xl shadow-md border border-amber-300/40">
-                        {player.heroClass === 'Guerrero'
-                          ? '⚔️'
-                          : player.heroClass === 'Mago'
-                          ? '🔮'
-                          : player.heroClass === 'Pícaro'
-                          ? '🗡️'
-                          : player.heroClass === 'Paladín'
-                          ? '🛡️'
-                          : player.heroClass === 'Nigromante'
-                          ? '💀'
-                          : player.heroClass === 'Arquero'
-                          ? '🏹'
-                          : '🪓'}
-                      </div>
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-black text-amber-300 text-sm">{player.name}</span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-bold">
-                            {player.heroClass}
-                          </span>
-                        </div>
-                        <div className="text-xs text-amber-400 font-bold mt-0.5">Nivel {player.level}</div>
-                      </div>
-                    </div>
-
-                    {/* EXP Bar */}
-                    <div className="mt-3">
-                      <div className="flex justify-between text-[10px] text-slate-400 font-bold mb-1">
-                        <span>Experiencia</span>
-                        <span>
-                          {player.exp} / {player.maxExp} EXP
-                        </span>
-                      </div>
-                      <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
-                        <div
-                          className="bg-gradient-to-r from-amber-500 to-yellow-400 h-full rounded-full transition-all duration-300"
-                          style={{ width: `${Math.min(100, Math.round((player.exp / player.maxExp) * 100))}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Stats Breakdown */}
-                    <div className="mt-3.5 space-y-2">
-                      <div className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                        <span>Atributos Primarios</span>
-                        <span className="text-[9px] text-amber-400 font-normal">Base + Equipo</span>
-                      </div>
-
-                      <div className="flex items-center justify-between p-1.5 px-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
-                        <div className="flex items-center space-x-2 text-rose-400 font-bold">
-                          <Heart className="w-3.5 h-3.5" />
-                          <span>Puntos de Vida</span>
-                        </div>
-                        <span className="font-black text-slate-100">
-                          {player.hp} / {player.maxHp}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between p-1.5 px-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
-                        <div className="flex items-center space-x-2 text-sky-400 font-bold">
-                          <Zap className="w-3.5 h-3.5" />
-                          <span>Puntos de Maná</span>
-                        </div>
-                        <span className="font-black text-slate-100">
-                          {player.mp} / {player.maxMp}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between p-1.5 px-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
-                        <div className="flex items-center space-x-2 text-amber-400 font-bold">
-                          <Swords className="w-3.5 h-3.5" />
-                          <span>Poder de Ataque</span>
-                        </div>
-                        <span className="font-black text-slate-100">{player.attack}</span>
-                      </div>
-
-                      <div className="flex items-center justify-between p-1.5 px-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
-                        <div className="flex items-center space-x-2 text-blue-400 font-bold">
-                          <Shield className="w-3.5 h-3.5" />
-                          <span>Defensa & Armadura</span>
-                        </div>
-                        <span className="font-black text-slate-100">{player.defense}</span>
-                      </div>
-
-                      <div className="flex items-center justify-between p-1.5 px-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-xs">
-                        <div className="flex items-center space-x-2 text-emerald-400 font-bold">
-                          <Sparkles className="w-3.5 h-3.5" />
-                          <span>Velocidad de Turno</span>
-                        </div>
-                        <span className="font-black text-slate-100">{player.speed}</span>
-                      </div>
-                    </div>
-
-                    {/* TACTICAL COMBAT STATS */}
-                    <div className="mt-3.5 space-y-1.5">
-                      <div className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                        <span>Estadísticas Tácticas</span>
-                        <span className="text-[9px] text-sky-400 font-normal">Combate RPG</span>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-                        {/* Precisión */}
-                        <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
-                          <div className="flex items-center space-x-1.5 text-amber-300 font-bold">
-                            <Target className="w-3 h-3 text-amber-400" />
-                            <span>Precisión</span>
-                          </div>
-                          <span className="font-black text-amber-200">{player.accuracy ?? 95}%</span>
-                        </div>
-
-                        {/* Evasión */}
-                        <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
-                          <div className="flex items-center space-x-1.5 text-cyan-300 font-bold">
-                            <Wind className="w-3 h-3 text-cyan-400" />
-                            <span>Evasión</span>
-                          </div>
-                          <span className="font-black text-cyan-200">{player.evasion ?? 6}%</span>
-                        </div>
-
-                        {/* Crítico */}
-                        <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
-                          <div className="flex items-center space-x-1.5 text-yellow-300 font-bold">
-                            <Flame className="w-3 h-3 text-yellow-400" />
-                            <span>Crítico</span>
-                          </div>
-                          <span className="font-black text-yellow-200">{player.critRate ?? 10}%</span>
-                        </div>
-
-                        {/* Daño Crítico */}
-                        <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
-                          <div className="flex items-center space-x-1.5 text-orange-300 font-bold">
-                            <Zap className="w-3 h-3 text-orange-400" />
-                            <span>Daño Crít.</span>
-                          </div>
-                          <span className="font-black text-orange-200">{player.critDamage ?? 175}%</span>
-                        </div>
-
-                        {/* Bloqueo */}
-                        <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
-                          <div className="flex items-center space-x-1.5 text-blue-300 font-bold">
-                            <ShieldAlert className="w-3 h-3 text-blue-400" />
-                            <span>Bloqueo</span>
-                          </div>
-                          <span className="font-black text-blue-200">{player.blockRate ?? 0}%</span>
-                        </div>
-
-                        {/* Robo de Vida */}
-                        <div className="p-1.5 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between">
-                          <div className="flex items-center space-x-1.5 text-rose-300 font-bold">
-                            <Droplet className="w-3 h-3 text-rose-400" />
-                            <span>Robo Vida</span>
-                          </div>
-                          <span className="font-black text-rose-200">{player.lifesteal ?? 0}%</span>
-                        </div>
-                      </div>
-
-                      {/* MP Regen Bar if active */}
-                      {(player.mpRegen ?? 0) > 0 && (
-                        <div className="p-1.5 bg-sky-950/40 rounded border border-sky-800/60 flex items-center justify-between text-[11px]">
-                          <div className="flex items-center space-x-1.5 text-sky-300 font-bold">
-                            <Sparkles className="w-3 h-3 text-sky-400" />
-                            <span>Regeneración Pasiva</span>
-                          </div>
-                          <span className="font-black text-sky-200">+{player.mpRegen} MP/turno</span>
-                        </div>
-                      )}
-                    </div>
+            <div className="space-y-3">
+              {/* Hero Showcase Header */}
+              <div className="flex items-center justify-between p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+                <div className="flex items-center space-x-2.5 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-slate-900 border border-amber-400/50 flex items-center justify-center text-xl flex-shrink-0">
+                    {player.heroClass === 'Guerrero' ? '⚔️' : player.heroClass === 'Mago' ? '🪄' : '🗡️'}
                   </div>
-
-                  <div className="mt-4 pt-3 border-t border-slate-800 flex justify-between text-xs font-bold text-slate-400">
-                    <span>
-                      Puntuación: <span className="text-amber-300">{player.score.toLocaleString()} pts</span>
-                    </span>
-                    <span>
-                      Oro: <span className="text-amber-400">{player.gold.toLocaleString()} G</span>
-                    </span>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-black text-amber-300 truncate">{player.name}</span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-bold">
+                        Nv.{player.level}
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 truncate">
+                      {player.heroClass} · Armamento Activo
+                    </div>
                   </div>
                 </div>
 
-                {/* MAIN CONTENT: 7 EQUIPPED SLOTS & INVENTORY */}
-                <div className={`lg:col-span-7 space-y-4 ${mobileSubTab !== 'stats' ? 'block' : 'hidden lg:block'}`}>
-                  {/* 7 EQUIPPED SLOTS - HERO SHOWCASE & 2-COLUMN GRID */}
-                  <div
-                    className={`bg-slate-950 p-3.5 rounded-xl border border-slate-800 shadow-xl space-y-3 ${
-                      mobileSubTab === 'equipment' ? 'block' : 'hidden lg:block'
-                    }`}
-                  >
-                    {/* Hero Showcase Header */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 rounded-lg border border-slate-800/90">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 via-slate-800 to-slate-900 border border-amber-400/50 flex items-center justify-center text-2xl shadow-inner">
-                          {player.heroClass === 'Guerrero'
-                            ? '⚔️'
-                            : player.heroClass === 'Mago'
-                            ? '🔮'
-                            : player.heroClass === 'Pícaro'
-                            ? '🗡️'
-                            : player.heroClass === 'Paladín'
-                            ? '🛡️'
-                            : player.heroClass === 'Nigromante'
-                            ? '💀'
-                            : player.heroClass === 'Arquero'
-                            ? '🏹'
-                            : '🪓'}
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm font-black text-amber-300">{player.name}</span>
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-bold">
-                              {player.heroClass}
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-slate-400 font-bold mt-0.5">
-                            Héroe Nivel <span className="text-amber-400">{player.level}</span> · Armamento Activo
-                          </div>
-                        </div>
+                <span className="text-[11px] font-black text-amber-300 bg-amber-950/70 border border-amber-800/70 px-2.5 py-1 rounded-lg flex-shrink-0">
+                  ⚔️ {Object.values(inventory.equipment).filter(Boolean).length}/7 Equipados
+                </span>
+              </div>
+
+              {/* 7 Equipped Slots Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {SLOT_CONFIG.map((config) => {
+                  const item = inventory.equipment[config.key];
+                  return (
+                    <div
+                      key={config.key}
+                      className={`p-2.5 rounded-xl border flex items-center gap-3 transition min-h-[56px] ${
+                        item
+                          ? 'bg-slate-950 border-amber-500/40 shadow-sm'
+                          : 'bg-slate-950/50 border-dashed border-slate-800'
+                      }`}
+                    >
+                      {/* Slot Icon */}
+                      <div
+                        className={`w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center text-xl border ${
+                          item
+                            ? 'bg-gradient-to-br from-slate-800 to-slate-950 border-amber-400/60 shadow'
+                            : 'bg-slate-900 border-slate-800 text-slate-600'
+                        }`}
+                      >
+                        {item ? item.icon : config.icon}
                       </div>
 
-                      <div className="flex items-center space-x-2 self-end sm:self-auto">
-                        <span className="text-[11px] font-black text-amber-300 bg-amber-950/60 border border-amber-800/60 px-2.5 py-1 rounded-lg shadow-sm">
-                          ⚔️ {Object.values(inventory.equipment).filter(Boolean).length}/7 Equipados
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Slot Card Renderer Helper */}
-                    {(() => {
-                      const renderSlotItemCard = (slotKey: EquipmentSlot) => {
-                        const config = SLOT_CONFIG.find((s) => s.key === slotKey);
-                        if (!config) return null;
-                        const item = inventory.equipment[slotKey];
-
-                        return (
-                          <div
-                            key={slotKey}
-                            className={`p-2.5 rounded-xl border text-xs flex items-start space-x-3 transition relative ${
-                              item
-                                ? 'bg-slate-900/95 border-amber-500/30 hover:border-amber-400/60 shadow-sm'
-                                : 'bg-slate-900/40 border-slate-800/80 border-dashed hover:border-slate-700'
-                            }`}
-                          >
-                            {/* Slot Icon Frame */}
-                            <div
-                              className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-xl border transition ${
-                                item
-                                  ? 'bg-gradient-to-br from-slate-800 to-slate-950 border-amber-400/50 shadow-inner'
-                                  : 'bg-slate-950/80 border-slate-800 text-slate-600'
-                              }`}
-                            >
-                              {item ? item.icon : config.icon}
-                            </div>
-
-                            {/* Item Details */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider truncate">
-                                  {config.label}
-                                </span>
-                                {item && (
-                                  <button
-                                    onClick={() => handleUnequip(slotKey)}
-                                    title={`Desequipar ${item.name}`}
-                                    className="text-[9px] text-rose-400 hover:text-rose-200 bg-rose-950/60 hover:bg-rose-900/80 px-2 py-0.5 rounded border border-rose-800/60 transition font-bold whitespace-nowrap"
-                                  >
-                                    Desequipar
-                                  </button>
-                                )}
-                              </div>
-
-                              {item ? (
-                                <div className="mt-0.5">
-                                  <div className="font-black text-amber-300 text-xs leading-snug" title={item.name}>
-                                    {item.name}
-                                  </div>
-                                  {renderItemTacticalBadges(item)}
-                                </div>
-                              ) : (
-                                <div className="text-slate-600 text-[10px] italic mt-1">{config.placeholder}</div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      };
-
-                      return (
-                        <div className="space-y-2.5">
-                          {/* 6 Core Slots in 2 Spacious Columns */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            {renderSlotItemCard('weapon')}
-                            {renderSlotItemCard('shield')}
-                            {renderSlotItemCard('helmet')}
-                            {renderSlotItemCard('armor')}
-                            {renderSlotItemCard('boots')}
-                            {renderSlotItemCard('ring')}
-                          </div>
-
-                          {/* 7th Slot: Amuleto / Reliquia Sagrada Centrada */}
-                          <div className="w-full">
-                            {renderSlotItemCard('amulet')}
-                          </div>
+                      {/* Slot Info & Actions */}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                          {config.label}
                         </div>
-                      );
-                    })()}
-                  </div>
+                        <div className="text-xs font-black text-amber-300 truncate">
+                          {item ? item.name : config.placeholder}
+                        </div>
+                        {item && (
+                          <div className="flex flex-wrap gap-1 mt-0.5 text-[9px] text-emerald-400 font-bold">
+                            {item.bonusAttack ? <span>+{item.bonusAttack} ATK</span> : null}
+                            {item.bonusDefense ? <span>+{item.bonusDefense} DEF</span> : null}
+                            {item.bonusHp ? <span>+{item.bonusHp} HP</span> : null}
+                            {item.bonusMp ? <span>+{item.bonusMp} MP</span> : null}
+                          </div>
+                        )}
+                      </div>
 
-                  {/* INVENTORY ITEMS & CATEGORY FILTERS */}
-                  <div
-                    className={`bg-slate-950 p-3.5 rounded-xl border border-slate-800 shadow-lg space-y-3 ${
-                      mobileSubTab === 'backpack' ? 'block' : 'hidden lg:block'
-                    }`}
-                  >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center space-x-1.5">
-                      <span>🎒</span>
-                      <span>Equipamiento en Mochila ({filteredOwnedEquipment.length})</span>
-                    </h3>
-
-                    {/* Filter Pills */}
-                    <div className="flex items-center overflow-x-auto gap-1 text-[10px] pb-1 sm:pb-0">
-                      {(
-                        [
-                          { key: 'all', label: 'Todos' },
-                          { key: 'weapon', label: '🗡️ Armas' },
-                          { key: 'shield', label: '🛡️ Escudos' },
-                          { key: 'helmet', label: '👑 Cascos' },
-                          { key: 'armor', label: '🥋 Armaduras' },
-                          { key: 'boots', label: '👢 Botas' },
-                          { key: 'ring', label: '💍 Anillos' },
-                          { key: 'amulet', label: '📿 Amuletos' },
-                        ] as const
-                      ).map((f) => (
+                      {/* Action Button */}
+                      {item ? (
                         <button
-                          key={f.key}
-                          onClick={() => setFilterSlot(f.key)}
-                          className={`px-2 py-1 rounded whitespace-nowrap font-bold transition ${
-                            filterSlot === f.key
-                              ? 'bg-amber-500 text-slate-950'
-                              : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
-                          }`}
+                          onClick={() => handleUnequip(config.key)}
+                          className="px-2.5 py-1.5 bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-300 rounded-lg text-xs font-bold transition flex-shrink-0"
+                          title="Desequipar"
                         >
-                          {f.label}
+                          Quitar
                         </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Owned Equipment List */}
-                  {filteredOwnedEquipment.length === 0 ? (
-                    <div className="p-8 text-center bg-slate-900/50 rounded-lg border border-slate-800/80 text-xs text-slate-500">
-                      No tienes equipo en esta categoría. ¡Visita la tienda o abre cofres!
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[260px] overflow-y-auto pr-1">
-                      {filteredOwnedEquipment.map((item) => (
-                        <div
-                          key={item.id}
-                          className="p-2.5 bg-slate-900/90 rounded-lg border border-slate-800 hover:border-amber-500/50 text-xs flex flex-col justify-between transition shadow-sm"
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setFilterSlot(config.key);
+                            setActiveTab('inventory');
+                          }}
+                          className="px-2.5 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 rounded-lg text-xs font-bold transition flex-shrink-0"
                         >
-                          <div>
-                            <div className="flex items-center justify-between">
-                              <span className="font-bold text-slate-100 truncate text-xs">
-                                {item.icon} {item.name}
-                              </span>
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-amber-400 font-bold border border-slate-700">
-                                {SLOT_CONFIG.find((s) => s.key === item.slot)?.label}
-                              </span>
-                            </div>
-
-                            <p className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
-                              {item.description}
-                            </p>
-
-                            {renderItemTacticalBadges(item)}
-                          </div>
-
-                          <div className="mt-2.5 flex items-center space-x-1.5 pt-2 border-t border-slate-800/80">
-                            <button
-                              onClick={() => handleEquip(item)}
-                              className="flex-1 py-1 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded text-[10px] transition"
-                            >
-                              Equipar
-                            </button>
-                            <button
-                              onClick={() => handleSellEquipment(item)}
-                              className="py-1 px-2 bg-slate-800 hover:bg-amber-950 hover:text-amber-400 text-slate-400 rounded text-[10px] border border-slate-700 transition"
-                            >
-                              Vender ({Math.max(1, Math.floor(item.price * 0.3))}G)
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                          Equipar
+                        </button>
+                      )}
                     </div>
-                  )}
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: STATS (HOJA COMPLETA DE ATRIBUTOS) */}
+          {activeTab === 'stats' && (
+            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3">
+              {/* Header */}
+              <div className="flex items-center space-x-3 pb-2.5 border-b border-slate-800">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-2xl shadow-md border border-amber-300/40 flex-shrink-0">
+                  {player.heroClass === 'Guerrero' ? '⚔️' : player.heroClass === 'Mago' ? '🪄' : '🗡️'}
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-black text-amber-300 text-sm">{player.name}</span>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-bold">
+                      {player.heroClass}
+                    </span>
+                  </div>
+                  <div className="text-xs text-amber-400 font-bold mt-0.5">Nivel {player.level} · {player.score.toLocaleString()} Puntos</div>
+                </div>
+              </div>
+
+              {/* EXP Bar */}
+              <div>
+                <div className="flex justify-between text-[10px] text-slate-400 font-bold mb-1">
+                  <span>Experiencia del Héroe</span>
+                  <span>{player.exp} / {player.maxExp} EXP</span>
+                </div>
+                <div className="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-800">
+                  <div
+                    className="bg-gradient-to-r from-amber-500 to-yellow-400 h-full rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(100, Math.round((player.exp / player.maxExp) * 100))}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Primary Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-rose-400 font-bold text-xs">
+                    <Heart className="w-4 h-4" />
+                    <span>Vida (HP)</span>
+                  </div>
+                  <span className="font-black text-slate-100 text-sm">{player.hp}/{player.maxHp}</span>
+                </div>
+
+                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-sky-400 font-bold text-xs">
+                    <Zap className="w-4 h-4" />
+                    <span>Maná (MP)</span>
+                  </div>
+                  <span className="font-black text-slate-100 text-sm">{player.mp}/{player.maxMp}</span>
+                </div>
+
+                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
+                    <Swords className="w-4 h-4" />
+                    <span>Ataque</span>
+                  </div>
+                  <span className="font-black text-slate-100 text-sm">{player.attack}</span>
+                </div>
+
+                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-blue-400 font-bold text-xs">
+                    <Shield className="w-4 h-4" />
+                    <span>Defensa</span>
+                  </div>
+                  <span className="font-black text-slate-100 text-sm">{player.defense}</span>
+                </div>
+
+                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Velocidad</span>
+                  </div>
+                  <span className="font-black text-slate-100 text-sm">{player.speed}</span>
+                </div>
+
+                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-yellow-300 font-bold text-xs">
+                    <Flame className="w-4 h-4" />
+                    <span>Crítico</span>
+                  </div>
+                  <span className="font-black text-yellow-200 text-sm">{player.critRate ?? 10}%</span>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
           {/* TAB 2: CONSUMABLES & MATERIALS */}
           {activeTab === 'inventory' && (
@@ -850,6 +594,90 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                         >
                           Usar
                         </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Owned Equipment in Backpack */}
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-lg space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center space-x-1.5">
+                    <span>🎒</span>
+                    <span>Equipamiento Almacenado ({filteredOwnedEquipment.length})</span>
+                  </h3>
+
+                  {/* Filter Pills */}
+                  <div className="flex items-center overflow-x-auto gap-1 text-[10px] pb-1 sm:pb-0">
+                    {(
+                      [
+                        { key: 'all', label: 'Todos' },
+                        { key: 'weapon', label: '🗡️ Armas' },
+                        { key: 'shield', label: '🛡️ Escudos' },
+                        { key: 'helmet', label: '👑 Cascos' },
+                        { key: 'armor', label: '🥋 Armaduras' },
+                        { key: 'boots', label: '👢 Botas' },
+                        { key: 'ring', label: '💍 Anillos' },
+                        { key: 'amulet', label: '📿 Amuletos' },
+                      ] as const
+                    ).map((f) => (
+                      <button
+                        key={f.key}
+                        onClick={() => setFilterSlot(f.key)}
+                        className={`px-2 py-1 rounded whitespace-nowrap font-bold transition ${
+                          filterSlot === f.key
+                            ? 'bg-amber-500 text-slate-950'
+                            : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+                        }`}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {filteredOwnedEquipment.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-slate-500">
+                    No tienes equipo en esta categoría. ¡Visita la tienda o forja nuevas armas!
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {filteredOwnedEquipment.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-2.5 bg-slate-900 rounded-xl border border-slate-800 flex flex-col justify-between gap-2"
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <div className="w-10 h-10 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center text-xl flex-shrink-0">
+                            {item.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="font-bold text-amber-300 text-xs truncate">{item.name}</span>
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-bold">
+                                {SLOT_CONFIG.find((s) => s.key === item.slot)?.label.split('/')[0]}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{item.description}</p>
+                            {renderItemTacticalBadges(item)}
+                          </div>
+                        </div>
+
+                        <div className="flex gap-1.5 pt-1.5 border-t border-slate-800/80">
+                          <button
+                            onClick={() => handleEquip(item)}
+                            className="flex-1 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-xs transition"
+                          >
+                            Equipar
+                          </button>
+                          <button
+                            onClick={() => handleSellEquipment(item)}
+                            className="px-2.5 py-1.5 bg-slate-800 hover:bg-amber-950 hover:text-amber-300 text-slate-400 font-bold rounded-lg text-xs transition"
+                          >
+                            Vender ({Math.max(1, Math.floor(item.price * 0.3))}G)
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
