@@ -71,6 +71,67 @@ import {
   create3DCityHallBuildingMesh,
   create3DTavernBuildingMesh,
 } from '../utils/three3dModels';
+import { getHeroSpriteCanvas } from '../utils/pixelSpriteGenerator';
+import {
+  getTreeCanvas,
+  getCottageCanvas,
+  getStoneManorCanvas,
+  getMarketStallCanvas,
+  getForgeCanvas,
+  getWindmillCanvas,
+  getChestCanvas,
+  getApothecaryCanvas,
+  getGreatHallCanvas,
+  getStreetLampCanvas,
+  getCampfireCanvas,
+  getWaterWellCanvas,
+  getShrineCanvas,
+  getManaCrystalCanvas,
+  getFarmCropCanvas,
+  getWoodenBenchCanvas,
+  getEnchantedTreeCanvas,
+  getSquarePlazaFountainCanvas,
+  getTileCanvas,
+} from '../utils/pixelTilesetGenerator';
+
+// --- 🌟 2.5D HD PIXEL BILLBOARD SPRITE HELPERS ---
+function createPixelSpriteMaterial(canvas: HTMLCanvasElement): THREE.SpriteMaterial {
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestFilter;
+  tex.generateMipmaps = false;
+  return new THREE.SpriteMaterial({
+    map: tex,
+    transparent: true,
+    alphaTest: 0.05,
+  });
+}
+
+function create2DPixelSprite(
+  canvas: HTMLCanvasElement,
+  worldWidth: number,
+  worldHeight: number,
+  shadowRadius: number = 0.6
+): THREE.Group {
+  const g = new THREE.Group();
+  const mat = createPixelSpriteMaterial(canvas);
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(worldWidth, worldHeight, 1);
+  sprite.center.set(0.5, 0.0);
+  sprite.position.y = 0.02;
+  g.add(sprite);
+
+  if (shadowRadius > 0) {
+    const shadowGeo = new THREE.CircleGeometry(shadowRadius, 16);
+    const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.4 });
+    const shadow = new THREE.Mesh(shadowGeo, shadowMat);
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = 0.01;
+    g.add(shadow);
+  }
+
+  return g;
+}
 
 interface ThreeMapCanvasProps {
   currentZone: Zone;
@@ -954,79 +1015,38 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           }
         }
 
-        // Obstacles (Castle Rotundas & Walls, Volcanic Basalt Spires, Dungeon Walls, Trees, Cottages)
+        // Obstacles (2.5D HD Pixel Art Trees & Architectural Structures)
         if (tileType === 1) {
           const seed = Math.abs(x * 31 + y * 17);
           let obsGroup: THREE.Group;
 
           if (currentZone.isInterior) {
-            // 🏰 Specialized Instanced Interior Walls (Timber/Plaster/Dungeon)
-            if (currentZone.interiorType === 'crypt' || currentZone.interiorType === 'smugglers_cave') {
-              const wallRes = create3DDungeonStoneWallMesh(x, y, (x + y) % 3 === 0);
-              obsGroup = wallRes.group;
-              obsGroup.position.set(posX, elevation, posZ);
-              if (wallRes.updateAnimation) animatedBuildingUpdaters.push(wallRes.updateAnimation);
-            } else {
-              obsGroup = new THREE.Group();
-              const wallMat = new THREE.MeshStandardMaterial({
-                color: currentZone.interiorType === 'castle' ? 0xe2e8f0 : (currentZone.interiorType === 'forge' ? 0x475569 : 0x5c3a21),
-                roughness: 0.75,
-              });
-              const wallMesh = new THREE.Mesh(new THREE.BoxGeometry(2.5, 3.2, 2.5), wallMat);
-              wallMesh.position.y = 1.6;
-              wallMesh.castShadow = true;
-              wallMesh.receiveShadow = true;
-              obsGroup.add(wallMesh);
-
-              const trim = new THREE.Mesh(new THREE.BoxGeometry(2.55, 0.20, 2.55), new THREE.MeshStandardMaterial({ color: 0x3d1c06, roughness: 0.7 }));
-              trim.position.y = 3.1;
-              obsGroup.add(trim);
-              obsGroup.position.set(posX, elevation, posZ);
-            }
-          } else if (currentZone.id === 'zone_castle') {
-            // Monumental Circular Watchtower Rotundas & Arched Stone Walls (Matching Reference Photo!)
-            const isRotunda = (x % 6 === 0 && y % 6 === 0) || (x + y) % 9 === 0;
-            const castleRes = create3DCastleArchedWallMesh(x, y, isRotunda);
-            obsGroup = castleRes.group;
+            const wallMat = new THREE.MeshStandardMaterial({
+              color: currentZone.interiorType === 'castle' ? 0xe2e8f0 : (currentZone.interiorType === 'forge' ? 0x475569 : 0x5c3a21),
+              roughness: 0.75,
+            });
+            const wallMesh = new THREE.Mesh(new THREE.BoxGeometry(2.5, 3.2, 2.5), wallMat);
+            wallMesh.position.y = 1.6;
+            obsGroup = new THREE.Group();
+            obsGroup.add(wallMesh);
             obsGroup.position.set(posX, elevation, posZ);
-            if (castleRes.updateAnimation) animatedBuildingUpdaters.push(castleRes.updateAnimation);
-          } else if (currentZone.id === 'zone_volcano') {
-            // Monolithic Jagged Basalt Spire with Flaming Geysers (Matching Reference Photo!)
-            const basaltRes = create3DVolcanicBasaltSpireMesh(x, y, (x + y) % 3 === 0);
-            obsGroup = basaltRes.group;
+          } else if (currentZone.id === 'zone_forest' && seed % 19 === 0) {
+            // 2.5D Pixel Art Cottage
+            obsGroup = create2DPixelSprite(getCottageCanvas(seed % 2 === 0 ? 'red' : 'blue'), 4.6, 4.6, 1.4);
             obsGroup.position.set(posX, elevation, posZ);
-            if (basaltRes.updateAnimation) animatedBuildingUpdaters.push(basaltRes.updateAnimation);
-          } else if (currentZone.id === 'zone_cave') {
-            // Authentic Carved Stone Dungeon Wall with Recessed Arches & Flickering Torches
-            const wallRes = create3DDungeonStoneWallMesh(x, y, (x + y) % 3 === 0);
-            obsGroup = wallRes.group;
-            obsGroup.position.set(posX, elevation, posZ);
-            if (wallRes.updateAnimation) animatedBuildingUpdaters.push(wallRes.updateAnimation);
-          } else if (currentZone.id === 'zone_forest') {
-            if (seed % 19 === 0) {
-              // 3D Villager Cottage
-              const cotRes = createLowPolyCottage(seed % 2 === 0 ? 0xb91c1c : 0x0284c7, true);
-              obsGroup = cotRes.group;
-              obsGroup.position.set(posX, elevation, posZ);
-              if (cotRes.updateAnimation) animatedBuildingUpdaters.push(cotRes.updateAnimation);
-            } else if (seed % 17 === 2) {
-              // Ancient Stone Ruins
-              obsGroup = create3DRuinsMesh(posX, posZ);
-              obsGroup.position.y += elevation;
-            } else if (seed % 13 === 1) {
-              // Wooden Fence & Barrels
-              obsGroup = create3DFenceMesh(posX, posZ);
-              obsGroup.position.y += elevation;
-            } else {
-              // 3D Optimized Procedural Tree with Cached PBR Shaders
-              obsGroup = create3DRichTreeMesh(posX, posZ, currentZone.id, x, y);
-              obsGroup.position.y += elevation;
-              animatedSwayObjects.push(obsGroup);
-            }
           } else {
-            obsGroup = create3DRichTreeMesh(posX, posZ, currentZone.id, x, y);
-            obsGroup.position.y += elevation;
-            animatedSwayObjects.push(obsGroup);
+            // 🌟 2.5D HD Pixel Art Tree Billboard with Ground Shadow
+            const treeCvs = getTreeCanvas(currentZone.id);
+            const combTree = document.createElement('canvas');
+            combTree.width = 64;
+            combTree.height = 80;
+            const tctx = combTree.getContext('2d')!;
+            tctx.imageSmoothingEnabled = false;
+            tctx.drawImage(treeCvs.trunk, 8, 44);
+            tctx.drawImage(treeCvs.canopy, 0, 0);
+
+            obsGroup = create2DPixelSprite(combTree, 3.4, 4.25, 1.1);
+            obsGroup.position.set(posX, elevation, posZ);
           }
 
           addWorldEntity(obsGroup, x, y);
@@ -1126,10 +1146,9 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           }
         }
 
-        // Shop (Merchant Market Stall)
+        // Shop (Merchant Market Stall - Tile 4)
         if (tileType === 4) {
-          const shopRes = createLowPolyMarketStall('weapons');
-          const shopGroup = shopRes.group;
+          const shopGroup = create2DPixelSprite(getMarketStallCanvas(0), 3.4, 3.4, 1.2);
           shopGroup.position.set(posX, elevation, posZ);
           addWorldEntity(shopGroup, x, y);
           obstacleGroups.push({ group: shopGroup, gridX: x, gridY: y });
@@ -1137,81 +1156,56 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
 
         // Inn (Tavern / Inn Building - Tile 5)
         if (tileType === 5) {
-          const tavernRes = create3DTavernBuildingMesh();
-          const tavernGroup = tavernRes.group;
+          const tavernGroup = create2DPixelSprite(getStoneManorCanvas(), 5.2, 5.2, 1.8);
           tavernGroup.position.set(posX, elevation, posZ);
           addWorldEntity(tavernGroup, x, y);
           obstacleGroups.push({ group: tavernGroup, gridX: x, gridY: y });
-          if (tavernRes.updateAnimation) animatedBuildingUpdaters.push(tavernRes.updateAnimation);
         }
 
         // 🌿 Botica Alquímica de Lynda (Tile 27)
         if (tileType === 27) {
-          const boticaRes = create3DApothecaryBuildingMesh();
-          const boticaGroup = boticaRes.group;
+          const boticaGroup = create2DPixelSprite(getApothecaryCanvas(), 4.6, 4.6, 1.5);
           boticaGroup.position.set(posX, elevation, posZ);
           addWorldEntity(boticaGroup, x, y);
           obstacleGroups.push({ group: boticaGroup, gridX: x, gridY: y });
-          if (boticaRes.updateAnimation) animatedBuildingUpdaters.push(boticaRes.updateAnimation);
         }
 
         // 👑 Gran Casa Consistorial / Salón del Trono del Castillo (Tile 31)
         if (tileType === 31) {
-          const cityHallRes = create3DCityHallBuildingMesh();
-          const cityHallGroup = cityHallRes.group;
+          const cityHallGroup = create2DPixelSprite(getGreatHallCanvas(), 5.8, 5.8, 2.0);
           cityHallGroup.position.set(posX, elevation, posZ);
           addWorldEntity(cityHallGroup, x, y);
           obstacleGroups.push({ group: cityHallGroup, gridX: x, gridY: y });
-          if (cityHallRes.updateAnimation) animatedBuildingUpdaters.push(cityHallRes.updateAnimation);
         }
 
         // 🌾 Windmill (Tile 6)
         if (tileType === 6) {
-          const windmillRes = createLowPolyWindmill();
-          const windmillGroup = windmillRes.group;
+          const windmillGroup = create2DPixelSprite(getWindmillCanvas(0), 4.8, 5.8, 1.6);
           windmillGroup.position.set(posX, elevation, posZ);
           addWorldEntity(windmillGroup, x, y);
           obstacleGroups.push({ group: windmillGroup, gridX: x, gridY: y });
-          if (windmillRes.updateAnimation) animatedBuildingUpdaters.push(windmillRes.updateAnimation);
         }
 
         // Chest (Tile 7)
         if (tileType === 7) {
           const chestId = `${currentZone.id}_${x}_${y}`;
           const isOpened = openedChestsRef.current.includes(chestId);
-          const chestRes = createStylizedChestMesh(isOpened);
-          const chestGroup = chestRes.group;
+          const chestGroup = create2DPixelSprite(getChestCanvas(isOpened), 1.5, 1.5, 0.45);
           chestGroup.position.set(posX, elevation, posZ);
           addWorldEntity(chestGroup, x, y);
-          if (chestRes.updateAnimation) animatedBuildingUpdaters.push(chestRes.updateAnimation);
         }
 
         // Village Cottage / House (Tile 8)
         if (tileType === 8) {
-          const variant = (x * 7 + y * 13) % 5;
-          const cottageRoof =
-            currentZone.id === 'zone_forest'
-              ? undefined // Use natural weathered wooden shakes
-              : currentZone.id === 'zone_cave'
-              ? 0x475569 // Slate mountain stone shakes
-              : currentZone.id === 'zone_castle'
-              ? 0x6d28d9 // Royal imperial violet slate
-              : 0x9a3412; // Volcanic terracotta shakes
-
-          const cottageRes = createLowPolyCottage(cottageRoof, (x + y) % 2 === 0, variant);
-          const cottageGroup = cottageRes.group;
+          const cottageGroup = create2DPixelSprite(getCottageCanvas((x + y) % 2 === 0 ? 'red' : 'straw'), 4.6, 4.6, 1.5);
           cottageGroup.position.set(posX, elevation, posZ);
-          const randScale = 0.95 + ((x * 3 + y * 5) % 4) * 0.08;
-          cottageGroup.scale.set(randScale, randScale, randScale);
           addWorldEntity(cottageGroup, x, y);
           obstacleGroups.push({ group: cottageGroup, gridX: x, gridY: y });
-          if (cottageRes.updateAnimation) animatedBuildingUpdaters.push(cottageRes.updateAnimation);
         }
 
         // 🎪 Bazaar Market Stall (Tile 9)
         if (tileType === 9) {
-          const stallRes = createLowPolyMarketStall((x + y) % 2 === 0 ? 'potions' : 'armor');
-          const stallGroup = stallRes.group;
+          const stallGroup = create2DPixelSprite(getMarketStallCanvas((x + y) % 3), 3.4, 3.4, 1.2);
           stallGroup.position.set(posX, elevation, posZ);
           addWorldEntity(stallGroup, x, y);
           obstacleGroups.push({ group: stallGroup, gridX: x, gridY: y });
@@ -1219,24 +1213,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
 
         // 🔨 Blacksmith Forge (Tile 10)
         if (tileType === 10) {
-          let forgeGroup: THREE.Group;
-          if (currentZone.id === 'zone_castle') {
-            const royalForgeRes = create3DRoyalForgeMesh();
-            forgeGroup = royalForgeRes.group;
-            if (royalForgeRes.updateAnimation) animatedBuildingUpdaters.push(royalForgeRes.updateAnimation);
-          } else if (currentZone.id === 'zone_volcano') {
-            const dragonForgeRes = create3DDragonForgeMesh();
-            forgeGroup = dragonForgeRes.group;
-            if (dragonForgeRes.updateAnimation) animatedBuildingUpdaters.push(dragonForgeRes.updateAnimation);
-          } else if (currentZone.id === 'zone_cave') {
-            const caveForgeRes = create3DDwarvenForgeMesh();
-            forgeGroup = caveForgeRes.group;
-            if (caveForgeRes.updateAnimation) animatedBuildingUpdaters.push(caveForgeRes.updateAnimation);
-          } else {
-            const forgeRes = createLowPolyForge();
-            forgeGroup = forgeRes.group;
-            if (forgeRes.updateAnimation) animatedBuildingUpdaters.push(forgeRes.updateAnimation);
-          }
+          const forgeGroup = create2DPixelSprite(getForgeCanvas(0), 4.2, 4.2, 1.4);
           forgeGroup.position.set(posX, elevation, posZ);
           addWorldEntity(forgeGroup, x, y);
           obstacleGroups.push({ group: forgeGroup, gridX: x, gridY: y });
@@ -1423,7 +1400,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
       addWorldEntity(create3DMerchantCartMesh(30 * 2.5, 61 * 2.5), 30, 61);
     }
 
-    // 5.5 SPAWN ALL ZONE NPCS WITH 3D QUEST MARKERS
+    // 5.5 SPAWN ALL ZONE NPCS WITH 2.5D PIXEL ART SPRITES & QUEST MARKERS
     if (currentZone.npcs) {
       currentZone.npcs.forEach((npc) => {
         const npcX = npc.x * 2.5;
@@ -1441,132 +1418,85 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           }
         }
 
-        const npcRes = createHumanNPCMesh(npc.avatarStyle, hasQuest, isQuestReady);
-        const npcMesh = npcRes.group;
-        npcMesh.position.set(npcX, 0, npcZ);
-        addWorldEntity(npcMesh, npc.x, npc.y);
-        obstacleGroups.push({ group: npcMesh, gridX: npc.x, gridY: npc.y });
-        animatedNPCUpdaters.push(npcRes.updateAnimation);
-      });
-    }
+        const npcHeroClass = npc.avatarStyle === 'merchant' ? 'Pícaro' : (npc.avatarStyle === 'elder' || npc.avatarStyle === 'druid' ? 'Mago' : 'Guerrero');
+        const npcCanvas = getHeroSpriteCanvas(npcHeroClass, 'male', 'down', 'idle');
+        const npcGroup = create2DPixelSprite(npcCanvas, 1.9, 1.9, 0.5);
+        npcGroup.position.set(npcX, 0, npcZ);
 
-    // 6. REALISTIC 3D HUMAN HERO CHARACTER MESH WITH DYNAMIC EQUIPMENT
-    const heroMeshResult = createHumanHeroMesh(player, equipment);
-    const heroGroup = heroMeshResult.group;
-
-    const blenderHeroContainer = new THREE.Group();
-    heroGroup.add(blenderHeroContainer);
-
-    let mapMixer: THREE.AnimationMixer | null = null;
-
-    const applyBlenderHero = (model: THREE.Group) => {
-      if (!model.userData?.animations || model.userData.animations.length === 0) {
-        // External model has no skeletal animation clips, keep full procedural articulated hero!
-        return;
-      }
-
-      heroGroup.children.forEach((child) => {
-        if (child !== blenderHeroContainer) child.visible = false;
-      });
-
-      const glbClone = model.clone();
-      const bbox = new THREE.Box3().setFromObject(glbClone);
-      const size = bbox.getSize(new THREE.Vector3());
-      const targetHeight = 1.15;
-      const maxDim = Math.max(size.y, size.x * 0.75) || 1;
-      const autoScale = targetHeight / maxDim;
-
-      glbClone.scale.set(autoScale, autoScale, autoScale);
-      const scaledBbox = new THREE.Box3().setFromObject(glbClone);
-      glbClone.position.x = -((scaledBbox.min.x + scaledBbox.max.x) / 2);
-      glbClone.position.y = -scaledBbox.min.y;
-      glbClone.position.z = -((scaledBbox.min.z + scaledBbox.max.z) / 2);
-
-      mapMixer = new THREE.AnimationMixer(glbClone);
-      const action = model.userData.animations[0];
-      mapMixer.clipAction(action).play();
-
-      blenderHeroContainer.clear();
-      blenderHeroContainer.add(glbClone);
-    };
-
-    const classModelKey =
-      player.heroClass === 'Mago' ? 'hero_mage' :
-      player.heroClass === 'Pícaro' ? 'hero_rogue' :
-      player.heroClass === 'Paladín' ? 'hero_paladin' :
-      player.heroClass === 'Nigromante' ? 'hero_necromancer' :
-      player.heroClass === 'Arquero' ? 'hero_archer' :
-      player.heroClass === 'Berserker' ? 'hero_berserker' : 'hero_warrior';
-    const genderKey = player.gender === 'male' ? 'male' : 'female';
-    const modelPath = `/models/${classModelKey}_${genderKey}.glb`;
-
-    if (cachedHeroGLTFScene) {
-      applyBlenderHero(cachedHeroGLTFScene);
-    } else {
-      heroGLTFLoader.load(
-        modelPath,
-        (gltf) => {
-          const model = gltf.scene;
-          model.userData.animations = gltf.animations;
-          model.traverse((child) => {
-            if ((child as THREE.Mesh).isMesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-            }
-          });
-          cachedHeroGLTFScene = model;
-          applyBlenderHero(model);
-        },
-        undefined,
-        (err) => {
-          console.warn('Fallback a modelo procedural:', err);
+        if (hasQuest) {
+          const markCvs = document.createElement('canvas');
+          markCvs.width = 32;
+          markCvs.height = 32;
+          const mctx = markCvs.getContext('2d')!;
+          mctx.fillStyle = isQuestReady ? '#22c55e' : '#eab308';
+          mctx.beginPath();
+          mctx.arc(16, 16, 12, 0, Math.PI * 2);
+          mctx.fill();
+          mctx.fillStyle = '#000000';
+          mctx.font = 'bold 18px monospace';
+          mctx.textAlign = 'center';
+          mctx.textBaseline = 'middle';
+          mctx.fillText(isQuestReady ? '?' : '!', 16, 16);
+          const markSprite = create2DPixelSprite(markCvs, 0.8, 0.8, 0);
+          markSprite.position.y = 2.1;
+          npcGroup.add(markSprite);
         }
-      );
+
+        addWorldEntity(npcGroup, npc.x, npc.y);
+        obstacleGroups.push({ group: npcGroup, gridX: npc.x, gridY: npc.y });
+      });
     }
+
+    // 6. 🌟 2.5D HD PIXEL ART HERO CHARACTER SPRITE (Octopath Style Billboard Sprite)
+    const heroSpriteMap: Record<string, THREE.CanvasTexture> = {};
+    const heroDirs: ('up' | 'down' | 'left' | 'right')[] = ['down', 'up', 'left', 'right'];
+    const heroAnims: ('idle' | 'walk1' | 'walk2')[] = ['idle', 'walk1', 'walk2'];
+
+    heroDirs.forEach((d) => {
+      heroAnims.forEach((a) => {
+        const cvs = getHeroSpriteCanvas(player.heroClass, player.gender || 'male', d, a);
+        const tex = new THREE.CanvasTexture(cvs);
+        tex.magFilter = THREE.NearestFilter;
+        tex.minFilter = THREE.NearestFilter;
+        tex.generateMipmaps = false;
+        heroSpriteMap[`${d}_${a}`] = tex;
+      });
+    });
+
+    const heroSpriteMat = new THREE.SpriteMaterial({
+      map: heroSpriteMap[`${facingDir}_idle`] || heroSpriteMap['down_idle'],
+      transparent: true,
+      alphaTest: 0.05,
+    });
+    const heroSprite = new THREE.Sprite(heroSpriteMat);
+    heroSprite.scale.set(2.0, 2.0, 1);
+    heroSprite.center.set(0.5, 0.0);
+    heroSprite.position.y = 0.02;
+
+    const heroShadowGeo = new THREE.CircleGeometry(0.55, 16);
+    const heroShadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.42 });
+    const heroShadow = new THREE.Mesh(heroShadowGeo, heroShadowMat);
+    heroShadow.rotation.x = -Math.PI / 2;
+    heroShadow.position.y = 0.01;
+
+    const heroGroup = new THREE.Group();
+    heroGroup.add(heroShadow);
+    heroGroup.add(heroSprite);
 
     // FLOATING 3D HERO BEACON ARROW (Pointer above Hero Head)
-    const arrowGeo = new THREE.OctahedronGeometry(0.32);
-    const arrowMat = new THREE.MeshStandardMaterial({
-      color: 0xfef08a,
-      emissive: 0xeab308,
-      emissiveIntensity: 1.8,
-      metalness: 0.5,
-    });
+    const arrowGeo = new THREE.OctahedronGeometry(0.26);
+    const arrowMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
     const arrowMesh = new THREE.Mesh(arrowGeo, arrowMat);
-    arrowMesh.position.y = 2.8;
+    arrowMesh.position.y = 2.4;
     heroGroup.add(arrowMesh);
 
-    // VERTICAL LIGHT BEACON COLUMN (Visible even through foliage!)
-    const beamGeo = new THREE.CylinderGeometry(0.25, 0.35, 7.0, 12);
-    const beamMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.3,
-      side: THREE.DoubleSide,
-    });
-    const beamMesh = new THREE.Mesh(beamGeo, beamMat);
-    beamMesh.position.y = 3.8;
-    heroGroup.add(beamMesh);
-
     // Hero Ground Magic Aura Rings
-    const ringGeo = new THREE.RingGeometry(0.85, 1.15, 32);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
+    const ringGeo = new THREE.RingGeometry(0.75, 0.95, 24);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
     const ringMesh = new THREE.Mesh(ringGeo, ringMat);
     ringMesh.rotation.x = -Math.PI / 2;
     ringMesh.position.y = 0.02;
     heroGroup.add(ringMesh);
-
-    const innerDiscGeo = new THREE.CircleGeometry(0.8, 32);
-    const innerDiscMat = new THREE.MeshBasicMaterial({ color: 0xfef08a, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
-    const innerDiscMesh = new THREE.Mesh(innerDiscGeo, innerDiscMat);
-    innerDiscMesh.rotation.x = -Math.PI / 2;
-    innerDiscMesh.position.y = 0.01;
-    heroGroup.add(innerDiscMesh);
-
-    // Player Light (Bright Torch/Magic aura emission)
-    const playerLight = new THREE.PointLight(0xfef08a, 2.5, 12);
-    playerLight.position.y = 2.2;
-    heroGroup.add(playerLight);
 
     scene.add(heroGroup);
 
@@ -1657,26 +1587,19 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
       heroGroup.rotation.z = THREE.MathUtils.damp(heroGroup.rotation.z, targetBankZ, 12, delta);
       heroGroup.rotation.x = THREE.MathUtils.damp(heroGroup.rotation.x, targetBankX, 12, delta);
 
-      // 🌟 STEP WEIGHT SPRING BOUNCE: Footstep ground compression
+      // 🌟 2.5D HERO SPRITE DIRECTION & WALK ANIMATION UPDATE
+      const curDir = facingDirRef.current || 'down';
       if (isMoving) {
-        walkPhase += delta * 15.5;
-        const stepBounce = Math.abs(Math.sin(walkPhase)) * 0.055;
-        heroGroup.position.set(curr.x, -stepBounce, curr.z);
-
-        // Human Character Walking & Dynamic Skeletal Physics
-        heroMeshResult.leftLeg.rotation.x = Math.sin(walkPhase) * 0.74;
-        heroMeshResult.rightLeg.rotation.x = -Math.sin(walkPhase) * 0.74;
-        heroMeshResult.leftArm.rotation.x = -Math.sin(walkPhase) * 0.62;
-        heroMeshResult.rightArm.rotation.x = Math.sin(walkPhase) * 0.62;
-        heroMeshResult.torsoGroup.rotation.y = Math.sin(walkPhase) * 0.12;
-        heroMeshResult.torsoGroup.position.y = 0.70 + Math.abs(Math.sin(walkPhase)) * 0.045;
-        heroMeshResult.headGroup.position.y = 1.15 + Math.abs(Math.sin(walkPhase)) * 0.045;
-        
-        // 🌟 VERLET CLOTH & HAIR LAG: Cape / Headband sways against movement direction
-        if (heroMeshResult.headbandTail) {
-          heroMeshResult.headbandTail.rotation.z = -0.3 + Math.sin(walkPhase) * 0.35;
-          heroMeshResult.headbandTail.rotation.x = THREE.MathUtils.damp(heroMeshResult.headbandTail.rotation.x, 0.55, 10, delta);
+        walkPhase += delta * 14.0;
+        const animKey = Math.floor(walkPhase * 0.5) % 2 === 0 ? 'walk1' : 'walk2';
+        const targetTex = heroSpriteMap[`${curDir}_${animKey}`] || heroSpriteMap[`${curDir}_idle`];
+        if (targetTex && heroSpriteMat.map !== targetTex) {
+          heroSpriteMat.map = targetTex;
+          heroSpriteMat.needsUpdate = true;
         }
+        const stepBounce = Math.abs(Math.sin(walkPhase)) * 0.06;
+        heroSprite.position.y = 0.02 + stepBounce;
+        heroGroup.position.set(curr.x, 0, curr.z);
 
         // 🌟 INTERACTIVE FLUID SHOCKWAVES: Spawn concentric ripples when near water / lava
         const gridX = Math.round(curr.x / 2.5);
@@ -1694,21 +1617,14 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           }
         }
       } else {
-        const stepBounce = Math.sin(time * 2.8) * 0.015;
-        heroGroup.position.set(curr.x, -stepBounce, curr.z);
-
-        const breathCycle = time * 3;
-        heroMeshResult.leftLeg.rotation.x = THREE.MathUtils.damp(heroMeshResult.leftLeg.rotation.x, 0, 14, delta);
-        heroMeshResult.rightLeg.rotation.x = THREE.MathUtils.damp(heroMeshResult.rightLeg.rotation.x, 0, 14, delta);
-        heroMeshResult.leftArm.rotation.x = THREE.MathUtils.damp(heroMeshResult.leftArm.rotation.x, Math.sin(breathCycle) * 0.06, 10, delta);
-        heroMeshResult.rightArm.rotation.x = THREE.MathUtils.damp(heroMeshResult.rightArm.rotation.x, -Math.sin(breathCycle) * 0.06, 10, delta);
-        heroMeshResult.torsoGroup.rotation.y = THREE.MathUtils.damp(heroMeshResult.torsoGroup.rotation.y, 0, 12, delta);
-        heroMeshResult.torsoGroup.position.y = 0.70 + Math.sin(breathCycle) * 0.015;
-        heroMeshResult.headGroup.position.y = 1.15 + Math.sin(breathCycle) * 0.02;
-        if (heroMeshResult.headbandTail) {
-          heroMeshResult.headbandTail.rotation.z = -0.3 + Math.sin(time * 4) * 0.1;
-          heroMeshResult.headbandTail.rotation.x = THREE.MathUtils.damp(heroMeshResult.headbandTail.rotation.x, 0, 8, delta);
+        const targetTex = heroSpriteMap[`${curDir}_idle`];
+        if (targetTex && heroSpriteMat.map !== targetTex) {
+          heroSpriteMat.map = targetTex;
+          heroSpriteMat.needsUpdate = true;
         }
+        const breathBounce = Math.sin(time * 3.0) * 0.02;
+        heroSprite.position.y = 0.02 + breathBounce;
+        heroGroup.position.set(curr.x, 0, curr.z);
       }
 
       // Update fluid ripples
@@ -1725,9 +1641,8 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
       });
 
       ringMesh.rotation.z = time * 2;
-      arrowMesh.position.y = 2.8 + Math.sin(time * 4) * 0.15;
+      arrowMesh.position.y = 2.4 + Math.sin(time * 4) * 0.15;
       arrowMesh.rotation.y = time * 2.5;
-      beamMat.opacity = 0.25 + Math.sin(time * 3) * 0.12;
 
       // 🌟 ENVIRONMENTAL WIND & WAVE DYNAMICS (Desktop Only)
       if (!isMobile) {
