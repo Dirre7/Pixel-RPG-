@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { PlayerStats, Zone, Inventory, NPC } from '../types';
 import { ZONES, areZoneMainQuestsCompleted, ALL_GAME_QUESTS, isZoneUnlocked, getZoneRequirementMessage, GAME_ACHIEVEMENTS, getAchievementProgress, getQuestRewardEquipment } from '../data/gameData';
 import { PixelCanvas } from './PixelCanvas';
@@ -148,6 +148,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     });
   }, [initialExploredByZone]);
 
+  const lastSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Reveal Fog of War on movement (radius of 9 tiles)
   useEffect(() => {
     setExploredTilesSets((prev) => {
@@ -157,7 +159,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
       for (let dy = -radius; dy <= radius; dy++) {
         for (let dx = -radius; dx <= radius; dx++) {
-          if (Math.hypot(dx, dy) <= radius) {
+          if (dx * dx + dy * dy <= radius * radius) {
             const tx = playerPos.x + dx;
             const ty = playerPos.y + dy;
             if (tx >= 0 && tx < currentZone.mapWidth && ty >= 0 && ty < currentZone.mapHeight) {
@@ -174,7 +176,10 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       if (!changed) return prev;
 
       if (onUpdateExploredTiles) {
-        onUpdateExploredTiles(currentZone.id, Array.from(zoneSet));
+        if (lastSyncTimerRef.current) clearTimeout(lastSyncTimerRef.current);
+        lastSyncTimerRef.current = setTimeout(() => {
+          onUpdateExploredTiles(currentZone.id, Array.from(zoneSet));
+        }, 800);
       }
 
       return {

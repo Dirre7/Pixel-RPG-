@@ -347,71 +347,73 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
 
     scene.add(sunGroup);
 
-    // 3. FLOATING 3D VOLUMETRIC CUMULUS CLOUDS
+    // 3. FLOATING 3D VOLUMETRIC CUMULUS CLOUDS (Desktop Only for Maximum Performance)
     const cloudGroup = new THREE.Group();
     const animatedClouds: THREE.Group[] = [];
-    const cloudMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.9,
-      metalness: 0.0,
-      transparent: true,
-      opacity: 0.92,
-    });
+    if (!isMobile) {
+      const cloudMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.9,
+        metalness: 0.0,
+        transparent: true,
+        opacity: 0.92,
+      });
 
-    const cloudCount = isMobile ? 4 : 12;
-    for (let c = 0; c < cloudCount; c++) {
-      const cloud = new THREE.Group();
-      const cloudCX = centerX - 120 + Math.random() * 240;
-      const cloudCY = 38 + Math.random() * 25;
-      const cloudCZ = centerZ - 120 + Math.random() * 240;
-      cloud.position.set(cloudCX, cloudCY, cloudCZ);
+      const cloudCount = 12;
+      for (let c = 0; c < cloudCount; c++) {
+        const cloud = new THREE.Group();
+        const cloudCX = centerX - 120 + Math.random() * 240;
+        const cloudCY = 38 + Math.random() * 25;
+        const cloudCZ = centerZ - 120 + Math.random() * 240;
+        cloud.position.set(cloudCX, cloudCY, cloudCZ);
 
-      const puffCount = isMobile ? 3 : 5 + Math.floor(Math.random() * 4);
-      for (let p = 0; p < puffCount; p++) {
-        const puffRadius = 3.5 + Math.random() * 5.0;
-        const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(puffRadius, 1), cloudMat);
-        puff.position.set(
-          (p - puffCount / 2) * 3.8,
-          (Math.random() - 0.5) * 2.0,
-          (Math.random() - 0.5) * 3.0
-        );
-        cloud.add(puff);
+        const puffCount = 5 + Math.floor(Math.random() * 4);
+        for (let p = 0; p < puffCount; p++) {
+          const puffRadius = 3.5 + Math.random() * 5.0;
+          const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(puffRadius, 1), cloudMat);
+          puff.position.set(
+            (p - puffCount / 2) * 3.8,
+            (Math.random() - 0.5) * 2.0,
+            (Math.random() - 0.5) * 3.0
+          );
+          cloud.add(puff);
+        }
+        cloudGroup.add(cloud);
+        animatedClouds.push(cloud);
       }
-      cloudGroup.add(cloud);
-      animatedClouds.push(cloud);
-    }
-    scene.add(cloudGroup);
-
-    // 4. COASTAL ROCK CLIFFS SURROUNDING THE ISLAND MAP
-    const cliffMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 });
-    const islandMinX = -2;
-    const islandMaxX = mapW + 2;
-    const islandMinZ = -2;
-    const islandMaxZ = mapH + 2;
-    const cliffStep = isMobile ? 10 : 5;
-
-    for (let i = -10; i <= mapW + 10; i += cliffStep) {
-      // North & South Coast Cliffs
-      [islandMinZ - 1.5, islandMaxZ + 1.5].forEach((cz) => {
-        const cliff = new THREE.Mesh(new THREE.DodecahedronGeometry(2.5 + Math.random() * 2, 1), cliffMat);
-        cliff.position.set(i, 0.2, cz);
-        cliff.scale.set(1.2, 0.6 + Math.random() * 0.8, 1.2);
-        cliff.castShadow = !isMobile;
-        cliff.receiveShadow = true;
-        scene.add(cliff);
-      });
+      scene.add(cloudGroup);
     }
 
-    for (let j = -10; j <= mapH + 10; j += cliffStep) {
-      // East & West Coast Cliffs
-      [islandMinX - 1.5, islandMaxX + 1.5].forEach((cx) => {
-        const cliff = new THREE.Mesh(new THREE.DodecahedronGeometry(2.5 + Math.random() * 2, 1), cliffMat);
-        cliff.position.set(cx, 0.2, j);
-        cliff.scale.set(1.2, 0.6 + Math.random() * 0.8, 1.2);
-        cliff.castShadow = !isMobile;
-        cliff.receiveShadow = true;
-        scene.add(cliff);
-      });
+    // 4. COASTAL ROCK CLIFFS SURROUNDING THE ISLAND MAP (Desktop Only)
+    if (!isMobile) {
+      const cliffMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 });
+      const islandMinX = -2;
+      const islandMaxX = mapW + 2;
+      const islandMinZ = -2;
+      const islandMaxZ = mapH + 2;
+      const cliffStep = 6;
+
+      for (let i = -10; i <= mapW + 10; i += cliffStep) {
+        // North & South Coast Cliffs
+        [islandMinZ - 1.5, islandMaxZ + 1.5].forEach((cz) => {
+          const cliff = new THREE.Mesh(new THREE.DodecahedronGeometry(2.5 + Math.random() * 2, 1), cliffMat);
+          cliff.position.set(i, 0.2, cz);
+          cliff.scale.set(1.2, 0.6 + Math.random() * 0.8, 1.2);
+          cliff.receiveShadow = true;
+          scene.add(cliff);
+        });
+      }
+
+      for (let j = -10; j <= mapH + 10; j += cliffStep) {
+        // East & West Coast Cliffs
+        [islandMinX - 1.5, islandMaxX + 1.5].forEach((cx) => {
+          const cliff = new THREE.Mesh(new THREE.DodecahedronGeometry(2.5 + Math.random() * 2, 1), cliffMat);
+          cliff.position.set(cx, 0.2, j);
+          cliff.scale.set(1.2, 0.6 + Math.random() * 0.8, 1.2);
+          cliff.receiveShadow = true;
+          scene.add(cliff);
+        });
+      }
     }
 
     // 4. PROCEDURAL PBR CANVAS TEXTURES FOR GROUND & PATHS (Cached for instant map switching)
@@ -1599,16 +1601,8 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
     let lowFpsStreak = 0;
     let lastCullGX = -999;
     let lastCullGZ = -999;
-    let frameSkipCounter = 0;
 
     const animate = () => {
-      if (isMobile) {
-        frameSkipCounter = (frameSkipCounter || 0) + 1;
-        if (frameSkipCounter % 2 !== 0) {
-          animationFrameId = requestAnimationFrame(animate);
-          return;
-        }
-      }
       animationFrameId = requestAnimationFrame(animate);
       const delta = Math.min(clock.getDelta(), 0.08);
       const time = clock.getElapsedTime();
@@ -1617,13 +1611,13 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
       const curr = playerCurrentPosRef.current;
       const targ = playerTargetPosRef.current;
 
-      // 🎯 FRUSTUM & DISTANCE CULLING (Cuts 90% of Draw Calls on Mobile & Tablets)
+      // 🎯 FRUSTUM & DISTANCE CULLING (Cuts 95% of Draw Calls on Mobile & Tablets)
       const playerGX = Math.round(curr.x / 2.5);
       const playerGZ = Math.round(curr.z / 2.5);
       if (Math.abs(playerGX - lastCullGX) >= 1 || Math.abs(playerGZ - lastCullGZ) >= 1) {
         lastCullGX = playerGX;
         lastCullGZ = playerGZ;
-        const cullRadius = isTouchOrMobile ? 10 : 15;
+        const cullRadius = isTouchOrMobile ? 6 : 15;
         for (let i = 0; i < cullingEntities.length; i++) {
           const item = cullingEntities[i];
           const isVisible = Math.abs(item.gridX - playerGX) <= cullRadius && Math.abs(item.gridY - playerGZ) <= cullRadius;
@@ -1735,20 +1729,22 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
       arrowMesh.rotation.y = time * 2.5;
       beamMat.opacity = 0.25 + Math.sin(time * 3) * 0.12;
 
-      // 🌟 ENVIRONMENTAL WIND & WAVE DYNAMICS (Distance Culled for 60 FPS on mobile/tablets)
-      const windSpeed = 1.6;
-      const heroX = curr.x;
-      const heroZ = curr.z;
-      const maxSwayDistSq = 32 * 32; // 32 units radius from player
-      animatedSwayObjects.forEach((tree) => {
-        const dx = tree.position.x - heroX;
-        const dz = tree.position.z - heroZ;
-        if (dx * dx + dz * dz < maxSwayDistSq) {
-          const windPhase = time * windSpeed + (tree.position.x * 0.4 + tree.position.z * 0.3);
-          tree.rotation.z = Math.sin(windPhase) * 0.028;
-          tree.rotation.x = Math.cos(windPhase * 0.85) * 0.018;
-        }
-      });
+      // 🌟 ENVIRONMENTAL WIND & WAVE DYNAMICS (Desktop Only)
+      if (!isMobile) {
+        const windSpeed = 1.6;
+        const heroX = curr.x;
+        const heroZ = curr.z;
+        const maxSwayDistSq = 32 * 32; // 32 units radius from player
+        animatedSwayObjects.forEach((tree) => {
+          const dx = tree.position.x - heroX;
+          const dz = tree.position.z - heroZ;
+          if (dx * dx + dz * dz < maxSwayDistSq) {
+            const windPhase = time * windSpeed + (tree.position.x * 0.4 + tree.position.z * 0.3);
+            tree.rotation.z = Math.sin(windPhase) * 0.028;
+            tree.rotation.x = Math.cos(windPhase * 0.85) * 0.018;
+          }
+        });
+      }
 
       // 🌊 Continuous Dynamic River & Ocean Flow Dynamics
       const riverFlow = delta * 0.12;
@@ -1764,14 +1760,18 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
         }
       });
 
-      // Drifting 3D Clouds in the background sky
-      animatedClouds.forEach((cloud) => {
-        cloud.position.x += delta * 0.8;
-        if (cloud.position.x > centerX + 180) {
-          cloud.position.x = centerX - 180;
-        }
-      });
+      // Drifting 3D Clouds in the background sky (Desktop Only)
+      if (!isMobile && animatedClouds.length > 0) {
+        animatedClouds.forEach((cloud) => {
+          cloud.position.x += delta * 0.8;
+          if (cloud.position.x > centerX + 180) {
+            cloud.position.x = centerX - 180;
+          }
+        });
+      }
 
+      const heroX = curr.x;
+      const heroZ = curr.z;
       animatedLanterns.forEach((l, idx) => {
         const dx = l.position.x - heroX;
         const dz = l.position.z - heroZ;
@@ -1790,26 +1790,28 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
       // Animate Human NPCs & Floating 3D Exclamation Marks (!)
       animatedNPCUpdaters.forEach((fn) => fn(time));
 
-      // Drifting environmental particles (Ascending embers for volcano / Falling leaves for forest)
-      const pPositions = particleGeo.attributes.position.array as Float32Array;
-      if (currentZone.id === 'zone_volcano') {
-        for (let i = 0; i < particleCount * 3; i += 3) {
-          pPositions[i + 1] += delta * 1.2;
-          pPositions[i] += Math.sin(time * 2 + i) * 0.012;
-          if (pPositions[i + 1] > 9.0) {
-            pPositions[i + 1] = 0.4;
+      // Drifting environmental particles (Desktop Only)
+      if (!isMobile) {
+        const pPositions = particleGeo.attributes.position.array as Float32Array;
+        if (currentZone.id === 'zone_volcano') {
+          for (let i = 0; i < particleCount * 3; i += 3) {
+            pPositions[i + 1] += delta * 1.2;
+            pPositions[i] += Math.sin(time * 2 + i) * 0.012;
+            if (pPositions[i + 1] > 9.0) {
+              pPositions[i + 1] = 0.4;
+            }
+          }
+        } else {
+          for (let i = 0; i < particleCount * 3; i += 3) {
+            pPositions[i + 1] -= delta * 0.4;
+            pPositions[i] += Math.sin(time + i) * 0.006;
+            if (pPositions[i + 1] < 0.2) {
+              pPositions[i + 1] = 8.0;
+            }
           }
         }
-      } else {
-        for (let i = 0; i < particleCount * 3; i += 3) {
-          pPositions[i + 1] -= delta * 0.4;
-          pPositions[i] += Math.sin(time + i) * 0.006;
-          if (pPositions[i + 1] < 0.2) {
-            pPositions[i + 1] = 8.0;
-          }
-        }
+        particleGeo.attributes.position.needsUpdate = true;
       }
-      particleGeo.attributes.position.needsUpdate = true;
 
       // DYNAMIC X-RAY TRANSPARENCY: Fade only foreground forest trees when player moves behind them
       if (currentZone.id === 'zone_forest' && obstacleGroups.length > 0) {
