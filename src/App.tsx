@@ -16,6 +16,7 @@ import {
   ZONES,
   ALL_SKILLS,
   SHOP_EQUIPMENT,
+  ALL_EQUIPMENT_DATABASE,
   ALL_GAME_QUESTS,
   GAME_LORE_ENTRIES,
   GAME_ACHIEVEMENTS,
@@ -457,12 +458,12 @@ export default function App() {
       },
     };
 
-    const weapon8 = SHOP_EQUIPMENT.find((e) => e.id === 'eq_w_excalibur') || SHOP_EQUIPMENT[0];
-    const shield8 = SHOP_EQUIPMENT.find((e) => e.id === 'eq_s_god') || null;
-    const helmet8 = SHOP_EQUIPMENT.find((e) => e.id === 'eq_h_god') || null;
-    const armor8 = SHOP_EQUIPMENT.find((e) => e.id === 'eq_a_god') || null;
-    const boots8 = SHOP_EQUIPMENT.find((e) => e.id === 'eq_b_god') || null;
-    const ring8 = SHOP_EQUIPMENT.find((e) => e.id === 'eq_r_god') || null;
+    const weapon8 = ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_w_excalibur') || ALL_EQUIPMENT_DATABASE[0];
+    const shield8 = ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_s_god') || null;
+    const helmet8 = ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_h_god') || null;
+    const armor8 = ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_a_god') || null;
+    const boots8 = ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_b_god') || null;
+    const ring8 = ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_r_god') || null;
 
     const showcaseInv: Inventory = {
       consumables: SHOP_CONSUMABLES.map((c) => ({ ...c, quantity: 50 })),
@@ -475,7 +476,7 @@ export default function App() {
         ring: ring8,
         amulet: null,
       },
-      ownedEquipment: [...SHOP_EQUIPMENT],
+      ownedEquipment: [...ALL_EQUIPMENT_DATABASE],
     };
 
     const allSkillIds = ALL_SKILLS.map((s) => s.id);
@@ -1192,7 +1193,7 @@ export default function App() {
       foundEquipIcon = mazeAmulet.icon;
       foundEquipRarity = 'RARO';
     } else if (Math.random() < 0.12) {
-      const candidates = SHOP_EQUIPMENT.filter((e) => !newOwnedEquipment.some((owned) => owned.id === e.id));
+      const candidates = ALL_EQUIPMENT_DATABASE.filter((e) => !newOwnedEquipment.some((owned) => owned.id === e.id));
       if (candidates.length > 0) {
         const randomEquip = candidates[Math.floor(Math.random() * candidates.length)];
         newOwnedEquipment.push(randomEquip);

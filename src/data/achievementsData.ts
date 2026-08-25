@@ -1,5 +1,5 @@
 import { Achievement, PlayerStats, Inventory } from '../types';
-import { SHOP_CONSUMABLES, SHOP_EQUIPMENT } from './itemsData';
+import { SHOP_CONSUMABLES, ALL_EQUIPMENT_DATABASE } from './itemsData';
 
 export const GAME_ACHIEVEMENTS: Achievement[] = [
   // ==========================================
@@ -54,7 +54,7 @@ export const GAME_ACHIEVEMENTS: Achievement[] = [
     targetValue: 20,
     rewardGold: 400,
     rewardExp: 800,
-    rewardEquipment: SHOP_EQUIPMENT.find((e) => e.id === 'eq_h4'),
+    rewardEquipment: ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_h4'),
     rewardTitle: 'Campeón de Aethelgard',
   },
   {
@@ -68,7 +68,7 @@ export const GAME_ACHIEVEMENTS: Achievement[] = [
     targetValue: 30,
     rewardGold: 1000,
     rewardExp: 2500,
-    rewardEquipment: SHOP_EQUIPMENT.find((e) => e.id === 'eq_r_god'),
+    rewardEquipment: ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_r_god'),
     rewardTitle: 'El Inmortal',
   },
 
@@ -124,7 +124,7 @@ export const GAME_ACHIEVEMENTS: Achievement[] = [
     targetValue: 100,
     rewardGold: 450,
     rewardExp: 900,
-    rewardEquipment: SHOP_EQUIPMENT.find((e) => e.id === 'eq_r1'),
+    rewardEquipment: ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_r1'),
   },
   {
     id: 'ach_boss_slime',
@@ -161,7 +161,7 @@ export const GAME_ACHIEVEMENTS: Achievement[] = [
     targetValue: 'Dragón de Magma Primordial',
     rewardGold: 400,
     rewardExp: 800,
-    rewardEquipment: SHOP_EQUIPMENT.find((e) => e.id === 'eq_w3'),
+    rewardEquipment: ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_w3'),
   },
   {
     id: 'ach_boss_ancient',
@@ -174,7 +174,7 @@ export const GAME_ACHIEVEMENTS: Achievement[] = [
     targetValue: 'Cronos, Dios del Tiempo',
     rewardGold: 1800,
     rewardExp: 3000,
-    rewardEquipment: SHOP_EQUIPMENT.find((e) => e.id === 'eq_a_god'),
+    rewardEquipment: ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_a_god'),
     rewardTitle: 'Salvador Universal',
     secret: true,
   },
@@ -230,7 +230,7 @@ export const GAME_ACHIEVEMENTS: Achievement[] = [
     targetValue: 20,
     rewardGold: 450,
     rewardExp: 600,
-    rewardEquipment: SHOP_EQUIPMENT.find((e) => e.id === 'eq_b_god'),
+    rewardEquipment: ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_b_god'),
   },
   {
     id: 'ach_reach_swamp',
@@ -320,7 +320,7 @@ export const GAME_ACHIEVEMENTS: Achievement[] = [
     targetValue: 15,
     rewardGold: 400,
     rewardExp: 800,
-    rewardEquipment: SHOP_EQUIPMENT.find((e) => e.id === 'eq_h_god'),
+    rewardEquipment: ALL_EQUIPMENT_DATABASE.find((e) => e.id === 'eq_h_god'),
   },
   {
     id: 'ach_quest_1',

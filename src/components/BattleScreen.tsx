@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlayerStats, Inventory, Enemy, Skill, ConsumableItem, EquipmentItem } from '../types';
-import { ALL_SKILLS, getRandomEncounterDrop } from '../data/gameData';
+import { ALL_SKILLS, getRandomEncounterDrop, getBossLegendaryDrop } from '../data/gameData';
 import { PixelCanvas } from './PixelCanvas';
 import { PixelBattleCanvas } from './PixelBattleCanvas';
 import { ThreeBattleCanvas } from './ThreeBattleCanvas';
@@ -561,9 +561,23 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     const expGained = Math.round(enemy.expReward * expMultiplier);
     const goldGained = Math.round(enemy.goldReward * goldMultiplier);
 
-    // Calculate probabilistic loot drop for random encounters
+    // Calculate probabilistic loot drop
     let droppedLoot: { consumable?: ConsumableItem; equipment?: EquipmentItem } | null = null;
-    if (!enemy.isBoss) {
+    if (enemy.isBoss) {
+      const bossRelic = getBossLegendaryDrop(enemy.zoneId, player.magicFind ?? 0);
+      if (bossRelic) {
+        droppedLoot = { equipment: bossRelic };
+        setBattleLoot(droppedLoot);
+        soundEngine.playSfx('chest');
+        setInventory((prev) => ({
+          ...prev,
+          ownedEquipment: [...prev.ownedEquipment, bossRelic],
+        }));
+        addLog(`👑🌟 ¡BOTÍN LEGENDARIO DEL JEFE OBTENIDO!: ${bossRelic.name}!`);
+      } else {
+        addLog(`💀 Has derrotado al Jefe, pero su reliquia suprema no cayó esta vez.`);
+      }
+    } else {
       droppedLoot = getRandomEncounterDrop(enemy.zoneId);
       if (droppedLoot) {
         setBattleLoot(droppedLoot);

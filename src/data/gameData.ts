@@ -6,7 +6,7 @@ import {
 } from '../types';
 
 export { ALL_SKILLS } from './skillsData';
-export { INITIAL_CONSUMABLES, SHOP_CONSUMABLES, SHOP_EQUIPMENT } from './itemsData';
+export { INITIAL_CONSUMABLES, SHOP_CONSUMABLES, SHOP_EQUIPMENT, ALL_EQUIPMENT_DATABASE } from './itemsData';
 export { ALL_GAME_QUESTS, getQuestRewardEquipment, getQuestRewardConsumable, isZoneUnlocked, areZoneMainQuestsCompleted, getZoneRequirementMessage } from './questsData';
 export { ZONES } from './zonesData';
 export { GAME_LORE_ENTRIES } from './loreData';
@@ -297,4 +297,133 @@ export function getRandomEncounterDrop(zoneId: string): {
       return { equipment: options[Math.floor(Math.random() * options.length)] };
     }
   }
+}
+
+/**
+ * Unique Mythic and Legendary Relics exclusive to the 8 Zone Bosses
+ */
+export const BOSS_LEGENDARY_DROPS: Record<string, EquipmentItem> = {
+  zone_forest: {
+    id: 'boss_drop_forest',
+    name: '👑 Mandoble del Señor del Bosque',
+    slot: 'weapon',
+    bonusAttack: 38,
+    bonusDefense: 15,
+    bonusBlockRate: 20,
+    bonusHpRegen: 5,
+    bonusMagicFind: 10,
+    price: 3500,
+    description: 'Reliquia legendaria forjada con el núcleo del Treant Ancestro. Otorga gran bloqueo y regeneración.',
+    icon: '🗡️',
+  },
+  zone_cave: {
+    id: 'boss_drop_cave',
+    name: '👑 Mazo Rompecielos del Gólem Colosal',
+    slot: 'weapon',
+    bonusAttack: 52,
+    bonusDefense: 25,
+    bonusArmorPenetration: 25,
+    bonusHp: 150,
+    price: 5200,
+    description: 'Arma titánica de granito primigenio que desintegra la armadura enemiga con cada impacto.',
+    icon: '🔨',
+  },
+  zone_swamp: {
+    id: 'boss_drop_swamp',
+    name: '👑 Colmillos Tóxicos de la Hidra Abisal',
+    slot: 'weapon',
+    bonusAttack: 48,
+    bonusSpeed: 10,
+    bonusCritRate: 25,
+    bonusCritDamage: 50,
+    bonusLifesteal: 12,
+    price: 6800,
+    description: 'Dagas gemelas imbuidas de veneno corrosivo con letalidad crítica y robo de vida.',
+    icon: '🗡️',
+  },
+  zone_volcano: {
+    id: 'boss_drop_volcano',
+    name: '👑 Hoja Solar del Fénix de Ignis',
+    slot: 'weapon',
+    bonusAttack: 72,
+    bonusMagicAttack: 40,
+    bonusCritRate: 20,
+    bonusArmorPenetration: 25,
+    price: 8900,
+    description: 'Espada ígnea ardiente que calcina la resistencia del objetivo con llamas purificadoras.',
+    icon: '🔥',
+  },
+  zone_tundra: {
+    id: 'boss_drop_tundra',
+    name: '👑 Cetro de Hielo Eterno de Ymir',
+    slot: 'weapon',
+    bonusAttack: 25,
+    bonusMagicAttack: 85,
+    bonusMagicDefense: 35,
+    bonusMp: 200,
+    bonusMpRegen: 10,
+    price: 11000,
+    description: 'Báculo glacial supremo que congela el campo de batalla y otorga maná ilimitado.',
+    icon: '❄️',
+  },
+  zone_castle: {
+    id: 'boss_drop_castle',
+    name: '👑 Égida Sagrada del Rey Inmortal',
+    slot: 'shield',
+    bonusDefense: 60,
+    bonusMagicDefense: 45,
+    bonusHp: 350,
+    bonusBlockRate: 35,
+    bonusHpRegen: 12,
+    price: 14500,
+    description: 'El escudo definitivo de la dinastía real. Bloquea ataques demoledores y cura continuamente.',
+    icon: '🛡️',
+  },
+  zone_void: {
+    id: 'boss_drop_void',
+    name: '👑 Guadaña Segadora de Almas de Malakor',
+    slot: 'weapon',
+    bonusAttack: 95,
+    bonusMagicAttack: 60,
+    bonusLifesteal: 25,
+    bonusArmorPenetration: 35,
+    bonusCritRate: 22,
+    price: 18500,
+    description: 'Arma mítica del heraldo del vacío. Drena el 25% de la vitalidad enemiga por golpe.',
+    icon: '💀',
+  },
+  zone_sanctuary: {
+    id: 'boss_drop_sanctuary',
+    name: '👑 Hoja del Génesis de Aethelgard',
+    slot: 'weapon',
+    bonusAttack: 120,
+    bonusMagicAttack: 100,
+    bonusDefense: 50,
+    bonusMagicDefense: 50,
+    bonusHp: 500,
+    bonusCritRate: 30,
+    bonusCritDamage: 75,
+    bonusLifesteal: 20,
+    price: 25000,
+    description: 'La espada cósmica suprema que encierra la esencia de la creación y la victoria eterna.',
+    icon: '🌟',
+  },
+};
+
+/**
+ * Calculates probabilistic Boss drop (10% base chance, boosted by player Magic Find)
+ */
+export function getBossLegendaryDrop(zoneId: string, playerMagicFind: number = 0): EquipmentItem | null {
+  const relic = BOSS_LEGENDARY_DROPS[zoneId];
+  if (!relic) return null;
+
+  // Base 10% chance
+  const baseChance = 0.10;
+  const effectiveChance = baseChance * (1 + Math.max(0, playerMagicFind) / 100);
+  const roll = Math.random();
+
+  if (roll < effectiveChance) {
+    return relic;
+  }
+  return null;
 }

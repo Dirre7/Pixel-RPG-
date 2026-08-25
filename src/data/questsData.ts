@@ -1,5 +1,5 @@
 import { NPCQuest, EquipmentItem, ConsumableItem } from '../types';
-import { SHOP_EQUIPMENT, SHOP_CONSUMABLES } from './itemsData';
+import { ALL_EQUIPMENT_DATABASE, SHOP_CONSUMABLES } from './itemsData';
 
 /**
  * Registry of unique equipment rewards granted by quest completion across the 8 zones
@@ -198,7 +198,7 @@ const questUniqueRegistry: Record<string, EquipmentItem> = {
 export function getQuestRewardEquipment(quest: NPCQuest): EquipmentItem | null {
   if (quest.rewardEquipment) return quest.rewardEquipment;
   if (!quest.rewardItemName) return null;
-  const matchInShop = SHOP_EQUIPMENT.find(
+  const matchInShop = ALL_EQUIPMENT_DATABASE.find(
     (eq) => eq.name.toLowerCase() === quest.rewardItemName?.toLowerCase()
   );
   if (matchInShop) return matchInShop;
