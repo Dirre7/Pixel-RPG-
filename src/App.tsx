@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   PlayerStats,
   Inventory,
@@ -215,6 +215,20 @@ export default function App() {
       }
     },
     [player, inventory, currentZoneId, playerPos, defeatedBosses, openedChests, completedQuests, acceptedQuests, unlockedSkillIds, unlockedLoreIds, unlockedAchievements, claimedAchievements, defeatedEnemyCounts, exploredTilesByZone, activeSlotIndex]
+  );
+
+  // 🚀 Debounced Auto-Save for Movement (Eliminates CPU Stutter & Synchronous Disk Blocks while moving)
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const scheduleDebouncedAutoSave = useCallback(
+    (newPos?: { x: number; y: number }) => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+      autoSaveTimerRef.current = setTimeout(() => {
+        triggerAutoSave(player, inventory, currentZoneId, newPos || playerPos);
+      }, 2000);
+    },
+    [triggerAutoSave, player, inventory, currentZoneId, playerPos]
   );
 
   // Helper: Check and trigger achievements
@@ -1369,7 +1383,7 @@ export default function App() {
           }}
           onMove={(newPos) => {
             setPlayerPos(newPos);
-            triggerAutoSave(player, inventory, currentZoneId, newPos);
+            scheduleDebouncedAutoSave(newPos);
           }}
           onStartBattle={handleStartBattle}
           onOpenShop={() => setShowShopModal(true)}

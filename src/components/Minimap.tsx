@@ -45,9 +45,9 @@ export const Minimap: React.FC<MinimapProps> = ({
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Radar Mode vs Full Mode
+    // Radar Mode vs Full Mode (Optimized 14 tiles radius for silky smooth 60 FPS)
     const isRadar = zoomMode === 'radar';
-    const radarRadius = 32; // 32 tiles in every direction around player in radar mode
+    const radarRadius = 14;
 
     const startX = isRadar ? Math.max(0, playerPos.x - radarRadius) : 0;
     const endX = isRadar ? Math.min(mapW, playerPos.x + radarRadius) : mapW;
@@ -259,7 +259,7 @@ export const Minimap: React.FC<MinimapProps> = ({
     const clickY = e.clientY - rect.top;
 
     const isRadar = zoomMode === 'radar';
-    const radarRadius = 24;
+    const radarRadius = 14;
     const startX = isRadar ? Math.max(0, playerPos.x - radarRadius) : 0;
     const endX = isRadar ? Math.min(mapW, playerPos.x + radarRadius) : mapW;
     const startY = isRadar ? Math.max(0, playerPos.y - radarRadius) : 0;
