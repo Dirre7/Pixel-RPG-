@@ -387,7 +387,7 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
 
   // 🛡️ BARRERA NATURAL PERIMETRAL:
   // En cualquier casilla de tierra (tile 0) que limite directamente con el vacío (-1),
-  // colocar una barrera natural de acantilados escarpados (21) y robles milenarios (1)
+  // colocar una barrera natural impenetrable de robles milenarios (1)
   for (let y = 0; y < HEIGHT; y++) {
     for (let x = 0; x < WIDTH; x++) {
       if (map[y][x] === 0) {
@@ -397,7 +397,7 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
           map[y]?.[x - 1] === -1 ||
           map[y]?.[x + 1] === -1;
         if (hasVoidNeighbor) {
-          map[y][x] = (x + y) % 2 === 0 ? 21 : 1;
+          map[y][x] = 1; // Robles milenarios densos
         }
       }
     }
