@@ -692,7 +692,13 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   useGamepadControls(handleControllerAction, true);
 
   return (
-    <div className="relative w-full h-full max-h-[100dvh] max-w-4xl mx-auto p-1.5 sm:p-4 bg-slate-950 text-slate-100 rounded-xl border border-slate-800 shadow-2xl flex flex-col justify-between overflow-hidden font-mono select-none touch-none">
+    <div
+      className="relative w-full h-full max-h-[100dvh] max-w-4xl mx-auto p-1.5 sm:p-4 bg-slate-950 text-slate-100 rounded-xl border border-slate-800 shadow-2xl flex flex-col justify-between overflow-hidden font-mono select-none touch-none"
+      style={{
+        paddingTop: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))',
+        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
+      }}
+    >
       {/* Top Banner: Enemy Info & Stage */}
       <div className="w-full bg-slate-900/90 rounded-lg p-2 sm:p-3 border border-slate-800 flex justify-between items-center mb-1 sm:mb-2 flex-shrink-0">
         <div className="flex items-center space-x-2">
@@ -712,7 +718,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         </div>
       </div>
 
-      {/* Main 3D Battle Arena Stage */}
+      {/* Main 2.5D Battle Arena Stage */}
       <div className={`relative w-full flex-1 min-h-[160px] rounded-xl border-2 border-slate-800/80 p-2 flex flex-col justify-between overflow-hidden shadow-2xl bg-slate-950 ${playerIsHit || enemyIsHit ? 'animate-screen-shake' : ''}`}>
         {/* Floating Combat Text Overlay */}
         {floatingTexts.map((ft) => (
@@ -812,9 +818,9 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
           </div>
         </div>
 
-        {/* 3D WEBGL BATTLE ARENA */}
+        {/* 🌟 AUTÉNTICA ARENA DE COMBATE 2.5D RETRO PIXEL ART */}
         <div className="w-full h-full min-h-[300px]">
-          <ThreeBattleCanvas
+          <PixelBattleCanvas
             player={player}
             equipment={inventory.equipment}
             enemy={enemy}

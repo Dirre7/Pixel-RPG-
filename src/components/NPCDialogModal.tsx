@@ -128,8 +128,14 @@ export const NPCDialogModal: React.FC<NPCDialogModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-xl bg-slate-900/95 border-2 border-emerald-500/40 rounded-2xl shadow-2xl text-slate-100 overflow-hidden flex flex-col">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn"
+      style={{
+        paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0.75rem))',
+        paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))',
+      }}
+    >
+      <div className="relative w-full max-w-xl max-h-[96dvh] bg-slate-900/95 border-2 border-emerald-500/40 rounded-2xl shadow-2xl text-slate-100 overflow-hidden flex flex-col">
         {/* Header Bar */}
         <div className="flex items-center justify-between px-6 py-4 bg-slate-800/80 border-b border-slate-700/60">
           <div className="flex items-center gap-3">

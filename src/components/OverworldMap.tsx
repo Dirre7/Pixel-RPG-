@@ -1239,16 +1239,26 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         />
       </div>
 
-      {/* Interactive Banner Toast / Prompt */}
+      {/* Interactive Banner Toast / Prompt (Ubicado ergonómicamente sobre la Hotbar sin solapar la vida) */}
       {interactPrompt && (
-        <div className="absolute top-14 sm:top-16 left-1/2 transform -translate-x-1/2 w-11/12 max-w-sm sm:max-w-md bg-slate-950/95 border-2 border-amber-400 rounded-xl p-2 sm:p-2.5 shadow-2xl backdrop-blur-md text-center text-xs sm:text-sm font-mono text-amber-300 animate-pulse z-30 pointer-events-none">
+        <div
+          className="absolute left-1/2 transform -translate-x-1/2 w-11/12 max-w-sm bg-slate-950/95 border-2 border-amber-400 rounded-xl p-2 sm:p-2.5 shadow-2xl backdrop-blur-md text-center text-xs sm:text-sm font-mono text-amber-300 animate-pulse z-30 pointer-events-none"
+          style={{
+            bottom: 'calc(max(0.5rem, env(safe-area-inset-bottom, 0.5rem)) + 64px)',
+          }}
+        >
           {interactPrompt}
         </div>
       )}
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="absolute top-16 sm:top-20 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-950 px-3 py-1.5 rounded-full font-mono font-bold text-xs shadow-2xl animate-fade-in z-40 pointer-events-none border border-amber-300">
+        <div
+          className="absolute left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-950 px-3 py-1.5 rounded-full font-mono font-bold text-xs shadow-2xl animate-fade-in z-40 pointer-events-none border border-amber-300"
+          style={{
+            top: 'calc(max(0.5rem, env(safe-area-inset-top, 0.5rem)) + 52px)',
+          }}
+        >
           {toastMessage}
         </div>
       )}

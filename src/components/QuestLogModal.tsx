@@ -117,8 +117,14 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
   const readyToClaimCount = allProcessedQuests.filter((q) => q.isAccepted && q.isReadyToClaim && !q.isCompleted).length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm animate-fade-in font-mono select-none">
-      <div className="relative w-full max-w-4xl bg-slate-950 border-2 border-amber-500/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-sm animate-fade-in font-mono select-none"
+      style={{
+        paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0.75rem))',
+        paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))',
+      }}
+    >
+      <div className="relative w-full max-w-4xl bg-slate-950 border-2 border-amber-500/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[96dvh]">
         {/* Modal Header */}
         <div className="flex items-center justify-between p-3.5 sm:p-4 bg-slate-900/95 border-b border-amber-500/40">
           <div className="flex items-center space-x-2.5">

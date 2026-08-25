@@ -242,18 +242,26 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 z-50 font-mono">
-      <div className="bg-slate-900 border-2 border-slate-700 rounded-xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+    <div
+      className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-1 sm:p-4 z-50 font-mono select-none"
+      style={{
+        paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0.75rem))',
+        paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))',
+        paddingLeft: 'max(0.5rem, env(safe-area-inset-left, 0.5rem))',
+        paddingRight: 'max(0.5rem, env(safe-area-inset-right, 0.5rem))',
+      }}
+    >
+      <div className="bg-slate-900 border-2 border-slate-700 rounded-xl max-w-5xl w-full max-h-[96dvh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="p-3.5 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <ShoppingBag className="w-5 h-5 text-amber-400" />
-            <h2 className="text-base sm:text-lg font-bold text-amber-300">
-              {activeTab === 'shop' ? '🛒 Gran Bazar y Forja Imperial' : '🎒 Hoja de Personaje & Equipamiento'}
+        <div className="p-3 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
+          <div className="flex items-center space-x-1.5 min-w-0">
+            <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 flex-shrink-0" />
+            <h2 className="text-xs sm:text-lg font-bold text-amber-300 truncate">
+              {activeTab === 'shop' ? '🛒 Bazar & Forja' : '🎒 Personaje & Equipo'}
             </h2>
           </div>
-          <div className="flex items-center space-x-3">
-            <span className="text-xs bg-slate-800 text-amber-400 px-3 py-1 rounded border border-amber-500/30 font-bold shadow-inner">
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            <span className="text-[11px] sm:text-xs bg-slate-800 text-amber-400 px-2 py-0.5 sm:px-3 sm:py-1 rounded border border-amber-500/30 font-bold shadow-inner">
               💰 {player.gold.toLocaleString()} G
             </span>
             <button
@@ -262,6 +270,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                 onClose();
               }}
               className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-slate-100 transition"
+              aria-label="Cerrar"
             >
               <X className="w-5 h-5" />
             </button>

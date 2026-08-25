@@ -37,132 +37,132 @@ interface TitleScreenProps {
 }
 
 // Escaparate 3D de Personajes con Iluminación Dinámica y Pedestal
-const ThreeHeroPreview: React.FC<{ heroClass: HeroClass; gender: 'male' | 'female' }> = ({ heroClass, gender }) => {
-  const mountRef = useRef<HTMLDivElement | null>(null);
+const PixelHeroPreview: React.FC<{ heroClass: HeroClass; gender: 'male' | 'female' }> = ({ heroClass, gender }) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    const container = mountRef.current;
-    if (!container) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    let animId: number | null = null;
-    let renderer: THREE.WebGLRenderer | null = null;
+    let animId: number;
+    let time = 0;
 
-    try {
-      const width = container.clientWidth || 240;
-      const height = container.clientHeight || 180;
+    const render = () => {
+      time += 0.04;
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2 + 10;
 
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 50);
-      camera.position.set(0, 0.90, 2.7);
-      camera.lookAt(0, 0.70, 0);
+      ctx.clearRect(0, 0, w, h);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-      renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.3;
+      // 1. Pedestal de Invocación Rúnico
+      const pedBob = Math.sin(time * 2) * 3;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 34, 45, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-      container.innerHTML = '';
-      container.appendChild(renderer.domElement);
+      // Base del pedestal
+      ctx.fillStyle = '#334155';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 28 + pedBob, 42, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 26 + pedBob, 38, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-      // Lights
-      const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
-      scene.add(ambientLight);
+      // 2. Aura y Destellos Mágicos
+      const auraColor = heroClass === 'Guerrero' ? 'rgba(239, 68, 68, 0.2)' : heroClass === 'Mago' ? 'rgba(56, 189, 248, 0.25)' : 'rgba(16, 185, 129, 0.2)';
+      ctx.fillStyle = auraColor;
+      ctx.beginPath();
+      ctx.arc(cx, cy - 8 + pedBob, 36 + Math.sin(time * 4) * 4, 0, Math.PI * 2);
+      ctx.fill();
 
-      const dirLight = new THREE.DirectionalLight(0xffedd5, 2.2);
-      dirLight.position.set(2.5, 4, 3);
-      dirLight.castShadow = true;
-      scene.add(dirLight);
+      // 3. Sprite 2.5D del Héroe
+      const breath = Math.sin(time * 3) * 2;
+      const hX = cx;
+      const hY = cy - 14 + pedBob + breath;
 
-      const rimLight = new THREE.DirectionalLight(0x38bdf8, 1.2);
-      rimLight.position.set(-2.5, 2.5, -2.5);
-      scene.add(rimLight);
+      // Sombra
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.beginPath();
+      ctx.ellipse(hX, cy + 24 + pedBob, 20, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-      // Ornate Pedestal
-      const pedestalGroup = new THREE.Group();
-      const pedBase = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.75, 0.85, 0.15, 24),
-        new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.4 })
-      );
-      pedBase.position.y = -0.075;
-      pedBase.receiveShadow = true;
-      pedestalGroup.add(pedBase);
+      // Torso / Traje de Clase
+      const suitColor = heroClass === 'Guerrero' ? '#dc2626' : heroClass === 'Mago' ? '#3b82f6' : '#059669';
+      ctx.fillStyle = suitColor;
+      ctx.fillRect(hX - 10, hY + 4, 20, 22);
 
-      const pedGoldRing = new THREE.Mesh(
-        new THREE.TorusGeometry(0.76, 0.025, 16, 32),
-        new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.3, metalness: 0.8 })
-      );
-      pedGoldRing.rotation.x = Math.PI / 2;
-      pedGoldRing.position.y = 0.0;
-      pedestalGroup.add(pedGoldRing);
+      // Cabeza y Rostro
+      ctx.fillStyle = '#fde047'; // Tono piel
+      ctx.fillRect(hX - 8, hY - 14, 16, 16);
+      // Cabello
+      ctx.fillStyle = gender === 'female' ? '#b45309' : '#1e293b';
+      ctx.fillRect(hX - 9, hY - 18, 18, 8);
+      if (gender === 'female') {
+        ctx.fillRect(hX - 11, hY - 14, 3, 16);
+        ctx.fillRect(hX + 8, hY - 14, 3, 16);
+      }
+      // Ojos
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(hX - 5, hY - 8, 3, 4);
+      ctx.fillRect(hX + 2, hY - 8, 3, 4);
 
-      scene.add(pedestalGroup);
+      // Botas
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(hX - 8, hY + 24, 6, 8);
+      ctx.fillRect(hX + 2, hY + 24, 6, 8);
 
-      // Mock PlayerStats for Consistent 3D Hero Preview
-      const dummyPlayer: PlayerStats = {
-        name: 'Hero',
-        heroClass,
-        gender,
-        level: 1,
-        exp: 0,
-        maxExp: 100,
-        hp: 100,
-        maxHp: 100,
-        mp: 50,
-        maxMp: 50,
-        attack: 10,
-        defense: 10,
-        speed: 10,
-        critical: 5,
-        gold: 0,
-        diamonds: 0,
-        unlockedClasses: [],
-        inventory: [],
-        skills: [],
-      };
+      // Armas de Clase
+      if (heroClass === 'Guerrero') {
+        // Espada y Escudo
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(hX + 12, hY - 12, 4, 28);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(hX + 9, hY + 8, 10, 3);
+        ctx.fillStyle = '#3b82f6';
+        ctx.fillRect(hX - 16, hY + 4, 6, 16);
+      } else if (heroClass === 'Mago') {
+        // Báculo Mágico con Orbe Radiante
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(hX + 12, hY - 18, 4, 38);
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(hX + 14, hY - 20, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(hX + 12, hY - 22, 3, 3);
+      } else {
+        // Pícaro: Dagas Gemelas
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(hX - 14, hY + 6, 3, 16);
+        ctx.fillRect(hX + 11, hY + 6, 3, 16);
+      }
 
-      const heroMeshRes = createHumanHeroMesh(dummyPlayer);
-      const heroGroup = heroMeshRes.group;
-      heroGroup.position.set(0, 0.02, 0);
-      scene.add(heroGroup);
+      animId = requestAnimationFrame(render);
+    };
 
-      let time = 0;
-      const animate = () => {
-        animId = requestAnimationFrame(animate);
-        time += 0.02;
-
-        // Gentle revolving showcase & breathing
-        heroGroup.rotation.y = time * 0.75;
-        const breath = Math.sin(time * 3) * 0.015;
-        if (heroMeshRes.torsoGroup) heroMeshRes.torsoGroup.position.y = 0.72 + breath;
-        if (heroMeshRes.headGroup) heroMeshRes.headGroup.position.y = 1.10 + breath;
-        if (heroMeshRes.leftArm) heroMeshRes.leftArm.rotation.x = Math.sin(time * 3) * 0.05;
-        if (heroMeshRes.rightArm) heroMeshRes.rightArm.rotation.x = -Math.sin(time * 3) * 0.05;
-
-        if (renderer) renderer.render(scene, camera);
-      };
-
-      animate();
-    } catch (e) {
-      console.error('ThreeHeroPreview error:', e);
-    }
+    animId = requestAnimationFrame(render);
 
     return () => {
-      if (animId) cancelAnimationFrame(animId);
-      if (renderer) {
-        renderer.dispose();
-      }
-      if (container) {
-        container.innerHTML = '';
-      }
+      cancelAnimationFrame(animId);
     };
   }, [heroClass, gender]);
 
   return (
-    <div className="w-full h-36 sm:h-44 flex items-center justify-center">
-      <div ref={mountRef} className="w-full h-full" />
+    <div className="w-full h-full flex items-center justify-center select-none">
+      <canvas
+        ref={canvasRef}
+        width={160}
+        height={140}
+        className="w-full h-full object-contain"
+        style={{ imageRendering: 'pixelated' }}
+      />
     </div>
   );
 };
@@ -353,9 +353,9 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
             </span>
           </div>
 
-          {/* 3D Real-time Hero Figurine Preview */}
+          {/* 🌟 2.5D Retro HD Pixel Art Hero Preview */}
           <div className="relative w-full flex items-center justify-center">
-            <ThreeHeroPreview heroClass={selectedClass} gender={gender} />
+            <PixelHeroPreview heroClass={selectedClass} gender={gender} />
           </div>
 
           {/* Character Tag & Lore Snippet */}
