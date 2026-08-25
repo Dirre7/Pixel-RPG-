@@ -110,9 +110,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   const [facingDir, setFacingDir] = useState<'down' | 'up' | 'left' | 'right'>('down');
   const [selectedNpc, setSelectedNpc] = useState<NPC | null>(null);
   const [isQuestLogOpen, setIsQuestLogOpen] = useState(false);
-  const [showMinimap, setShowMinimap] = useState(() =>
-    typeof window !== 'undefined' ? window.innerWidth >= 768 : true
-  );
+  const [isQuestExpanded, setIsQuestExpanded] = useState(false);
+  const [showMinimap, setShowMinimap] = useState(true);
   const [showForgeModal, setShowForgeModal] = useState(false);
   const [showGameMenuModal, setShowGameMenuModal] = useState(false);
   const [showZoneTravelModal, setShowZoneTravelModal] = useState(false);
@@ -829,8 +828,14 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         />
       </div>
 
-      {/* 2. Top-Left: Player Vitals Glassmorphic Capsule */}
-      <div className="absolute top-2 left-2 z-20 pointer-events-auto flex flex-col gap-1 bg-slate-950/75 border border-amber-500/50 rounded-xl p-1.5 sm:p-2 shadow-2xl backdrop-blur-md font-mono min-w-[150px] sm:min-w-[210px] max-w-[240px]">
+      {/* 2. Top-Left: Player Vitals Glassmorphic Capsule (Protegido con Safe Area) */}
+      <div
+        className="absolute z-20 pointer-events-auto flex flex-col gap-1 bg-slate-950/80 border border-amber-500/50 rounded-xl p-1.5 sm:p-2 shadow-2xl backdrop-blur-md font-mono min-w-[140px] sm:min-w-[200px] max-w-[220px]"
+        style={{
+          top: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))',
+          left: 'max(0.5rem, env(safe-area-inset-left, 0.5rem))',
+        }}
+      >
         {/* Header: Class, Name, Level, Gold */}
         <div className="flex items-center justify-between text-xs font-bold">
           <div className="flex items-center gap-1 min-w-0">
@@ -884,7 +889,12 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       </div>
 
       {/* 3. Top-Center: Resources & Date Capsule (Glassmorphism) */}
-      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto hidden md:flex items-center gap-2.5 bg-slate-950/75 border border-amber-500/50 rounded-full px-3.5 py-1 shadow-2xl backdrop-blur-md font-mono text-xs text-amber-200">
+      <div
+        className="absolute left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto hidden md:flex items-center gap-2.5 bg-slate-950/75 border border-amber-500/50 rounded-full px-3.5 py-1 shadow-2xl backdrop-blur-md font-mono text-xs text-amber-200"
+        style={{
+          top: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))',
+        }}
+      >
         <div className="flex items-center gap-1" title="Madera">
           <span>🪵</span>
           <span className="font-bold">{(player.resources?.wood || 0).toLocaleString()}</span>
@@ -908,8 +918,14 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         </div>
       </div>
 
-      {/* 4. Top-Right: Fast Travel, Save, Menu & Minimap */}
-      <div className="absolute top-2 right-2 z-20 pointer-events-auto flex flex-col items-end gap-1 font-mono">
+      {/* 4. Top-Right: Fast Travel, Save, Menu & Minimap Siempre Visible */}
+      <div
+        className="absolute z-20 pointer-events-auto flex flex-col items-end gap-1 font-mono"
+        style={{
+          top: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))',
+          right: 'max(0.5rem, env(safe-area-inset-right, 0.5rem))',
+        }}
+      >
         {/* System Bar Quick Controls */}
         <div className="flex items-center gap-1">
           {/* Fast-Travel Zone Button */}
@@ -970,9 +986,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           </button>
         </div>
 
-        {/* Minimap Display */}
+        {/* Minimap Display (Visible por defecto, optimizado en móvil) */}
         {showMinimap && (
-          <div className="origin-top-right">
+          <div className="origin-top-right scale-90 sm:scale-100 transition-transform">
             <Minimap
               currentZone={currentZone}
               playerPos={playerPos}
@@ -994,39 +1010,75 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         )}
       </div>
 
-      {/* 5. Left: Active Quest Tracker Pill */}
+      {/* 5. Left: Collapsible Active Quest Tracker Pill (Píldora Plegable No Invasiva) */}
       {(() => {
         const activeQuestId = (acceptedQuests && acceptedQuests.find((id) => !completedQuests.includes(id))) || 'q_main_forest_1';
         const currentQuest = ALL_GAME_QUESTS.find((q) => q.id === activeQuestId) || ALL_GAME_QUESTS[0];
         if (!currentQuest) return null;
 
         return (
-          <div className="absolute top-28 sm:top-32 left-2 z-20 pointer-events-auto max-w-[170px] sm:max-w-[220px]">
-            <button
-              onClick={() => {
-                soundEngine.playSfx('select');
-                setIsQuestLogOpen(true);
-              }}
-              className="w-full text-left bg-slate-950/75 hover:bg-slate-900/90 active:scale-98 border border-amber-500/50 rounded-xl p-1.5 sm:p-2 shadow-xl backdrop-blur-md font-mono transition group"
-              title="Abrir Diario de Misiones"
-            >
-              <div className="flex items-center gap-1 text-[9px] sm:text-[10px] text-amber-400 font-bold uppercase tracking-wider">
+          <div
+            className="absolute z-20 pointer-events-auto max-w-[170px] sm:max-w-[220px] transition-all"
+            style={{
+              top: 'calc(max(0.5rem, env(safe-area-inset-top, 0.5rem)) + 82px)',
+              left: 'max(0.5rem, env(safe-area-inset-left, 0.5rem))',
+            }}
+          >
+            {isQuestExpanded ? (
+              <div className="bg-slate-950/90 border border-amber-500/70 rounded-xl p-2 shadow-2xl backdrop-blur-md font-mono animate-fade-in">
+                <div className="flex items-center justify-between gap-1 text-[10px] text-amber-400 font-bold uppercase pb-1 border-b border-slate-800">
+                  <div className="flex items-center gap-1">
+                    <Scroll className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Misión Activa</span>
+                  </div>
+                  <button
+                    onClick={() => setIsQuestExpanded(false)}
+                    className="text-slate-400 hover:text-slate-200 px-1 text-xs"
+                    title="Plegar Misión"
+                  >
+                    ▲
+                  </button>
+                </div>
+                <div className="text-[11px] font-black text-slate-100 truncate mt-1">
+                  {currentQuest.title}
+                </div>
+                <div className="text-[9px] text-slate-300 line-clamp-3 mt-0.5">
+                  {currentQuest.description}
+                </div>
+                <button
+                  onClick={() => {
+                    soundEngine.playSfx('select');
+                    setIsQuestLogOpen(true);
+                  }}
+                  className="mt-1.5 w-full py-1 text-[9px] bg-amber-500/20 hover:bg-amber-500/30 active:scale-95 text-amber-300 rounded font-bold border border-amber-500/40 text-center transition"
+                >
+                  Ver Diario
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsQuestExpanded(true)}
+                className="flex items-center gap-1.5 bg-slate-950/80 hover:bg-slate-900 active:scale-95 border border-amber-500/50 rounded-full px-2.5 py-1 shadow-xl backdrop-blur-md font-mono text-[10px] text-amber-300 font-bold transition"
+                title="Desplegar Misión Activa"
+              >
                 <Scroll className="w-3 h-3 text-amber-400" />
-                <span>Misión Activa</span>
-              </div>
-              <div className="text-[10px] sm:text-xs font-black text-slate-100 truncate mt-0.5 group-hover:text-amber-300">
-                {currentQuest.title}
-              </div>
-              <div className="text-[8px] sm:text-[9px] text-slate-400 line-clamp-2 mt-0.5">
-                {currentQuest.description}
-              </div>
-            </button>
+                <span className="truncate max-w-[80px] sm:max-w-[120px]">{currentQuest.title}</span>
+                <span className="text-[8px] text-amber-400/80">▾</span>
+              </button>
+            )}
           </div>
         );
       })()}
 
-      {/* 6. Mobile D-Pad Overlay (Bottom-Left) */}
-      <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 z-20 pointer-events-auto select-none" style={{ touchAction: 'none' }}>
+      {/* 6. Mobile D-Pad Overlay (Bottom-Left con Safe Area) */}
+      <div
+        className="absolute z-20 pointer-events-auto select-none"
+        style={{
+          bottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
+          left: 'max(0.5rem, env(safe-area-inset-left, 0.5rem))',
+          touchAction: 'none',
+        }}
+      >
         <div className="grid grid-cols-3 gap-1 w-28 h-28 sm:w-36 sm:h-36 bg-slate-950/80 p-1 sm:p-1.5 rounded-full border border-amber-500/60 backdrop-blur-md shadow-2xl">
           <div />
           <button
@@ -1123,8 +1175,15 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         </div>
       </div>
 
-      {/* 7. Action Button [A] & Floating Backpack [🎒] (Bottom-Right) */}
-      <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 z-20 flex flex-col items-center gap-2 pointer-events-auto select-none" style={{ touchAction: 'none' }}>
+      {/* 7. Action Button [A] & Floating Backpack [🎒] (Bottom-Right con Safe Area) */}
+      <div
+        className="absolute z-20 flex flex-col items-center gap-2 pointer-events-auto select-none"
+        style={{
+          bottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
+          right: 'max(0.5rem, env(safe-area-inset-right, 0.5rem))',
+          touchAction: 'none',
+        }}
+      >
         {/* Floating Backpack / Inventory Button */}
         <button
           onClick={() => {
@@ -1153,8 +1212,15 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         </button>
       </div>
 
-      {/* 8. Bottom Center: Floating Glassmorphic Hotbar */}
-      <div className="absolute bottom-1 sm:bottom-2 left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto">
+      {/* 8. Bottom Center: Floating Glassmorphic Hotbar (Con Safe Area Inset) */}
+      <div
+        className="absolute z-20 pointer-events-auto"
+        style={{
+          bottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
+          left: '50%',
+          transform: 'translateX(-50%)',
+        }}
+      >
         <BottomActionBar
           player={player}
           inventory={inventory}

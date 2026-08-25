@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pixel-rpg-v2-expansion';
+const CACHE_NAME = 'pixel-rpg-v2-5d-hd-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
