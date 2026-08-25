@@ -735,7 +735,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 21) {
-            // 🪨 Acantilado de Roca / Meseta Elevada 2.5D Conectada Orgánicamente
+            // 🪨 Acantilado de Tierra y Roca Cálida Marrón 2.5D (Cute Fantasy Cliff_Tile)
             const hasL = x > 0 && currentZone.tileData[y]?.[x - 1] === 21;
             const hasR = x < cols - 1 && currentZone.tileData[y]?.[x + 1] === 21;
             const hasT = y > 0 && currentZone.tileData[y - 1]?.[x] === 21;
@@ -745,47 +745,55 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
                 // Sombra proyectada en la base inferior
-                c.fillStyle = 'rgba(15, 23, 42, 0.4)';
+                c.fillStyle = 'rgba(15, 23, 42, 0.45)';
                 c.fillRect(posX, posY + TILE_SIZE - 4, TILE_SIZE, 6);
 
-                // Cara de roca sólida multicapa con estrato geológico
-                c.fillStyle = '#57534e'; // Roca base
-                c.fillRect(posX, posY + 4, TILE_SIZE, TILE_SIZE - 4);
-                c.fillStyle = '#78716c'; // Cara iluminada
-                c.fillRect(posX, posY + 6, TILE_SIZE, TILE_SIZE - 10);
-                c.fillStyle = '#44403c'; // Grietas oscuras
-                c.fillRect(posX + 4, posY + 10, 8, 2);
-                c.fillRect(posX + 16, posY + 18, 10, 2);
-                c.fillRect(posX + 10, posY + 22, 6, 2);
+                if (gameAssets.cliffTile.complete && gameAssets.cliffTile.naturalWidth > 0) {
+                  const cx = (x % 3) * 16;
+                  const cy = !hasT ? 0 : !hasB ? 32 : 16;
+                  c.drawImage(gameAssets.cliffTile, cx, cy, 16, 16, posX, posY, TILE_SIZE, TILE_SIZE);
+                } else {
+                  // Cara de roca de tierra cálida marrón (Warm Earthen Rock Face)
+                  c.fillStyle = '#78350f'; // Tierra cálida base
+                  c.fillRect(posX, posY + 4, TILE_SIZE, TILE_SIZE - 4);
+                  c.fillStyle = '#92400e'; // Estrato iluminado
+                  c.fillRect(posX, posY + 6, TILE_SIZE, TILE_SIZE - 10);
+                  c.fillStyle = '#b45309'; // Veta de arcilla dorada
+                  c.fillRect(posX + 2, posY + 8, TILE_SIZE - 4, 3);
+                  c.fillStyle = '#451a03'; // Grietas oscuras
+                  c.fillRect(posX + 4, posY + 13, 10, 2);
+                  c.fillRect(posX + 18, posY + 20, 10, 2);
+                  c.fillRect(posX + 8, posY + 24, 8, 2);
 
-                // Borde superior de hierba con volumen (Top Grass Overhang)
-                if (!hasT) {
-                  c.fillStyle = '#15803d'; // Sombra verde
-                  c.fillRect(posX, posY + 3, TILE_SIZE, 4);
-                  c.fillStyle = '#5ca632'; // Césped brillante
-                  c.fillRect(posX, posY, TILE_SIZE, 4);
-                  // Mechones de hierba colgantes
-                  c.fillStyle = '#65a30d';
-                  c.fillRect(posX + 4, posY + 4, 3, 3);
-                  c.fillRect(posX + 14, posY + 4, 4, 2);
-                  c.fillRect(posX + 24, posY + 4, 3, 3);
-                }
+                  // Borde superior de hierba con volumen (Top Grass Overhang)
+                  if (!hasT) {
+                    c.fillStyle = '#15803d'; // Sombra verde
+                    c.fillRect(posX, posY + 3, TILE_SIZE, 4);
+                    c.fillStyle = '#5ca632'; // Césped brillante
+                    c.fillRect(posX, posY, TILE_SIZE, 4);
+                    // Mechones de hierba colgantes
+                    c.fillStyle = '#65a30d';
+                    c.fillRect(posX + 3, posY + 4, 4, 3);
+                    c.fillRect(posX + 13, posY + 4, 4, 2);
+                    c.fillRect(posX + 23, posY + 4, 5, 3);
+                  }
 
-                // Ribete izquierdo
-                if (!hasL) {
-                  c.fillStyle = '#44403c';
-                  c.fillRect(posX, posY + 4, 3, TILE_SIZE - 4);
-                }
-                // Ribete derecho
-                if (!hasR) {
-                  c.fillStyle = '#292524';
-                  c.fillRect(posX + TILE_SIZE - 3, posY + 4, 3, TILE_SIZE - 4);
-                }
+                  // Ribete izquierdo
+                  if (!hasL) {
+                    c.fillStyle = '#451a03';
+                    c.fillRect(posX, posY + 4, 3, TILE_SIZE - 4);
+                  }
+                  // Ribete derecho
+                  if (!hasR) {
+                    c.fillStyle = '#3e1a00';
+                    c.fillRect(posX + TILE_SIZE - 3, posY + 4, 3, TILE_SIZE - 4);
+                  }
 
-                // Musgo decorativo en la base
-                c.fillStyle = 'rgba(74, 222, 128, 0.4)';
-                c.fillRect(posX + 6, posY + TILE_SIZE - 8, 6, 4);
-                c.fillRect(posX + 18, posY + TILE_SIZE - 6, 8, 3);
+                  // Musgo decorativo verde en la base
+                  c.fillStyle = 'rgba(74, 222, 128, 0.45)';
+                  c.fillRect(posX + 4, posY + TILE_SIZE - 7, 8, 4);
+                  c.fillRect(posX + 18, posY + TILE_SIZE - 6, 9, 3);
+                }
               },
             });
           } else if (tileType === 13) {
