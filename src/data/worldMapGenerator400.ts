@@ -345,10 +345,11 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[59][20] = 12; map[59][22] = 12; // Setos
   map[61][20] = 14; // Dianas y carcajes
 
-  // ⛪ EDIFICIO 7: Capilla y Ermita del Clérigo (Este X: 47, Y: 60)
-  map[60][47] = 29; // Templo / Capilla con vidrieras
-  map[59][46] = 12; map[59][48] = 12; // Jardín de rosas
-  map[61][48] = 17; // Farola devocional
+  // ⛪ EDIFICIO 7: Capilla y Ermita del Clérigo (Este X: 51, Y: 60)
+  map[60][51] = 29; // Templo / Capilla con vidrieras góticas
+  map[59][50] = 12; map[59][52] = 12; // Jardín de rosas sagradas
+  map[60][47] = 2; map[60][48] = 2; map[60][49] = 2; map[60][50] = 2; // Camino de acceso empedrado
+  map[61][52] = 17; // Farola devocional
 
   // 🐄 EDIFICIO 8: Granero y Establo de Animales (Suroeste X: 25, Y: 72)
   map[72][25] = 5;  // Granero
@@ -369,9 +370,20 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[70][34] = 14; map[71][34] = 14; // Barriles de pesca y redes
   map[70][33] = 17; // Farola del muelle
 
-  // 🍎 Manzanos y Árboles Frutales en los Céspedes Comunitarios
-  map[58][26] = 1; map[62][26] = 1; // Manzanos oeste
-  map[58][44] = 1; map[62][44] = 1; // Manzanos este
+  // 🌳 JARDINES COMUNITARIOS Y PLAZAS DE DESCANSO (Zonas Verdes Enriquecidas)
+  // Jardín Oeste (Entre sendero oeste y plaza)
+  map[61][27] = 4;  // Pozo de agua de piedra comunal con polea y cubo
+  map[58][27] = 12; map[64][27] = 12; // Bancos de descanso de madera
+  map[57][25] = 14; // Carreta de madera de provisiones
+  map[59][28] = 12; map[63][28] = 12; // Setos florales con rosas
+  map[58][26] = 1;  map[64][26] = 1;  // Manzanos frutales
+
+  // Jardín Este (Entre sendero este y plaza)
+  map[61][43] = 4;  // Pozo de agua de piedra comunal
+  map[58][43] = 12; map[64][43] = 12; // Bancos de descanso de madera
+  map[57][45] = 14; // Carreta de madera
+  map[59][42] = 12; map[63][42] = 12; // Setos florales
+  map[58][44] = 1;  map[64][44] = 1;  // Manzanos frutales
 
   // 🛡️ BARRERA NATURAL PERIMETRAL:
   // En cualquier casilla de tierra (tile 0) que limite directamente con el vacío (-1),
