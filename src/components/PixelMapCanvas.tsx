@@ -818,12 +818,41 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 14) {
-            // Valla de Madera Rústica
+            // 🪵 Barriles de Roble, Cajas de Mercancías y Pilas de Leña
+            const isCrate = (x * 7 + y * 13) % 2 === 0;
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
-                const fence = getWoodenFenceCanvas(true, true, false, false);
-                c.drawImage(fence, posX, posY, 32, 32);
+                c.fillStyle = 'rgba(0, 0, 0, 0.35)';
+                c.beginPath();
+                c.ellipse(posX + 16, posY + 26, 10, 4, 0, 0, Math.PI * 2);
+                c.fill();
+                if (isCrate) {
+                  // Cajas de madera apiladas
+                  c.fillStyle = '#78350f';
+                  c.fillRect(posX + 4, posY + 8, 24, 20);
+                  c.fillStyle = '#92400e';
+                  c.fillRect(posX + 6, posY + 10, 20, 16);
+                  c.fillStyle = '#d97706';
+                  c.fillRect(posX + 5, posY + 9, 2, 18);
+                  c.fillRect(posX + 25, posY + 9, 2, 18);
+                  c.fillRect(posX + 5, posY + 9, 22, 2);
+                  c.fillRect(posX + 5, posY + 25, 22, 2);
+                } else {
+                  // Barril de roble con aros de hierro
+                  c.fillStyle = '#451a03';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 16, 10, 12, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.fillStyle = '#78350f';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 16, 8, 11, 0, 0, Math.PI * 2);
+                  c.fill();
+                  // Aros de hierro
+                  c.fillStyle = '#64748b';
+                  c.fillRect(posX + 8, posY + 10, 16, 2);
+                  c.fillRect(posX + 8, posY + 22, 16, 2);
+                }
               },
             });
           } else if (tileType === 6) {

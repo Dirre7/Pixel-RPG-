@@ -595,7 +595,27 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     // Block collision on void abyss, out of bounds, and solid obstacle tiles (28 is walkable door/portal)
     const isDirectSolid = targetTile === -1 || targetTile === undefined || [-1, 1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 34].includes(targetTile);
 
-    if (isDirectSolid) {
+    // Multi-tile building footprint collision (Houses, Cottages, Inns, Forges, Botica, City Hall, Windmills)
+    // A building anchored at (bx, by) occupies [bx-1..bx+1] in X and [by-2..by] in Y.
+    let isBuildingBody = false;
+    if (targetTile !== 28 && targetTile !== 2) {
+      for (let dy = 0; dy <= 2; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const by = newY + dy;
+          const bx = newX - dx;
+          if (by >= 0 && by < currentZone.mapHeight && bx >= 0 && bx < currentZone.mapWidth) {
+            const bType = currentZone.tileData[by]?.[bx];
+            if ([5, 6, 8, 10, 27, 31].includes(bType)) {
+              isBuildingBody = true;
+              break;
+            }
+          }
+        }
+        if (isBuildingBody) break;
+      }
+    }
+
+    if (isDirectSolid || isBuildingBody) {
       soundEngine.playSfx('error');
       return;
     }

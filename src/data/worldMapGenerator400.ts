@@ -262,62 +262,75 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   // 🏛️ Elementos de la Gran Plaza Central (Completamente Despejada y Limpia)
   map[60][36] = 4;  // Gran Fuente Central
   map[57][39] = 22; // Tablón de Misiones (Borde Norte)
-  map[57][32] = 12; map[57][40] = 12; // Bancos de descanso (Borde Norte)
-  map[63][32] = 12; map[63][40] = 12; // Bancos de descanso (Borde Sur)
-  map[57][30] = 17; map[57][42] = 17; // Farolas en esquinas de la plaza
+  map[57][33] = 12; map[57][39] = 22; map[57][37] = 12; // Mobiliario de descanso
+  map[63][33] = 12; map[63][39] = 12;
+  map[57][30] = 17; map[57][42] = 17; // Farolas en las esquinas de la plaza
   map[63][30] = 17; map[63][42] = 17;
-  map[59][29] = 9;  map[61][29] = 9;  // Puestos de mercado en el margen oeste del bazar
 
-  // 🏰 Grandes Mansiones y Casonas Nobles enmarcando la Plaza (Ubicadas en parcelas verdes)
-  map[64][31] = 5;  // Casona Señorial del Roble (Suroeste Plaza)
-  map[64][41] = 5;  // Casona Noble de la Ribera (Sureste Plaza)
+  // 🎪 Puestos de Mercado del Bazar (Ubicados en las esquinas interiores de la plaza)
+  map[58][31] = 9;  map[62][31] = 9;  // Puestos Oeste
+  map[58][41] = 9;  map[62][41] = 9;  // Puestos Este
 
-  // 🍻 Taberna y Posada "El Jabalí Dorado" (Manzana Norte-Centro X: 31, Y: 51)
+  // 🍻 Manzana Norte-Centro: Taberna y Posada "El Jabalí Dorado" (X: 31, Y: 51)
   map[51][31] = 5;  // Edificio de la Posada
-  map[53][31] = 28; // 🚪 Puerta de Entrada a la Taberna y Posada "El Jabalí Dorado"
-  map[51][41] = 5;  // Mansión del Gremio de Comerciantes (Noreste)
+  map[53][31] = 28; // 🚪 Puerta de Entrada a la Taberna
+  map[52][32] = 14; // Barriles de cerveza artesanal
+  map[50][30] = 12; map[50][32] = 12; // Setos del jardín trasero
 
-  // ⚔️ Distrito Oeste: Gran Forja de Brom, Posada de Viajeros y Talleres
-  map[51][25] = 10; // Gran Forja Mayor de Brom (Edificio X: 25, Y: 51)
-  map[53][25] = 28; // 🚪 Puerta de Entrada a la Gran Forja Real
-  map[51][26] = 19; // Brasero ceremonial
-  map[51][23] = 5;  // Gran Posada de los Viajeros
-  map[57][25] = 5;  // Almacén de Minerales
-  map[57][23] = 5;  // Mansión Comercial Oeste
+  // 🏰 Manzana Noreste: Mansión Señorial (X: 41, Y: 51)
+  map[51][41] = 5;  // Mansión Noble
+  map[53][41] = 28; // 🚪 Entrada
+  map[50][40] = 12; map[50][42] = 12; // Setos florales
+  map[52][42] = 14; // Cajas de provisiones
+
+  // ⚔️ Distrito Oeste: Gran Forja de Brom y Casas de Artesanos (Manzanas X: 25)
+  map[51][25] = 10; // Gran Forja Mayor de Brom
+  map[53][25] = 28; // 🚪 Puerta de la Forja
+  map[52][24] = 14; // Pila de carbón y mineral
+  map[50][24] = 12; map[50][26] = 12; // Setos
+
+  map[57][25] = 5;  // Cabaña del Armero
+  map[59][25] = 28; // 🚪 Puerta
+  map[56][24] = 12; map[56][26] = 12; // Setos de jardín
+
   map[63][25] = 5;  // Taller de Curtidores
-  map[63][23] = 5;  // Cabaña de Armeros
-  map[69][23] = 5;  // Casa de Artesanos
-  map[69][25] = 5;  // Almacén de Cuero
+  map[65][25] = 28; // 🚪 Puerta
+  map[62][24] = 12; map[62][26] = 12; // Setos
 
-  // 🌿 Distrito Este: Botica de Lynda, Casa Consistorial y Mansiones
-  map[45][47] = 31; // Gran Casa Consistorial / Castillo (Edificio X: 47, Y: 45)
-  map[47][47] = 28; // 🚪 Puerta de Entrada al Gran Salón del Trono
-  map[51][47] = 27; // Botica Alquímica de Lynda (Edificio X: 47, Y: 51)
-  map[53][47] = 28; // 🚪 Puerta de Entrada a la Botica Alquímica
-  map[51][49] = 5;  // Mansión Solariega Noreste
-  map[51][51] = 5;  // Villa del Erudito
+  map[69][25] = 5;  // Casa del Artesano Mayor
+  map[71][25] = 28; // 🚪 Puerta
+  map[68][24] = 12; map[68][26] = 12; // Setos
+
+  // 🌿 Distrito Este: Casa Consistorial, Botica de Lynda y Mansiones (Manzanas X: 47)
+  map[45][47] = 31; // Gran Casa Consistorial / Salón del Trono
+  map[47][47] = 28; // 🚪 Entrada al Castillo
+  map[44][46] = 12; map[44][48] = 12; // Setos reales
+
+  map[51][47] = 27; // Botica Alquímica de Lynda
+  map[53][47] = 28; // 🚪 Puerta de la Botica
+  map[52][46] = 14; // Maceteros con hierbas medicinales
+  map[50][46] = 12; map[50][48] = 12; // Setos
+
   map[57][47] = 5;  // Mansión "Villa Rosa"
-  map[57][49] = 5;  // Casa del Bibliotecario
-  map[57][51] = 5;  // Taller de Joyeros
+  map[59][47] = 28; // 🚪 Puerta
+  map[56][46] = 12; map[56][48] = 12; // Setos de rosas
+
   map[63][47] = 5;  // Mansión "Los Álamos"
-  map[63][49] = 5;  // Palacio Residencial Este
-  map[63][51] = 5;  // Casona de Seda
+  map[65][47] = 28; // 🚪 Puerta
+  map[62][46] = 12; map[62][48] = 12; // Setos
+
   map[69][47] = 5;  // Villa Ribereña
-  map[69][49] = 5;  // Casa del Jardín
-  map[69][51] = 5;  // Cabaña del Guarda
+  map[71][47] = 28; // 🚪 Puerta
+  map[68][46] = 12; map[68][48] = 12; // Setos
 
-  // 🏘️ Nuevas Viviendas Residenciales del Distrito Central
-  map[51][39] = 5;  // Residencia de los Mercaderes
-  map[69][31] = 5;  // Residencia Sur del Molinero
-  map[69][41] = 5;  // Residencia Sur Fluvial
-  map[51][21] = 5;  // Cabaña Forestal Oeste
-  map[57][21] = 5;  // Casa de Cazadores
-  map[63][21] = 5;  // Casa de Leñadores
-  map[69][21] = 5;  // Casa del Pastor
+  // 🏘️ Manzanas Residenciales Sur
+  map[69][31] = 5;  // Residencia Suroeste
+  map[71][31] = 28; // 🚪 Puerta
+  map[68][30] = 12; map[68][32] = 12; // Setos
 
-  // 🎪 Puestos de Mercado Adicionales en el Paseo Fluvial
-  map[54][34] = 9;  map[54][38] = 9;
-  map[66][34] = 9;  map[66][38] = 9;
+  map[69][41] = 5;  // Residencia Sureste
+  map[71][41] = 28; // 🚪 Puerta
+  map[68][40] = 12; map[68][42] = 12; // Setos
 
   // 🏮 Farolas en las aceras principales
   [48, 60, 72].forEach((hy) => {
