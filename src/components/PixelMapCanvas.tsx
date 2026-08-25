@@ -1518,6 +1518,92 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             });
           }
         });
+
+        // 9. EDIFICIOS INTERACTIVOS Y PORTALES DE INSTANCIA (Puertas Nobles, Farolas Gemelas y Rótulos Dorados)
+        currentZone.portals?.forEach((portal) => {
+          if (portal.x >= startCol - 2 && portal.x <= endCol + 2 && portal.y >= startRow - 2 && portal.y <= endRow + 2) {
+            const pX = portal.x * TILE_SIZE;
+            const pY = portal.y * TILE_SIZE;
+            const distToPlayer = Math.hypot(portal.x - playerPos.x, portal.y - playerPos.y);
+            const isNear = distToPlayer <= 3.5;
+
+            entities.push({
+              ySort: pY + TILE_SIZE + 8,
+              draw: (c) => {
+                // Felpudo / Umbral de entrada con latón brillante
+                c.fillStyle = '#451a03';
+                c.fillRect(pX + 2, pY + 16, 28, 14);
+                c.fillStyle = '#b45309';
+                c.fillRect(pX + 4, pY + 18, 24, 10);
+                c.fillStyle = '#fbbf24';
+                c.fillRect(pX + 6, pY + 20, 20, 6);
+
+                // Marco de portal arqueado de madera noble y forja
+                c.fillStyle = '#1c1917';
+                c.fillRect(pX + 4, pY - 8, 24, 26);
+                // Interior cálido iluminado
+                const interiorGlow = Math.sin(time * 3) * 0.15 + 0.85;
+                c.fillStyle = `rgba(251, 191, 36, ${interiorGlow})`;
+                c.fillRect(pX + 7, pY - 5, 18, 22);
+
+                // Puerta de roble entreabierta
+                c.fillStyle = '#78350f';
+                c.fillRect(pX + 8, pY - 4, 7, 20);
+                c.fillStyle = '#d97706';
+                c.fillRect(pX + 13, pY + 5, 2, 2); // Pomo dorado
+
+                // Farolas gemelas de forja en los laterales
+                c.fillStyle = '#451a03';
+                c.fillRect(pX + 1, pY - 4, 3, 8);
+                c.fillRect(pX + 28, pY - 4, 3, 8);
+                c.fillStyle = '#fef08a';
+                c.fillRect(pX + 1, pY - 7, 4, 4);
+                c.fillRect(pX + 27, pY - 7, 4, 4);
+
+                // Halo de luz dorada en el suelo
+                const glow = c.createRadialGradient(pX + 16, pY + 10, 4, pX + 16, pY + 10, 36);
+                glow.addColorStop(0, 'rgba(251, 191, 36, 0.45)');
+                glow.addColorStop(1, 'rgba(251, 191, 36, 0)');
+                c.fillStyle = glow;
+                c.beginPath();
+                c.arc(pX + 16, pY + 10, 36, 0, Math.PI * 2);
+                c.fill();
+
+                // Rótulo colgante flotante sobre la puerta con el nombre del edificio
+                const badgeY = pY - 24 + Math.sin(time * 2.5) * 1.5;
+                let badgeIcon = '🚪 ENTRADA';
+                if (portal.targetZoneId.includes('tavern')) badgeIcon = '🍺 TABERNA';
+                else if (portal.targetZoneId.includes('forge')) badgeIcon = '🔨 GRAN FORJA';
+                else if (portal.targetZoneId.includes('botica')) badgeIcon = '🌿 BOTICA';
+                else if (portal.targetZoneId.includes('castle')) badgeIcon = '👑 CASTILLO';
+                else if (portal.targetZoneId.includes('crypt')) badgeIcon = '💀 CRIPTA';
+                else if (portal.targetZoneId.includes('smuggler')) badgeIcon = '⚓ CUEVA';
+
+                c.font = 'bold 9px monospace';
+                const textW = c.measureText(badgeIcon).width;
+                c.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                c.strokeStyle = '#f59e0b';
+                c.lineWidth = 1.5;
+                c.beginPath();
+                c.roundRect(pX + 16 - textW / 2 - 6, badgeY - 7, textW + 12, 14, 3);
+                c.fill();
+                c.stroke();
+
+                c.fillStyle = '#fef08a';
+                c.textAlign = 'center';
+                c.textBaseline = 'middle';
+                c.fillText(badgeIcon, pX + 16, badgeY);
+
+                if (isNear) {
+                  // Destellos dorados en el umbral
+                  const sparkX = pX + 16 + Math.sin(time * 5) * 8;
+                  c.fillStyle = '#ffffff';
+                  c.fillRect(sparkX, pY + 18, 2, 2);
+                }
+              },
+            });
+          }
+        });
       }
 
       // FASE 2: MINAS DE ERIDU Y CUEVA DE SOMBRAS (PIXEL CRAWLER CAVE & BATS)
