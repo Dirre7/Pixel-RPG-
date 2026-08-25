@@ -273,64 +273,60 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
 
   // 🍻 Manzana Norte-Centro: Taberna y Posada "El Jabalí Dorado" (X: 31, Y: 51)
   map[51][31] = 5;  // Edificio de la Posada
-  map[53][31] = 28; // 🚪 Puerta de Entrada a la Taberna
   map[52][32] = 14; // Barriles de cerveza artesanal
+  map[52][30] = 14; // Cajas de suministros
   map[50][30] = 12; map[50][32] = 12; // Setos del jardín trasero
 
   // 🏰 Manzana Noreste: Mansión Señorial (X: 41, Y: 51)
   map[51][41] = 5;  // Mansión Noble
-  map[53][41] = 28; // 🚪 Entrada
   map[50][40] = 12; map[50][42] = 12; // Setos florales
   map[52][42] = 14; // Cajas de provisiones
 
   // ⚔️ Distrito Oeste: Gran Forja de Brom y Casas de Artesanos (Manzanas X: 25)
   map[51][25] = 10; // Gran Forja Mayor de Brom
-  map[53][25] = 28; // 🚪 Puerta de la Forja
   map[52][24] = 14; // Pila de carbón y mineral
-  map[50][24] = 12; map[50][26] = 12; // Setos
+  map[50][24] = 12; map[50][26] = 12; // Setos de jardín
 
   map[57][25] = 5;  // Cabaña del Armero
-  map[59][25] = 28; // 🚪 Puerta
   map[56][24] = 12; map[56][26] = 12; // Setos de jardín
+  map[58][24] = 14; // Barril de agua
 
   map[63][25] = 5;  // Taller de Curtidores
-  map[65][25] = 28; // 🚪 Puerta
-  map[62][24] = 12; map[62][26] = 12; // Setos
+  map[62][24] = 12; map[62][26] = 12; // Setos de jardín
+  map[64][24] = 14; // Cajas de cuero
 
   map[69][25] = 5;  // Casa del Artesano Mayor
-  map[71][25] = 28; // 🚪 Puerta
-  map[68][24] = 12; map[68][26] = 12; // Setos
+  map[68][24] = 12; map[68][26] = 12; // Setos de jardín
+  map[70][24] = 14; // Barril
 
   // 🌿 Distrito Este: Casa Consistorial, Botica de Lynda y Mansiones (Manzanas X: 47)
   map[45][47] = 31; // Gran Casa Consistorial / Salón del Trono
-  map[47][47] = 28; // 🚪 Entrada al Castillo
   map[44][46] = 12; map[44][48] = 12; // Setos reales
 
   map[51][47] = 27; // Botica Alquímica de Lynda
-  map[53][47] = 28; // 🚪 Puerta de la Botica
   map[52][46] = 14; // Maceteros con hierbas medicinales
-  map[50][46] = 12; map[50][48] = 12; // Setos
+  map[50][46] = 12; map[50][48] = 12; // Setos de lavanda
 
   map[57][47] = 5;  // Mansión "Villa Rosa"
-  map[59][47] = 28; // 🚪 Puerta
   map[56][46] = 12; map[56][48] = 12; // Setos de rosas
+  map[58][48] = 14; // Barril
 
   map[63][47] = 5;  // Mansión "Los Álamos"
-  map[65][47] = 28; // 🚪 Puerta
   map[62][46] = 12; map[62][48] = 12; // Setos
+  map[64][48] = 14; // Cajas
 
   map[69][47] = 5;  // Villa Ribereña
-  map[71][47] = 28; // 🚪 Puerta
   map[68][46] = 12; map[68][48] = 12; // Setos
+  map[70][48] = 14; // Barril
 
   // 🏘️ Manzanas Residenciales Sur
   map[69][31] = 5;  // Residencia Suroeste
-  map[71][31] = 28; // 🚪 Puerta
   map[68][30] = 12; map[68][32] = 12; // Setos
+  map[70][32] = 14; // Barril
 
   map[69][41] = 5;  // Residencia Sureste
-  map[71][41] = 28; // 🚪 Puerta
   map[68][40] = 12; map[68][42] = 12; // Setos
+  map[70][40] = 14; // Barril
 
   // 🏮 Farolas en las aceras principales
   [48, 60, 72].forEach((hy) => {

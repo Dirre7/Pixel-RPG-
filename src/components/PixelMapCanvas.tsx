@@ -982,18 +982,43 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 12) {
-            // 🪑 Banco de Madera Rústica y Parterre Floral de Plaza
-            const bench = getWoodenBenchCanvas();
-            entities.push({
-              ySort: posY + TILE_SIZE,
-              draw: (c) => {
-                c.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                c.beginPath();
-                c.ellipse(posX + 16, posY + 26, 12, 4, 0, 0, Math.PI * 2);
-                c.fill();
-                c.drawImage(bench, posX, posY + 2, 32, 28);
-              },
-            });
+            // 🌿 Setos de Jardín Frondosos con Hojas y Rosas / Bancos de Madera en Plaza
+            const isPlazaBench = (y === 57 || y === 63) && (x >= 32 && x <= 40);
+            if (isPlazaBench) {
+              const bench = getWoodenBenchCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 26, 12, 4, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.drawImage(bench, posX, posY + 2, 32, 28);
+                },
+              });
+            } else {
+              // Seto de Jardín Verde Frondoso 2.5D
+              const hedgeCanvas = getLabyrinthHedgeCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                  c.beginPath();
+                  c.ellipse(posX + 16, posY + 26, 12, 4, 0, 0, Math.PI * 2);
+                  c.fill();
+                  c.drawImage(hedgeCanvas, posX, posY - 2, 32, 34);
+                  // Pequeñas flores decorativas en el seto
+                  if ((x + y) % 2 === 0) {
+                    c.fillStyle = '#f43f5e';
+                    c.fillRect(posX + 8, posY + 10, 3, 3);
+                    c.fillRect(posX + 20, posY + 14, 3, 3);
+                    c.fillStyle = '#fef08a';
+                    c.fillRect(posX + 9, posY + 11, 1, 1);
+                    c.fillRect(posX + 21, posY + 15, 1, 1);
+                  }
+                },
+              });
+            }
           } else if (tileType === 13) {
             // Elementos de Granja, Huerto y Animales Estructurados
             const isCowTile = (x === 112 && y === 111) || (x === 266 && y === 334) || (x === 239 && y === 340);
