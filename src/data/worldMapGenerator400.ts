@@ -259,12 +259,14 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[60][35] = 2; map[60][36] = 2; // Puente Central
   map[72][35] = 2; map[72][36] = 2; // Puente Sur
 
-  // 🏛️ Elementos de la Gran Plaza Central
+  // 🏛️ Elementos de la Gran Plaza Central (Completamente Despejada y Limpia)
   map[60][36] = 4;  // Gran Fuente Central
-  map[57][39] = 22; // Tablón de Misiones
-  map[58][32] = 18; // Roca decorativa
-  map[62][34] = 12; map[62][38] = 12; // Bancos de descanso
-  map[56][30] = 9;  map[58][30] = 9;  // Puestos de mercado del bazar
+  map[57][39] = 22; // Tablón de Misiones (Borde Norte)
+  map[57][32] = 12; map[57][40] = 12; // Bancos de descanso (Borde Norte)
+  map[63][32] = 12; map[63][40] = 12; // Bancos de descanso (Borde Sur)
+  map[57][30] = 17; map[57][42] = 17; // Farolas en esquinas de la plaza
+  map[63][30] = 17; map[63][42] = 17;
+  map[59][29] = 9;  map[61][29] = 9;  // Puestos de mercado en el margen oeste del bazar
 
   // 🏰 Grandes Mansiones y Casonas Nobles enmarcando la Plaza (Ubicadas en parcelas verdes)
   map[64][31] = 5;  // Casona Señorial del Roble (Suroeste Plaza)

@@ -414,31 +414,68 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 ctx.drawImage(gameAssets.floorTiles, 96, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
               }
 
-              // Suavizado orgánico suave en las orillas con la hierba (arena dorada difuminada)
+              // 🛣️ Bordillos de Piedra y Adoquines Pulidos en los Márgenes (Estilo RPG Retro HD)
               const isPath = (tx: number, ty: number) => {
                 if (tx < 0 || ty < 0 || tx >= currentZone.mapWidth || ty >= currentZone.mapHeight) return true;
-                return currentZone.tileData[ty]?.[tx] === 2;
+                const gt = getGroundType(tx, ty);
+                return gt === 2 || gt === 9 || gt === 15;
               };
               const hasT = isPath(x, y - 1);
               const hasB = isPath(x, y + 1);
               const hasL = isPath(x - 1, y);
               const hasR = isPath(x + 1, y);
 
+              // Bordillo Superior (Top Stone Curb)
               if (!hasT) {
-                ctx.fillStyle = 'rgba(212, 163, 115, 0.45)';
-                ctx.fillRect(drawPosX, drawPosY, TILE_SIZE + 0.5, 3);
+                ctx.fillStyle = '#78716c';
+                ctx.fillRect(drawPosX, drawPosY, TILE_SIZE + 0.5, 4);
+                ctx.fillStyle = '#e7e5e4';
+                ctx.fillRect(drawPosX, drawPosY, TILE_SIZE + 0.5, 1.5);
+                ctx.fillStyle = '#a8a29e';
+                ctx.fillRect(drawPosX, drawPosY + 1.5, TILE_SIZE + 0.5, 2);
+                ctx.fillStyle = '#57534e';
+                ctx.fillRect(drawPosX + 8, drawPosY, 1, 4);
+                ctx.fillRect(drawPosX + 16, drawPosY, 1, 4);
+                ctx.fillRect(drawPosX + 24, drawPosY, 1, 4);
               }
+              // Bordillo Inferior (Bottom Stone Curb)
               if (!hasB) {
-                ctx.fillStyle = 'rgba(212, 163, 115, 0.45)';
-                ctx.fillRect(drawPosX, drawPosY + TILE_SIZE - 3, TILE_SIZE + 0.5, 3);
+                ctx.fillStyle = '#57534e';
+                ctx.fillRect(drawPosX, drawPosY + TILE_SIZE - 4, TILE_SIZE + 0.5, 4);
+                ctx.fillStyle = '#e7e5e4';
+                ctx.fillRect(drawPosX, drawPosY + TILE_SIZE - 4, TILE_SIZE + 0.5, 1.5);
+                ctx.fillStyle = '#a8a29e';
+                ctx.fillRect(drawPosX, drawPosY + TILE_SIZE - 2.5, TILE_SIZE + 0.5, 2);
+                ctx.fillStyle = '#44403c';
+                ctx.fillRect(drawPosX + 8, drawPosY + TILE_SIZE - 4, 1, 4);
+                ctx.fillRect(drawPosX + 16, drawPosY + TILE_SIZE - 4, 1, 4);
+                ctx.fillRect(drawPosX + 24, drawPosY + TILE_SIZE - 4, 1, 4);
               }
+              // Bordillo Izquierdo (Left Stone Curb)
               if (!hasL) {
-                ctx.fillStyle = 'rgba(212, 163, 115, 0.45)';
-                ctx.fillRect(drawPosX, drawPosY, 3, TILE_SIZE + 0.5);
+                ctx.fillStyle = '#78716c';
+                ctx.fillRect(drawPosX, drawPosY, 4, TILE_SIZE + 0.5);
+                ctx.fillStyle = '#f5f5f4';
+                ctx.fillRect(drawPosX, drawPosY, 1.5, TILE_SIZE + 0.5);
+                ctx.fillStyle = '#a8a29e';
+                ctx.fillRect(drawPosX + 1.5, drawPosY, 2, TILE_SIZE + 0.5);
+                ctx.fillStyle = '#57534e';
+                ctx.fillRect(drawPosX, drawPosY + 8, 4, 1);
+                ctx.fillRect(drawPosX, drawPosY + 16, 4, 1);
+                ctx.fillRect(drawPosX, drawPosY + 24, 4, 1);
               }
+              // Bordillo Derecho (Right Stone Curb)
               if (!hasR) {
-                ctx.fillStyle = 'rgba(212, 163, 115, 0.45)';
-                ctx.fillRect(drawPosX + TILE_SIZE - 3, drawPosY, 3, TILE_SIZE + 0.5);
+                ctx.fillStyle = '#57534e';
+                ctx.fillRect(drawPosX + TILE_SIZE - 4, drawPosY, 4, TILE_SIZE + 0.5);
+                ctx.fillStyle = '#e7e5e4';
+                ctx.fillRect(drawPosX + TILE_SIZE - 4, drawPosY, 1.5, TILE_SIZE + 0.5);
+                ctx.fillStyle = '#a8a29e';
+                ctx.fillRect(drawPosX + TILE_SIZE - 2.5, drawPosY, 2, TILE_SIZE + 0.5);
+                ctx.fillStyle = '#44403c';
+                ctx.fillRect(drawPosX + TILE_SIZE - 4, drawPosY + 8, 4, 1);
+                ctx.fillRect(drawPosX + TILE_SIZE - 4, drawPosY + 16, 4, 1);
+                ctx.fillRect(drawPosX + TILE_SIZE - 4, drawPosY + 24, 4, 1);
               }
             } else if (groundType === 13) {
               // 🌾 Tierra Fértil de Arado (Cute Fantasy FarmLand_Tile.png)
@@ -916,12 +953,16 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 12) {
-            // Seto de Jardín y Rosales Esculpidos (Estilo Follaje Oak Tree 2.5D)
-            const bushCanvas = getTileCanvas(12, currentZone.id, (x * 3 + y * 7) % 3);
+            // 🪑 Banco de Madera Rústica y Parterre Floral de Plaza
+            const bench = getWoodenBenchCanvas();
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(bushCanvas, posX, posY, 32, 32);
+                c.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                c.beginPath();
+                c.ellipse(posX + 16, posY + 26, 12, 4, 0, 0, Math.PI * 2);
+                c.fill();
+                c.drawImage(bench, posX, posY + 2, 32, 28);
               },
             });
           } else if (tileType === 13) {
