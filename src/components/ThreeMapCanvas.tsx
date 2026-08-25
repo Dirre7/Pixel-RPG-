@@ -88,7 +88,7 @@ interface ThreeMapCanvasProps {
   onTileClick?: (x: number, y: number) => void;
 }
 
-export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
+const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
   currentZone,
   playerPos,
   player,
@@ -104,10 +104,20 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
   const isBossPortalUnlocked = areZoneMainQuestsCompleted(currentZone.id, completedQuests).isUnlocked;
 
   const facingDirRef = useRef(facingDir);
+  const openedChestsRef = useRef(openedChests);
+  const defeatedBossesRef = useRef(defeatedBosses);
 
   useEffect(() => {
     facingDirRef.current = facingDir;
   }, [facingDir]);
+
+  useEffect(() => {
+    openedChestsRef.current = openedChests;
+  }, [openedChests]);
+
+  useEffect(() => {
+    defeatedBossesRef.current = defeatedBosses;
+  }, [defeatedBosses]);
 
   // Overhead MOBA HUD direct DOM ref (Eliminates 60-120 React re-renders per second)
   const hudRef = useRef<HTMLDivElement | null>(null);
@@ -179,7 +189,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
     // 2. STYLIZED CLEAN RPG RENDERER (CRISP RETINA RESOLUTION & 60 FPS SOLID)
     const renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: !isMobile,
       alpha: false,
       powerPreference: 'high-performance',
       precision: 'mediump',
@@ -187,7 +197,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       depth: true,
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = false;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -1166,7 +1176,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
         // Chest (Tile 7)
         if (tileType === 7) {
           const chestId = `${currentZone.id}_${x}_${y}`;
-          const isOpened = openedChests.includes(chestId);
+          const isOpened = openedChestsRef.current.includes(chestId);
           const chestRes = createStylizedChestMesh(isOpened);
           const chestGroup = chestRes.group;
           chestGroup.position.set(posX, elevation, posZ);
@@ -1232,7 +1242,7 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
         // ⚔️ Boss Portal / Zone Travel Gateway (Tile 11)
         if (tileType === 11) {
-          const portalGroup = create3DBossPortalMesh(posX, posZ, isBossDefeated, isBossPortalUnlocked);
+          const portalGroup = create3DBossPortalMesh(posX, posZ, defeatedBossesRef.current.includes(currentZone.boss.name), isBossPortalUnlocked);
           portalGroup.position.y += elevation;
           tileGroup.add(portalGroup);
           obstacleGroups.push({ group: portalGroup, gridX: x, gridY: y });
@@ -1422,9 +1432,9 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
         if (hasQuest && npc.quest) {
           if (npc.quest.targetType === 'reach_level' && player.level >= Number(npc.quest.targetValue)) {
             isQuestReady = true;
-          } else if (npc.quest.targetType === 'defeat_boss' && isBossDefeated) {
+          } else if (npc.quest.targetType === 'defeat_boss' && defeatedBossesRef.current.includes(currentZone.boss.name)) {
             isQuestReady = true;
-          } else if (npc.quest.targetType === 'open_chests' && openedChests.length >= Number(npc.quest.targetValue)) {
+          } else if (npc.quest.targetType === 'open_chests' && openedChestsRef.current.length >= Number(npc.quest.targetValue)) {
             isQuestReady = true;
           }
         }
@@ -1589,8 +1599,16 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     let lowFpsStreak = 0;
     let lastCullGX = -999;
     let lastCullGZ = -999;
+    let frameSkipCounter = 0;
 
     const animate = () => {
+      if (isMobile) {
+        frameSkipCounter = (frameSkipCounter || 0) + 1;
+        if (frameSkipCounter % 2 !== 0) {
+          animationFrameId = requestAnimationFrame(animate);
+          return;
+        }
+      }
       animationFrameId = requestAnimationFrame(animate);
       const delta = Math.min(clock.getDelta(), 0.08);
       const time = clock.getElapsedTime();
@@ -1876,16 +1894,37 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     const domEl = renderer.domElement;
     domEl.addEventListener('click', handleContainerClick);
 
+    const handleContextLost = (e: Event) => { e.preventDefault(); cancelAnimationFrame(animationFrameId); };
+    const handleContextRestored = () => { renderer.setSize(container.clientWidth, container.clientHeight); animationFrameId = requestAnimationFrame(animate); };
+    domEl.addEventListener('webglcontextlost', handleContextLost);
+    domEl.addEventListener('webglcontextrestored', handleContextRestored);
+
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
       domEl.removeEventListener('click', handleContainerClick);
+      domEl.removeEventListener('webglcontextlost', handleContextLost);
+      domEl.removeEventListener('webglcontextrestored', handleContextRestored);
+
+      scene.traverse((obj: any) => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          if (Array.isArray(obj.material)) {
+            obj.material.forEach((m: any) => { m.dispose(); if (m.map) m.map.dispose(); if (m.normalMap) m.normalMap.dispose(); });
+          } else {
+            obj.material.dispose();
+            if (obj.material.map) obj.material.map.dispose();
+            if (obj.material.normalMap) obj.material.normalMap.dispose();
+          }
+        }
+      });
+
       renderer.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
     };
-  }, [currentZone, player.heroClass, equipment, openedChests, defeatedBosses, isBossDefeated]);
+  }, [currentZone, player.heroClass, equipment]);
 
   return (
     <div className="relative w-full h-full min-h-[500px] flex-1 select-none overflow-hidden bg-slate-950">
@@ -4091,3 +4130,5 @@ function create3DGeodeCrystalMesh(posX: number, posZ: number, seed: number): THR
 
   return g;
 }
+
+export const ThreeMapCanvas = React.memo(ThreeMapCanvasComponent);

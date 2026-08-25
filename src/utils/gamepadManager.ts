@@ -139,7 +139,6 @@ export function useGamepadControls(onAction: (action: ControllerAction) => void,
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
-    // Gamepad API Poll Loop
     const pollGamepad = () => {
       const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
       const gp = Array.from(gamepads).find((g) => g !== null && g.connected);
@@ -172,16 +171,31 @@ export function useGamepadControls(onAction: (action: ControllerAction) => void,
         checkButtonOnce(Boolean(gp.buttons[9]?.pressed || gp.buttons[8]?.pressed), 'MENU');
         checkButtonOnce(Boolean(gp.buttons[4]?.pressed), 'TAB_PREV');
         checkButtonOnce(Boolean(gp.buttons[5]?.pressed), 'TAB_NEXT');
-      }
 
-      requestRef.current = requestAnimationFrame(pollGamepad);
+        requestRef.current = requestAnimationFrame(pollGamepad);
+      } else {
+        requestRef.current = null;
+      }
     };
 
-    requestRef.current = requestAnimationFrame(pollGamepad);
+    const handleGamepadConnected = () => {
+      if (!requestRef.current) {
+        requestRef.current = requestAnimationFrame(pollGamepad);
+      }
+    };
+
+    window.addEventListener('gamepadconnected', handleGamepadConnected);
+
+    // Initial start if already connected
+    const initialGamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+    if (Array.from(initialGamepads).some((g) => g !== null && g.connected)) {
+      requestRef.current = requestAnimationFrame(pollGamepad);
+    }
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('gamepadconnected', handleGamepadConnected);
       if (requestRef.current) {
         cancelAnimationFrame(requestRef.current);
       }

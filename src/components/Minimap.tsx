@@ -12,7 +12,7 @@ interface MinimapProps {
   isCreatorMode?: boolean;
 }
 
-export const Minimap: React.FC<MinimapProps> = ({
+const MinimapComponent: React.FC<MinimapProps> = ({
   currentZone,
   playerPos,
   openedChests,
@@ -342,3 +342,5 @@ export const Minimap: React.FC<MinimapProps> = ({
     </div>
   );
 };
+
+export const Minimap = React.memo(MinimapComponent);

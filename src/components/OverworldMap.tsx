@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { PlayerStats, Zone, Inventory, NPC } from '../types';
 import { ZONES, areZoneMainQuestsCompleted, ALL_GAME_QUESTS, isZoneUnlocked, getZoneRequirementMessage, GAME_ACHIEVEMENTS, getAchievementProgress, getQuestRewardEquipment } from '../data/gameData';
 import { PixelCanvas } from './PixelCanvas';
@@ -194,23 +194,25 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     setTimeout(() => setToastMessage(null), 2500);
   };
 
-  const unclaimedAchievementsCount = GAME_ACHIEVEMENTS.filter((ach) => {
-    const isClaimed = claimedAchievements.includes(ach.id);
-    if (isClaimed) return false;
-    const isUnlocked = unlockedAchievements.includes(ach.id);
-    if (isUnlocked) return true;
-    const progress = getAchievementProgress(
-      ach,
-      player,
-      inventory,
-      defeatedBosses,
-      openedChests,
-      completedQuests,
-      unlockedLoreIds,
-      defeatedEnemyCounts
-    );
-    return progress.isCompleted;
-  }).length;
+  const unclaimedAchievementsCount = useMemo(() => {
+    return GAME_ACHIEVEMENTS.filter((ach) => {
+      const isClaimed = claimedAchievements.includes(ach.id);
+      if (isClaimed) return false;
+      const isUnlocked = unlockedAchievements.includes(ach.id);
+      if (isUnlocked) return true;
+      const progress = getAchievementProgress(
+        ach,
+        player,
+        inventory,
+        defeatedBosses,
+        openedChests,
+        completedQuests,
+        unlockedLoreIds,
+        defeatedEnemyCounts
+      );
+      return progress.isCompleted;
+    }).length;
+  }, [claimedAchievements, unlockedAchievements, player, inventory, defeatedBosses, openedChests, completedQuests, unlockedLoreIds, defeatedEnemyCounts]);
 
   const isBossDefeatedInZone = defeatedBosses.includes(currentZone.boss.name);
 
@@ -772,14 +774,20 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     }
   };
 
+  useEffect(() => {
+    const container = document.getElementById('overworld-root');
+    if (!container) return;
+    const handler = (e: TouchEvent) => { if (e.cancelable) e.preventDefault(); };
+    container.addEventListener('touchmove', handler, { passive: false });
+    return () => container.removeEventListener('touchmove', handler);
+  }, []);
+
   return (
     <div
+      id="overworld-root"
       className="relative w-full h-full bg-slate-950 overflow-hidden select-none touch-none"
       style={{ touchAction: 'none' }}
       onTouchStart={handleTouchStart}
-      onTouchMove={(e) => {
-        if (e.cancelable) e.preventDefault();
-      }}
       onTouchEnd={handleTouchEnd}
     >
       {/* 1. 3D WebGL MOBA Engine - 100% Fullscreen Viewport */}

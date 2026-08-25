@@ -25,7 +25,7 @@ interface BottomActionBarProps {
   onTeleportToTown?: () => void;
 }
 
-export const BottomActionBar: React.FC<BottomActionBarProps> = ({
+const BottomActionBarComponent: React.FC<BottomActionBarProps> = ({
   player,
   inventory,
   onOpenInventory,
@@ -169,3 +169,5 @@ export const BottomActionBar: React.FC<BottomActionBarProps> = ({
     </div>
   );
 };
+
+export const BottomActionBar = React.memo(BottomActionBarComponent);

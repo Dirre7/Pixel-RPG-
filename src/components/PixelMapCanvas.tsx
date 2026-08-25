@@ -73,6 +73,16 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [direction, setDirection] = useState<Direction>('down');
   const [isMoving, setIsMoving] = useState(false);
+  const isMovingRef = useRef(false);
+
+  // Sync refs for render loop
+  const playerRef = useRef(player);
+  const directionRef = useRef(direction);
+  const openedChestsRef = useRef(openedChests);
+
+  useEffect(() => { playerRef.current = player; }, [player]);
+  useEffect(() => { directionRef.current = direction; }, [direction]);
+  useEffect(() => { openedChestsRef.current = openedChests; }, [openedChests]);
 
   // Posición suave del jugador para movimiento fluido entre casillas
   const currentPosRef = useRef({ x: playerPos.x, y: playerPos.y });
@@ -232,7 +242,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         targetPosRef.current.y - currentPosRef.current.y
       );
       const moving = dist > 0.05;
-      setIsMoving(moving);
+      if (isMovingRef.current !== moving) {
+        isMovingRef.current = moving;
+        setIsMoving(moving);
+      }
 
       // Limpiar lienzo
       ctx.fillStyle = '#0f172a';
@@ -768,7 +781,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           } else if (tileType === 7) {
             // Cofre del Tesoro Dorado
             const chestId = `${currentZone.id}_${x}_${y}`;
-            const isOpen = openedChests.includes(chestId);
+            const isOpen = openedChestsRef.current.includes(chestId);
             const chest = getChestCanvas(isOpen);
             entities.push({
               ySort: posY + TILE_SIZE,
@@ -1582,18 +1595,20 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       // 3. Cofres del tesoro registrados en currentZone.chests (si no están ya en tileData)
       if (currentZone.chests) {
         currentZone.chests.forEach((chest) => {
-          if (currentZone.tileData[chest.y]?.[chest.x] !== 7) {
-            const isOpen = openedChests.includes(chest.id);
-            const chestCanvas = getChestCanvas(isOpen);
-            const cX = chest.x * TILE_SIZE;
-            const cY = chest.y * TILE_SIZE;
+          if (chest.x >= startCol - 2 && chest.x <= endCol + 2 && chest.y >= startRow - 2 && chest.y <= endRow + 2) {
+            if (currentZone.tileData[chest.y]?.[chest.x] !== 7) {
+              const isOpen = openedChestsRef.current.includes(chest.id);
+              const chestCanvas = getChestCanvas(isOpen);
+              const cX = chest.x * TILE_SIZE;
+              const cY = chest.y * TILE_SIZE;
 
-            entities.push({
-              ySort: cY + TILE_SIZE - 4,
-              draw: (c) => {
-                c.drawImage(chestCanvas, cX + 4, cY + 8, 24, 24);
-              },
-            });
+              entities.push({
+                ySort: cY + TILE_SIZE - 4,
+                draw: (c) => {
+                  c.drawImage(chestCanvas, cX + 4, cY + 8, 24, 24);
+                },
+              });
+            }
           }
         });
       }
@@ -1601,32 +1616,34 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       // 4. NPCs fijos con marcadores de misión flotantes
       if (currentZone.npcs) {
         currentZone.npcs.forEach((npc) => {
-          const nX = npc.x * TILE_SIZE;
-          const nY = npc.y * TILE_SIZE;
-          const gender = npc.avatarStyle === 'elder' || npc.name.includes('Elena') || npc.name.includes('Griselda') || npc.name.includes('Aveline') ? 'female' : 'male';
-          const npcClass =
-            npc.avatarStyle === 'blacksmith' ? 'Berserker' :
-            npc.avatarStyle === 'wizard' ? 'Mago' :
-            npc.avatarStyle === 'knight' ? 'Paladín' :
-            npc.avatarStyle === 'scout' ? 'Pícaro' :
-            npc.avatarStyle === 'elder' ? 'Sacerdotisa' :
-            npc.avatarStyle === 'elf' ? 'Arquero' : 'Guerrero';
-          const npcSprite = getHeroSpriteCanvas(npcClass, gender, 'down', 'idle');
+          if (npc.x >= startCol - 2 && npc.x <= endCol + 2 && npc.y >= startRow - 2 && npc.y <= endRow + 2) {
+            const nX = npc.x * TILE_SIZE;
+            const nY = npc.y * TILE_SIZE;
+            const gender = npc.avatarStyle === 'elder' || npc.name.includes('Elena') || npc.name.includes('Griselda') || npc.name.includes('Aveline') ? 'female' : 'male';
+            const npcClass =
+              npc.avatarStyle === 'blacksmith' ? 'Berserker' :
+              npc.avatarStyle === 'wizard' ? 'Mago' :
+              npc.avatarStyle === 'knight' ? 'Paladín' :
+              npc.avatarStyle === 'scout' ? 'Pícaro' :
+              npc.avatarStyle === 'elder' ? 'Sacerdotisa' :
+              npc.avatarStyle === 'elf' ? 'Arquero' : 'Guerrero';
+            const npcSprite = getHeroSpriteCanvas(npcClass, gender, 'down', 'idle');
 
-          entities.push({
-            ySort: nY + TILE_SIZE,
-            draw: (c) => {
-              c.drawImage(npcSprite, nX, nY, TILE_SIZE, TILE_SIZE);
+            entities.push({
+              ySort: nY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(npcSprite, nX, nY, TILE_SIZE, TILE_SIZE);
 
-              // Signo de exclamación flotante (!) EXCLUSIVAMENTE si tiene misión activa
-              if (npc.quest) {
-                const bounce = Math.sin(time * 5) * 3;
-                c.fillStyle = '#facc15';
-                c.fillRect(nX + 14, nY - 14 + bounce, 4, 8);
-                c.fillRect(nX + 14, nY - 4 + bounce, 4, 3);
-              }
-            },
-          });
+                // Signo de exclamación flotante (!) EXCLUSIVAMENTE si tiene misión activa
+                if (npc.quest) {
+                  const bounce = Math.sin(time * 5) * 3;
+                  c.fillStyle = '#facc15';
+                  c.fillRect(nX + 14, nY - 14 + bounce, 4, 8);
+                  c.fillRect(nX + 14, nY - 4 + bounce, 4, 3);
+                }
+              },
+            });
+          }
         });
       }
 
@@ -1640,7 +1657,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         animState = stepFrame === 0 ? 'walk1' : 'walk2';
       }
 
-      const playerSprite = getHeroSpriteCanvas(player.heroClass, player.gender, direction, animState);
+      const playerSprite = getHeroSpriteCanvas(playerRef.current.heroClass, playerRef.current.gender, directionRef.current, animState);
 
       entities.push({
         ySort: pY + TILE_SIZE,
@@ -1682,7 +1699,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     render();
 
     return () => cancelAnimationFrame(animId);
-  }, [currentZone, player, direction, openedChests]);
+  }, [currentZone.id]);
 
   return (
     <div className="relative w-full h-full min-h-0 bg-slate-950 rounded-xl overflow-hidden shadow-2xl border border-slate-800 flex items-center justify-center">
