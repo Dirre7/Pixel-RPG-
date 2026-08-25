@@ -92,6 +92,9 @@ import {
   getEnchantedTreeCanvas,
   getSquarePlazaFountainCanvas,
   getTileCanvas,
+  getBlastFurnaceCanvas,
+  getAnvilWorkstationCanvas,
+  getOrePileCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 // --- 🌟 2.5D HD PIXEL BILLBOARD SPRITE HELPERS ---
@@ -1211,12 +1214,54 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: stallGroup, gridX: x, gridY: y });
         }
 
-        // 🔨 Blacksmith Forge (Tile 10)
+        // 🔨 Gran Edificio de la Forja Real y Maestranza (Tile 10)
         if (tileType === 10) {
-          const forgeGroup = create2DPixelSprite(getForgeCanvas(0), 4.2, 4.2, 1.4);
+          const forgeGroup = create2DPixelSprite(getForgeCanvas(0), 5.6, 6.5, 2.2);
           forgeGroup.position.set(posX, elevation, posZ);
           addWorldEntity(forgeGroup, x, y);
           obstacleGroups.push({ group: forgeGroup, gridX: x, gridY: y });
+        }
+
+        // 🌋 Gran Horno de Fundición / Hoguera (Tile 19)
+        if (tileType === 19) {
+          const isForge = currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge';
+          const furnaceGroup = create2DPixelSprite(isForge ? getBlastFurnaceCanvas(0) : getCampfireCanvas(0), isForge ? 4.4 : 2.5, isForge ? 4.4 : 2.5, 1.2);
+          furnaceGroup.position.set(posX, elevation, posZ);
+          
+          if (isForge) {
+            const fireLight = new THREE.PointLight(0xf97316, 2.5, 8);
+            fireLight.position.set(0, 1.5, 0);
+            furnaceGroup.add(fireLight);
+          }
+
+          addWorldEntity(furnaceGroup, x, y);
+          obstacleGroups.push({ group: furnaceGroup, gridX: x, gridY: y });
+        }
+
+        // 🔨 Yunque de Herrero y Estación de Trabajo (Tile 29)
+        if (tileType === 29) {
+          const anvilGroup = create2DPixelSprite(getAnvilWorkstationCanvas(0), 2.5, 2.5, 0.8);
+          anvilGroup.position.set(posX, elevation, posZ);
+          addWorldEntity(anvilGroup, x, y);
+          obstacleGroups.push({ group: anvilGroup, gridX: x, gridY: y });
+        }
+
+        // ⚔️ Armero y Expositor de Armas (Tile 16)
+        if (tileType === 16) {
+          const isForge = currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge';
+          const rackGroup = create2DPixelSprite(isForge ? getWeaponRackCanvas() : getGraveyardCanvas(), 2.4, 2.8, 0.6);
+          rackGroup.position.set(posX, elevation, posZ);
+          addWorldEntity(rackGroup, x, y);
+          obstacleGroups.push({ group: rackGroup, gridX: x, gridY: y });
+        }
+
+        // 🪨 Pila de Mineral y Carbón (Tile 22)
+        if (tileType === 22) {
+          const isForge = currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge';
+          const oreGroup = create2DPixelSprite(isForge ? getOrePileCanvas() : getNoticeBoardCanvas(), 2.5, 2.5, 0.8);
+          oreGroup.position.set(posX, elevation, posZ);
+          addWorldEntity(oreGroup, x, y);
+          obstacleGroups.push({ group: oreGroup, gridX: x, gridY: y });
         }
 
         // ⚔️ Boss Portal / Zone Travel Gateway (Tile 11)
@@ -2239,6 +2284,49 @@ function createProceduralGroundPBRTextures(zoneId: string): { diffuse: THREE.Can
     // Glowing Mithril and Cyan ore flecks in fissures
     for (let i = 0; i < 400; i++) {
       ctx.fillStyle = Math.random() > 0.6 ? '#38bdf8' : '#818cf8';
+      ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
+    }
+  } else if (zoneId === 'subzone_forge' || zoneId.includes('forge')) {
+    // 🌋 Dark Basalt Foundry Flagstones with Soot, Charcoal, and Warm Embers
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(0, 0, 512, 512);
+
+    const tileSize = 64;
+    for (let py = 0; py < 512; py += tileSize) {
+      for (let px = 0; px < 512; px += tileSize) {
+        const shade = Math.floor(35 + Math.random() * 20);
+        ctx.fillStyle = `rgb(${shade}, ${shade - 3}, ${shade - 5})`;
+        ctx.beginPath();
+        const crackMargin = 3;
+        ctx.roundRect(px + crackMargin, py + crackMargin, tileSize - crackMargin * 2, tileSize - crackMargin * 2, 4);
+        ctx.fill();
+
+        // Charcoal dust & soot
+        for (let i = 0; i < 30; i++) {
+          ctx.fillStyle = Math.random() > 0.5 ? '#0c0a09' : '#44403c';
+          ctx.fillRect(px + 4 + Math.random() * (tileSize - 8), py + 4 + Math.random() * (tileSize - 8), 2, 2);
+        }
+      }
+    }
+
+    // Mortar lines
+    ctx.strokeStyle = '#0c0a09';
+    ctx.lineWidth = 3;
+    for (let i = 0; i <= 512; i += tileSize) {
+      ctx.beginPath();
+      ctx.moveTo(i, 0);
+      ctx.lineTo(i, 512);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(0, i);
+      ctx.lineTo(512, i);
+      ctx.stroke();
+    }
+
+    // Glowing warm ember flecks
+    for (let i = 0; i < 200; i++) {
+      ctx.fillStyle = Math.random() > 0.5 ? '#ea580c' : '#f59e0b';
       ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
     }
   } else if (zoneId === 'zone_volcano') {
