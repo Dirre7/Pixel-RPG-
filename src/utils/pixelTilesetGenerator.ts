@@ -1124,33 +1124,154 @@ export function getChickenCanvas(time: number = 0): HTMLCanvasElement {
 }
 
 /**
- * ⚒️ FORJA DEL HERRERO (48x48 px)
+ * ⚒️ GRAN EDIFICIO DE LA FORJA REAL Y MAESTRANZA (96x112 px)
+ * Arquitectura de cantería pesada con tejado de pizarra, chimenea industrial humeante y rótulo de yunque
  */
 export function getForgeCanvas(time: number = 0): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
-  canvas.width = 48;
-  canvas.height = 48;
+  canvas.width = 96;
+  canvas.height = 112;
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
 
-  ctx.fillStyle = 'rgba(0,0,0,0.38)';
-  ctx.fillRect(4, 38, 40, 6);
+  // 1. Sombra de contacto suave
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+  ctx.beginPath();
+  ctx.ellipse(48, 100, 42, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-  ctx.fillStyle = '#334155';
-  ctx.fillRect(6, 12, 36, 28);
-  ctx.fillStyle = '#475569';
-  ctx.fillRect(8, 14, 32, 24);
-
-  ctx.fillStyle = '#7f1d1d';
-  ctx.fillRect(16, 22, 16, 14);
-  ctx.fillStyle = '#dc2626';
-  ctx.fillRect(18, 24, 12, 10);
-  ctx.fillStyle = '#fbbf24';
-  const flicker = Math.sin(time * 8) * 2;
-  ctx.fillRect(20, 26 + flicker, 8, 6);
-
+  // 2. Muros de cantería de piedra basalto (Cuerpo principal: 68x50 px)
   ctx.fillStyle = '#1e293b';
-  ctx.fillRect(34, 28, 8, 10);
+  ctx.fillRect(14, 52, 68, 50);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(16, 54, 64, 46);
+
+  // Textura de sillares de piedra y juntas
+  ctx.fillStyle = '#1e293b';
+  for (let r = 0; r < 5; r++) {
+    const yLine = 54 + r * 9;
+    ctx.fillRect(16, yLine, 64, 1);
+    const offset = (r % 2) * 12;
+    for (let c = 0; c < 4; c++) {
+      ctx.fillRect(20 + offset + c * 16, yLine, 1, 9);
+    }
+  }
+
+  // Refuerzos de esquinas con remaches de hierro
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(14, 52, 5, 50);
+  ctx.fillRect(77, 52, 5, 50);
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(16, 58, 2, 2);
+  ctx.fillRect(16, 76, 2, 2);
+  ctx.fillRect(16, 92, 2, 2);
+  ctx.fillRect(79, 58, 2, 2);
+  ctx.fillRect(79, 76, 2, 2);
+  ctx.fillRect(79, 92, 2, 2);
+
+  // 3. Gran Chimenea de Piedra en el lateral derecho
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(70, 8, 18, 50);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(72, 10, 14, 46);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(73, 11, 12, 44);
+  // Remate superior de chimenea
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(69, 6, 20, 4);
+
+  // Bocanadas de humo animado
+  const smokeP1 = Math.sin(time * 3) * 3;
+  const smokeP2 = Math.cos(time * 2.5) * 4;
+  ctx.fillStyle = 'rgba(203, 213, 225, 0.45)';
+  ctx.beginPath();
+  ctx.arc(79 + smokeP1, 3, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(148, 163, 184, 0.35)';
+  ctx.beginPath();
+  ctx.arc(82 + smokeP2, -5, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 4. Tejado a dos aguas de pizarra negra volcánica
+  ctx.fillStyle = '#020617';
+  ctx.beginPath();
+  ctx.moveTo(48, 14); ctx.lineTo(6, 54); ctx.lineTo(90, 54);
+  ctx.fill();
+
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.moveTo(48, 17); ctx.lineTo(10, 52); ctx.lineTo(86, 52);
+  ctx.fill();
+
+  // Tejas de pizarra
+  ctx.fillStyle = '#1e293b';
+  for (let step = 0; step < 4; step++) {
+    const yT = 24 + step * 8;
+    const wT = 20 + step * 16;
+    ctx.fillRect(48 - wT / 2, yT, wT, 2);
+  }
+
+  // Viga maestra de madera en frontón
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(46, 20, 4, 32);
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(10, 52, 76, 3);
+
+  // 5. Puerta doble de roble con arco de medio punto y herrajes
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(38, 70, 20, 32);
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(40, 72, 16, 30);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(41, 73, 6, 28);
+  ctx.fillRect(49, 73, 6, 28);
+  // Bisagras de hierro negro y pomo
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(39, 76, 3, 3);
+  ctx.fillRect(39, 92, 3, 3);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(46, 86, 2, 2);
+  ctx.fillRect(48, 86, 2, 2);
+
+  // 6. Ventana enrejada con resplandor del fuego interior
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(20, 66, 14, 16);
+  // Resplandor cálido de la fragua parpadeando
+  const fireFlicker = Math.sin(time * 8) * 0.15 + 0.85;
+  ctx.fillStyle = `rgba(249, 115, 22, ${fireFlicker})`;
+  ctx.fillRect(21, 67, 12, 14);
+  ctx.fillStyle = `rgba(254, 240, 138, ${fireFlicker * 0.9})`;
+  ctx.fillRect(24, 70, 6, 8);
+  // Rejas de hierro
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(27, 67, 1, 14);
+  ctx.fillRect(21, 74, 12, 1);
+
+  // 7. Rótulo colgante de herrería con yunque dorado
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(32, 56, 32, 2); // Barra de hierro
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(36, 58, 24, 10);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(37, 59, 22, 8);
+  // Icono del yunque dorado
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(44, 61, 8, 4);
+  ctx.fillRect(42, 62, 12, 2);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(45, 62, 6, 1);
+
+  // 8. Cobertizo lateral con leña y carbón (Izquierda: 14x24 px)
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(2, 74, 12, 28);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(3, 72, 12, 4); // Tejadillo
+  // Troncos apilados
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(4, 82, 8, 3);
+  ctx.fillRect(4, 87, 8, 3);
+  ctx.fillRect(4, 92, 8, 3);
+  ctx.fillRect(4, 97, 8, 3);
 
   return canvas;
 }

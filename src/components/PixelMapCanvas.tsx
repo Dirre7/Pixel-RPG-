@@ -724,18 +724,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 10) {
-            // Gran Forja Imperial de Piedra con Chimenea y Humo Animado
+            // Gran Forja Imperial de Piedra y Maestranza Real (96x112 px)
             entities.push({
               ySort: posY + TILE_SIZE + 20,
               draw: (c) => {
-                const blacksmith = getForgeCanvas();
-                c.drawImage(blacksmith, posX - 16, posY - 40, 64, 72);
-                // Humo animado
-                const smokeFrame = Math.floor(time * 4) % 3;
-                c.fillStyle = 'rgba(203, 213, 225, 0.45)';
-                c.beginPath();
-                c.arc(posX + 36, posY - 45 - smokeFrame * 5, 4 + smokeFrame * 2, 0, Math.PI * 2);
-                c.fill();
+                const blacksmith = getForgeCanvas(time);
+                c.drawImage(blacksmith, posX - 32, posY - 76, 96, 112);
               },
             });
           } else if (tileType === 21) {

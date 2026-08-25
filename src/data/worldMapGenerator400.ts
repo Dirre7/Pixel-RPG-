@@ -318,10 +318,13 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[53][33] = 17; // Farola de bienvenida al porche
 
   // ⚔️ EDIFICIO 2: Gran Forja Real de Brom (X: 25, Y: 51, Puerta: 25, 53)
-  map[51][25] = 10; // Edificio de la Forja con Chimenea
-  map[52][23] = 14; // Pila de carbón mineral
-  map[50][24] = 12; map[50][26] = 12; // Setos
-  map[53][23] = 17; // Farola de la forja
+  map[51][25] = 10; // Gran Edificio de la Forja con Chimenea y Rótulo
+  map[52][24] = 2; map[52][25] = 2; map[52][26] = 2; // Patio empedrado de la forja
+  map[51][24] = 2; map[51][26] = 2;
+  map[52][23] = 29; // Yunque de trabajo exterior con martillo y chispas
+  map[52][27] = 22; // Pilas de mineral de hierro, carbón y lingotes
+  map[50][27] = 16; // Armero con espadas y hachas
+  map[53][23] = 17; // Farola/Brasero de la forja
 
   // 🌿 EDIFICIO 3: Botica Alquímica de Lynda (X: 47, Y: 51, Puerta: 47, 53)
   map[51][47] = 27; // Edificio de la Botica
