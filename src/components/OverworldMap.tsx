@@ -795,26 +795,17 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* 1. 3D WebGL MOBA Engine - 100% Fullscreen Viewport */}
+      {/* 🌟 1. AUTÉNTICO MOTOR 2.5D / HD PIXEL ART RETRO RPG - 100% Fullscreen Viewport */}
       <div className="absolute inset-0 w-full h-full">
-        <ThreeMapCanvas
+        <PixelMapCanvas
           currentZone={currentZone}
           playerPos={playerPos}
           player={player}
           equipment={inventory.equipment}
           facingDir={facingDir}
           openedChests={openedChests}
-          defeatedBosses={defeatedBosses}
-          completedQuests={completedQuests}
-          onTileClick={
-            player.level >= 75
-              ? (targetX, targetY) => {
-                  onMove({ x: targetX, y: targetY });
-                  soundEngine.playSfx('select');
-                  showToast(`⚡ Teletransporte Creador: [${targetX}, ${targetY}]`);
-                }
-              : undefined
-          }
+          onPlayerMove={onMove}
+          onInteract={() => {}}
         />
       </div>
 

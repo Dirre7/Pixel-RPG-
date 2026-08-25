@@ -49,29 +49,31 @@ interface PixelMapCanvasProps {
   currentZone: Zone;
   playerPos: { x: number; y: number };
   player: PlayerStats;
-  equipment: {
-    weapon?: EquipmentItem;
-    armor?: EquipmentItem;
-    shield?: EquipmentItem;
-    ring?: EquipmentItem;
-    necklace?: EquipmentItem;
+  equipment?: {
+    weapon?: EquipmentItem | null;
+    armor?: EquipmentItem | null;
+    shield?: EquipmentItem | null;
+    ring?: EquipmentItem | null;
+    necklace?: EquipmentItem | null;
   };
+  facingDir?: Direction;
   openedChests: string[];
-  activeShrines: string[];
+  activeShrines?: string[];
   onPlayerMove: (newPos: { x: number; y: number }) => void;
-  onInteract: () => void;
+  onInteract?: () => void;
 }
 
 export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
   currentZone,
   playerPos,
   player,
+  facingDir = 'down',
   openedChests,
   onPlayerMove,
   onInteract,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [direction, setDirection] = useState<Direction>('down');
+  const [direction, setDirection] = useState<Direction>(facingDir);
   const [isMoving, setIsMoving] = useState(false);
   const isMovingRef = useRef(false);
 
@@ -81,7 +83,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
   const openedChestsRef = useRef(openedChests);
 
   useEffect(() => { playerRef.current = player; }, [player]);
-  useEffect(() => { directionRef.current = direction; }, [direction]);
+  useEffect(() => {
+    if (facingDir) {
+      setDirection(facingDir);
+      directionRef.current = facingDir;
+    }
+  }, [facingDir]);
   useEffect(() => { openedChestsRef.current = openedChests; }, [openedChests]);
 
   // Posición suave del jugador para movimiento fluido entre casillas
@@ -108,6 +115,18 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
+    ctx.imageSmoothingEnabled = false;
+
+    const resizeCanvas = () => {
+      if (!canvas || !canvas.parentElement) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        canvas.width = Math.round(rect.width);
+        canvas.height = Math.round(rect.height);
+      }
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
     ctx.imageSmoothingEnabled = false;
 
     // Carga Conjunta Armonizada: Cute Fantasy + Pixel Crawler
@@ -1702,18 +1721,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
   }, [currentZone.id]);
 
   return (
-    <div className="relative w-full h-full min-h-0 bg-slate-950 rounded-xl overflow-hidden shadow-2xl border border-slate-800 flex items-center justify-center">
+    <div className="relative w-full h-full min-h-0 bg-slate-950 overflow-hidden flex items-center justify-center">
       <canvas
         ref={canvasRef}
-        width={800}
-        height={600}
-        className="w-full h-full object-cover"
+        className="w-full h-full block"
         style={{ imageRendering: 'pixelated' }}
       />
-
-      <div className="absolute top-2 left-2 bg-slate-900/90 px-2 py-1 rounded border border-slate-700/60 text-[10px] text-slate-300 font-pixel">
-        🗺️ {currentZone.name}
-      </div>
     </div>
   );
 };
