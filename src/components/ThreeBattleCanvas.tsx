@@ -426,8 +426,6 @@ export const ThreeBattleCanvas: React.FC<ThreeBattleCanvasProps> = ({
     const heroFaceAngle = Math.atan2(ENEMY_BASE_POS.x - HERO_BASE_POS.x, ENEMY_BASE_POS.z - HERO_BASE_POS.z);
     heroGroup.rotation.y = heroFaceAngle;
     scene.add(heroGroup);
-    heroGroup.rotation.y = heroFaceAngle;
-    scene.add(heroGroup);
 
     // 10. 3D ENEMY CHARACTER (Background-Right, Facing down-left towards hero)
     const enemyResult = createRealisticEnemyMesh(enemy);

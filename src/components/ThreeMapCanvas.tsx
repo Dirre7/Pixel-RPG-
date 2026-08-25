@@ -168,17 +168,17 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
       scene.fog = new THREE.FogExp2('#0a0714', 0.02);
     }
 
-    // 3D Isometric Perspective Camera (High-Visibility ARPG Angle)
+    // 3D HD-2D Cinematic Perspective Camera (Low-FOV Diorama Angle)
     let aspect = width / height;
-    const camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(34, aspect, 0.1, 1000);
     
     const mapW = currentZone.mapWidth * 2.5;
     const mapH = currentZone.mapHeight * 2.5;
     const centerX = mapW / 2;
     const centerZ = mapH / 2;
 
-    camera.position.set(centerX + 8.5, 11.5, centerZ + 8.5);
-    camera.lookAt(centerX, 0.8, centerZ);
+    camera.position.set(centerX + 10.2, 13.6, centerZ + 10.2);
+    camera.lookAt(centerX, 0.9, centerZ);
 
     const isTouchOrMobile = typeof window !== 'undefined' && (
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
@@ -223,46 +223,46 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
     window.addEventListener('resize', handleResize);
     handleResize();
 
-    // 3. LIGHTING SETUP
+    // 3. HD-2D ATMOSPHERIC LIGHTING SETUP
     // Ambient Light (Warm magma, torch & imperial moonlight fill light)
     const ambientLight = new THREE.AmbientLight(
       currentZone.id === 'zone_forest'
-        ? 0x224422
+        ? 0x1e3a1e
         : currentZone.id === 'zone_cave'
         ? 0xffedd5
         : currentZone.id === 'zone_volcano'
-        ? 0xff7722
+        ? 0xff6611
         : currentZone.id === 'zone_castle'
         ? 0xe0e7ff
         : 0x334155,
-      currentZone.id === 'zone_forest' ? 1.2 : 1.8
+      currentZone.id === 'zone_forest' ? 1.35 : 1.9
     );
     scene.add(ambientLight);
 
     // Hemisphere Light (Sky ambient vs Ground bounce)
     const hemiLight = new THREE.HemisphereLight(
       currentZone.id === 'zone_forest'
-        ? 0xfef08a
+        ? 0xfef9c3
         : currentZone.id === 'zone_cave'
         ? 0xfde047
         : currentZone.id === 'zone_volcano'
-        ? 0xf97316
+        ? 0xfb923c
         : currentZone.id === 'zone_castle'
-        ? 0x93c5fd
+        ? 0xa5b4fc
         : 0x38bdf8,
       currentZone.id === 'zone_volcano'
         ? 0x18181b
         : currentZone.id === 'zone_cave' || currentZone.id === 'zone_castle'
         ? 0x1e293b
         : 0x14532d,
-      currentZone.id === 'zone_forest' ? 1.0 : 1.4
+      currentZone.id === 'zone_forest' ? 1.15 : 1.5
     );
     scene.add(hemiLight);
 
-    // Directional Main Light with Shadows (Torch / Sun Isometric Spotlight)
+    // Directional Main Light with Shadows (Golden Sun HD-2D Highlights)
     const sunLight = new THREE.DirectionalLight(
       currentZone.id === 'zone_forest'
-        ? 0xfff7ed
+        ? 0xfffaed
         : currentZone.id === 'zone_cave'
         ? 0xfffbeb
         : currentZone.id === 'zone_volcano'
@@ -270,7 +270,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
         : currentZone.id === 'zone_castle'
         ? 0xfff7ed
         : 0xd8b4fe,
-      2.4
+      2.6
     );
     const sunPosX = centerX + 110;
     const sunPosY = 85;
@@ -1838,13 +1838,13 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
         }
       }
 
-      // Smooth camera follow target hero position (Close Crisp Isometric ARPG Angle)
-      const camTargetX = curr.x + 8.5;
-      const camTargetZ = curr.z + 8.5;
-      camera.position.x += (camTargetX - camera.position.x) * 0.15;
-      camera.position.z += (camTargetZ - camera.position.z) * 0.15;
-      camera.position.y = 11.5;
-      camera.lookAt(curr.x, 0.8, curr.z);
+      // Smooth camera follow target hero position (Cinematic HD-2D Diorama Low-FOV Perspective)
+      const camTargetX = curr.x + 10.2;
+      const camTargetZ = curr.z + 10.2;
+      camera.position.x += (camTargetX - camera.position.x) * 0.14;
+      camera.position.z += (camTargetZ - camera.position.z) * 0.14;
+      camera.position.y = 13.6;
+      camera.lookAt(curr.x, 0.9, curr.z);
 
       // Keep sunlight positioned relative to player for crisp dynamic shadows
       // Render Scene
