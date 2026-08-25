@@ -177,25 +177,18 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     );
     const isMobile = isTouchOrMobile;
 
-    // 2. RENDERER SETUP WITH HIGH PERFORMANCE FOR MOBILE & TABLETS
+    // 2. STYLIZED CLEAN RPG RENDERER (CRISP RETINA RESOLUTION & 60 FPS SOLID)
     const renderer = new THREE.WebGLRenderer({
-      antialias: !isTouchOrMobile,
+      antialias: true,
       alpha: false,
       powerPreference: 'high-performance',
-      precision: isTouchOrMobile ? 'mediump' : 'highp',
+      precision: 'mediump',
       stencil: false,
       depth: true,
     });
     renderer.setSize(width, height);
-    
-    // Calibrated Pixel Ratio (Retina displays on iPads/iPhones render ultra-crisp at 1.0 - 1.25)
-    const targetDPR = isTouchOrMobile ? Math.min(window.devicePixelRatio, 1.0) : Math.min(window.devicePixelRatio, 1.35);
-    let currentDPR = targetDPR;
-    renderer.setPixelRatio(currentDPR);
-    renderer.shadowMap.enabled = !isTouchOrMobile;
-    renderer.shadowMap.type = THREE.PCFShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = currentZone.id === 'zone_cave' || currentZone.id === 'zone_volcano' || currentZone.id === 'zone_castle' ? 1.25 : 1.08;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = false;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     container.innerHTML = '';
@@ -426,14 +419,10 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
 
     const tileGeo = new THREE.BoxGeometry(2.505, 0.4, 2.505);
 
-    // Geometries & Materials reuse with True PBR Normal Map
+    // Geometries & Materials reuse with Stylized Clean Lambert Shader
     const pathPBR = getCachedPathPBR();
-    const pathMat = new THREE.MeshStandardMaterial({
+    const pathMat = new THREE.MeshLambertMaterial({
       map: pathPBR.diffuse,
-      normalMap: pathPBR.normal,
-      normalScale: new THREE.Vector2(3.5, 3.5),
-      roughness: 0.55,
-      metalness: 0.12,
     });
 
     // Border Dirt Edge Material for natural road blending
@@ -489,13 +478,9 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     // Track obstacles for dynamic X-Ray transparency when near player
     const obstacleGroups: { group: THREE.Group; gridX: number; gridY: number }[] = [];
 
-    // Ground Tile Material with True PBR Physical Shader (Reused instance for high performance)
-    const groundMat = new THREE.MeshStandardMaterial({
+    // Ground Tile Material with Stylized Clean High-Performance Shader
+    const groundMat = new THREE.MeshLambertMaterial({
       map: groundPBR.diffuse,
-      normalMap: groundPBR.normal,
-      normalScale: new THREE.Vector2(3.2, 3.2),
-      roughness: currentZone.id === 'zone_castle' ? 0.45 : currentZone.id === 'zone_cave' ? 0.6 : 0.85,
-      metalness: currentZone.id === 'zone_castle' ? 0.15 : currentZone.id === 'zone_cave' ? 0.18 : 0.05,
     });
 
     // Ground Tile Instanced Mesh with True PBR Physical Shader (1 single draw call for all 3600 tiles!)
@@ -1610,28 +1595,6 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       const delta = Math.min(clock.getDelta(), 0.08);
       const time = clock.getElapsedTime();
 
-      // 🚀 ADAPTIVE FPS DYNAMIC RESOLUTION ENGINE (Ensures 60 FPS on any iPad/iPhone/Android)
-      frameCount++;
-      const now = performance.now();
-      if (now - lastFpsCheckTime >= 1000) {
-        const measuredFps = (frameCount * 1000) / (now - lastFpsCheckTime);
-        frameCount = 0;
-        lastFpsCheckTime = now;
-
-        if (measuredFps < 48) {
-          lowFpsStreak++;
-          if (lowFpsStreak >= 2 && currentDPR > 0.70) {
-            currentDPR = Math.max(0.70, Number((currentDPR - 0.15).toFixed(2)));
-            renderer.setPixelRatio(currentDPR);
-            lowFpsStreak = 0;
-          }
-        } else if (measuredFps >= 57 && currentDPR < targetDPR) {
-          currentDPR = Math.min(targetDPR, Number((currentDPR + 0.10).toFixed(2)));
-          renderer.setPixelRatio(currentDPR);
-          lowFpsStreak = 0;
-        }
-      }
-
       // Smoothly move hero position with exponential delta-time damper (Immune to FPS drops)
       const curr = playerCurrentPosRef.current;
       const targ = playerTargetPosRef.current;
@@ -1830,32 +1793,29 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       }
       particleGeo.attributes.position.needsUpdate = true;
 
-      // DYNAMIC X-RAY TRANSPARENCY: Fade forest trees that block the camera view of the player
-      if (currentZone.id === 'zone_forest') {
+      // DYNAMIC X-RAY TRANSPARENCY: Fade only foreground forest trees when player moves behind them
+      if (currentZone.id === 'zone_forest' && obstacleGroups.length > 0) {
         const playerGridX = Math.round(curr.x / 2.5);
         const playerGridY = Math.round(curr.z / 2.5);
 
-        obstacleGroups.forEach(({ group, gridX, gridY }) => {
-          const dx = gridX - playerGridX;
-          const dy = gridY - playerGridY;
-
-          const isBlockingPlayer = dx >= 0 && dx <= 2 && dy >= 0 && dy <= 2;
-          const targetOpacity = isBlockingPlayer ? 0.35 : 1.0;
-
-          group.traverse((child) => {
-            if (child instanceof THREE.Mesh && child.material) {
-              if (Array.isArray(child.material)) {
-                child.material.forEach((m) => {
-                  m.transparent = true;
-                  m.opacity += (targetOpacity - m.opacity) * 0.25;
-                });
-              } else {
-                child.material.transparent = true;
-                child.material.opacity += (targetOpacity - child.material.opacity) * 0.25;
-              }
+        for (let i = 0; i < obstacleGroups.length; i++) {
+          const obs = obstacleGroups[i];
+          const dx = obs.gridX - playerGridX;
+          const dy = obs.gridY - playerGridY;
+          if (dx >= -1 && dx <= 3 && dy >= -1 && dy <= 3) {
+            const isBlocking = dx >= 0 && dx <= 2 && dy >= 0 && dy <= 2;
+            const targetOpacity = isBlocking ? 0.4 : 1.0;
+            const mat = (obs.group.children[0] as THREE.Mesh)?.material as THREE.Material;
+            if (mat && mat.opacity !== undefined && Math.abs(mat.opacity - targetOpacity) > 0.05) {
+              obs.group.traverse((child) => {
+                if (child instanceof THREE.Mesh && child.material) {
+                  child.material.transparent = true;
+                  child.material.opacity = targetOpacity;
+                }
+              });
             }
-          });
-        });
+          }
+        }
       }
 
       // Smooth camera follow target hero position (Close Crisp Isometric ARPG Angle)
