@@ -247,12 +247,12 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   for (let y = 46; y <= 56; y++) {
     map[y][36] = 2; map[y][37] = 2;
   }
-  // 2. Calzada del Castillo Noreste (Hacia el Salón del Trono X: 47, Y: 45)
-  for (let x = 37; x <= 48; x++) {
+  // 2. Calzada del Castillo Noreste (Hacia el Salón del Trono X: 43, Y: 43)
+  for (let x = 37; x <= 46; x++) {
     map[48][x] = 2; map[49][x] = 2;
   }
-  for (let y = 46; y <= 50; y++) {
-    map[y][47] = 2;
+  for (let y = 44; y <= 48; y++) {
+    map[y][43] = 2;
   }
   // 3. Callejón de la Taberna y Posada "El Jabalí Dorado" (Noroeste X: 31, Y: 51)
   for (let x = 24; x <= 36; x++) {
@@ -329,41 +329,49 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[52][49] = 14; // Maceteros con hierbas
   map[53][45] = 17; // Farola de la botica
 
-  // 👑 EDIFICIO 4: Gran Salón del Trono de Aethelgard (X: 47, Y: 45, Puerta: 47, 47)
-  map[45][47] = 31; // Gran Mansión Consistorial
-  map[44][45] = 12; map[44][49] = 12; // Setos reales
-  map[47][45] = 19; map[47][49] = 19; // Braseros ceremoniales a los lados
-  map[47][44] = 18; map[47][50] = 18; // Columnas de mármol
+  // 👑 EDIFICIO 4: Gran Salón del Trono de Aethelgard (X: 43, Y: 43, Puerta: 43, 45)
+  map[43][43] = 31; // Gran Mansión Consistorial
+  map[42][41] = 12; map[42][45] = 12; // Setos reales
+  map[45][41] = 19; map[45][45] = 19; // Braseros ceremoniales
+  map[45][40] = 18; map[45][46] = 18; // Columnas de mármol
+
+  // 🌾 EDIFICIO 5: El Molino de Viento con Aspas y Huerto Harinero (Noroeste X: 19, Y: 48)
+  map[48][19] = 6;  // Molino de Viento
+  map[47][18] = 13; map[47][20] = 13; // Huerto de trigo
+  map[49][18] = 14; // Sacos de harina
+
+  // 🎯 EDIFICIO 6: Gremio de Arqueros y Campo de Tiro (Oeste X: 21, Y: 60)
+  map[60][21] = 5;  // Cabaña de Arqueros
+  map[59][20] = 12; map[59][22] = 12; // Setos
+  map[61][20] = 14; // Dianas y carcajes
+
+  // ⛪ EDIFICIO 7: Capilla y Ermita del Clérigo (Este X: 47, Y: 60)
+  map[60][47] = 29; // Templo / Capilla con vidrieras
+  map[59][46] = 12; map[59][48] = 12; // Jardín de rosas
+  map[61][48] = 17; // Farola devocional
+
+  // 🐄 EDIFICIO 8: Granero y Establo de Animales (Suroeste X: 25, Y: 72)
+  map[72][25] = 5;  // Granero
+  map[71][24] = 15; map[71][26] = 15; // Vallas de madera
+  map[73][24] = 14; // Pacas de paja dorada
+
+  // 📚 EDIFICIO 9: Biblioteca de los Sabios y Observatorio (Sureste X: 43, Y: 72)
+  map[72][43] = 30; // Torre de los Sabios
+  map[71][42] = 18; map[71][44] = 18; // Columnas de mármol
+  map[73][44] = 12;
+
+  // 🏡 Cabaña Fluvial del Pescador con Muelle (Sur X: 31, Y: 72)
+  map[72][31] = 5;
+  map[71][30] = 12; map[71][32] = 12;
+  map[73][32] = 14; // Barriles
 
   // 🎣 Muelle de Pescadores en el Río
   map[70][34] = 14; map[71][34] = 14; // Barriles de pesca y redes
   map[70][33] = 17; // Farola del muelle
 
-  // 🏡 Cabañas Residenciales Orgánicas (Con Jardines Únicos)
-  // Cabaña 1: Cabaña del Molinero con Huerto (Oeste X: 21, Y: 59)
-  map[59][21] = 5;
-  map[58][20] = 12; map[58][22] = 12; // Setos
-  map[60][20] = 13; map[61][20] = 13; // Huerto de zanahorias y calabazas
-
-  // Cabaña 2: Cabaña del Artesano con Leñera (Suroeste X: 25, Y: 72)
-  map[72][25] = 5;
-  map[71][24] = 12; map[71][26] = 12;
-  map[73][24] = 14; // Pila de leña
-
-  // Cabaña 3: Cabaña Fluvial del Pescador (Sur Ribera X: 31, Y: 72)
-  map[72][31] = 5;
-  map[71][30] = 12; map[71][32] = 12;
-  map[73][32] = 14; // Barriles
-
-  // Cabaña 4: Villa Jardín Este (Sureste X: 43, Y: 72)
-  map[72][43] = 5;
-  map[71][42] = 12; map[71][44] = 12;
-  map[73][44] = 12;
-
-  // Cabaña 5: Casona del Erudito (Este X: 49, Y: 60)
-  map[60][49] = 5;
-  map[59][48] = 12; map[59][50] = 12;
-  map[61][50] = 14;
+  // 🍎 Manzanos y Árboles Frutales en los Céspedes Comunitarios
+  map[58][26] = 1; map[62][26] = 1; // Manzanos oeste
+  map[58][44] = 1; map[62][44] = 1; // Manzanos este
 
   // 🛡️ BARRERA NATURAL PERIMETRAL:
   // En cualquier casilla de tierra (tile 0) que limite directamente con el vacío (-1),
