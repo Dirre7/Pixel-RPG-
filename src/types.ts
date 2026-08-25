@@ -18,16 +18,23 @@ export interface PlayerStats {
   maxHp: number;
   mp: number;
   maxMp: number;
-  attack: number;
-  defense: number;
-  speed: number;
-  accuracy?: number;     // % Probabilidad de acierto (ej. 95)
-  evasion?: number;      // % Probabilidad de esquivar (ej. 8)
-  critRate?: number;     // % Probabilidad de golpe crítico (ej. 15)
-  critDamage?: number;   // % Daño crítico (ej. 175 = x1.75)
-  blockRate?: number;    // % Probabilidad de bloqueo de escudo (ej. 25)
-  lifesteal?: number;    // % Robo de vida sobre daño infligido (ej. 5)
-  mpRegen?: number;      // MP recuperado al inicio de cada turno
+  attack: number;           // Poder de Ataque Físico
+  magicAttack?: number;     // Poder de Ataque Mágico (MATK)
+  defense: number;          // Defensa Física
+  magicDefense?: number;    // Defensa Mágica / Resistencia Elemental (MDEF)
+  speed: number;            // Velocidad de Turno
+  accuracy?: number;        // % Probabilidad de acierto (ACC)
+  evasion?: number;         // % Probabilidad de esquivar (EVA)
+  critRate?: number;        // % Probabilidad de golpe crítico (CRIT)
+  critDamage?: number;      // % Multiplicador de daño crítico (CRIT DMG)
+  blockRate?: number;       // % Probabilidad de bloqueo con escudo (BLOCK)
+  armorPenetration?: number;// % Penetración de armadura / perforación (ARMOR PEN)
+  lifesteal?: number;       // % Robo de vida sobre daño infligido (LIFESTEAL)
+  mpRegen?: number;         // +MP recuperado pasivamente al inicio de cada turno
+  hpRegen?: number;         // +HP recuperado pasivamente al inicio de cada turno
+  magicFind?: number;       // +% Probabilidad de botín raro/épico/legendario
+  goldBonus?: number;       // +% Bono multiplicador de oro obtenido
+  expBonus?: number;        // +% Bono de experiencia obtenida
   gold: number;
   score: number;
   resources?: PlayerResources;
@@ -56,17 +63,24 @@ export interface EquipmentItem {
   slot: EquipmentSlot;
   heroClassReq?: HeroClass[];
   bonusAttack?: number;
+  bonusMagicAttack?: number;
   bonusDefense?: number;
+  bonusMagicDefense?: number;
   bonusHp?: number;
   bonusMp?: number;
   bonusSpeed?: number;
-  bonusAccuracy?: number;   // +% Precisión
-  bonusEvasion?: number;    // +% Evasión
-  bonusCritRate?: number;   // +% Probabilidad de Crítico
-  bonusCritDamage?: number; // +% Daño Crítico
-  bonusBlockRate?: number;  // +% Probabilidad de Bloqueo
-  bonusLifesteal?: number;  // +% Robo de Vida
-  bonusMpRegen?: number;    // + Regeneración de Maná/turno
+  bonusAccuracy?: number;        // +% Precisión
+  bonusEvasion?: number;         // +% Evasión
+  bonusCritRate?: number;        // +% Probabilidad de Crítico
+  bonusCritDamage?: number;      // +% Daño Crítico
+  bonusBlockRate?: number;       // +% Probabilidad de Bloqueo
+  bonusArmorPenetration?: number;// +% Penetración de Armadura
+  bonusLifesteal?: number;       // +% Robo de Vida
+  bonusMpRegen?: number;         // + Regeneración de Maná/turno
+  bonusHpRegen?: number;         // + Regeneración de Vida/turno
+  bonusMagicFind?: number;       // +% Hallazgo Mágico
+  bonusGoldBonus?: number;       // +% Bono de Oro
+  bonusExpBonus?: number;        // +% Bono de Experiencia
   price: number;
   description: string;
   icon: string;

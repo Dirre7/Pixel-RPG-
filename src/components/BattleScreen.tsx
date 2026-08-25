@@ -158,8 +158,9 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       setEnemyIsHit(true);
       soundEngine.playSfx('hit');
 
-      // Calculate Damage & Dynamic Crits
-      const baseDmg = Math.max(1, Math.round((player.attack * atkBuff) - enemy.defense * 0.4));
+      // Calculate Damage & Dynamic Crits with Armor Penetration
+      const enemyEffectiveDef = Math.max(0, enemy.defense * (1 - (player.armorPenetration ?? 0) / 100));
+      const baseDmg = Math.max(1, Math.round((player.attack * atkBuff) - enemyEffectiveDef * 0.4));
       const critChance = (player.critRate ?? 10) / 100;
       const critMultiplier = (player.critDamage ?? 175) / 100;
       const isCrit = Math.random() < critChance;
@@ -169,7 +170,8 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       setEnemy((prev) => ({ ...prev, hp: newEnemyHp }));
 
       const critTag = isCrit ? ' 💥 ¡GOLPE CRÍTICO!' : '';
-      addLog(`⚔️ ${player.name} atacó a ${enemy.name} e infligió ${finalDmg} de daño.${critTag}`);
+      const penTag = (player.armorPenetration ?? 0) > 0 ? ` (🛡️ -${player.armorPenetration}% Armadura)` : '';
+      addLog(`⚔️ ${player.name} atacó a ${enemy.name} e infligió ${finalDmg} de daño.${critTag}${penTag}`);
       spawnFloatingText(`-${finalDmg}${isCrit ? ' CRIT!' : ''}`, isCrit ? '#facc15' : '#ef4444', 70, 30);
 
       // Lifesteal Mechanic
@@ -246,7 +248,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         triggerEnemyTurn(enemy.hp);
       }, 700);
     } else {
-      // Skill Damage
+      // Skill Damage with Magic / Physical scaling and Armor Penetration
       setPlayerIsAttacking(true);
       soundEngine.playSfx('magic');
       setActiveEffect(skill.element);
@@ -276,7 +278,12 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         setEnemyIsHit(true);
         soundEngine.playSfx('hit');
 
-        const baseDmg = Math.max(1, Math.round(((player.attack * atkBuff) * skill.power) - enemy.defense * 0.3));
+        const effectivePower = skill.element === 'magic' || skill.element === 'fire' || skill.element === 'ice' || skill.element === 'thunder' || skill.element === 'holy' || skill.element === 'shadow'
+          ? Math.max(player.attack, player.magicAttack ?? player.attack)
+          : player.attack;
+
+        const enemyEffectiveDef = Math.max(0, enemy.defense * (1 - (player.armorPenetration ?? 0) / 100));
+        const baseDmg = Math.max(1, Math.round(((effectivePower * atkBuff) * skill.power) - enemyEffectiveDef * 0.25));
         const critChance = (player.critRate ?? 10) / 100;
         const critMultiplier = (player.critDamage ?? 175) / 100;
         const isCrit = Math.random() < critChance;
@@ -452,14 +459,24 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
             setActiveEffect(null);
             setIsDefending(false);
 
-            // Turn starts for player - Apply MP Regen
+            // Turn starts for player - Apply MP & HP Regen
+            let updatedMp = player.mp;
+            let updatedHp = player.hp;
             if (player.mpRegen && player.mpRegen > 0) {
               const regen = Math.min(player.maxMp - player.mp, player.mpRegen);
               if (regen > 0) {
-                setPlayer((prev) => ({ ...prev, mp: Math.min(prev.maxMp, prev.mp + regen) }));
+                updatedMp += regen;
                 addLog(`✨ Regeneración pasiva: +${regen} MP.`);
               }
             }
+            if (player.hpRegen && player.hpRegen > 0) {
+              const regenHp = Math.min(player.maxHp - player.hp, player.hpRegen);
+              if (regenHp > 0) {
+                updatedHp += regenHp;
+                addLog(`🌿 Regeneración pasiva: +${regenHp} HP.`);
+              }
+            }
+            setPlayer((prev) => ({ ...prev, mp: updatedMp, hp: updatedHp }));
 
             setTurn('player');
           }, 600);
@@ -469,14 +486,18 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         setPlayerIsHit(true);
         soundEngine.playSfx('hit');
 
-        // Damage Calculation
+        // Damage Calculation with Physical DEF vs Magic DEF
         const powerMult = specialSkill ? specialSkill.power : 1.0;
-        const effectiveDef = (player.defense * defBuff) * (isDefending ? 2.0 : 1.0);
+        const isMagicSkill = specialSkill && (specialSkill.element === 'magic' || specialSkill.element === 'fire' || specialSkill.element === 'ice' || specialSkill.element === 'thunder' || specialSkill.element === 'shadow');
+        const effectiveDef = isMagicSkill
+          ? ((player.magicDefense ?? player.defense) * defBuff) * (isDefending ? 2.0 : 1.0)
+          : (player.defense * defBuff) * (isDefending ? 2.0 : 1.0);
+
         const rawDmg = Math.max(2, Math.round((enemy.attack * powerMult) - effectiveDef * 0.5));
         let finalDmg = Math.round(rawDmg * (0.9 + Math.random() * 0.2));
 
-        // Shield / Class Block Check
-        const blockRate = (player.blockRate ?? 0) / 100;
+        // Shield / Class Block Check (Only for physical attacks)
+        const blockRate = !isMagicSkill ? ((player.blockRate ?? 0) / 100) : 0;
         const isBlocked = Math.random() < blockRate;
 
         if (isBlocked) {
@@ -503,14 +524,24 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
           if (newPlayerHp <= 0) {
             handleDefeat();
           } else {
-            // Turn starts for player - Apply MP Regen
+            // Turn starts for player - Apply MP & HP Regen
+            let updatedMp = player.mp;
+            let updatedHp = newPlayerHp;
             if (player.mpRegen && player.mpRegen > 0) {
               const regen = Math.min(player.maxMp - player.mp, player.mpRegen);
               if (regen > 0) {
-                setPlayer((prev) => ({ ...prev, mp: Math.min(prev.maxMp, prev.mp + regen) }));
+                updatedMp += regen;
                 addLog(`✨ Regeneración pasiva: +${regen} MP.`);
               }
             }
+            if (player.hpRegen && player.hpRegen > 0) {
+              const regenHp = Math.min(player.maxHp - newPlayerHp, player.hpRegen);
+              if (regenHp > 0) {
+                updatedHp += regenHp;
+                addLog(`🌿 Regeneración pasiva: +${regenHp} HP.`);
+              }
+            }
+            setPlayer((prev) => ({ ...prev, mp: updatedMp, hp: updatedHp }));
 
             setTurn('player');
           }
@@ -525,8 +556,10 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     soundEngine.playMusic('victory');
     addLog(`🏆 ¡VICTORIA! Has derrotado a ${enemy.name}.`);
 
-    const expGained = enemy.expReward;
-    const goldGained = enemy.goldReward;
+    const expMultiplier = 1 + (player.expBonus ?? 0) / 100;
+    const goldMultiplier = 1 + (player.goldBonus ?? 0) / 100;
+    const expGained = Math.round(enemy.expReward * expMultiplier);
+    const goldGained = Math.round(enemy.goldReward * goldMultiplier);
 
     // Calculate probabilistic loot drop for random encounters
     let droppedLoot: { consumable?: ConsumableItem; equipment?: EquipmentItem } | null = null;

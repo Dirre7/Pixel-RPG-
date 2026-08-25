@@ -60,17 +60,33 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
   // Recalculate player stats with active equipment and tactical bonuses
   const getCalculatedPlayerStats = (eq: Inventory['equipment']): PlayerStats => {
     const classBase = HERO_CLASSES[player.heroClass]?.baseStats || {
+      hp: 100,
+      maxHp: 100,
+      mp: 50,
+      maxMp: 50,
+      attack: 15,
+      magicAttack: 10,
+      defense: 10,
+      magicDefense: 10,
+      speed: 10,
       accuracy: 95,
       evasion: 5,
       critRate: 10,
       critDamage: 175,
       blockRate: 0,
+      armorPenetration: 0,
       lifesteal: 0,
       mpRegen: 0,
+      hpRegen: 0,
+      magicFind: 0,
+      goldBonus: 0,
+      expBonus: 0,
     };
 
     let atkBonus = 0;
+    let matkBonus = 0;
     let defBonus = 0;
+    let mdefBonus = 0;
     let hpBonus = 0;
     let mpBonus = 0;
     let spdBonus = 0;
@@ -79,13 +95,20 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
     let critBonus = 0;
     let critDmgBonus = 0;
     let blockBonus = 0;
+    let armorPenBonus = 0;
     let lifestealBonus = 0;
     let mpRegenBonus = 0;
+    let hpRegenBonus = 0;
+    let magicFindBonus = 0;
+    let goldBonusBonus = 0;
+    let expBonusBonus = 0;
 
     Object.values(eq).forEach((item) => {
       if (item) {
         if (item.bonusAttack) atkBonus += item.bonusAttack;
+        if (item.bonusMagicAttack) matkBonus += item.bonusMagicAttack;
         if (item.bonusDefense) defBonus += item.bonusDefense;
+        if (item.bonusMagicDefense) mdefBonus += item.bonusMagicDefense;
         if (item.bonusHp) hpBonus += item.bonusHp;
         if (item.bonusMp) mpBonus += item.bonusMp;
         if (item.bonusSpeed) spdBonus += item.bonusSpeed;
@@ -94,13 +117,20 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
         if (item.bonusCritRate) critBonus += item.bonusCritRate;
         if (item.bonusCritDamage) critDmgBonus += item.bonusCritDamage;
         if (item.bonusBlockRate) blockBonus += item.bonusBlockRate;
+        if (item.bonusArmorPenetration) armorPenBonus += item.bonusArmorPenetration;
         if (item.bonusLifesteal) lifestealBonus += item.bonusLifesteal;
         if (item.bonusMpRegen) mpRegenBonus += item.bonusMpRegen;
+        if (item.bonusHpRegen) hpRegenBonus += item.bonusHpRegen;
+        if (item.bonusMagicFind) magicFindBonus += item.bonusMagicFind;
+        if (item.bonusGoldBonus) goldBonusBonus += item.bonusGoldBonus;
+        if (item.bonusExpBonus) expBonusBonus += item.bonusExpBonus;
       }
     });
 
-    const newMaxHp = player.maxHp + hpBonus;
-    const newMaxMp = player.maxMp + mpBonus;
+    const baseMaxHp = (classBase.maxHp || 100) + (player.level - 1) * 15;
+    const baseMaxMp = (classBase.maxMp || 50) + (player.level - 1) * 8;
+    const newMaxHp = baseMaxHp + hpBonus;
+    const newMaxMp = baseMaxMp + mpBonus;
 
     return {
       ...player,
@@ -108,16 +138,23 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
       hp: Math.min(player.hp, newMaxHp),
       maxMp: newMaxMp,
       mp: Math.min(player.mp, newMaxMp),
-      attack: player.attack + atkBonus,
-      defense: player.defense + defBonus,
-      speed: player.speed + spdBonus,
+      attack: (classBase.attack || 15) + (player.level - 1) * 2 + atkBonus,
+      magicAttack: (classBase.magicAttack || 10) + (player.level - 1) * 2 + matkBonus,
+      defense: (classBase.defense || 10) + (player.level - 1) * 1.5 + defBonus,
+      magicDefense: (classBase.magicDefense || 10) + (player.level - 1) * 1.5 + mdefBonus,
+      speed: (classBase.speed || 10) + spdBonus,
       accuracy: Math.min(100, (classBase.accuracy ?? 95) + accBonus),
       evasion: (classBase.evasion ?? 5) + evaBonus,
       critRate: (classBase.critRate ?? 10) + critBonus,
       critDamage: (classBase.critDamage ?? 175) + critDmgBonus,
-      blockRate: (classBase.blockRate ?? 0) + blockBonus,
+      blockRate: Math.min(75, (classBase.blockRate ?? 0) + blockBonus),
+      armorPenetration: (classBase.armorPenetration ?? 0) + armorPenBonus,
       lifesteal: (classBase.lifesteal ?? 0) + lifestealBonus,
       mpRegen: (classBase.mpRegen ?? 0) + mpRegenBonus,
+      hpRegen: (classBase.hpRegen ?? 0) + hpRegenBonus,
+      magicFind: (classBase.magicFind ?? 0) + magicFindBonus,
+      goldBonus: (classBase.goldBonus ?? 0) + goldBonusBonus,
+      expBonus: (classBase.expBonus ?? 0) + expBonusBonus,
     };
   };
 
@@ -226,7 +263,9 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
   const renderItemTacticalBadges = (item: EquipmentItem) => (
     <div className="text-[10px] font-bold mt-1.5 flex flex-wrap gap-1">
       {item.bonusAttack ? <span className="bg-amber-950/60 text-amber-300 border border-amber-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">⚔️ +{item.bonusAttack} Atq</span> : null}
+      {item.bonusMagicAttack ? <span className="bg-purple-950/60 text-purple-300 border border-purple-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🪄 +{item.bonusMagicAttack} Magia</span> : null}
       {item.bonusDefense ? <span className="bg-blue-950/60 text-blue-300 border border-blue-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🛡️ +{item.bonusDefense} Def</span> : null}
+      {item.bonusMagicDefense ? <span className="bg-indigo-950/60 text-indigo-300 border border-indigo-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🔮 +{item.bonusMagicDefense} Def.Mág</span> : null}
       {item.bonusHp ? <span className="bg-rose-950/60 text-rose-300 border border-rose-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">❤️ +{item.bonusHp} HP</span> : null}
       {item.bonusMp ? <span className="bg-sky-950/60 text-sky-300 border border-sky-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">💧 +{item.bonusMp} MP</span> : null}
       {item.bonusSpeed ? <span className="bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🌀 +{item.bonusSpeed} Vel</span> : null}
@@ -235,8 +274,13 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
       {item.bonusCritRate ? <span className="bg-yellow-950/60 text-yellow-300 border border-yellow-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">💥 +{item.bonusCritRate}% Crít</span> : null}
       {item.bonusCritDamage ? <span className="bg-orange-950/60 text-orange-300 border border-orange-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">⚡ +{item.bonusCritDamage}% Dño Crít</span> : null}
       {item.bonusBlockRate ? <span className="bg-indigo-950/60 text-indigo-300 border border-indigo-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🛡️ +{item.bonusBlockRate}% Bloqueo</span> : null}
+      {item.bonusArmorPenetration ? <span className="bg-rose-950/60 text-rose-300 border border-rose-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🗡️ +{item.bonusArmorPenetration}% Perforación</span> : null}
       {item.bonusLifesteal ? <span className="bg-red-950/70 text-red-300 border border-red-800/70 px-1.5 py-0.5 rounded flex items-center gap-0.5">🩸 +{item.bonusLifesteal}% Robo</span> : null}
       {item.bonusMpRegen ? <span className="bg-teal-950/60 text-teal-300 border border-teal-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">✨ +{item.bonusMpRegen} MP/t</span> : null}
+      {item.bonusHpRegen ? <span className="bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🌿 +{item.bonusHpRegen} HP/t</span> : null}
+      {item.bonusMagicFind ? <span className="bg-amber-900/60 text-amber-300 border border-amber-700/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🌟 +{item.bonusMagicFind}% Drop</span> : null}
+      {item.bonusGoldBonus ? <span className="bg-yellow-900/60 text-yellow-300 border border-yellow-700/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">🪙 +{item.bonusGoldBonus}% Oro</span> : null}
+      {item.bonusExpBonus ? <span className="bg-blue-900/60 text-blue-300 border border-blue-700/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">📖 +{item.bonusExpBonus}% EXP</span> : null}
     </div>
   );
 
@@ -433,22 +477,24 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
             </div>
           )}
 
-          {/* TAB 2: STATS (HOJA COMPLETA DE ATRIBUTOS) */}
+          {/* TAB 2: STATS (HOJA COMPLETA DE 19 ATRIBUTOS TÁCTICOS POR ROLES) */}
           {activeTab === 'stats' && (
-            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3">
-              {/* Header */}
+            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3.5">
+              {/* Header: Hero Badge & Level */}
               <div className="flex items-center space-x-3 pb-2.5 border-b border-slate-800">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-2xl shadow-md border border-amber-300/40 flex-shrink-0">
-                  {player.heroClass === 'Guerrero' ? '⚔️' : player.heroClass === 'Mago' ? '🪄' : '🗡️'}
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-2xl shadow-md border border-amber-300/40 flex-shrink-0">
+                  {player.heroClass === 'Guerrero' ? '⚔️' : player.heroClass === 'Mago' ? '🪄' : player.heroClass === 'Pícaro' ? '🗡️' : player.heroClass === 'Paladín' ? '🛡️' : player.heroClass === 'Nigromante' ? '💀' : player.heroClass === 'Arquero' ? '🏹' : '🪓'}
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-black text-amber-300 text-sm">{player.name}</span>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-bold">
+                    <span className="font-black text-amber-300 text-sm sm:text-base truncate">{player.name}</span>
+                    <span className="text-[10px] px-2 py-0.2 rounded bg-slate-800 text-slate-300 font-bold border border-slate-700">
                       {player.heroClass}
                     </span>
                   </div>
-                  <div className="text-xs text-amber-400 font-bold mt-0.5">Nivel {player.level} · {player.score.toLocaleString()} Puntos</div>
+                  <div className="text-xs text-amber-400 font-bold mt-0.5">
+                    Nivel {player.level} · {player.score.toLocaleString()} Puntos de Rango
+                  </div>
                 </div>
               </div>
 
@@ -466,54 +512,111 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                 </div>
               </div>
 
-              {/* Primary Stats Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-rose-400 font-bold text-xs">
-                    <Heart className="w-4 h-4" />
-                    <span>Vida (HP)</span>
-                  </div>
-                  <span className="font-black text-slate-100 text-sm">{player.hp}/{player.maxHp}</span>
+              {/* PANEL 1: ⚔️ PODER OFENSIVO */}
+              <div className="space-y-1.5">
+                <div className="text-[11px] font-black text-rose-400 uppercase tracking-wider flex items-center gap-1">
+                  <span>⚔️</span>
+                  <span>Poder Ofensivo & Ataque</span>
                 </div>
-
-                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-sky-400 font-bold text-xs">
-                    <Zap className="w-4 h-4" />
-                    <span>Maná (MP)</span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-xs">
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">⚔️ Ataque Físico</span>
+                    <span className="font-black text-rose-300 text-sm">{player.attack}</span>
                   </div>
-                  <span className="font-black text-slate-100 text-sm">{player.mp}/{player.maxMp}</span>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">🪄 Poder Mágico</span>
+                    <span className="font-black text-purple-300 text-sm">{player.magicAttack ?? 10}</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">💥 Golpe Crítico</span>
+                    <span className="font-black text-yellow-300 text-sm">{player.critRate ?? 10}%</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">⚡ Daño Crítico</span>
+                    <span className="font-black text-orange-300 text-sm">{player.critDamage ?? 175}%</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">🎯 Precisión</span>
+                    <span className="font-black text-amber-300 text-sm">{player.accuracy ?? 95}%</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">🗡️ Perforación</span>
+                    <span className="font-black text-red-400 text-sm">{player.armorPenetration ?? 0}%</span>
+                  </div>
                 </div>
+              </div>
 
-                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
-                    <Swords className="w-4 h-4" />
-                    <span>Ataque</span>
-                  </div>
-                  <span className="font-black text-slate-100 text-sm">{player.attack}</span>
+              {/* PANEL 2: 🛡️ DEFENSA & MITIGACIÓN */}
+              <div className="space-y-1.5">
+                <div className="text-[11px] font-black text-sky-400 uppercase tracking-wider flex items-center gap-1">
+                  <span>🛡️</span>
+                  <span>Defensa & Mitigación de Daño</span>
                 </div>
-
-                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-blue-400 font-bold text-xs">
-                    <Shield className="w-4 h-4" />
-                    <span>Defensa</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs">
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">🛡️ Def. Física</span>
+                    <span className="font-black text-blue-300 text-sm">{player.defense}</span>
                   </div>
-                  <span className="font-black text-slate-100 text-sm">{player.defense}</span>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">🔮 Def. Mágica</span>
+                    <span className="font-black text-indigo-300 text-sm">{player.magicDefense ?? 10}</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">🛡️ Bloqueo</span>
+                    <span className="font-black text-cyan-300 text-sm">{player.blockRate ?? 0}%</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">💨 Evasión</span>
+                    <span className="font-black text-teal-300 text-sm">{player.evasion ?? 5}%</span>
+                  </div>
                 </div>
+              </div>
 
-                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs">
-                    <Sparkles className="w-4 h-4" />
-                    <span>Velocidad</span>
-                  </div>
-                  <span className="font-black text-slate-100 text-sm">{player.speed}</span>
+              {/* PANEL 3: ⚡ AGILIDAD & SUSTENTO */}
+              <div className="space-y-1.5">
+                <div className="text-[11px] font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                  <span>⚡</span>
+                  <span>Agilidad, Regeneración & Sustento</span>
                 </div>
-
-                <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-yellow-300 font-bold text-xs">
-                    <Flame className="w-4 h-4" />
-                    <span>Crítico</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs">
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">🌀 Velocidad</span>
+                    <span className="font-black text-emerald-300 text-sm">{player.speed}</span>
                   </div>
-                  <span className="font-black text-yellow-200 text-sm">{player.critRate ?? 10}%</span>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">🩸 Robo Vida</span>
+                    <span className="font-black text-rose-300 text-sm">{player.lifesteal ?? 0}%</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">✨ Regen MP</span>
+                    <span className="font-black text-sky-300 text-sm">+{player.mpRegen ?? 0}/t</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">🌿 Regen HP</span>
+                    <span className="font-black text-green-300 text-sm">+{player.hpRegen ?? 0}/t</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* PANEL 4: 🌟 FORTUNA & PROGRESIÓN */}
+              <div className="space-y-1.5">
+                <div className="text-[11px] font-black text-amber-400 uppercase tracking-wider flex items-center gap-1">
+                  <span>🌟</span>
+                  <span>Fortuna, Economía & Progresión</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5 text-xs">
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">🌟 Drop Raro</span>
+                    <span className="font-black text-amber-300 text-sm">+{player.magicFind ?? 0}%</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">🪙 Bono Oro</span>
+                    <span className="font-black text-yellow-300 text-sm">+{player.goldBonus ?? 0}%</span>
+                  </div>
+                  <div className="p-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <span className="text-slate-400 font-bold flex items-center gap-1">📖 Bono EXP</span>
+                    <span className="font-black text-blue-300 text-sm">+{player.expBonus ?? 0}%</span>
+                  </div>
                 </div>
               </div>
             </div>
