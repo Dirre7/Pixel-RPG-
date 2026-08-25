@@ -23,10 +23,39 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
   const phase = Math.floor(animPhase % 4);
 
   // ---------------------------------------------------------------------------
-  // 0. SUELO BASE: CÉSPED FRONDOSO VIBRANTE
+  // 0. SUELO BASE: CÉSPED FRONDOSO / LOSAS DE FORJA / PIEDRA IGNÍFUGA
   // ---------------------------------------------------------------------------
   if (tileType === 0) {
-    if (zoneId === 'zone_forest') {
+    if (zoneId === 'subzone_forge' || zoneId.includes('forge')) {
+      // Suelo de Taller de Herrería: Losas de basalto oscuras con hollín y polvo de carbón
+      ctx.fillStyle = '#1c1917'; // Base losa oscura
+      ctx.fillRect(0, 0, 32, 32);
+
+      // Bloques de losa de piedra
+      ctx.fillStyle = '#292524';
+      ctx.fillRect(1, 1, 14, 14);
+      ctx.fillRect(17, 1, 14, 14);
+      ctx.fillRect(1, 17, 14, 14);
+      ctx.fillRect(17, 17, 14, 14);
+
+      // Juntas de mortero y polvo de ceniza
+      ctx.fillStyle = '#0c0a09';
+      ctx.fillRect(0, 15, 32, 2);
+      ctx.fillRect(15, 0, 2, 32);
+
+      // Relieve y textura de piedra rugosa
+      ctx.fillStyle = '#44403c';
+      ctx.fillRect(3, 3, 10, 2);
+      ctx.fillRect(19, 19, 10, 2);
+      ctx.fillRect(3, 19, 4, 4);
+
+      // Manchas de carbón y chispas cálidas
+      if (phase % 2 === 0) {
+        ctx.fillStyle = 'rgba(234, 88, 12, 0.4)';
+        ctx.fillRect(8, 8, 2, 2);
+        ctx.fillRect(24, 22, 2, 2);
+      }
+    } else if (zoneId === 'zone_forest') {
       // Base verde pradera cálida y suave
       ctx.fillStyle = '#4a9b2b';
       ctx.fillRect(0, 0, 32, 32);
@@ -1122,6 +1151,173 @@ export function getForgeCanvas(time: number = 0): HTMLCanvasElement {
 
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(34, 28, 8, 10);
+
+  return canvas;
+}
+
+/**
+ * 🌋 GRAN HORNO MONUMENTAL DE FUNDICIÓN (64x64 px)
+ */
+export function getBlastFurnaceCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra elíptica amplia
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+  ctx.beginPath();
+  ctx.ellipse(32, 54, 26, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Estructura de piedra volcánica / basalto
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(8, 12, 48, 44);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(10, 14, 44, 40);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(12, 16, 40, 36);
+
+  // Chimenea superior de sillería
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(20, 2, 24, 12);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(22, 4, 20, 10);
+
+  // Bandas y remaches de hierro forjado
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(8, 18, 48, 3);
+  ctx.fillRect(8, 48, 48, 3);
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(12, 19, 2, 2);
+  ctx.fillRect(30, 19, 2, 2);
+  ctx.fillRect(50, 19, 2, 2);
+
+  // Arco del Horno con Fuego Ardiente
+  ctx.fillStyle = '#450a0a';
+  ctx.fillRect(18, 28, 28, 24);
+  ctx.fillStyle = '#7f1d1d';
+  ctx.fillRect(20, 30, 24, 22);
+
+  // Llamas animadas y metal incandescente
+  const flicker = Math.sin(time * 10) * 2;
+  ctx.fillStyle = '#ea580c';
+  ctx.fillRect(22, 34 + flicker, 20, 18);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(24, 38 + flicker * 0.7, 16, 12);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(28, 42 + flicker * 0.5, 8, 6);
+
+  // Crisol de fundición con metal líquido
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(44, 38, 12, 14);
+  ctx.fillStyle = '#f97316';
+  ctx.fillRect(46, 40, 8, 4);
+
+  return canvas;
+}
+
+/**
+ * 🔨 YUNQUE DE HERRERO Y ESTACIÓN DE TRABAJO (32x32 px)
+ */
+export function getAnvilWorkstationCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 12, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Tronco de madera noble como soporte
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(8, 16, 16, 10);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(10, 17, 12, 8);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(11, 16, 10, 2);
+
+  // Abrazadera de hierro del tronco
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(8, 20, 16, 2);
+
+  // Yunque de Acero Macizo (con cuerno y base pesada)
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(6, 10, 20, 7);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(4, 8, 22, 5); // Cuerno y cara plana
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(8, 8, 14, 2); // Brillo metálico superior
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(2, 9, 4, 3);  // Punta del cuerno
+
+  // Martillo de forja reposando
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(10, 5, 2, 5); // Mango
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(9, 4, 4, 3); // Cabeza de acero
+
+  // Cubo de agua de enfriamiento al lado
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(24, 18, 6, 8);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(25, 19, 4, 2);
+
+  // Chispas de forjado ocasionales
+  if (Math.sin(time * 6) > 0.5) {
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(13, 3, 2, 2);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(17, 4, 1, 1);
+  }
+
+  return canvas;
+}
+
+/**
+ * 🪨 PILA DE MINERAL DE HIERRO, CARBÓN Y LINGOTES (32x32 px)
+ */
+export function getOrePileCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 24, 13, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Rocas de carbón negro
+  ctx.fillStyle = '#09090b';
+  ctx.fillRect(4, 16, 10, 8);
+  ctx.fillStyle = '#18181b';
+  ctx.fillRect(6, 18, 6, 5);
+
+  // Rocas de mineral de hierro plateado
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(14, 12, 12, 12);
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(16, 14, 8, 8);
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(18, 15, 4, 3);
+
+  // Lingotes de acero apilados
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(8, 20, 16, 4);
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(9, 21, 14, 2);
+  ctx.fillStyle = '#f59e0b'; // Lingote de oro
+  ctx.fillRect(12, 17, 10, 3);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(13, 17, 8, 1);
 
   return canvas;
 }

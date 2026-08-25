@@ -14,6 +14,9 @@ import {
   getWindmillCanvas,
   getWaterWellCanvas,
   getForgeCanvas,
+  getBlastFurnaceCanvas,
+  getAnvilWorkstationCanvas,
+  getOrePileCanvas,
   getShrineCanvas,
   getStreetLampCanvas,
   getGraveyardCanvas,
@@ -550,8 +553,9 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           const posY = y * TILE_SIZE;
 
           if (tileType === 1) {
-            // Muros de piedra en Castillo / Cueva, o Robles de fantasía con volumen
-            if (currentZone.id === 'zone_castle' || currentZone.id === 'zone_cave') {
+            // Muros de piedra en Interiores / Subzonas / Castillo / Cueva, o Robles de fantasía en exteriores
+            const isInteriorZone = currentZone.isInterior || currentZone.id.includes('subzone') || currentZone.id === 'zone_castle' || currentZone.id === 'zone_cave';
+            if (isInteriorZone) {
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
@@ -1120,8 +1124,15 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 16) {
-            // Lápidas Góticas y Cruces de Forja (Pixel Crawler - Cemetery)
-            if (gameAssets.cemeteryGraves.complete && gameAssets.cemeteryGraves.naturalWidth > 0) {
+            // Armero de Armas en la Forja, o Lápidas en Cementerio
+            if (currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge') {
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(weaponRack, posX, posY - 6, 32, 38);
+                },
+              });
+            } else if (gameAssets.cemeteryGraves.complete && gameAssets.cemeteryGraves.naturalWidth > 0) {
               const gVariant = (x * 7 + y * 13) % 4;
               let sx = 135; let sy = 5; let sw = 30; let sh = 65; // Cruz gótica
               if (gVariant === 1) {
@@ -1152,7 +1163,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 17) {
-            // Farola de Camino con Farol Forjado y Halo Cálido
+            // Farola de Camino / Brasero de Forja
             const lamp = getStreetLampCanvas(time);
             entities.push({
               ySort: posY + TILE_SIZE + 4,
@@ -1181,17 +1192,44 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 22) {
-            // 📜 Tablón de Anuncios y Misiones de la Aldea (Cute Fantasy Notice Board)
-            const noticeBoard = getNoticeBoardCanvas();
+            // Pila de Mineral y Carbón en Forja, o Tablón de Misiones en Aldea
+            if (currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge') {
+              const orePile = getOrePileCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(orePile, posX, posY, 32, 32);
+                },
+              });
+            } else {
+              const noticeBoard = getNoticeBoardCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE + 4,
+                draw: (c) => {
+                  c.drawImage(noticeBoard, posX - 4, posY - 16, 40, 48);
+                },
+              });
+            }
+          } else if (tileType === 29) {
+            // 🔨 Yunque de Herrero con Martillo y Chispas
+            const anvil = getAnvilWorkstationCanvas(time);
             entities.push({
-              ySort: posY + TILE_SIZE + 4,
+              ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(noticeBoard, posX - 4, posY - 16, 40, 48);
+                c.drawImage(anvil, posX, posY, 32, 32);
               },
             });
           } else if (tileType === 19) {
-            // Hoguera Animada Pixel Crawler
-            if (gameAssets.bonfire.complete && gameAssets.bonfire.naturalWidth > 0) {
+            // Gran Horno de Fundición en la Forja, o Hoguera en exteriores
+            if (currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge') {
+              const blastFurnace = getBlastFurnaceCanvas(time);
+              entities.push({
+                ySort: posY + TILE_SIZE + 10,
+                draw: (c) => {
+                  c.drawImage(blastFurnace, posX - 16, posY - 28, 64, 64);
+                },
+              });
+            } else if (gameAssets.bonfire.complete && gameAssets.bonfire.naturalWidth > 0) {
               const fireFrame = Math.floor(time * 6) % 4;
               entities.push({
                 ySort: posY + TILE_SIZE,

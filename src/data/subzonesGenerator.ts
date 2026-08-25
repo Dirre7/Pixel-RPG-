@@ -61,45 +61,92 @@ export function generateTavernInterior(): SubZoneMapResult {
 }
 
 /**
- * 2. ⚔️ LA GRAN FORJA REAL DE BROM (16x14)
- * Taller de herrería con yunque, hornos de fundición y perchas de armas.
+ * 2. ⚔️ LA GRAN FORJA REAL DE BROM (18x16)
+ * Taller monumental de herrería con hornos de fundición, yunques, armeros y pilas de mineral.
  */
 export function generateForgeInterior(): SubZoneMapResult {
-  const width = 16;
-  const height = 14;
+  const width = 18;
+  const height = 16;
   const map: number[][] = [];
 
   for (let y = 0; y < height; y++) {
     const row: number[] = [];
     for (let x = 0; x < width; x++) {
       if (y === 0 || y === height - 1 || x === 0 || x === width - 1) {
-        row.push(1);
+        row.push(1); // Muros perimetrales de piedra de sillería y vigas de hierro
       } else {
-        row.push(0); // Suelo de losa de piedra ignífuga
+        row.push(0); // Suelo de losa volcánica y pizarra ignífuga
       }
     }
     map.push(row);
   }
 
-  // Horno de fundición al norte
-  map[1][7] = 19;
-  map[1][8] = 19;
-  map[1][6] = 1;
+  // Columnas maestras y pilares interiores de piedra
+  map[4][4] = 1;
+  map[4][13] = 1;
+  map[10][4] = 1;
+  map[10][13] = 1;
+
+  // Grandes Hornos de Fundición y Fraguas al norte
+  // Horno Oeste
+  map[1][4] = 1;
+  map[1][5] = 19; // Fragua ardiente
+  map[1][6] = 19;
+  map[1][7] = 1;
+
+  // Horno Este
+  map[1][10] = 1;
+  map[1][11] = 19; // Fragua ardiente
+  map[1][12] = 19;
+  map[1][13] = 1;
+
+  // Chimenea central decorativa
+  map[1][8] = 1;
   map[1][9] = 1;
 
-  // Yunque central
-  map[6][7] = 1;
-  map[6][8] = 1;
+  // Tinas de templado con agua (Quench Troughs)
+  map[2][3] = 3;
+  map[2][14] = 3;
 
-  // Antorchas
-  map[1][3] = 17;
-  map[1][12] = 17;
-  map[7][1] = 17;
-  map[7][14] = 17;
+  // Yunques de Forja (tile 29)
+  map[6][6] = 29;   // Yunque de Maestro Brom
+  map[6][11] = 29;  // Yunque del Aprendiz Thorgar
+  map[8][8] = 29;   // Yunque central mayor
+  map[8][9] = 29;
 
-  // Puerta de salida
-  map[height - 1][7] = 28;
+  // Armeros y Estantes de Armas (tile 16)
+  map[3][1] = 16;
+  map[7][1] = 16;
+  map[11][1] = 16;
+  map[3][16] = 16;
+  map[7][16] = 16;
+  map[11][16] = 16;
+
+  // Pilas de Mineral de Hierro y Carbón (tile 22)
+  map[5][2] = 22;
+  map[9][2] = 22;
+  map[5][15] = 22;
+  map[9][15] = 22;
+
+  // Antorchas y Braseros de Pared (tile 17)
+  map[1][2] = 17;
+  map[1][15] = 17;
+  map[5][1] = 17;
+  map[5][16] = 17;
+  map[9][1] = 17;
+  map[9][16] = 17;
+  map[13][1] = 17;
+  map[13][16] = 17;
+
+  // Camino empedrado hacia la entrada sur (tile 2)
+  for (let y = 11; y < height - 1; y++) {
+    map[y][8] = 2;
+    map[y][9] = 2;
+  }
+
+  // Puerta doble de salida hacia la aldea (tile 28)
   map[height - 1][8] = 28;
+  map[height - 1][9] = 28;
 
   return { width, height, tileData: map };
 }
