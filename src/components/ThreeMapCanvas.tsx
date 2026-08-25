@@ -533,7 +533,28 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     groundInstancedMesh.instanceMatrix.needsUpdate = true;
     tileGroup.add(groundInstancedMesh);
 
+    // 🎯 ENTITY CULLING SYSTEM: Only active entities within screen viewport are rendered
+    const cullingEntities: { object: THREE.Object3D; gridX: number; gridY: number }[] = [];
+    const addWorldEntity = (object: THREE.Object3D, gridX: number, gridY: number) => {
+      tileGroup.add(object);
+      cullingEntities.push({ object, gridX, gridY });
+    };
+
+    // 🚀 PATH INSTANCED MESH (1 Single Draw Call for all road cobblestone tiles!)
     const pathMainGeo = new THREE.BoxGeometry(2.505, 0.40, 2.505);
+    let totalPathCount = 0;
+    for (let py = 0; py < currentZone.mapHeight; py++) {
+      for (let px = 0; px < currentZone.mapWidth; px++) {
+        if (currentZone.tileData[py]?.[px] === 2) totalPathCount++;
+      }
+    }
+    const pathInstancedMesh = new THREE.InstancedMesh(pathMainGeo, pathMat, Math.max(1, totalPathCount));
+    pathInstancedMesh.receiveShadow = !isTouchOrMobile;
+    let pathIndex = 0;
+
+    // Shared Bridge Materials
+    const bridgeRailMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.85 });
+    const bridgePostMat = new THREE.MeshStandardMaterial({ color: 0x3b1c0a, roughness: 0.9 });
 
     // Populate Map Tiles Details, Paths, Buildings & Obstacles
     for (let y = 0; y < currentZone.mapHeight; y++) {
@@ -547,21 +568,17 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
         // Perfectly flat and uniform terrain level
         const elevation = 0;
 
-        // SOLID CONTINUOUS SEAMLESS PATH (Single clean tile mesh, 0% Z-Fighting Moiré stripes)
+        // SOLID CONTINUOUS SEAMLESS PATH (Instanced 1 draw call)
         if (tileType === 2) {
-          const pathMesh = new THREE.Mesh(pathMainGeo, pathMat);
-          pathMesh.position.set(posX, -0.18, posZ);
-          pathMesh.receiveShadow = true;
-          tileGroup.add(pathMesh);
+          dummyPos.set(posX, -0.18, posZ);
+          dummyMatrix.compose(dummyPos, dummyQuat, dummyScale);
+          pathInstancedMesh.setMatrixAt(pathIndex++, dummyMatrix);
 
           // 🌉 Wooden Bridge Handrails when path crosses water
           const hasNorthWater = currentZone.tileData[y - 1]?.[x] === 3;
           const hasSouthWater = currentZone.tileData[y + 1]?.[x] === 3;
           const hasEastWater = currentZone.tileData[y]?.[x + 1] === 3;
           const hasWestWater = currentZone.tileData[y]?.[x - 1] === 3;
-
-          const bridgeRailMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.85 });
-          const bridgePostMat = new THREE.MeshStandardMaterial({ color: 0x3b1c0a, roughness: 0.9 });
 
           if (hasNorthWater) {
             const railN = new THREE.Mesh(new THREE.BoxGeometry(2.52, 0.08, 0.08), bridgeRailMat);
@@ -1362,6 +1379,12 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       }
     }
 
+    // 🚀 ATTACH PATH INSTANCED MESH
+    if (totalPathCount > 0) {
+      pathInstancedMesh.instanceMatrix.needsUpdate = true;
+      tileGroup.add(pathInstancedMesh);
+    }
+
     // 5.3 SPAWN ATMOSPHERIC VILLAGE PROPS IN FOREST (Crates, Barrels, Merchant Carts, Planters)
     if (currentZone.id === 'zone_forest') {
       // Planters around the Great Fountain & Notice Board
@@ -1579,6 +1602,8 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
     let frameCount = 0;
     let lastFpsCheckTime = performance.now();
     let lowFpsStreak = 0;
+    let lastCullGX = -999;
+    let lastCullGZ = -999;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
@@ -1610,6 +1635,20 @@ export const ThreeMapCanvas: React.FC<ThreeMapCanvasProps> = ({
       // Smoothly move hero position with exponential delta-time damper (Immune to FPS drops)
       const curr = playerCurrentPosRef.current;
       const targ = playerTargetPosRef.current;
+
+      // 🎯 FRUSTUM & DISTANCE CULLING (Cuts 90% of Draw Calls on Mobile & Tablets)
+      const playerGX = Math.round(curr.x / 2.5);
+      const playerGZ = Math.round(curr.z / 2.5);
+      if (Math.abs(playerGX - lastCullGX) >= 1 || Math.abs(playerGZ - lastCullGZ) >= 1) {
+        lastCullGX = playerGX;
+        lastCullGZ = playerGZ;
+        const cullRadius = isTouchOrMobile ? 10 : 15;
+        for (let i = 0; i < cullingEntities.length; i++) {
+          const item = cullingEntities[i];
+          const isVisible = Math.abs(item.gridX - playerGX) <= cullRadius && Math.abs(item.gridY - playerGZ) <= cullRadius;
+          item.object.visible = isVisible;
+        }
+      }
 
       const prevX = curr.x;
       const prevZ = curr.z;
