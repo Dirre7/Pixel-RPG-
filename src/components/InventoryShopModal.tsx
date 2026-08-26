@@ -49,7 +49,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'inventory' | 'shop' | 'equipment' | 'stats'>(initialTab);
   const [shopCategory, setShopCategory] = useState<'consumables' | 'equipment'>('equipment');
-  const [filterSlot, setFilterSlot] = useState<EquipmentSlot | 'all'>('all');
+  const [filterSlot, setFilterSlot] = useState<EquipmentSlot | 'all' | 'consumable' | 'material'>('all');
   const [selectedItem, setSelectedItem] = useState<EquipmentItem | ConsumableItem | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -259,7 +259,11 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
     showToast(`💰 Vendiste ${item.name} por +${sellPrice} G`);
   };
 
-  const filteredOwnedEquipment = inventory.ownedEquipment.filter((item) => filterSlot === 'all' || item.slot === filterSlot);
+  const filteredOwnedEquipment = inventory.ownedEquipment.filter((item) => {
+    if (filterSlot === 'all') return true;
+    if (filterSlot === 'consumable' || filterSlot === 'material') return false;
+    return item.slot === filterSlot;
+  });
 
   const renderItemTacticalBadges = (item: EquipmentItem) => (
     <div className="text-[10px] font-bold mt-1.5 flex flex-wrap gap-1">
@@ -639,6 +643,8 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                     { key: 'boots', label: '👢 Botas' },
                     { key: 'ring', label: '💍 Anillos' },
                     { key: 'amulet', label: '📿 Amuletos' },
+                    { key: 'consumable', label: '🧪 Pociones' },
+                    { key: 'material', label: '🪵 Materiales' },
                   ].map((f) => (
                     <button
                       key={f.key}
@@ -658,46 +664,58 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                 </div>
 
                 {/* 4x7 Grid Container (Biselado de Bronce) */}
-                <div className="bg-[#0b0a14] p-3 rounded-xl border-2 border-amber-600/50 shadow-inner">
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                    {/* Consumables Items */}
-                    {inventory.consumables.map((item) => {
-                      const isSelected = (selectedItem as any)?.id === item.id;
-                      return (
-                        <button
-                          key={item.id}
-                          onClick={() => {
-                            soundEngine.playSfx('select');
-                            setSelectedItem(item as any);
-                          }}
-                          className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex flex-col items-center justify-center transition-all ${
-                            isSelected
-                              ? 'bg-[#221c3b] border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.6)] scale-105'
-                              : 'bg-[#141224] hover:bg-[#1a1730] border border-[#2a243d] hover:border-amber-500/60'
-                          }`}
-                        >
-                          <span className="text-2xl filter drop-shadow">{item.icon}</span>
-                          <span className="absolute bottom-1 right-1.5 text-[9px] font-mono font-black text-amber-300 bg-[#06060c] px-1 rounded border border-amber-500/60">
-                            x{item.quantity}
-                          </span>
-                        </button>
-                      );
-                    })}
+                <div className="bg-[#0b0a14] p-3 rounded-xl border-2 border-amber-600/50 shadow-inner min-h-[220px]">
+                  {/* Empty state check */}
+                  {filterSlot !== 'all' &&
+                  filterSlot !== 'consumable' &&
+                  filterSlot !== 'material' &&
+                  filteredOwnedEquipment.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center p-8 text-center text-slate-500 text-xs font-mono">
+                      <span className="text-3xl mb-2 opacity-40">🎒</span>
+                      <span>No tienes ningún objeto en esta categoría.</span>
+                      <span className="text-[10px] text-amber-500/60 mt-1">¡Visita la forja o el bazar para adquirirlo!</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                      {/* Consumables Items (Only on 'all' or 'consumable') */}
+                      {(filterSlot === 'all' || filterSlot === 'consumable') &&
+                        inventory.consumables.map((item) => {
+                          const isSelected = (selectedItem as any)?.id === item.id;
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                soundEngine.playSfx('select');
+                                setSelectedItem(item as any);
+                              }}
+                              className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex flex-col items-center justify-center transition-all ${
+                                isSelected
+                                  ? 'bg-[#221c3b] border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.6)] scale-105'
+                                  : 'bg-[#141224] hover:bg-[#1a1730] border border-[#2a243d] hover:border-amber-500/60'
+                              }`}
+                            >
+                              <span className="text-2xl filter drop-shadow">{item.icon}</span>
+                              <span className="absolute bottom-1 right-1.5 text-[9px] font-mono font-black text-amber-300 bg-[#06060c] px-1 rounded border border-amber-500/60">
+                                x{item.quantity}
+                              </span>
+                            </button>
+                          );
+                        })}
 
-                    {/* Equipment Items */}
-                    {filteredOwnedEquipment.map((item) => {
-                      const isEquipped = Object.values(inventory.equipment).some((e) => e?.id === item.id);
-                      const isSelected = (selectedItem as any)?.id === item.id;
-                      return (
-                        <button
-                          key={item.id}
-                          onClick={() => {
-                            soundEngine.playSfx('select');
-                            setSelectedItem(item);
-                          }}
-                          className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex flex-col items-center justify-center transition-all ${
-                            isSelected
-                              ? 'bg-[#221c3b] border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.6)] scale-105'
+                      {/* Equipment Items */}
+                      {filteredOwnedEquipment.map((item) => {
+                        const isEquipped = Object.values(inventory.equipment).some((e) => e?.id === item.id);
+                        const isSelected = (selectedItem as any)?.id === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => {
+                              soundEngine.playSfx('select');
+                              setSelectedItem(item);
+                            }}
+                            className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex flex-col items-center justify-center transition-all ${
+                              isSelected
+                                ? 'bg-[#221c3b] border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.6)] scale-105'
                               : isEquipped
                               ? 'bg-[#0f241d] border-2 border-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.4)]'
                               : 'bg-[#141224] hover:bg-[#1a1730] border border-[#2a243d] hover:border-amber-500/60'
@@ -714,36 +732,41 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                       );
                     })}
 
-                    {/* Material Resources Badges */}
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
-                      <span className="text-xl">🪵</span>
-                      <span className="text-[9px] text-amber-200 font-bold mt-0.5">Madera</span>
-                      <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-amber-400">
-                        {player.resources?.wood || 0}
-                      </span>
-                    </div>
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
-                      <span className="text-xl">🪨</span>
-                      <span className="text-[9px] text-slate-200 font-bold mt-0.5">Hierro</span>
-                      <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-slate-400">
-                        {player.resources?.stone || 0}
-                      </span>
-                    </div>
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
-                      <span className="text-xl">🥕</span>
-                      <span className="text-[9px] text-orange-200 font-bold mt-0.5">Trigo</span>
-                      <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-orange-400">
-                        {player.resources?.crops || 0}
-                      </span>
-                    </div>
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
-                      <span className="text-xl">💎</span>
-                      <span className="text-[9px] text-cyan-200 font-bold mt-0.5">Gemas</span>
-                      <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-cyan-400">
-                        {player.resources?.gems || 0}
-                      </span>
-                    </div>
+                    {/* Material Resources Badges (Only on 'all' or 'material') */}
+                    {(filterSlot === 'all' || filterSlot === 'material') && (
+                      <>
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
+                          <span className="text-xl">🪵</span>
+                          <span className="text-[9px] text-amber-200 font-bold mt-0.5">Madera</span>
+                          <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-amber-400">
+                            {player.resources?.wood || 0}
+                          </span>
+                        </div>
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
+                          <span className="text-xl">🪨</span>
+                          <span className="text-[9px] text-slate-200 font-bold mt-0.5">Hierro</span>
+                          <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-slate-400">
+                            {player.resources?.stone || 0}
+                          </span>
+                        </div>
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
+                          <span className="text-xl">🥕</span>
+                          <span className="text-[9px] text-orange-200 font-bold mt-0.5">Trigo</span>
+                          <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-orange-400">
+                            {player.resources?.crops || 0}
+                          </span>
+                        </div>
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
+                          <span className="text-xl">💎</span>
+                          <span className="text-[9px] text-cyan-200 font-bold mt-0.5">Gemas</span>
+                          <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-cyan-400">
+                            {player.resources?.gems || 0}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
+                  )}
                 </div>
 
                 {/* Footer Balance Bar (Estilo Imagen 3) */}

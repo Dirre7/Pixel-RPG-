@@ -1244,14 +1244,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         </button>
       </div>
 
-      {/* 8. Bottom Center: Floating Glassmorphic Hotbar (Con Safe Area Inset) */}
+      {/* 8. Bottom Center: Floating Glassmorphic Hotbar (Elevada en móviles sobre el D-Pad y botón A) */}
       <div
-        className="absolute z-20 pointer-events-auto"
-        style={{
-          bottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
-          left: '50%',
-          transform: 'translateX(-50%)',
-        }}
+        className="absolute z-20 pointer-events-auto left-1/2 -translate-x-1/2 bottom-[calc(max(0.5rem,env(safe-area-inset-bottom,0.5rem))+120px)] sm:bottom-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]"
       >
         <BottomActionBar
           player={player}
