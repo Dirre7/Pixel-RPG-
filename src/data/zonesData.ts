@@ -161,8 +161,8 @@ export const ZONES: Zone[] = [
       attack: 28,
       defense: 8,
       speed: 8,
-      expReward: 500,
-      goldReward: 350,
+      expReward: 350,
+      goldReward: 80,
       spriteType: 'boss_slime',
       color: '#16a34a',
       specialSkills: [

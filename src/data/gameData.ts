@@ -777,15 +777,15 @@ export function generateZoneOverworldEnemies(
 
         if (distFromTown < 22) {
           // 🟢 Region 1: Perímetro Exterior (Slimes Nv. 1-2)
-          template = { type: 'slime', name: 'Slime de Bosque', color: '#22c55e', level: 2, hp: 85, atk: 22, def: 6, exp: 12, gold: 8, scale: 0.9 };
+          template = { type: 'slime', name: 'Slime de Bosque', color: '#22c55e', level: 2, hp: 85, atk: 22, def: 6, exp: 12, gold: 3, scale: 0.9 };
         } else if (distFromTown < 32) {
           // 🐺 Region 2: Bosque Medio (Lobos Salvajes Nv. 3-4)
-          template = { type: 'wolf', name: 'Lobo Salvaje', color: '#64748b', level: 4, hp: 150, atk: 34, def: 12, exp: 26, gold: 18, scale: 1.0 };
+          template = { type: 'wolf', name: 'Lobo Salvaje', color: '#64748b', level: 4, hp: 150, atk: 34, def: 12, exp: 26, gold: 6, scale: 1.0 };
         } else {
           // 🧝 Region 3: Bosque Profundo y Ruinas Lejanas (Bandidos Nv. 5-7)
           template = Math.random() < 0.5
-            ? { type: 'goblin', name: 'Duende Saqueador', color: '#15803d', level: 5, hp: 210, atk: 46, def: 16, exp: 42, gold: 30, scale: 0.95 }
-            : { type: 'bandit', name: 'Bandido de los Caminos', color: '#b45309', level: 7, hp: 280, atk: 58, def: 22, exp: 60, gold: 45, scale: 1.05 };
+            ? { type: 'goblin', name: 'Duende Saqueador', color: '#15803d', level: 5, hp: 210, atk: 46, def: 16, exp: 42, gold: 12, scale: 0.95 }
+            : { type: 'bandit', name: 'Bandido de los Caminos', color: '#b45309', level: 7, hp: 280, atk: 58, def: 22, exp: 60, gold: 16, scale: 1.05 };
         }
 
         enemies.push({

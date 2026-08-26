@@ -354,12 +354,12 @@ export default function App() {
       blockRate: classConfig.baseStats.blockRate ?? 0,
       lifesteal: classConfig.baseStats.lifesteal ?? 0,
       mpRegen: classConfig.baseStats.mpRegen ?? 0,
-      gold: 35,
+      gold: 10,
       score: 0,
       resources: {
-        wood: 15,
-        stone: 10,
-        crops: 10,
+        wood: 5,
+        stone: 5,
+        crops: 5,
         gems: 0,
       },
     };
