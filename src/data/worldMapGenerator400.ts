@@ -136,7 +136,7 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
       map[y][x] = 0;
     }
   }
-  // Calzada principal de acceso este a oeste conectada con la ciudad
+  // Calzada principal de acceso este a oeste conectada con la ciudad (Completamente despejada)
   for (let x = 6; x <= 24; x++) {
     map[60][x] = 2;
   }
@@ -153,8 +153,10 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
       map[72][x] = 1;
     }
   }
-  map[60][11] = 18; // Estatua central del laberinto
-  map[60][9] = 7;   // 🎁 Cofre Secreto del Laberinto
+  // 🏛️ Glorieta Monumental ajardinada al norte del camino
+  map[56][13] = 18; // Columna clásica con hiedra
+  map[56][12] = 12; map[56][14] = 12; // Setos de flores rodeando la columna
+  map[54][9] = 7;   // 🎁 Cofre Secreto del Claro del Bosque Oeste
 
   // =========================================================================
   // 6. CARVE REGION 6: 🌾 VALLE DE LOS VIÑEDOS, MOLINOS Y SANTUARIO (Suroeste, X: 8..28, Y: 76..112)
@@ -346,10 +348,23 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[47][18] = 13; map[47][20] = 13; // Huerto de trigo
   map[49][18] = 14; // Sacos de harina
 
-  // 🎯 EDIFICIO 6: Gremio de Arqueros y Campo de Tiro (Oeste X: 21, Y: 60)
-  map[60][21] = 5;  // Cabaña de Arqueros
-  map[59][20] = 12; map[59][22] = 12; // Setos
-  map[61][20] = 14; // Dianas y carcajes
+  // 🎯 EDIFICIO 6: Gremio de Arqueros y Campo de Tiro (Oeste X: 21, Y: 56, Entrada Norte de la Calzada)
+  map[56][21] = 5;  // Cabaña de los Arqueros
+  map[57][21] = 2; map[58][21] = 2; map[59][21] = 2; // Camino de acceso empedrado hacia la calzada
+  map[55][20] = 12; map[55][22] = 12; // Setos florales en la fachada
+  map[56][17] = 14; map[57][17] = 14; // Dianas de paja con flechas clavadas
+  map[56][18] = 16; // Armero con arcos y carcajes
+  map[58][18] = 12; // Banco de descanso para arqueros
+  map[58][23] = 17; // Farola de la entrada
+
+  // 🌳 Alameda Oeste: Bancos y Farolas en los bordes del Paseo (Y: 59 y Y: 61)
+  map[59][10] = 12; map[59][15] = 17; map[59][18] = 12; // Borde norte de la calzada
+  map[61][8] = 17;  map[61][12] = 12; map[61][16] = 17; map[61][20] = 12; // Borde sur de la calzada
+
+  // 🌺 Jardines del Prado Suroeste (X: 8..22, Y: 63..68)
+  map[64][10] = 18; map[64][11] = 12; // Rocas decorativas con musgo y lavandas
+  map[65][16] = 13; map[65][17] = 13; // Parcela de flores silvestres
+  map[66][12] = 12; map[66][18] = 17;
 
   // ⛪ EDIFICIO 7: Capilla y Ermita del Clérigo (Este X: 51, Y: 60)
   map[60][51] = 29; // Templo / Capilla con vidrieras góticas
