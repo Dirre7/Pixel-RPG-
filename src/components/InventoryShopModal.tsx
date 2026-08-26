@@ -50,6 +50,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
   const [activeTab, setActiveTab] = useState<'inventory' | 'shop' | 'equipment' | 'stats'>(initialTab);
   const [shopCategory, setShopCategory] = useState<'consumables' | 'equipment'>('equipment');
   const [filterSlot, setFilterSlot] = useState<EquipmentSlot | 'all'>('all');
+  const [selectedItem, setSelectedItem] = useState<EquipmentItem | ConsumableItem | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -622,167 +623,249 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
             </div>
           )}
 
-          {/* TAB 2: CONSUMABLES & MATERIALS */}
+          {/* TAB 2: INVENTORY (GRID RPG 4x7 + WEAPON / ITEM DETAIL CARD - IMAGEN 2 & 3) */}
           {activeTab === 'inventory' && (
-            <div className="space-y-4">
-              {/* Materials & Resources */}
-              <div className="bg-slate-950 p-4 rounded-xl border border-amber-500/30 shadow-lg">
-                <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2.5 flex items-center space-x-2">
-                  <span>🪵</span>
-                  <span>Materiales de Recolección & Crafteo</span>
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                  <div className="p-2 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xl">🪵</span>
-                      <span className="font-bold text-amber-200">Madera</span>
-                    </div>
-                    <span className="font-bold text-amber-400">{(player.resources?.wood || 0).toLocaleString()}</span>
-                  </div>
-                  <div className="p-2 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xl">🪨</span>
-                      <span className="font-bold text-slate-200">Hierro</span>
-                    </div>
-                    <span className="font-bold text-slate-400">{(player.resources?.stone || 0).toLocaleString()}</span>
-                  </div>
-                  <div className="p-2 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xl">🥕</span>
-                      <span className="font-bold text-orange-200">Cosechas</span>
-                    </div>
-                    <span className="font-bold text-orange-400">{(player.resources?.crops || 0).toLocaleString()}</span>
-                  </div>
-                  <div className="p-2 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xl">💎</span>
-                      <span className="font-bold text-cyan-200">Gemas</span>
-                    </div>
-                    <span className="font-bold text-cyan-400">{(player.resources?.gems || 0).toLocaleString()}</span>
-                  </div>
+            <div className="flex flex-col lg:flex-row gap-3">
+              {/* LEFT COLUMN: 4x7 ITEM GRID */}
+              <div className="flex-1 space-y-2.5">
+                {/* Category Filter Tabs */}
+                <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-1 text-[10px]">
+                  {[
+                    { key: 'all', label: '📦 Todo' },
+                    { key: 'weapon', label: '🗡️ Armas' },
+                    { key: 'armor', label: '🥋 Armaduras' },
+                    { key: 'shield', label: '🛡️ Escudos' },
+                    { key: 'helmet', label: '👑 Cascos' },
+                    { key: 'boots', label: '👢 Botas' },
+                    { key: 'ring', label: '💍 Anillos' },
+                    { key: 'amulet', label: '📿 Amuletos' },
+                  ].map((f) => (
+                    <button
+                      key={f.key}
+                      onClick={() => {
+                        soundEngine.playSfx('select');
+                        setFilterSlot(f.key as any);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg whitespace-nowrap font-bold transition ${
+                        filterSlot === f.key
+                          ? 'bg-amber-500 text-slate-950 font-black shadow-md'
+                          : 'bg-[#141224] text-slate-400 hover:bg-[#1f1c38] border border-[#2a243d]'
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
                 </div>
-              </div>
 
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-lg">
-                <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3 flex items-center space-x-2">
-                  <span>🧪</span>
-                  <span>Pociones, Pergaminos y Consumibles</span>
-                </h3>
-
-                {inventory.consumables.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-slate-500">
-                    No tienes consumibles en tu bolsa. ¡Cómpralos en la tienda!
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {inventory.consumables.map((item) => (
-                      <div
-                        key={item.id}
-                        className="p-3 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between text-xs hover:border-slate-700 transition"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <span className="text-2xl">{item.icon}</span>
-                          <div>
-                            <div className="font-bold text-slate-100 text-xs">
-                              {item.name}{' '}
-                              <span className="text-amber-400 font-bold ml-1">x{item.quantity}</span>
-                            </div>
-                            <div className="text-[10px] text-slate-400 mt-0.5">{item.description}</div>
-                          </div>
-                        </div>
-
+                {/* 4x7 Grid Container (Biselado de Bronce) */}
+                <div className="bg-[#0b0a14] p-3 rounded-xl border-2 border-amber-600/50 shadow-inner">
+                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                    {/* Consumables Items */}
+                    {inventory.consumables.map((item) => {
+                      const isSelected = (selectedItem as any)?.id === item.id;
+                      return (
                         <button
-                          onClick={() => handleUseConsumable(item)}
-                          className="py-1 px-3 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded text-[11px] transition shadow"
+                          key={item.id}
+                          onClick={() => {
+                            soundEngine.playSfx('select');
+                            setSelectedItem(item as any);
+                          }}
+                          className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex flex-col items-center justify-center transition-all ${
+                            isSelected
+                              ? 'bg-[#221c3b] border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.6)] scale-105'
+                              : 'bg-[#141224] hover:bg-[#1a1730] border border-[#2a243d] hover:border-amber-500/60'
+                          }`}
                         >
-                          Usar
+                          <span className="text-2xl filter drop-shadow">{item.icon}</span>
+                          <span className="absolute bottom-1 right-1.5 text-[9px] font-mono font-black text-amber-300 bg-[#06060c] px-1 rounded border border-amber-500/60">
+                            x{item.quantity}
+                          </span>
                         </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      );
+                    })}
 
-              {/* Owned Equipment in Backpack */}
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-lg space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center space-x-1.5">
-                    <span>🎒</span>
-                    <span>Equipamiento Almacenado ({filteredOwnedEquipment.length})</span>
-                  </h3>
+                    {/* Equipment Items */}
+                    {filteredOwnedEquipment.map((item) => {
+                      const isEquipped = Object.values(inventory.equipment).some((e) => e?.id === item.id);
+                      const isSelected = (selectedItem as any)?.id === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            soundEngine.playSfx('select');
+                            setSelectedItem(item);
+                          }}
+                          className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex flex-col items-center justify-center transition-all ${
+                            isSelected
+                              ? 'bg-[#221c3b] border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.6)] scale-105'
+                              : isEquipped
+                              ? 'bg-[#0f241d] border-2 border-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.4)]'
+                              : 'bg-[#141224] hover:bg-[#1a1730] border border-[#2a243d] hover:border-amber-500/60'
+                          }`}
+                        >
+                          <span className="text-2xl filter drop-shadow">{item.icon}</span>
+                          {isEquipped && (
+                            <span className="absolute top-1 left-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]" />
+                          )}
+                          <span className="absolute bottom-1 right-1 text-[8px] font-bold text-amber-200/90 truncate max-w-[48px]">
+                            {item.bonusAttack ? `+${item.bonusAttack}` : item.bonusDefense ? `+${item.bonusDefense}` : ''}
+                          </span>
+                        </button>
+                      );
+                    })}
 
-                  {/* Filter Pills */}
-                  <div className="flex items-center overflow-x-auto gap-1 text-[10px] pb-1 sm:pb-0">
-                    {(
-                      [
-                        { key: 'all', label: 'Todos' },
-                        { key: 'weapon', label: '🗡️ Armas' },
-                        { key: 'shield', label: '🛡️ Escudos' },
-                        { key: 'helmet', label: '👑 Cascos' },
-                        { key: 'armor', label: '🥋 Armaduras' },
-                        { key: 'boots', label: '👢 Botas' },
-                        { key: 'ring', label: '💍 Anillos' },
-                        { key: 'amulet', label: '📿 Amuletos' },
-                      ] as const
-                    ).map((f) => (
-                      <button
-                        key={f.key}
-                        onClick={() => setFilterSlot(f.key)}
-                        className={`px-2 py-1 rounded whitespace-nowrap font-bold transition ${
-                          filterSlot === f.key
-                            ? 'bg-amber-500 text-slate-950'
-                            : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
-                        }`}
-                      >
-                        {f.label}
-                      </button>
-                    ))}
+                    {/* Material Resources Badges */}
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
+                      <span className="text-xl">🪵</span>
+                      <span className="text-[9px] text-amber-200 font-bold mt-0.5">Madera</span>
+                      <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-amber-400">
+                        {player.resources?.wood || 0}
+                      </span>
+                    </div>
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
+                      <span className="text-xl">🪨</span>
+                      <span className="text-[9px] text-slate-200 font-bold mt-0.5">Hierro</span>
+                      <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-slate-400">
+                        {player.resources?.stone || 0}
+                      </span>
+                    </div>
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
+                      <span className="text-xl">🥕</span>
+                      <span className="text-[9px] text-orange-200 font-bold mt-0.5">Trigo</span>
+                      <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-orange-400">
+                        {player.resources?.crops || 0}
+                      </span>
+                    </div>
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#141224] border border-[#2a243d] flex flex-col items-center justify-center relative">
+                      <span className="text-xl">💎</span>
+                      <span className="text-[9px] text-cyan-200 font-bold mt-0.5">Gemas</span>
+                      <span className="absolute bottom-0.5 right-1 text-[8px] font-mono text-cyan-400">
+                        {player.resources?.gems || 0}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {filteredOwnedEquipment.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-slate-500">
-                    No tienes equipo en esta categoría. ¡Visita la tienda o forja nuevas armas!
+                {/* Footer Balance Bar (Estilo Imagen 3) */}
+                <div className="flex items-center justify-between bg-[#0b0a14] px-3 py-2 rounded-xl border border-[#2a243d] text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-400 font-bold">🪙 Monedas de Oro:</span>
+                    <span className="font-black text-amber-300 font-mono text-sm">{player.gold.toLocaleString()} G</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-cyan-400 font-bold">💎 Gemas:</span>
+                    <span className="font-black text-cyan-300 font-mono text-sm">{(player.resources?.gems || 0).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN: 🗡️ WEAPON & ITEM DETAIL CARD (DIRECTAMENTE ESTILO IMAGEN 2 & 3) */}
+              <div className="w-full lg:w-80 bg-[#0e0d18] border-2 border-amber-600/70 rounded-xl p-3.5 flex flex-col justify-between gap-3 shadow-2xl">
+                {selectedItem ? (
+                  <div className="space-y-3">
+                    {/* Header Card: Name & Stars */}
+                    <div className="border-b border-amber-600/40 pb-2">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-sm font-black text-amber-300 truncate">{selectedItem.name}</span>
+                        <span className="text-xs text-yellow-400 tracking-tighter">★★★★★</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-0.5 font-mono">
+                        {(selectedItem as any).slot
+                          ? `Ranura: ${SLOT_CONFIG.find((s) => s.key === (selectedItem as any).slot)?.label}`
+                          : 'Objeto Consumible'}
+                      </div>
+                    </div>
+
+                    {/* Big Showcase Box */}
+                    <div className="w-full h-20 rounded-xl bg-gradient-to-b from-[#1c1830] to-[#0a0914] border border-amber-500/40 flex items-center justify-center shadow-inner">
+                      <span className="text-4xl filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+                        {selectedItem.icon}
+                      </span>
+                    </div>
+
+                    {/* Stats & Attributes Box */}
+                    <div className="bg-[#141224] p-2.5 rounded-lg border border-[#2a243d] space-y-1.5 text-xs">
+                      {(selectedItem as any).bonusAttack && (
+                        <div className="flex justify-between items-center text-rose-300 font-bold">
+                          <span>⚔️ Daño de Ataque:</span>
+                          <span className="font-mono text-sm">+{ (selectedItem as any).bonusAttack }</span>
+                        </div>
+                      )}
+                      {(selectedItem as any).bonusDefense && (
+                        <div className="flex justify-between items-center text-blue-300 font-bold">
+                          <span>🛡️ Defensa Física:</span>
+                          <span className="font-mono text-sm">+{ (selectedItem as any).bonusDefense }</span>
+                        </div>
+                      )}
+                      {(selectedItem as any).bonusHp && (
+                        <div className="flex justify-between items-center text-emerald-300 font-bold">
+                          <span>❤️ Vitalidad Máxima:</span>
+                          <span className="font-mono text-sm">+{ (selectedItem as any).bonusHp } HP</span>
+                        </div>
+                      )}
+                      {(selectedItem as any).bonusMp && (
+                        <div className="flex justify-between items-center text-cyan-300 font-bold">
+                          <span>💧 Reserva de Maná:</span>
+                          <span className="font-mono text-sm">+{ (selectedItem as any).bonusMp } MP</span>
+                        </div>
+                      )}
+                      {(selectedItem as any).bonusSpeed && (
+                        <div className="flex justify-between items-center text-amber-300 font-bold">
+                          <span>🌀 Agilidad / Velocidad:</span>
+                          <span className="font-mono text-sm">+{ (selectedItem as any).bonusSpeed }</span>
+                        </div>
+                      )}
+                      <p className="text-[10px] text-slate-300 leading-relaxed pt-1 border-t border-slate-800">
+                        {selectedItem.description}
+                      </p>
+                    </div>
+
+                    {/* Passive Ability Banner */}
+                    <div className="p-2 bg-amber-950/40 border border-amber-500/40 rounded-lg text-[10px] text-amber-200 italic">
+                      ✨ Otorga bonificación de combate directa al portador en todas las zonas de Aethelgard.
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 pt-1">
+                      {(selectedItem as any).slot ? (
+                        <>
+                          {Object.values(inventory.equipment).some((e) => e?.id === selectedItem.id) ? (
+                            <button
+                              onClick={() => handleUnequip((selectedItem as any).slot)}
+                              className="flex-1 py-2 bg-rose-700 hover:bg-rose-600 text-slate-950 font-black rounded-lg text-xs transition shadow-md"
+                            >
+                              Quitar
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleEquip(selectedItem as EquipmentItem)}
+                              className="flex-1 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-xs transition shadow-md"
+                            >
+                              Equipar
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleSellEquipment(selectedItem as EquipmentItem)}
+                            className="px-3 py-2 bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-bold transition"
+                            title="Vender"
+                          >
+                            🪙 Vender
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => handleUseConsumable(selectedItem as ConsumableItem)}
+                          className="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-xs transition shadow-md"
+                        >
+                          Consumir
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {filteredOwnedEquipment.map((item) => (
-                      <div
-                        key={item.id}
-                        className="p-2.5 bg-slate-900 rounded-xl border border-slate-800 flex flex-col justify-between gap-2"
-                      >
-                        <div className="flex items-start gap-2.5">
-                          <div className="w-10 h-10 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center text-xl flex-shrink-0">
-                            {item.icon}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-1">
-                              <span className="font-bold text-amber-300 text-xs truncate">{item.name}</span>
-                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-bold">
-                                {SLOT_CONFIG.find((s) => s.key === item.slot)?.label.split('/')[0]}
-                              </span>
-                            </div>
-                            <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{item.description}</p>
-                            {renderItemTacticalBadges(item)}
-                          </div>
-                        </div>
-
-                        <div className="flex gap-1.5 pt-1.5 border-t border-slate-800/80">
-                          <button
-                            onClick={() => handleEquip(item)}
-                            className="flex-1 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-xs transition"
-                          >
-                            Equipar
-                          </button>
-                          <button
-                            onClick={() => handleSellEquipment(item)}
-                            className="px-2.5 py-1.5 bg-slate-800 hover:bg-amber-950 hover:text-amber-300 text-slate-400 font-bold rounded-lg text-xs transition"
-                          >
-                            Vender ({Math.max(1, Math.floor(item.price * 0.10))}G)
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="flex-1 flex flex-col items-center justify-center p-6 text-center text-slate-500 text-xs">
+                    <span className="text-3xl mb-2 opacity-50">🗡️</span>
+                    <span>Selecciona un objeto de la cuadrícula para inspeccionar sus estadísticas de combate.</span>
                   </div>
                 )}
               </div>
