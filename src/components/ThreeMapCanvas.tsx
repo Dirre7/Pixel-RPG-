@@ -1218,11 +1218,13 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           addWorldEntity(chestGroup, x, y);
         }
 
-        // 🪦 Gran Mausoleo de la Cripta Ancestral o Cabaña Aldeana (Tile 8)
+        // 🪦 Gran Mausoleo de la Cripta Ancestral 2.5D o Cabaña Aldeana (Tile 8)
         if (tileType === 8) {
           const isCryptEntrance = currentZone.id === 'zone_forest' || (x >= 50 && y <= 35);
+          const houseImg = new Image();
+          houseImg.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
           const cottageGroup = create2DPixelSprite(
-            isCryptEntrance ? getCryptMausoleumCanvas(0) : getCottageCanvas((x + y) % 2 === 0 ? 'red' : 'straw'),
+            isCryptEntrance ? getCryptMausoleumCanvas(houseImg, 0) : getCottageCanvas((x + y) % 2 === 0 ? 'red' : 'straw'),
             isCryptEntrance ? 4.8 : 4.6,
             isCryptEntrance ? 6.4 : 4.6,
             isCryptEntrance ? 1.8 : 1.5

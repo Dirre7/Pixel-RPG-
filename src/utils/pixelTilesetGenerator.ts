@@ -1747,154 +1747,131 @@ export function getHerbDryingRackCanvas(): HTMLCanvasElement {
 }
 
 /**
- * 🪦 GRAN MAUSOLEO Y CRIPTA GÓTICA 2.5D HD (96x128 px)
- * Estructura de sillería de piedra ceniza, portal ojival con verja de hierro negro,
- * tímpano con calavera y cruz sepulcral, antorchas de fuego fatuo y niebla espectral.
+ * 🪦 GRAN MAUSOLEO Y CRIPTA GÓTICA (CUTE FANTASY 2.5D HD - 96x128 px)
+ * Misma geometría y perspectiva isométrica 2.5D que los demás edificios nobles,
+ * con tejado de pizarra oscura, sillería de piedra basalto, portal ojival con verja negra,
+ * tímpano con calavera sepulcral, antorchas de fuego fatuo y niebla espectral animada.
  */
-export function getCryptMausoleumCanvas(time: number = 0): HTMLCanvasElement {
+export function getCryptMausoleumCanvas(
+  baseImg: HTMLImageElement,
+  time: number = 0
+): HTMLCanvasElement {
+  const baseHouse = getRecoloredCuteHouseCanvas(baseImg, 'stone');
   const canvas = document.createElement('canvas');
   canvas.width = 96;
   canvas.height = 128;
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
 
-  // 1. Sombra de contacto
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-  ctx.beginPath();
-  ctx.ellipse(48, 120, 44, 8, 0, 0, Math.PI * 2);
-  ctx.fill();
+  // 1. Dibujar la casa base 2.5D isométrica de Cute Fantasy (tejado de pizarra oscura)
+  ctx.drawImage(baseHouse, 0, 0);
 
-  // 2. Podio y escalinata de piedra carcomida con musgo
-  ctx.fillStyle = '#18181b'; // Piedra basalto base
-  ctx.fillRect(8, 108, 80, 16);
-  ctx.fillStyle = '#27272a';
-  ctx.fillRect(10, 110, 76, 12);
-  ctx.fillStyle = '#3f3f46';
-  ctx.fillRect(12, 111, 72, 3); // Peldaño de luz
-  // Musgo en los escalones
-  ctx.fillStyle = '#14532d';
-  ctx.fillRect(14, 118, 12, 4);
-  ctx.fillRect(68, 116, 16, 5);
+  // 2. Tonalidad y Textura de Piedra Gótica en la Fachada Frontal y Flanco Lateral 2.5D
+  // Fachada frontal
+  ctx.fillStyle = 'rgba(24, 24, 27, 0.45)';
+  ctx.fillRect(20, 56, 48, 48);
+  // Flanco lateral en perspectiva isométrica
+  ctx.fillStyle = 'rgba(9, 9, 11, 0.55)';
+  ctx.fillRect(68, 62, 16, 46);
 
-  // 3. Fachada del Mausoleo de Piedra Ceniza Oscura
-  ctx.fillStyle = '#18181b'; // Muros exteriores
-  ctx.fillRect(16, 38, 64, 72);
-  ctx.fillStyle = '#27272a';
-  ctx.fillRect(18, 40, 60, 68);
-
-  // Sillares y bloques de piedra tallados con juntas oscuras
-  ctx.fillStyle = '#3f3f46';
-  for (let y = 42; y < 106; y += 10) {
-    for (let x = 20; x < 76; x += 14) {
-      ctx.fillRect(x + ((y / 10) % 2 * 6), y, 12, 8);
+  // Bloques de sillería de piedra esculpida en la fachada
+  ctx.fillStyle = 'rgba(63, 63, 70, 0.35)';
+  for (let y = 60; y < 100; y += 8) {
+    for (let x = 22; x < 66; x += 12) {
+      ctx.fillRect(x + ((y / 8) % 2 * 6), y, 10, 6);
     }
   }
 
-  // 4. Gran Tejado a dos aguas de Pizarra Oscura
-  ctx.fillStyle = '#09090b';
-  ctx.beginPath();
-  ctx.moveTo(48, 12);
-  ctx.lineTo(88, 42);
-  ctx.lineTo(8, 42);
-  ctx.closePath();
-  ctx.fill();
-
+  // 3. Gran Cruz Gótica en la Cumbrera del Tejado 2.5D
   ctx.fillStyle = '#18181b';
-  ctx.beginPath();
-  ctx.moveTo(48, 14);
-  ctx.lineTo(85, 40);
-  ctx.lineTo(11, 40);
-  ctx.closePath();
-  ctx.fill();
-
-  // Tejas de pizarra gótica
-  ctx.fillStyle = '#27272a';
-  ctx.fillRect(20, 32, 56, 4);
-  ctx.fillRect(28, 26, 40, 4);
-  ctx.fillRect(36, 20, 24, 4);
-
-  // Remate con Cruz Gótica y Gárgolas
+  ctx.fillRect(46, 2, 4, 16); // Mástil
+  ctx.fillRect(42, 6, 12, 4); // Travesaño
   ctx.fillStyle = '#52525b';
-  ctx.fillRect(46, 2, 4, 14); // Cruz gótica central
-  ctx.fillRect(43, 6, 10, 3);
-  // Pináculos góticos en las esquinas
-  ctx.fillStyle = '#3f3f46';
-  ctx.fillRect(14, 32, 4, 10);
-  ctx.fillRect(15, 26, 2, 6);
-  ctx.fillRect(78, 32, 4, 10);
-  ctx.fillRect(79, 26, 2, 6);
+  ctx.fillRect(47, 3, 2, 14);
+  ctx.fillRect(43, 7, 10, 2);
 
-  // 5. Frontispicio con relieve de Calavera (`☠️`)
-  ctx.fillStyle = '#18181b';
-  ctx.beginPath();
-  ctx.arc(48, 34, 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#e4e4e7'; // Calavera esculpida
-  ctx.fillRect(45, 30, 6, 5);
-  ctx.fillRect(46, 35, 4, 3);
-  ctx.fillStyle = '#09090b'; // Cuencas oculares
-  ctx.fillRect(46, 32, 2, 2);
-  ctx.fillRect(48, 32, 2, 2);
+  // Pináculos góticos en los extremos del alero
+  ctx.fillStyle = '#27272a';
+  ctx.fillRect(12, 48, 4, 10);
+  ctx.fillRect(13, 44, 2, 4);
+  ctx.fillRect(80, 52, 4, 10);
+  ctx.fillRect(81, 48, 2, 4);
 
-  // 6. Gran Portal con Arco Ojival y Verja de Hierro Negro
-  ctx.fillStyle = '#09090b'; // Interior abismal oscuro
+  // 4. Portal Gótico Ojival Rehundido en la Entrada
+  ctx.fillStyle = '#09090b'; // Fondo abismal
   ctx.beginPath();
-  ctx.moveTo(32, 108);
-  ctx.lineTo(32, 70);
-  ctx.quadraticCurveTo(48, 52, 64, 70);
-  ctx.lineTo(64, 108);
+  ctx.moveTo(34, 102);
+  ctx.lineTo(34, 76);
+  ctx.quadraticCurveTo(46, 62, 58, 76);
+  ctx.lineTo(58, 102);
   ctx.closePath();
   ctx.fill();
 
-  // Marco de piedra con moldura
+  // Moldura de piedra del arco
   ctx.strokeStyle = '#52525b';
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
-  ctx.moveTo(32, 108);
-  ctx.lineTo(32, 70);
-  ctx.quadraticCurveTo(48, 52, 64, 70);
-  ctx.lineTo(64, 108);
+  ctx.moveTo(34, 102);
+  ctx.lineTo(34, 76);
+  ctx.quadraticCurveTo(46, 62, 58, 76);
+  ctx.lineTo(58, 102);
   ctx.stroke();
 
-  // Rejas de hierro forjado negro con púas
+  // Rejas de hierro forjado negro con puntas de flecha
   ctx.fillStyle = '#27272a';
-  for (let rx = 36; rx <= 60; rx += 6) {
-    ctx.fillRect(rx, 68, 2, 40);
+  for (let rx = 38; rx <= 54; rx += 4) {
+    ctx.fillRect(rx, 74, 2, 28);
     // Púas superiores
-    ctx.fillStyle = '#52525b';
-    ctx.fillRect(rx - 1, 65, 4, 3);
+    ctx.fillStyle = '#71717a';
+    ctx.fillRect(rx - 1, 71, 4, 3);
     ctx.fillStyle = '#27272a';
   }
-  ctx.fillRect(33, 82, 30, 2);
-  ctx.fillRect(33, 98, 30, 2);
+  ctx.fillRect(35, 84, 22, 2);
+  ctx.fillRect(35, 94, 22, 2);
 
-  // 7. Antorchas de Fuego Fatuo (Llama espectral púrpura/cian animada)
-  const specFlicker = Math.sin(time * 8) * 1.5;
-  const drawSpectralTorch = (tx: number) => {
-    ctx.fillStyle = '#09090b';
-    ctx.fillRect(tx, 74, 4, 8); // Soporte
-    ctx.fillStyle = '#7c3aed'; // Resplandor violeta
-    ctx.fillRect(tx - 2, 68 + specFlicker * 0.4, 8, 8);
-    ctx.fillStyle = '#a78bfa';
-    ctx.fillRect(tx - 1, 69 + specFlicker * 0.3, 6, 6);
-    ctx.fillStyle = '#38bdf8'; // Núcleo cian etéreo
-    ctx.fillRect(tx, 70 + specFlicker * 0.2, 4, 4);
-    ctx.fillStyle = '#e0f2fe';
-    ctx.fillRect(tx + 1, 71, 2, 2);
-  };
-  drawSpectralTorch(24);
-  drawSpectralTorch(68);
-
-  // 8. Niebla fría espectral deslizándose por la base
-  const mistShift1 = Math.sin(time * 2) * 6;
-  const mistShift2 = Math.cos(time * 1.8) * 8;
-  ctx.fillStyle = 'rgba(192, 132, 252, 0.25)';
+  // 5. Tímpano Esculpido con Calavera Sepulcral (`☠️`)
+  ctx.fillStyle = '#18181b';
   ctx.beginPath();
-  ctx.ellipse(44 + mistShift1, 114, 28, 6, 0, 0, Math.PI * 2);
+  ctx.arc(46, 56, 7, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+  ctx.fillStyle = '#e4e4e7'; // Calavera de piedra
+  ctx.fillRect(43, 53, 6, 5);
+  ctx.fillRect(44, 58, 4, 2);
+  ctx.fillStyle = '#09090b'; // Cuencas oculares
+  ctx.fillRect(44, 54, 2, 2);
+  ctx.fillRect(47, 54, 2, 2);
+  // Brillo espectral en los ojos
+  ctx.fillStyle = '#c084fc';
+  ctx.fillRect(44, 54, 1, 1);
+  ctx.fillRect(47, 54, 1, 1);
+
+  // 6. Antorchas de Fuego Fatuo (Llama espectral violeta y cian animada)
+  const specFlicker = Math.sin(time * 8) * 1.5;
+  const drawSpectralTorch = (tx: number, ty: number) => {
+    ctx.fillStyle = '#09090b';
+    ctx.fillRect(tx, ty, 3, 6); // Soporte
+    ctx.fillStyle = '#7c3aed'; // Resplandor violeta
+    ctx.fillRect(tx - 2, ty - 6 + specFlicker * 0.4, 7, 7);
+    ctx.fillStyle = '#a78bfa';
+    ctx.fillRect(tx - 1, ty - 5 + specFlicker * 0.3, 5, 5);
+    ctx.fillStyle = '#38bdf8'; // Núcleo cian etéreo
+    ctx.fillRect(tx, ty - 4 + specFlicker * 0.2, 3, 3);
+    ctx.fillStyle = '#e0f2fe';
+    ctx.fillRect(tx + 1, ty - 3, 1, 2);
+  };
+  drawSpectralTorch(26, 78);
+  drawSpectralTorch(64, 80);
+
+  // 7. Niebla Espectral Fría arrastrándose por el suelo 2.5D
+  const mist1 = Math.sin(time * 2) * 5;
+  const mist2 = Math.cos(time * 1.7) * 7;
+  ctx.fillStyle = 'rgba(192, 132, 252, 0.22)';
   ctx.beginPath();
-  ctx.ellipse(52 + mistShift2, 118, 34, 7, 0, 0, Math.PI * 2);
+  ctx.ellipse(40 + mist1, 106, 26, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.18)';
+  ctx.beginPath();
+  ctx.ellipse(54 + mist2, 108, 30, 7, 0, 0, Math.PI * 2);
   ctx.fill();
 
   return canvas;

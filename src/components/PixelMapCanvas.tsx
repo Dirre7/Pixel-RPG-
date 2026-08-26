@@ -944,12 +944,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 8) {
-            // 🪦 Gran Mausoleo / Cripta Ancestral o Santuario Místico
+            // 🪦 Gran Mausoleo / Cripta Ancestral 2.5D o Santuario Místico
             if (currentZone.id === 'zone_forest' || (x >= 50 && y <= 35)) {
               entities.push({
                 ySort: posY + TILE_SIZE + 24,
                 draw: (c) => {
-                  const mausoleum = getCryptMausoleumCanvas(time);
+                  const mausoleum = getCryptMausoleumCanvas(gameAssets.house, time);
                   c.drawImage(mausoleum, 0, 0, 96, 128, posX - 32, posY - 76, 96, 128);
                 },
               });
