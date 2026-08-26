@@ -1050,15 +1050,15 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
         return (
           <div
-            className="absolute z-20 pointer-events-auto max-w-[170px] sm:max-w-[220px] transition-all"
+            className="absolute z-20 pointer-events-auto max-w-[190px] sm:max-w-[260px] transition-all"
             style={{
-              top: 'calc(max(0.5rem, env(safe-area-inset-top, 0.5rem)) + 82px)',
+              top: 'calc(max(0.5rem, env(safe-area-inset-top, 0.5rem)) + 120px)',
               left: 'max(0.5rem, env(safe-area-inset-left, 0.5rem))',
             }}
           >
             {isQuestExpanded ? (
-              <div className="bg-slate-950/90 border border-amber-500/70 rounded-xl p-2 shadow-2xl backdrop-blur-md font-mono animate-fade-in">
-                <div className="flex items-center justify-between gap-1 text-[10px] text-amber-400 font-bold uppercase pb-1 border-b border-slate-800">
+              <div className="bg-[#0e0d18]/95 border-2 border-amber-600/70 rounded-xl p-2.5 shadow-[0_4px_20px_rgba(0,0,0,0.85)] backdrop-blur-md font-mono animate-fade-in">
+                <div className="flex items-center justify-between gap-1 text-[10px] text-amber-400 font-bold uppercase pb-1 border-b border-amber-600/40">
                   <div className="flex items-center gap-1">
                     <Scroll className="w-3.5 h-3.5 text-amber-400" />
                     <span>Misión Activa</span>
@@ -1071,10 +1071,10 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                     ▲
                   </button>
                 </div>
-                <div className="text-[11px] font-black text-slate-100 truncate mt-1">
+                <div className="text-[11px] font-black text-amber-200 truncate mt-1">
                   {currentQuest.title}
                 </div>
-                <div className="text-[9px] text-slate-300 line-clamp-3 mt-0.5">
+                <div className="text-[9px] text-slate-300 line-clamp-3 mt-0.5 leading-relaxed">
                   {currentQuest.description}
                 </div>
                 <button
@@ -1082,7 +1082,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                     soundEngine.playSfx('select');
                     setIsQuestLogOpen(true);
                   }}
-                  className="mt-1.5 w-full py-1 text-[9px] bg-amber-500/20 hover:bg-amber-500/30 active:scale-95 text-amber-300 rounded font-bold border border-amber-500/40 text-center transition"
+                  className="mt-2 w-full py-1 text-[9px] bg-amber-500/20 hover:bg-amber-500/30 active:scale-95 text-amber-300 rounded-lg font-bold border border-amber-500/50 text-center transition"
                 >
                   Ver Diario
                 </button>
@@ -1090,12 +1090,12 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
             ) : (
               <button
                 onClick={() => setIsQuestExpanded(true)}
-                className="flex items-center gap-1.5 bg-slate-950/80 hover:bg-slate-900 active:scale-95 border border-amber-500/50 rounded-full px-2.5 py-1 shadow-xl backdrop-blur-md font-mono text-[10px] text-amber-300 font-bold transition"
+                className="flex items-center gap-1.5 bg-[#0e0d18]/95 hover:bg-[#19162e] active:scale-95 border-2 border-amber-600/70 rounded-xl px-2.5 py-1.5 shadow-[0_4px_15px_rgba(0,0,0,0.8)] backdrop-blur-md font-mono text-[10px] text-amber-300 font-bold transition"
                 title="Desplegar Misión Activa"
               >
-                <Scroll className="w-3 h-3 text-amber-400" />
-                <span className="truncate max-w-[80px] sm:max-w-[120px]">{currentQuest.title}</span>
-                <span className="text-[8px] text-amber-400/80">▾</span>
+                <Scroll className="w-3.5 h-3.5 text-amber-400" />
+                <span className="truncate max-w-[100px] sm:max-w-[150px]">{currentQuest.title}</span>
+                <span className="text-[9px] text-amber-400/80">▾</span>
               </button>
             )}
           </div>
