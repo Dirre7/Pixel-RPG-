@@ -68,6 +68,10 @@ import {
   getCaveEntranceCanvas,
   getPirateCrateStackCanvas,
   getDockRowboatCanvas,
+  getGrandCastleBuildingCanvas,
+  getRoyalThroneCanvas,
+  getRoyalStainedGlassCanvas,
+  getRoyalCouncilTableCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -828,6 +832,38 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 ctx.fillRect(drawPosX + 14, drawPosY + 22, 2, 2);
               }
             }
+          } else if (currentZone.id === 'subzone_castle' || currentZone.interiorType === 'castle') {
+            if (groundType === 2) {
+              // 👑 Gran Alfombra Carmesí Imperial con Ribetes Dorados
+              ctx.fillStyle = '#7f1d1d';
+              ctx.fillRect(drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+              ctx.fillStyle = '#991b1b';
+              ctx.fillRect(drawPosX + 2, drawPosY + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+              ctx.fillStyle = '#b91c1c';
+              ctx.fillRect(drawPosX + 4, drawPosY + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+              // Ribete dorado
+              ctx.fillStyle = '#fbbf24';
+              if (x === 11) {
+                ctx.fillRect(drawPosX + 1, drawPosY, 2, TILE_SIZE);
+              }
+              if (x === 12) {
+                ctx.fillRect(drawPosX + TILE_SIZE - 3, drawPosY, 2, TILE_SIZE);
+              }
+              // Rombo central bordado
+              if (y % 2 === 0) {
+                ctx.fillStyle = '#f59e0b';
+                ctx.fillRect(drawPosX + 14, drawPosY + 14, 4, 4);
+              }
+            } else {
+              // 🏛️ Suelo de Mármol Noble Ajedrezado Palaciego
+              const isDark = (x + y) % 2 === 0;
+              ctx.fillStyle = isDark ? '#1e293b' : '#334155';
+              ctx.fillRect(drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+              ctx.fillStyle = isDark ? '#334155' : '#475569';
+              ctx.fillRect(drawPosX + 1, drawPosY + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+              ctx.fillRect(drawPosX + 2, drawPosY + 2, TILE_SIZE - 4, 3);
+            }
           } else if (currentZone.id === 'zone_castle' || currentZone.id === 'zone_sanctuary') {
             ctx.drawImage(gameAssets.floorTiles, 256, 16, 16, 16, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
           } else if (currentZone.id === 'zone_tundra') {
@@ -1279,14 +1315,26 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 10) {
-            // Forja y Yunque de Herrero
-            const blacksmith = getForgeCanvas();
-            entities.push({
-              ySort: posY + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(blacksmith, posX, posY, 32, 32);
-              },
-            });
+            // 👑 Trono Real en el Castillo, o Forja y Yunque en Herrería
+            if (currentZone.interiorType === 'castle' || currentZone.id === 'subzone_castle') {
+              if (x === 11) {
+                const throne = getRoyalThroneCanvas(time);
+                entities.push({
+                  ySort: posY + TILE_SIZE + 16,
+                  draw: (c) => {
+                    c.drawImage(throne, posX - 16, posY - 28, 64, 64);
+                  },
+                });
+              }
+            } else {
+              const blacksmith = getForgeCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(blacksmith, posX, posY, 32, 32);
+                },
+              });
+            }
           } else if (tileType === 11) {
             // Gran Portal de Mazmorra / Portal del Jefe 2.5D Monumental Animado (64x72 px)
             entities.push({
@@ -1774,14 +1822,24 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 31) {
-            // Gran Ayuntamiento / Casa Gremial
-            const greatHall = getGreatHallCanvas();
-            entities.push({
-              ySort: posY + TILE_SIZE + 14,
-              draw: (c) => {
-                c.drawImage(greatHall, posX - 24, posY - 24, 80, 64);
-              },
-            });
+            // 🏰 Gran Castillo Real de Aethelgard (X: 43, Y: 43 en zone_forest) o Gran Ayuntamiento
+            if (currentZone.id === 'zone_forest' && x === 43 && y === 43) {
+              const castleBuilding = getGrandCastleBuildingCanvas(time);
+              entities.push({
+                ySort: posY + TILE_SIZE + 24,
+                draw: (c) => {
+                  c.drawImage(castleBuilding, 0, 0, 160, 160, posX - 64, posY - 110, 160, 160);
+                },
+              });
+            } else {
+              const greatHall = getGreatHallCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE + 14,
+                draw: (c) => {
+                  c.drawImage(greatHall, posX - 24, posY - 24, 80, 64);
+                },
+              });
+            }
           } else if (tileType === 32) {
             // Gran Estanque con Fuente de Gárgola
             const gargoyleFountain = getGargoyleFountainCanvas(time);
@@ -2028,6 +2086,37 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             const distToPlayer = Math.hypot(portal.x - playerPos.x, portal.y - playerPos.y);
             const isNear = distToPlayer <= 3.5;
 
+            // 🏰 Entrada Monumental del Gran Castillo Real de Aethelgard (Fachada 160x160 px 2.5D)
+            if (portal.targetZoneId.includes('castle') || portal.targetZoneId === 'subzone_castle') {
+              const castleBuilding = getGrandCastleBuildingCanvas(time);
+              entities.push({
+                ySort: pY + TILE_SIZE + 6,
+                draw: (c) => {
+                  c.drawImage(castleBuilding, 0, 0, 160, 160, pX - 64, pY - 112, 160, 160);
+
+                  if (isNear) {
+                    const badgeY = pY - 118 + Math.sin(time * 2.5) * 1.5;
+                    const badgeIcon = '👑 CASTILLO DE AETHELGARD';
+                    c.font = 'bold 9px monospace';
+                    const textW = c.measureText(badgeIcon).width;
+                    c.fillStyle = 'rgba(15, 23, 42, 0.95)';
+                    c.strokeStyle = '#3b82f6';
+                    c.lineWidth = 1.5;
+                    c.beginPath();
+                    c.roundRect(pX + 16 - textW / 2 - 6, badgeY - 7, textW + 12, 14, 3);
+                    c.fill();
+                    c.stroke();
+
+                    c.fillStyle = '#93c5fd';
+                    c.textAlign = 'center';
+                    c.textBaseline = 'middle';
+                    c.fillText(badgeIcon, pX + 16, badgeY);
+                  }
+                },
+              });
+              return;
+            }
+
             entities.push({
               ySort: pY + TILE_SIZE + 8,
               draw: (c) => {
@@ -2101,6 +2190,56 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                   c.fillStyle = '#ffffff';
                   c.fillRect(sparkX, pY + 18, 2, 2);
                 }
+              },
+            });
+          }
+        });
+      }
+
+      // 👑 DECORACIONES PALACIEGAS DEL GRAN SALÓN DEL TRONO (subzone_castle)
+      if (currentZone.id === 'subzone_castle' || currentZone.interiorType === 'castle') {
+        // A. Vitrales Góticos en la Pared Norte (Y: 1, X: 4, 8, 15, 19)
+        const stainedGlassCols = [4, 8, 15, 19];
+        stainedGlassCols.forEach((gx) => {
+          if (gx >= startCol - 2 && gx <= endCol + 2) {
+            const sgCanvas = getRoyalStainedGlassCanvas(time);
+            entities.push({
+              ySort: 1 * TILE_SIZE + TILE_SIZE - 4,
+              draw: (c) => {
+                c.drawImage(sgCanvas, gx * TILE_SIZE, 1 * TILE_SIZE - 16, 32, 48);
+              },
+            });
+          }
+        });
+
+        // B. Mesa de Consejo Real y Mapa de Guerra (X: 6, Y: 12)
+        if (6 >= startCol - 2 && 6 <= endCol + 2 && 12 >= startRow - 2 && 12 <= endRow + 2) {
+          const councilTable = getRoyalCouncilTableCanvas();
+          entities.push({
+            ySort: 12 * TILE_SIZE + TILE_SIZE + 4,
+            draw: (c) => {
+              c.drawImage(councilTable, 6 * TILE_SIZE - 16, 12 * TILE_SIZE - 8, 64, 32);
+            },
+          });
+        }
+
+        // C. Estandartes Reales Azules y Dorados en las Paredes Laterales
+        const wallBanners = [
+          { x: 1, y: 5 }, { x: 1, y: 11 }, { x: 1, y: 17 },
+          { x: 22, y: 5 }, { x: 22, y: 11 }, { x: 22, y: 17 }
+        ];
+        wallBanners.forEach(({ x, y }) => {
+          if (x >= startCol - 2 && x <= endCol + 2 && y >= startRow - 2 && y <= endRow + 2) {
+            entities.push({
+              ySort: y * TILE_SIZE + TILE_SIZE,
+              draw: (c) => {
+                c.fillStyle = '#fbbf24';
+                c.fillRect(x * TILE_SIZE + 10, y * TILE_SIZE, 12, 2);
+                c.fillStyle = '#1d4ed8';
+                c.fillRect(x * TILE_SIZE + 11, y * TILE_SIZE + 2, 10, 20);
+                c.fillStyle = '#f59e0b';
+                c.fillRect(x * TILE_SIZE + 15, y * TILE_SIZE + 6, 2, 12);
+                c.fillRect(x * TILE_SIZE + 13, y * TILE_SIZE + 9, 6, 2);
               },
             });
           }

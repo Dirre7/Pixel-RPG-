@@ -110,9 +110,15 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
     }
   }
   // Paredes de acantilados escarpados y robles en los márgenes del cañón norte
-  for (let y = 2; y <= 42; y++) {
+  for (let y = 2; y <= 38; y++) {
     map[y][28] = 21; map[y][29] = 21; map[y][30] = 1;
     map[y][42] = 1; map[y][43] = 21; map[y][44] = 21;
+  }
+  // Despejar el patio monumental del Castillo de Aethelgard (X: 39..47, Y: 39..44)
+  for (let cy = 39; cy <= 44; cy++) {
+    for (let cx = 39; cx <= 47; cx++) {
+      map[cy][cx] = 0;
+    }
   }
   // Calzada real del Cañón Norte al Portal del Boss
   for (let y = 3; y <= 46; y++) {
@@ -405,11 +411,13 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[52][43] = 17; // Farola en la esquina del jardín botánico
   map[53][45] = 2;  // Calzada despejada
 
-  // 👑 EDIFICIO 4: Gran Salón del Trono de Aethelgard (X: 43, Y: 43, Puerta: 43, 45)
-  map[43][43] = 31; // Gran Mansión Consistorial
-  map[42][41] = 12; map[42][45] = 12; // Setos reales
-  map[45][41] = 19; map[45][45] = 19; // Braseros ceremoniales
-  map[45][40] = 18; map[45][46] = 18; // Columnas de mármol
+  // 👑 EDIFICIO 4: Gran Castillo Real de Aethelgard (X: 43, Y: 43, Fachada 160x160 px, Puerta: 43, 44)
+  map[43][43] = 31; // Gran Castillo Real de Aethelgard
+  map[44][43] = 2;  // Calzada real de acceso directo
+  map[45][43] = 2;
+  map[46][43] = 2;
+  map[44][41] = 18; map[44][45] = 18; // Columnas de mármol de entrada
+  map[45][41] = 19; map[45][45] = 19; // Braseros ceremoniales reales
 
   // 🌾 EDIFICIO 5: El Molino de Viento con Aspas y Huerto Harinero (Noroeste X: 19, Y: 48)
   map[48][19] = 6;  // Molino de Viento

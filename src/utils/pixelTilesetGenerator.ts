@@ -4305,3 +4305,435 @@ export function getLeatherworkersGuildCanvas(): HTMLCanvasElement {
   return canvas;
 }
 
+/**
+ * 🏰 FACHADA MONUMENTAL DEL CASTILLO REAL DE AETHELGARD (160x160 px en 2.5D)
+ * Dos torres laterales con almenas y tejados cónicos azul real, murallas con almenas,
+ * gran portón levadizo con rastrillo de hierro, estandartes dorados/azules y escudo real.
+ */
+export function getGrandCastleBuildingCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 160;
+  canvas.height = 160;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // 1. Sombra general en el suelo
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
+  ctx.beginPath();
+  ctx.ellipse(80, 150, 72, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 2. Muralla Central de Piedra (Piedra sillar noble)
+  ctx.fillStyle = '#334155'; // Base oscura
+  ctx.fillRect(36, 60, 88, 90);
+  ctx.fillStyle = '#475569'; // Sillar medio
+  ctx.fillRect(38, 62, 84, 86);
+
+  // Ladrillos de sillar detallados
+  ctx.fillStyle = '#64748b';
+  for (let r = 0; r < 7; r++) {
+    const yOff = 66 + r * 12;
+    const xShift = (r % 2) * 10;
+    for (let c = 0; c < 4; c++) {
+      ctx.fillRect(44 + c * 20 + xShift, yOff, 14, 8);
+    }
+  }
+
+  // 3. Almenas de la Muralla Central
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(34, 52, 92, 10);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(36, 54, 88, 8);
+  for (let i = 0; i < 5; i++) {
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(40 + i * 18, 44, 10, 10);
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(42 + i * 18, 46, 6, 8);
+  }
+
+  // 4. Torres Laterales (Torreón Izquierdo y Derecho)
+  const drawTower = (towerX: number) => {
+    // Cuerpo del torreón
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(towerX, 36, 36, 114);
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(towerX + 2, 38, 32, 110);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(towerX + 4, 40, 28, 106);
+
+    // Hiladas de piedra en la torre
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(towerX + 8, 54, 16, 6);
+    ctx.fillRect(towerX + 6, 80, 20, 6);
+    ctx.fillRect(towerX + 8, 108, 16, 6);
+
+    // Ventanas saeteras con luz interior
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(towerX + 14, 66, 8, 16);
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(towerX + 16, 68, 4, 12);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(towerX + 14, 94, 8, 16);
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(towerX + 16, 96, 4, 12);
+
+    // Almenas del Torreón
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(towerX - 2, 30, 40, 8);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(towerX, 32, 36, 6);
+    ctx.fillRect(towerX + 2, 24, 8, 8);
+    ctx.fillRect(towerX + 14, 24, 8, 8);
+    ctx.fillRect(towerX + 26, 24, 8, 8);
+
+    // Tejado Cónico Azul Real
+    ctx.fillStyle = '#1e3a8a';
+    ctx.beginPath();
+    ctx.moveTo(towerX - 4, 24);
+    ctx.lineTo(towerX + 18, 0);
+    ctx.lineTo(towerX + 40, 24);
+    ctx.fill();
+
+    ctx.fillStyle = '#2563eb';
+    ctx.beginPath();
+    ctx.moveTo(towerX, 24);
+    ctx.lineTo(towerX + 18, 2);
+    ctx.lineTo(towerX + 36, 24);
+    ctx.fill();
+
+    ctx.fillStyle = '#3b82f6';
+    ctx.beginPath();
+    ctx.moveTo(towerX + 4, 24);
+    ctx.lineTo(towerX + 18, 4);
+    ctx.lineTo(towerX + 32, 24);
+    ctx.fill();
+
+    // Veleta / Remate Dorado
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(towerX + 17, -4, 2, 8);
+    ctx.fillRect(towerX + 15, -2, 6, 2);
+  };
+
+  drawTower(4);   // Torre Izquierda
+  drawTower(120); // Torre Derecha
+
+  // 5. Gran Portón Arqueado de la Fortaleza
+  // Marco de piedra del arco
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.arc(80, 112, 24, Math.PI, 0);
+  ctx.lineTo(104, 150);
+  ctx.lineTo(56, 150);
+  ctx.fill();
+
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.arc(80, 112, 21, Math.PI, 0);
+  ctx.lineTo(101, 150);
+  ctx.lineTo(59, 150);
+  ctx.fill();
+
+  // Puertas de roble macizo con refuerzos de hierro
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(62, 112, 17, 38);
+  ctx.fillRect(81, 112, 17, 38);
+
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(79, 112, 2, 38); // Separación
+  // Herrajes de hierro
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(62, 120, 36, 3);
+  ctx.fillRect(62, 138, 36, 3);
+  // Remaches dorados
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(65, 120, 2, 3);
+  ctx.fillRect(75, 120, 2, 3);
+  ctx.fillRect(84, 120, 2, 3);
+  ctx.fillRect(94, 120, 2, 3);
+  ctx.fillRect(65, 138, 2, 3);
+  ctx.fillRect(75, 138, 2, 3);
+  ctx.fillRect(84, 138, 2, 3);
+  ctx.fillRect(94, 138, 2, 3);
+
+  // Rastrillo de hierro superior
+  ctx.fillStyle = '#0f172a';
+  for (let b = 0; b < 5; b++) {
+    ctx.fillRect(66 + b * 7, 96, 2, 20);
+  }
+  ctx.fillRect(64, 102, 32, 2);
+
+  // 6. Estandartes Reales Azules y Dorados a los lados de la puerta
+  const wave = Math.sin(time * 3) * 2;
+  const drawBanner = (bx: number) => {
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(bx - 2, 80, 14, 2); // Asta dorada
+    ctx.fillStyle = '#1e3a8a';
+    ctx.beginPath();
+    ctx.moveTo(bx, 82);
+    ctx.lineTo(bx + 10 + wave, 82);
+    ctx.lineTo(bx + 10 + wave, 112);
+    ctx.lineTo(bx + 5 + wave, 106);
+    ctx.lineTo(bx, 112);
+    ctx.fill();
+
+    // Cruz / Emblema dorado del estandarte
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(bx + 4 + wave * 0.5, 88, 2, 16);
+    ctx.fillRect(bx + 2 + wave * 0.5, 94, 6, 2);
+  };
+
+  drawBanner(44);
+  drawBanner(106);
+
+  // 7. Gran Escudo de Armas de la Corona de Aethelgard sobre el dintel
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.moveTo(80, 72);
+  ctx.lineTo(92, 72);
+  ctx.lineTo(90, 88);
+  ctx.lineTo(80, 94);
+  ctx.lineTo(70, 88);
+  ctx.lineTo(68, 72);
+  ctx.fill();
+
+  ctx.fillStyle = '#1d4ed8'; // Campo azul
+  ctx.beginPath();
+  ctx.moveTo(80, 74);
+  ctx.lineTo(90, 74);
+  ctx.lineTo(88, 86);
+  ctx.lineTo(80, 92);
+  ctx.lineTo(72, 86);
+  ctx.lineTo(70, 74);
+  ctx.fill();
+
+  // Corona dorada en el escudo
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(75, 78, 10, 4);
+  ctx.fillRect(74, 76, 3, 3);
+  ctx.fillRect(78.5, 75, 3, 4);
+  ctx.fillRect(83, 76, 3, 3);
+
+  // 8. Antorchas Encendidas de Piedra en la entrada
+  const torchPulse = Math.sin(time * 8) * 2;
+  const drawTorch = (tx: number) => {
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(tx, 118, 4, 10);
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.arc(tx + 2, 116 + torchPulse * 0.3, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fef08a';
+    ctx.beginPath();
+    ctx.arc(tx + 2, 115 + torchPulse * 0.3, 2, 0, Math.PI * 2);
+    ctx.fill();
+  };
+
+  drawTorch(52);
+  drawTorch(104);
+
+  return canvas;
+}
+
+/**
+ * 👑 GRAN TRONO DORADO DE AETHELGARD (64x64 px)
+ * Estrado noble de piedra, gran trono de oro macizo con tapizado carmesí,
+ * respaldo alto con remates dorados y corona esculpida.
+ */
+export function getRoyalThroneCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // 1. Sombra ovalada en el suelo
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.55)';
+  ctx.beginPath();
+  ctx.ellipse(32, 58, 28, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 2. Estrado de 3 escalones de piedra noble con bordes dorados
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(4, 52, 56, 8);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(4, 52, 56, 1);
+
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(8, 46, 48, 6);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(8, 46, 48, 1);
+
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(12, 40, 40, 6);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(12, 40, 40, 1);
+
+  // 3. Gran Trono de Oro Macizo
+  // Base y patas del trono
+  ctx.fillStyle = '#b45309';
+  ctx.fillRect(18, 30, 28, 12);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(19, 31, 26, 10);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(20, 32, 24, 8);
+
+  // Cojín de asiento Carmesí Imperial
+  ctx.fillStyle = '#991b1b';
+  ctx.fillRect(21, 33, 22, 6);
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(22, 34, 20, 4);
+
+  // Brazos del trono con pomos dorados
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(16, 24, 5, 12);
+  ctx.fillRect(43, 24, 5, 12);
+  ctx.fillStyle = '#fde047';
+  ctx.beginPath();
+  ctx.arc(18.5, 23, 3, 0, Math.PI * 2);
+  ctx.arc(45.5, 23, 3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Respaldo Alto del Trono
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(18, 6, 28, 25);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(20, 8, 24, 22);
+
+  // Acolchado de terciopelo carmesí capitoné
+  ctx.fillStyle = '#991b1b';
+  ctx.fillRect(22, 10, 20, 18);
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(23, 11, 18, 16);
+  // Botones dorados del capitoné
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(26, 14, 2, 2);
+  ctx.fillRect(36, 14, 2, 2);
+  ctx.fillRect(31, 18, 2, 2);
+  ctx.fillRect(26, 22, 2, 2);
+  ctx.fillRect(36, 22, 2, 2);
+
+  // Corona dorada y remates en el copete del trono
+  ctx.fillStyle = '#fbbf24';
+  ctx.beginPath();
+  ctx.moveTo(18, 6);
+  ctx.lineTo(24, 2);
+  ctx.lineTo(28, 5);
+  ctx.lineTo(32, 0);
+  ctx.lineTo(36, 5);
+  ctx.lineTo(40, 2);
+  ctx.lineTo(46, 6);
+  ctx.fill();
+
+  // Joya esmeralda central brillante
+  const gemPulse = Math.sin(time * 5) * 0.2 + 0.8;
+  ctx.fillStyle = `rgba(34, 197, 94, ${gemPulse})`;
+  ctx.beginPath();
+  ctx.arc(32, 4, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  return canvas;
+}
+
+/**
+ * 🪟 VITRAL GÓTICO REAL (32x48 px)
+ * Ventanal ojival con vidrieras azul real, rubí y oro, con haz de luz celestial.
+ */
+export function getRoyalStainedGlassCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 48;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Arco ojival de piedra
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.arc(16, 16, 14, Math.PI, 0);
+  ctx.lineTo(30, 48);
+  ctx.lineTo(2, 48);
+  ctx.fill();
+
+  // Vidrieras policromadas
+  const glow = Math.sin(time * 3) * 0.15 + 0.85;
+
+  // Vidrio azul
+  ctx.fillStyle = `rgba(37, 99, 235, ${glow})`;
+  ctx.fillRect(4, 16, 11, 14);
+  ctx.fillRect(17, 16, 11, 14);
+
+  // Vidrio rubí
+  ctx.fillStyle = `rgba(220, 38, 38, ${glow})`;
+  ctx.fillRect(4, 32, 11, 14);
+  ctx.fillRect(17, 32, 11, 14);
+
+  // Rosal superior dorado
+  ctx.fillStyle = `rgba(251, 191, 36, ${glow})`;
+  ctx.beginPath();
+  ctx.arc(16, 14, 8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Plomo y tracería
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(15, 6, 2, 42);
+  ctx.fillRect(4, 30, 24, 2);
+  ctx.beginPath();
+  ctx.arc(16, 14, 5, 0, Math.PI * 2);
+  ctx.stroke();
+
+  return canvas;
+}
+
+/**
+ * 🗺️ MESA DE CONSEJO REAL Y MAPA DE GUERRA (64x32 px)
+ * Gran mesa de caoba tallada con mapas de campaña desplegados, candelas y decretos sellados con cera.
+ */
+export function getRoyalCouncilTableCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+  ctx.beginPath();
+  ctx.ellipse(32, 28, 28, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Patas de caoba
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(8, 16, 6, 12);
+  ctx.fillRect(50, 16, 6, 12);
+
+  // Tablero de caoba noble
+  ctx.fillStyle = '#581c87';
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(4, 8, 56, 12);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(6, 9, 52, 8);
+
+  // Mapa de pergamino extendido
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(14, 10, 24, 6);
+  ctx.fillStyle = '#ca8a04';
+  ctx.fillRect(16, 12, 6, 2); // Marcas de territorio
+  ctx.fillRect(26, 11, 4, 3);
+  ctx.fillRect(32, 13, 3, 2);
+
+  // Rollo de pergamino enrollado
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(42, 10, 10, 3);
+  // Sello de cera roja real
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(45, 11, 3, 2);
+
+  // Candelabro con vela
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(10, 7, 2, 4);
+  ctx.fillStyle = '#f97316';
+  ctx.fillRect(10, 5, 2, 2);
+
+  return canvas;
+}
+
+

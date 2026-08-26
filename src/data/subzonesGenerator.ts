@@ -268,50 +268,69 @@ export function generateBoticaInterior(): SubZoneMapResult {
 }
 
 /**
- * 4. 👑 GRAN SALÓN DEL TRONO DE AETHELGARD (22x20)
- * Salón noble con alfombra real, columnas de mármol y trono del Lord de Aethelgard.
+ * 4. 👑 GRAN SALÓN DEL TRONO DE AETHELGARD (24x22)
+ * Salón noble con alfombra real carmesí, columnas de mármol con capiteles dorados,
+ * vitrales góticos, armería de gala, mesa de consejo de guerra y el Trono Dorado de la Corona.
  */
 export function generateCastleInterior(): SubZoneMapResult {
-  const width = 22;
-  const height = 20;
+  const width = 24;
+  const height = 22;
   const map: number[][] = [];
 
   for (let y = 0; y < height; y++) {
     const row: number[] = [];
     for (let x = 0; x < width; x++) {
       if (y === 0 || y === height - 1 || x === 0 || x === width - 1) {
-        row.push(1);
+        row.push(1); // Murallas de piedra noble
       } else {
-        row.push(0); // Suelo de mármol blanco
+        row.push(0); // Suelo de mármol noble
       }
     }
     map.push(row);
   }
 
-  // Columnas de mármol flanqueando la sala
-  const columnCols = [4, 17];
-  const columnRows = [4, 8, 12, 16];
+  // Columnas de mármol con capiteles dorados flanqueando la alfombra
+  const columnCols = [5, 18];
+  const columnRows = [6, 10, 14, 18];
   columnRows.forEach((cy) => {
     columnCols.forEach((cx) => {
-      map[cy][cx] = 1;
+      map[cy][cx] = 18;
     });
   });
 
-  // Gran Alfombra Roja central
-  for (let y = 3; y < height - 1; y++) {
-    map[y][10] = 2;
+  // Gran Alfombra Roja Real central con bordes dorados
+  for (let y = 4; y < height - 1; y++) {
     map[y][11] = 2;
+    map[y][12] = 2;
   }
 
-  // Estrado del Trono al norte
-  map[2][10] = 1;
-  map[2][11] = 1;
-  map[2][9] = 17; // Candelabro dorado
-  map[2][12] = 17;
+  // Estrado del Trono al norte (Trono y candelabros)
+  map[3][11] = 10; // Trono de Oro
+  map[3][12] = 10;
+  map[3][9] = 17;  // Candelabro dorado
+  map[3][14] = 17;
+  map[4][9] = 7;   // Cofre del Tesoro Real
+  map[4][14] = 7;
+
+  // Armería Real de Gala (Alabardas y armaduras en el ala este)
+  map[6][21] = 16;
+  map[8][21] = 16;
+  map[10][21] = 16;
+  map[12][21] = 16;
+
+  // Antorchas de pared nobles
+  map[1][4] = 17;
+  map[1][19] = 17;
+  map[6][1] = 17;
+  map[12][1] = 17;
+  map[18][1] = 17;
+  map[6][22] = 17;
+  map[12][22] = 17;
+  map[18][22] = 17;
 
   // Puerta monumental de salida al sur
-  map[height - 1][10] = 28;
   map[height - 1][11] = 28;
+  map[height - 1][12] = 28;
 
   return { width, height, tileData: map };
 }
