@@ -30,6 +30,10 @@ type SfxName =
   | 'flee'
   | 'chest'
   | 'achievement'
+  | 'victory'
+  | 'pickup'
+  | 'gameover'
+  | 'defeat'
   | 'error';
 
 class RetroSoundEngine {
@@ -357,6 +361,66 @@ class RetroSoundEngine {
           gain.connect(this.sfxGainNode);
           osc.start(start);
           osc.stop(start + 0.15);
+        });
+        break;
+      }
+
+      case 'victory': {
+        const freqs = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+        freqs.forEach((f, idx) => {
+          if (!this.ctx || !this.sfxGainNode) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = f;
+
+          const start = now + idx * 0.07;
+          gain.gain.setValueAtTime(0.35, start);
+          gain.gain.exponentialRampToValueAtTime(0.01, start + 0.18);
+
+          osc.connect(gain);
+          gain.connect(this.sfxGainNode);
+          osc.start(start);
+          osc.stop(start + 0.18);
+        });
+        break;
+      }
+
+      case 'pickup': {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.setValueAtTime(1320, now + 0.05);
+
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+
+        osc.connect(gain);
+        gain.connect(this.sfxGainNode);
+        osc.start(now);
+        osc.stop(now + 0.12);
+        break;
+      }
+
+      case 'gameover':
+      case 'defeat': {
+        const freqs = [440, 392, 349.23, 261.63]; // A4, G4, F4, C4
+        freqs.forEach((f, idx) => {
+          if (!this.ctx || !this.sfxGainNode) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.value = f;
+
+          const start = now + idx * 0.12;
+          gain.gain.setValueAtTime(0.3, start);
+          gain.gain.exponentialRampToValueAtTime(0.01, start + 0.22);
+
+          osc.connect(gain);
+          gain.connect(this.sfxGainNode);
+          osc.start(start);
+          osc.stop(start + 0.22);
         });
         break;
       }

@@ -24,6 +24,7 @@ import {
   getQuestRewardEquipment,
   getQuestRewardConsumable,
   isZoneUnlocked,
+  getRequiredExpForLevel,
 } from './data/gameData';
 import { ChestLoot } from './components/ChestLootModal';
 import { TitleScreen } from './components/TitleScreen';
@@ -338,7 +339,7 @@ export default function App() {
       gender,
       level: 1,
       exp: 0,
-      maxExp: 100,
+      maxExp: getRequiredExpForLevel(1),
       hp: classConfig.baseStats.hp,
       maxHp: classConfig.baseStats.hp,
       mp: classConfig.baseStats.mp,
@@ -671,16 +672,16 @@ export default function App() {
     let updatedSpeed = player.speed;
 
     // Check level up from EXP
-    while (updatedExp >= updatedMaxExp) {
+    while (updatedExp >= updatedMaxExp && updatedLevel < 99) {
       updatedExp -= updatedMaxExp;
       updatedLevel += 1;
-      updatedMaxExp = Math.round(updatedMaxExp * 1.5);
-      updatedMaxHp += 20;
+      updatedMaxExp = getRequiredExpForLevel(updatedLevel);
+      updatedMaxHp += 18;
       updatedHp = updatedMaxHp;
-      updatedMaxMp += 10;
+      updatedMaxMp += 8;
       updatedMp = updatedMaxMp;
-      updatedAttack += 4;
-      updatedDefense += 3;
+      updatedAttack += 3;
+      updatedDefense += 2;
       updatedSpeed += 1;
     }
 
@@ -822,12 +823,12 @@ export default function App() {
     while (newExp >= newMaxExp && newLevel < 99) {
       newLevel += 1;
       newExp -= newMaxExp;
-      newMaxExp = Math.floor(newMaxExp * 1.5);
-      newMaxHp += 20;
+      newMaxExp = getRequiredExpForLevel(newLevel);
+      newMaxHp += 18;
       newHp = newMaxHp;
-      newMaxMp += 10;
+      newMaxMp += 8;
       newMp = newMaxMp;
-      newAtk += 4;
+      newAtk += 3;
       newDef += 2;
     }
 

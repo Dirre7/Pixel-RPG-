@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { PlayerStats, Zone, Inventory, NPC, HeroCombatSkill, OverworldEnemy, EquipmentItem } from '../types';
-import { ZONES, areZoneMainQuestsCompleted, ALL_GAME_QUESTS, isZoneUnlocked, getZoneRequirementMessage, GAME_ACHIEVEMENTS, getAchievementProgress, getQuestRewardEquipment } from '../data/gameData';
+import { ZONES, areZoneMainQuestsCompleted, ALL_GAME_QUESTS, isZoneUnlocked, getZoneRequirementMessage, GAME_ACHIEVEMENTS, getAchievementProgress, getQuestRewardEquipment, getRequiredExpForLevel } from '../data/gameData';
 import { PixelCanvas } from './PixelCanvas';
 import { PixelMapCanvas } from './PixelMapCanvas';
 import { ThreeMapCanvas } from './ThreeMapCanvas';
@@ -128,29 +128,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
   const handleEnemyKilled = useCallback(
     (enemy: OverworldEnemy) => {
-      // Award gold & exp
-      player.gold += enemy.goldReward;
-      player.exp += enemy.expReward;
-
-      // Defeated count
+      // Registrar baja para misiones y logros
       if (defeatedEnemyCounts) {
         defeatedEnemyCounts[enemy.name] = (defeatedEnemyCounts[enemy.name] || 0) + 1;
-      }
-
-      // Check level up
-      if (player.exp >= player.maxExp) {
-        player.level += 1;
-        player.exp -= player.maxExp;
-        player.maxExp = Math.round(player.maxExp * 1.4);
-        player.maxHp += 20;
-        player.hp = player.maxHp;
-        player.maxMp += 10;
-        player.mp = player.maxMp;
-        player.attack += 4;
-        player.defense += 2;
-        soundEngine.playSfx('levelup');
-        setToastMessage(`¡SUBISTE DE NIVEL! 🎉 Nivel ${player.level}`);
-        setTimeout(() => setToastMessage(null), 3000);
       }
 
       if (enemy.isBoss && !defeatedBosses.includes(enemy.name)) {
@@ -161,7 +141,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
       onAutoSave();
     },
-    [player, defeatedEnemyCounts, defeatedBosses, onAutoSave]
+    [defeatedEnemyCounts, defeatedBosses, onAutoSave]
   );
 
   const handlePlayerDamaged = useCallback(
@@ -189,17 +169,19 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         player.gold += amount;
       } else if (type === 'exp' && amount) {
         player.exp += amount;
-        if (player.exp >= player.maxExp) {
+        while (player.exp >= player.maxExp && player.level < 99) {
           player.level += 1;
           player.exp -= player.maxExp;
-          player.maxExp = Math.round(player.maxExp * 1.4);
-          player.maxHp += 20;
+          player.maxExp = getRequiredExpForLevel(player.level);
+          player.maxHp += 18;
           player.hp = player.maxHp;
-          player.maxMp += 10;
+          player.maxMp += 8;
           player.mp = player.maxMp;
-          player.attack += 4;
+          player.attack += 3;
           player.defense += 2;
           soundEngine.playSfx('levelup');
+          setToastMessage(`🎉 ¡SUBISTE DE NIVEL! Nivel ${player.level}`);
+          setTimeout(() => setToastMessage(null), 3500);
         }
       } else if (type === 'health_orb' && amount) {
         player.hp = Math.min(player.maxHp, player.hp + amount);
@@ -923,7 +905,10 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         heroClass={player.heroClass}
         currentMp={player.mp}
         maxMp={player.maxMp}
-        onBasicAttack={() => combatActionRef.current?.triggerBasicAttack()}
+        onBasicAttack={() => {
+          combatActionRef.current?.triggerBasicAttack();
+          handleInteract();
+        }}
         onUseSkill={(skill) => {
           if (player.mp < skill.manaCost) return false;
           player.mp = Math.max(0, player.mp - skill.manaCost);
@@ -1332,33 +1317,6 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           </button>
           <div />
         </div>
-      </div>
-
-      {/* 7. Action Button [A] (Bottom-Right con Safe Area) */}
-      <div
-        className={`absolute z-20 pointer-events-auto select-none transition-all origin-bottom-right ${
-          isMobileLandscape ? 'scale-75' : ''
-        }`}
-        style={{
-          bottom: isMobileLandscape
-            ? 'max(0.25rem, env(safe-area-inset-bottom, 0.25rem))'
-            : 'calc(max(0.5rem, env(safe-area-inset-bottom, 0.5rem)) + 60px)',
-          right: 'max(0.75rem, env(safe-area-inset-right, 0.75rem))',
-          touchAction: 'none',
-        }}
-      >
-        <button
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleInteract();
-          }}
-          className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-500/85 to-amber-600/85 hover:from-amber-500 hover:to-amber-600 active:from-amber-400 active:to-amber-500 text-slate-950 rounded-full font-black text-lg sm:text-2xl border-2 border-amber-300 shadow-[0_4px_25px_rgba(245,158,11,0.4)] flex items-center justify-center active:scale-90 backdrop-blur-[2px] transition-transform select-none"
-          style={{ touchAction: 'none' }}
-          aria-label="Acción Interactuar / Hablar / Atacar"
-        >
-          [A]
-        </button>
       </div>
 
       {/* 8. Bottom Center: Floating Glassmorphic Hotbar (Ubicada en la base inferior) */}

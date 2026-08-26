@@ -126,6 +126,8 @@ export interface Enemy {
   id: string;
   name: string;
   isBoss: boolean;
+  level?: number;
+  spawnPos?: { x: number; y: number };
   hp: number;
   maxHp: number;
   attack: number;

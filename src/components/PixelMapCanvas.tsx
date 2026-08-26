@@ -106,6 +106,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
   currentZone,
   playerPos,
   player,
+  equipment,
   facingDir = 'down',
   openedChests,
   defeatedBosses = [],
@@ -126,6 +127,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
   const playerRef = useRef(player);
   const directionRef = useRef(direction);
   const openedChestsRef = useRef(openedChests);
+  const equipmentRef = useRef(equipment);
 
   useEffect(() => { playerRef.current = player; }, [player]);
   useEffect(() => {
@@ -135,6 +137,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     }
   }, [facingDir]);
   useEffect(() => { openedChestsRef.current = openedChests; }, [openedChests]);
+  useEffect(() => { equipmentRef.current = equipment; }, [equipment]);
 
   // Posición suave del jugador para movimiento fluido entre casillas
   const currentPosRef = useRef({ x: playerPos.x, y: playerPos.y });
@@ -308,12 +311,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     const isBossDefeated = defeatedBosses.includes(currentZone.boss.name);
     if (!isBossDefeated && !isPeacefulInterior && currentZone.boss) {
       const bossTemplate = currentZone.boss;
-      const bx = Math.min((currentZone.mapWidth || 60) - 8, Math.max(8, Math.round((currentZone.mapWidth || 60) / 2)));
-      const by = Math.min((currentZone.mapHeight || 60) - 8, Math.max(8, Math.round((currentZone.mapHeight || 60) / 2) + 8));
+      const bx = bossTemplate.spawnPos?.x ?? (currentZone.id === 'zone_forest' ? 36 : Math.min((currentZone.mapWidth || 60) - 8, Math.max(8, Math.round((currentZone.mapWidth || 60) / 2))));
+      const by = bossTemplate.spawnPos?.y ?? (currentZone.id === 'zone_forest' ? 6 : Math.min((currentZone.mapHeight || 60) - 8, Math.max(8, 8)));
       zoneEnemies.push({
         id: `boss_${currentZone.id}`,
         name: bossTemplate.name,
-        level: bossTemplate.level,
+        level: bossTemplate.level || 8,
         hp: bossTemplate.hp,
         maxHp: bossTemplate.maxHp,
         attack: bossTemplate.attack,
@@ -326,14 +329,14 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         worldZ: by,
         spawnX: bx,
         spawnY: by,
-        patrolRadius: 4.0,
-        aggroRadius: 7.0,
-        attackRange: 1.6,
+        patrolRadius: 3.5,
+        aggroRadius: 7.5,
+        attackRange: 1.8,
         attackCooldown: 2.0,
         lastAttackTime: 0,
         state: 'patrol',
         enemyType: 'boss',
-        color: '#b91c1c',
+        color: bossTemplate.color || '#16a34a',
         scale: 1.8,
         isBoss: true,
       });
@@ -380,17 +383,22 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       ent.enemy.hp = 0;
       soundEngine.playSfx('victory');
 
-      spawnGroundDrop('gold', ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, ent.enemy.goldReward);
-      spawnGroundDrop('exp', ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, ent.enemy.expReward);
+      const gold = Math.max(1, ent.enemy.goldReward || 10);
+      const exp = Math.max(1, ent.enemy.expReward || 15);
+
+      spawnGroundDrop('gold', ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, gold);
+      spawnGroundDrop('exp', ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, exp);
       if (Math.random() < 0.35) {
         spawnGroundDrop('health_orb', ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, 30);
       }
 
       if (ent.enemy.isBoss) {
-        onBossStateChange?.(null);
+        setTimeout(() => onBossStateChange?.(null), 0);
       }
 
-      onEnemyKilled?.(ent.enemy);
+      setTimeout(() => {
+        onEnemyKilled?.(ent.enemy);
+      }, 0);
     };
 
     const triggerPlayerAttack = () => {
@@ -403,9 +411,132 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       else if (dir === 'left') { dx = -1; dy = 0; }
       else if (dir === 'right') { dx = 1; dy = 0; }
 
+      // 🗡️ Detección de Tipo de Arma o Clase del Héroe
+      const wName = (equipmentRef.current?.weapon?.name || '').toLowerCase();
+      const heroCls = playerRef.current.heroClass;
+
+      let attackMode: 'bow' | 'magic' | 'dagger' | 'sword' = 'sword';
+      if (wName.includes('arco') || wName.includes('ballesta') || heroCls === 'Arquero') {
+        attackMode = 'bow';
+      } else if (
+        wName.includes('baston') ||
+        wName.includes('bastón') ||
+        wName.includes('varita') ||
+        wName.includes('libro') ||
+        wName.includes('orbe') ||
+        wName.includes('cetro') ||
+        heroCls === 'Mago'
+      ) {
+        attackMode = 'magic';
+      } else if (wName.includes('daga') || wName.includes('cuchillo') || heroCls === 'Pícaro') {
+        attackMode = 'dagger';
+      } else {
+        attackMode = 'sword';
+      }
+
+      // 🏹 1. ARCO / BALLESTA: Disparo de Flecha Rápida a Larga Distancia (7 casillas)
+      if (attackMode === 'bow') {
+        const isCrit = Math.random() < ((playerRef.current.critRate || 10) / 100);
+        const baseAtk = Math.max(1, (playerRef.current.attack || 15));
+        const dmg = Math.round(isCrit ? baseAtk * 1.85 : baseAtk * (0.95 + Math.random() * 0.25));
+
+        projectileEntities.push({
+          id: `arrow_${Date.now()}_${Math.random()}`,
+          x: (p.x + dx * 0.7) * 32 + 16,
+          z: (p.y + dy * 0.7) * 32 + 16,
+          y: 0,
+          dirX: dx,
+          dirZ: dy,
+          speed: 420,
+          damage: dmg,
+          isPlayer: true,
+          maxDistance: 7 * 32,
+          traveledDistance: 0,
+          vfxType: 'arrow',
+          color: '#d97706',
+          radius: 8,
+        });
+
+        soundEngine.playSfx('attack');
+        return;
+      }
+
+      // 🪄 2. VARITA / BASTÓN MÁGICO: Disparo de Bola de Fuego / Orbe Arcano a Distancia (6 casillas)
+      if (attackMode === 'magic') {
+        const isCrit = Math.random() < ((playerRef.current.critRate || 8) / 100);
+        const baseAtk = Math.max(1, (playerRef.current.attack || 16));
+        const dmg = Math.round(isCrit ? baseAtk * 1.9 : baseAtk * (0.95 + Math.random() * 0.25));
+
+        projectileEntities.push({
+          id: `fireball_${Date.now()}_${Math.random()}`,
+          x: (p.x + dx * 0.7) * 32 + 16,
+          z: (p.y + dy * 0.7) * 32 + 16,
+          y: 0,
+          dirX: dx,
+          dirZ: dy,
+          speed: 320,
+          damage: dmg,
+          isPlayer: true,
+          maxDistance: 6 * 32,
+          traveledDistance: 0,
+          vfxType: 'fireball',
+          color: '#ea580c',
+          radius: 12,
+        });
+
+        soundEngine.playSfx('magic');
+        return;
+      }
+
+      // 🗡️ 3. DAGAS (PÍCARO): Doble Cuchillada Cruzada en 'X' con Alto Crítico
+      if (attackMode === 'dagger') {
+        const now = performance.now();
+        slashEntities.push({
+          x: (p.x + dx * 0.8) * 32 + 16,
+          y: (p.y + dy * 0.8) * 32 + 16,
+          dir: 'dagger1',
+          createdAt: now,
+        });
+        slashEntities.push({
+          x: (p.x + dx * 0.8) * 32 + 16,
+          y: (p.y + dy * 0.8) * 32 + 16,
+          dir: 'dagger2',
+          createdAt: now + 35,
+        });
+
+        soundEngine.playSfx('attack');
+
+        enemyEntities.forEach((ent) => {
+          if (ent.enemy.hp <= 0) return;
+          const dist = Math.hypot(ent.enemy.worldX - p.x, ent.enemy.worldZ - p.y);
+          const forwardDot = ((ent.enemy.worldX - p.x) * dx + (ent.enemy.worldZ - p.y) * dy) / Math.max(0.1, dist);
+
+          if (dist <= 1.9 && forwardDot > 0.05) {
+            const isCrit = Math.random() < (((playerRef.current.critRate || 5) + 15) / 100);
+            const baseAtk = Math.max(1, (playerRef.current.attack || 14) - Math.floor(ent.enemy.defense * 0.25));
+            const dmg = Math.round(isCrit ? baseAtk * 2.1 : baseAtk * (0.9 + Math.random() * 0.2));
+
+            ent.enemy.hp -= dmg;
+            ent.hitFlashTime = performance.now();
+            ent.enemy.state = 'chase';
+            ent.enemy.worldX += dx * 0.3;
+            ent.enemy.worldZ += dy * 0.3;
+
+            spawnDamageNumber(`-${dmg}`, ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32, isCrit ? '#c084fc' : '#e879f9', isCrit);
+            soundEngine.playSfx('hit');
+
+            if (ent.enemy.hp <= 0) {
+              handleEnemyDefeat(ent);
+            }
+          }
+        });
+        return;
+      }
+
+      // ⚔️ 4. ESPADA / HACHA / CUERPO A CUERPO: Tajo en Media Luna de Acero Brillante
       slashEntities.push({
-        x: (p.x + dx * 0.8) * 32 + 16,
-        y: (p.y + dy * 0.8) * 32 + 16,
+        x: p.x * 32 + 16,
+        y: p.y * 32 + 16,
         dir,
         createdAt: performance.now(),
       });
@@ -416,21 +547,25 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         if (ent.enemy.hp <= 0) return;
         const dist = Math.hypot(ent.enemy.worldX - p.x, ent.enemy.worldZ - p.y);
         const forwardDot = ((ent.enemy.worldX - p.x) * dx + (ent.enemy.worldZ - p.y) * dy) / Math.max(0.1, dist);
+        const maxRange = ent.enemy.isBoss ? 3.5 : 2.5;
 
-        if (dist <= 2.2 && forwardDot > 0.1) {
-          const isCrit = Math.random() < ((playerRef.current.critRate || 5) / 100);
-          const baseAtk = Math.max(1, (playerRef.current.attack || 15) - Math.floor(ent.enemy.defense * 0.35));
-          const dmg = Math.round(isCrit ? baseAtk * 1.85 : baseAtk * (0.9 + Math.random() * 0.25));
+        if (dist <= maxRange && (forwardDot > -0.3 || dist <= 1.3)) {
+          const isCrit = Math.random() < ((playerRef.current.critRate || 8) / 100);
+          const rawAtk = Math.max(16, playerRef.current.attack || 16);
+          const baseAtk = Math.max(10, rawAtk - Math.floor(ent.enemy.defense * 0.25));
+          const dmg = Math.round(isCrit ? baseAtk * 1.95 : baseAtk * (0.95 + Math.random() * 0.25));
 
           ent.enemy.hp -= dmg;
           ent.hitFlashTime = performance.now();
           ent.enemy.state = 'chase';
 
-          // Knockback
-          ent.enemy.worldX += dx * 0.5;
-          ent.enemy.worldZ += dy * 0.5;
+          // Knockback (reducido en bosses)
+          const kb = ent.enemy.isBoss ? 0.2 : 0.6;
+          ent.enemy.worldX += dx * kb;
+          ent.enemy.worldZ += dy * kb;
 
-          spawnDamageNumber(`-${dmg}`, ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32, isCrit ? '#ef4444' : '#fde047', isCrit);
+          const eOffset = ent.enemy.isBoss ? 32 : 16;
+          spawnDamageNumber(`-${dmg}`, ent.enemy.worldX * 32 + eOffset, ent.enemy.worldZ * 32, isCrit ? '#ef4444' : '#fde047', isCrit);
           soundEngine.playSfx('hit');
 
           if (ent.enemy.hp <= 0) {
@@ -559,15 +694,16 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     const TILE_SIZE = 32;
 
     const render = () => {
-      const nowMs = performance.now();
-      const delta = Math.min(0.08, (nowMs - lastTimeMs) / 1000);
-      lastTimeMs = nowMs;
-      time += 0.03;
+      try {
+        const nowMs = performance.now();
+        const delta = Math.min(0.08, (nowMs - lastTimeMs) / 1000);
+        lastTimeMs = nowMs;
+        time += 0.03;
 
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
       ctx.imageSmoothingEnabled = false;
 
@@ -2608,7 +2744,12 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           if (dDist < 16) {
             // Recoger botín
             soundEngine.playSfx(drop.type === 'gold' ? 'gold' : 'pickup');
-            onLootCollected?.(drop.type, drop.amount, drop.itemId);
+            const dType = drop.type;
+            const dAmt = drop.amount;
+            const dItem = drop.itemId;
+            setTimeout(() => {
+              onLootCollected?.(dType, dAmt, dItem);
+            }, 0);
             spawnDamageNumber(
               drop.type === 'gold' ? `+${drop.amount} Oro` : drop.type === 'exp' ? `+${drop.amount} EXP` : '+30 HP',
               pX + 16,
@@ -2656,7 +2797,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       entities.sort((a, b) => a.ySort - b.ySort);
       entities.forEach((e) => e.draw(ctx));
 
-      // 7. PROYECTILES 2.5D (Flechas, Bolas de Fuego, Magias)
+      // 7. PROYECTILES 2.5D (Flechas de Arquero, Bolas de Fuego de Mago, Magias)
       for (let pIdx = projectileEntities.length - 1; pIdx >= 0; pIdx--) {
         const proj = projectileEntities[pIdx];
         const pMove = proj.speed * delta;
@@ -2664,29 +2805,101 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         proj.z += proj.dirZ * pMove;
         proj.traveledDistance += pMove;
 
-        // Dibujar proyectil
-        ctx.fillStyle = proj.color;
-        ctx.beginPath();
-        ctx.arc(proj.x, proj.z, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(proj.x - 2, proj.z - 2, 4, 4);
+        // A. 🏹 Flecha Realista de Arquero con Punta de Acero y Plumas
+        if (proj.vfxType === 'arrow') {
+          ctx.save();
+          ctx.translate(proj.x, proj.z);
+          const angle = Math.atan2(proj.dirZ, proj.dirX);
+          ctx.rotate(angle);
+
+          // Sombra proyectada de la flecha
+          ctx.fillStyle = 'rgba(0,0,0,0.25)';
+          ctx.fillRect(-10, 4, 16, 1.5);
+
+          // Astil de madera de fresno
+          ctx.fillStyle = '#92400e';
+          ctx.fillRect(-10, -1, 16, 2);
+
+          // Punta de flecha triangular de hierro afilado
+          ctx.fillStyle = '#f1f5f9';
+          ctx.beginPath();
+          ctx.moveTo(8, 0);
+          ctx.lineTo(2, -3);
+          ctx.lineTo(2, 3);
+          ctx.closePath();
+          ctx.fill();
+
+          // Revestimiento de punta de acero
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(2, -1.5, 2, 3);
+
+          // Plumas de cola blancas
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(-10, -3.5, 4, 2);
+          ctx.fillRect(-10, 1.5, 4, 2);
+          ctx.restore();
+        }
+        // B. 🪄 Bola de Fuego del Mago con Núcleo Brillante y Chispas
+        else if (proj.vfxType === 'fireball') {
+          ctx.save();
+          const fireGrad = ctx.createRadialGradient(proj.x, proj.z, 2, proj.x, proj.z, 14);
+          fireGrad.addColorStop(0, '#ffffff');
+          fireGrad.addColorStop(0.25, '#fef08a');
+          fireGrad.addColorStop(0.6, '#f97316');
+          fireGrad.addColorStop(0.9, '#dc2626');
+          fireGrad.addColorStop(1, 'rgba(220, 38, 38, 0)');
+          ctx.fillStyle = fireGrad;
+          ctx.beginPath();
+          ctx.arc(proj.x, proj.z, 14, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Núcleo blanco incandescente
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(proj.x, proj.z, 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Partículas de combustión tras la bola
+          const trailX = proj.x - proj.dirX * 8 + (Math.random() - 0.5) * 4;
+          const trailY = proj.z - proj.dirZ * 8 + (Math.random() - 0.5) * 4;
+          ctx.fillStyle = '#fde047';
+          ctx.fillRect(trailX, trailY, 3, 3);
+          ctx.restore();
+        }
+        // C. 🌀 Magias y Orbes Arcanos
+        else {
+          ctx.save();
+          const grad = ctx.createRadialGradient(proj.x, proj.z, 2, proj.x, proj.z, 10);
+          grad.addColorStop(0, '#ffffff');
+          grad.addColorStop(0.5, proj.color);
+          grad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(proj.x, proj.z, 10, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
 
         let hit = false;
-        // Colisión con enemigos
+        // Colisión con enemigos y Jefes
         for (let eIdx = 0; eIdx < enemyEntities.length; eIdx++) {
           const ent = enemyEntities[eIdx];
           if (ent.enemy.hp <= 0) continue;
-          const eCenterPxX = ent.enemy.worldX * TILE_SIZE + 16;
-          const eCenterPxY = ent.enemy.worldZ * TILE_SIZE + 16;
+          const eCenterOffset = ent.enemy.isBoss ? 32 : 16;
+          const eCenterPxX = ent.enemy.worldX * TILE_SIZE + eCenterOffset;
+          const eCenterPxY = ent.enemy.worldZ * TILE_SIZE + eCenterOffset;
           const pDist = Math.hypot(eCenterPxX - proj.x, eCenterPxY - proj.z);
+          const hitRadius = ent.enemy.isBoss ? 38 : 22;
 
-          if (pDist < 20) {
+          if (pDist < hitRadius) {
             hit = true;
-            ent.enemy.hp -= proj.damage;
+            const defFactor = Math.floor(ent.enemy.defense * 0.25);
+            const actualDmg = Math.max(8, proj.damage - defFactor);
+
+            ent.enemy.hp -= actualDmg;
             ent.hitFlashTime = nowMs;
             ent.enemy.state = 'chase';
-            spawnDamageNumber(`-${proj.damage}`, eCenterPxX, eCenterPxY - 10, '#f97316', true);
+            spawnDamageNumber(`-${actualDmg}`, eCenterPxX, eCenterPxY - 14, proj.vfxType === 'arrow' ? '#f59e0b' : '#f97316', true);
             soundEngine.playSfx('hit');
 
             if (ent.enemy.hp <= 0) {
@@ -2701,19 +2914,113 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         }
       }
 
-      // 8. EFECTOS DE ESPADAZOS Y CORTES (Slashes)
+      // 8. EFECTOS DE ESPADAZOS Y CORTES (Crescent Blade Slashes & Daggers)
       for (let sIdx = slashEntities.length - 1; sIdx >= 0; sIdx--) {
         const sl = slashEntities[sIdx];
         const age = nowMs - sl.createdAt;
-        if (age > 160) {
+        if (age > 180) {
           slashEntities.splice(sIdx, 1);
-        } else {
-          ctx.strokeStyle = '#fef08a';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.arc(sl.x, sl.y, 18, 0, Math.PI * 2);
-          ctx.stroke();
+          continue;
         }
+        const progress = age / 180;
+        ctx.save();
+        ctx.translate(sl.x, sl.y);
+
+        if (sl.dir === 'dagger1') {
+          // 🗡️ Corte Diagonal 1 de Daga (Pícaro)
+          ctx.strokeStyle = '#c084fc';
+          ctx.lineWidth = 5 * (1 - progress);
+          ctx.beginPath();
+          ctx.moveTo(-18, -18);
+          ctx.lineTo(18, 18);
+          ctx.stroke();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2 * (1 - progress);
+          ctx.stroke();
+        } else if (sl.dir === 'dagger2') {
+          // 🗡️ Corte Diagonal 2 de Daga (Pícaro)
+          ctx.strokeStyle = '#e879f9';
+          ctx.lineWidth = 5 * (1 - progress);
+          ctx.beginPath();
+          ctx.moveTo(18, -18);
+          ctx.lineTo(-18, 18);
+          ctx.stroke();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2 * (1 - progress);
+          ctx.stroke();
+        } else if (sl.dir === 'spin') {
+          // 🌀 Torbellino 360° (Habilidad de área)
+          const spinRadius = 24 + progress * 16;
+          ctx.strokeStyle = `rgba(59, 130, 246, ${0.9 * (1 - progress)})`;
+          ctx.lineWidth = 6 * (1 - progress);
+          ctx.beginPath();
+          ctx.arc(0, 0, spinRadius, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2.5 * (1 - progress);
+          ctx.stroke();
+        } else {
+          // ⚔️ Tajo de Espada de Acero Animado con Hoja Visible y Estela de Corte
+          let baseAngle = 0;
+          if (sl.dir === 'up') baseAngle = -Math.PI / 2;
+          else if (sl.dir === 'down') baseAngle = Math.PI / 2;
+          else if (sl.dir === 'left') baseAngle = Math.PI;
+          else if (sl.dir === 'right') baseAngle = 0;
+
+          ctx.rotate(baseAngle);
+
+          // 1. Estela de corte en media luna expansiva
+          const arcRadius = 22 + progress * 12;
+          const arcSpread = Math.PI * 0.75;
+          ctx.strokeStyle = `rgba(254, 240, 138, ${0.95 * (1 - progress)})`;
+          ctx.lineWidth = 7 * (1 - progress);
+          ctx.beginPath();
+          ctx.arc(0, 0, arcRadius, -arcSpread / 2, arcSpread / 2);
+          ctx.stroke();
+
+          // Filo de luz cortante blanco
+          ctx.strokeStyle = `rgba(255, 255, 255, ${1 - progress})`;
+          ctx.lineWidth = 3.5 * (1 - progress);
+          ctx.beginPath();
+          ctx.arc(0, 0, arcRadius + 1, -arcSpread / 2.3, arcSpread / 2.3);
+          ctx.stroke();
+
+          // 2. Hoja de la Espada de Acero girando físicamente en el arco de corte
+          const currentSwing = (-arcSpread / 2) + (progress * arcSpread);
+          ctx.save();
+          ctx.rotate(currentSwing);
+
+          // Empuñadura dorada
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(4, -2, 6, 4);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(9, -5, 3, 10);
+
+          // Hoja de acero brillante
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(12, -2.5, 20, 5);
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(13, -1, 18, 2);
+          // Punta de la espada
+          ctx.beginPath();
+          ctx.moveTo(32, -2.5);
+          ctx.lineTo(37, 0);
+          ctx.lineTo(32, 2.5);
+          ctx.closePath();
+          ctx.fillStyle = '#f8fafc';
+          ctx.fill();
+          ctx.restore();
+
+          // 3. Chispas y ráfagas de corte
+          const sparkA1 = currentSwing - 0.2;
+          const sparkA2 = currentSwing + 0.2;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(arcRadius * Math.cos(sparkA1), arcRadius * Math.sin(sparkA1), 3, 3);
+          ctx.fillRect(arcRadius * Math.cos(sparkA2), arcRadius * Math.sin(sparkA2), 3, 3);
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect((arcRadius + 4) * Math.cos(currentSwing), (arcRadius + 4) * Math.sin(currentSwing), 4, 4);
+        }
+        ctx.restore();
       }
 
       // 9. NÚMEROS DE DAÑO FLOTANTES
@@ -2758,8 +3065,11 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       }
 
       ctx.restore();
-
-      animId = requestAnimationFrame(render);
+      } catch (err) {
+        console.error('Frame error in render loop:', err);
+      } finally {
+        animId = requestAnimationFrame(render);
+      }
     };
 
     render();
