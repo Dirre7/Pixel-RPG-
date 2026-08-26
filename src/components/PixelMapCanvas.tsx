@@ -136,6 +136,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
   const currentPosRef = useRef({ x: playerPos.x, y: playerPos.y });
   const targetPosRef = useRef({ x: playerPos.x, y: playerPos.y });
 
+  // Reubicar instantáneamente al cambiar de zona/mapa
   useEffect(() => {
     const maxX = Math.max(1, (currentZone.mapWidth || 60) - 2);
     const maxY = Math.max(1, (currentZone.mapHeight || 60) - 2);
@@ -144,11 +145,17 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
     currentPosRef.current = { x: safeX, y: safeY };
     targetPosRef.current = { x: safeX, y: safeY };
+  }, [currentZone.id]);
 
-    if (safeX !== playerPos.x || safeY !== playerPos.y) {
-      onPlayerMove({ x: safeX, y: safeY });
-    }
-  }, [currentZone.id, playerPos.x, playerPos.y, currentZone.mapWidth, currentZone.mapHeight]);
+  // Actualizar casilla de destino de forma suave durante el movimiento normal (60 FPS lerp)
+  useEffect(() => {
+    const maxX = Math.max(1, (currentZone.mapWidth || 60) - 2);
+    const maxY = Math.max(1, (currentZone.mapHeight || 60) - 2);
+    const safeX = Math.min(Math.max(1, playerPos.x), maxX);
+    const safeY = Math.min(Math.max(1, playerPos.y), maxY);
+
+    targetPosRef.current = { x: safeX, y: safeY };
+  }, [playerPos.x, playerPos.y, currentZone.mapWidth, currentZone.mapHeight]);
 
   // Bucle de Renderizado 2D a 60 FPS
   useEffect(() => {
