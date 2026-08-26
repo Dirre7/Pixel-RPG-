@@ -981,9 +981,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           right: 'max(0.5rem, env(safe-area-inset-right, 0.5rem))',
         }}
       >
-        {/* System Bar Quick Controls (Optimizado Táctil Móvil Ergonómico) */}
-        <div className="flex items-center gap-1.5">
-          {/* Fast-Travel Zone Button */}
+        {/* System Bar Quick Controls (Optimizado Táctil Móvil Ergonómico y Compacto) */}
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          {/* Fast-Travel Zone Button (Visible en PC y tablets, en móvil disponible en Menú) */}
           <button
             onPointerDown={(e) => {
               e.preventDefault();
@@ -991,7 +991,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
               soundEngine.playSfx('select');
               setShowZoneTravelModal(true);
             }}
-            className="h-8 sm:h-9 px-2.5 sm:px-3 bg-[#0e0d18]/95 hover:bg-[#1f1a38] active:scale-90 text-amber-300 rounded-xl border-2 border-amber-600/70 shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-xs font-black backdrop-blur-md flex items-center gap-1.5 transition select-none"
+            className="hidden md:flex h-8 sm:h-9 px-2.5 sm:px-3 bg-[#0e0d18]/95 hover:bg-[#1f1a38] active:scale-90 text-amber-300 rounded-xl border-2 border-amber-600/70 shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-xs font-black backdrop-blur-md items-center gap-1.5 transition select-none"
             style={{ touchAction: 'manipulation' }}
             title="Viaje Rápido entre Zonas"
             aria-label="Viaje Zonas"
@@ -1009,13 +1009,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
               onAutoSave();
               showToast(`💾 ¡Partida Guardada en Ranura ${activeSlotIndex + 1}!`);
             }}
-            className="h-8 sm:h-9 px-2.5 sm:px-3 bg-emerald-950/95 hover:bg-emerald-900 active:scale-90 text-emerald-200 rounded-xl border-2 border-emerald-500/70 shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-xs font-black backdrop-blur-md flex items-center gap-1.5 transition select-none"
+            className="h-8 sm:h-9 px-2 sm:px-2.5 bg-emerald-950/95 hover:bg-emerald-900 active:scale-90 text-emerald-200 rounded-xl border-2 border-emerald-500/70 shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-xs font-black backdrop-blur-md flex items-center gap-1 transition select-none"
             style={{ touchAction: 'manipulation' }}
             title={`Guardar partida (Ranura ${activeSlotIndex + 1})`}
             aria-label="Guardar Partida"
           >
             <Save className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
-            <span className="text-[11px] sm:text-xs">Guardar</span>
+            <span className="hidden sm:inline text-[11px] sm:text-xs">Guardar</span>
           </button>
 
           {/* Unified Game Menu Button */}
@@ -1026,7 +1026,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
               soundEngine.playSfx('select');
               setShowGameMenuModal(true);
             }}
-            className="relative h-8 sm:h-9 px-2.5 sm:px-3 bg-[#0e0d18]/95 hover:bg-[#1f1a38] active:scale-90 text-amber-300 rounded-xl border-2 border-amber-600/70 shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-xs font-black backdrop-blur-md flex items-center gap-1.5 transition select-none"
+            className="relative h-8 sm:h-9 px-2 sm:px-2.5 bg-[#0e0d18]/95 hover:bg-[#1f1a38] active:scale-90 text-amber-300 rounded-xl border-2 border-amber-600/70 shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-xs font-black backdrop-blur-md flex items-center gap-1 transition select-none"
             style={{ touchAction: 'manipulation' }}
             title="Abrir Menú Principal del Juego"
             aria-label="Abrir Menú"
@@ -1347,12 +1347,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
       {/* Unified RPG Game Menu Modal */}
       {showGameMenuModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900/95 border-2 border-amber-500/80 rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-2xl font-mono text-slate-100 flex flex-col gap-3">
-            <div className="flex items-center justify-between border-b border-amber-500/40 pb-2">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-[#0e0d18] border-2 border-amber-600/70 rounded-2xl p-3.5 sm:p-5 w-full max-w-xl shadow-2xl font-mono text-slate-100 flex flex-col max-h-[90dvh] overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-amber-600/40 pb-2 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <Menu className="w-5 h-5 text-amber-400" />
-                <h2 className="text-base sm:text-lg font-black text-amber-300">Menú del Juego</h2>
+                <h2 className="text-sm sm:text-base font-black text-amber-300">Menú Principal del Reino</h2>
               </div>
               <button
                 onClick={() => setShowGameMenuModal(false)}
@@ -1362,7 +1363,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
               </button>
             </div>
 
-            <div className="flex flex-col gap-2 my-2">
+            {/* Menu Options Grid (2 Columnas en Landscape / Desktop) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 my-2 overflow-y-auto flex-1 pr-1">
               {/* Mochila e Inventario */}
               <button
                 onClick={() => {
@@ -1370,13 +1372,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                   setShowGameMenuModal(false);
                   onOpenInventory();
                 }}
-                className="flex items-center justify-between p-3 bg-slate-800/90 hover:bg-slate-750 active:scale-98 border border-amber-500/60 rounded-xl text-amber-200 font-bold transition shadow"
+                className="flex items-center justify-between p-2.5 sm:p-3 bg-[#141224] hover:bg-[#1f1a38] active:scale-98 border border-amber-500/50 rounded-xl text-amber-200 font-bold transition shadow text-xs sm:text-sm"
               >
-                <div className="flex items-center gap-2.5">
-                  <Package className="w-5 h-5 text-amber-400" />
+                <div className="flex items-center gap-2">
+                  <Package className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
                   <span>Mochila e Inventario</span>
                 </div>
-                <span className="text-xs text-slate-400">Equipo</span>
+                <span className="text-[10px] text-slate-400">Equipo</span>
               </button>
 
               {/* Bazar y Comercio */}
@@ -1386,13 +1388,29 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                   setShowGameMenuModal(false);
                   onOpenShop();
                 }}
-                className="flex items-center justify-between p-3 bg-slate-800/90 hover:bg-slate-750 active:scale-98 border border-emerald-500/60 rounded-xl text-emerald-300 font-bold transition shadow"
+                className="flex items-center justify-between p-2.5 sm:p-3 bg-[#141224] hover:bg-[#1f1a38] active:scale-98 border border-emerald-500/50 rounded-xl text-emerald-300 font-bold transition shadow text-xs sm:text-sm"
               >
-                <div className="flex items-center gap-2.5">
-                  <ShoppingBag className="w-5 h-5 text-emerald-400" />
-                  <span>Bazar y Tienda del Reino</span>
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
+                  <span>Bazar y Tienda</span>
                 </div>
-                <span className="text-xs text-emerald-400">Comercio</span>
+                <span className="text-[10px] text-emerald-400">Comercio</span>
+              </button>
+
+              {/* Viaje Rápido entre Zonas */}
+              <button
+                onClick={() => {
+                  soundEngine.playSfx('select');
+                  setShowGameMenuModal(false);
+                  setShowZoneTravelModal(true);
+                }}
+                className="flex items-center justify-between p-2.5 sm:p-3 bg-[#141224] hover:bg-[#1f1a38] active:scale-98 border border-amber-500/50 rounded-xl text-amber-200 font-bold transition shadow text-xs sm:text-sm"
+              >
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
+                  <span>Viaje entre Zonas</span>
+                </div>
+                <span className="text-[10px] text-amber-300">Mapa</span>
               </button>
 
               {/* Guardar Partida */}
@@ -1403,32 +1421,34 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                   showToast(`💾 ¡Partida Guardada en Ranura ${activeSlotIndex + 1}!`);
                   setShowGameMenuModal(false);
                 }}
-                className="flex items-center justify-between p-3 bg-emerald-950/80 hover:bg-emerald-900/90 active:scale-98 border border-emerald-500/60 rounded-xl text-emerald-200 font-bold transition shadow"
+                className="flex items-center justify-between p-2.5 sm:p-3 bg-emerald-950/80 hover:bg-emerald-900 active:scale-98 border border-emerald-500/60 rounded-xl text-emerald-200 font-bold transition shadow text-xs sm:text-sm"
               >
-                <div className="flex items-center gap-2.5">
-                  <Save className="w-5 h-5 text-emerald-400" />
+                <div className="flex items-center gap-2">
+                  <Save className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
                   <span>Guardar Partida</span>
                 </div>
-                <span className="text-xs text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/50">Ranura {activeSlotIndex + 1}</span>
+                <span className="text-[10px] text-emerald-400 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-500/50">R.{activeSlotIndex + 1}</span>
               </button>
 
-              {/* Logros */}
+              {/* Logros y Recompensas */}
               <button
                 onClick={() => {
                   soundEngine.playSfx('select');
                   setShowGameMenuModal(false);
                   onOpenAchievements();
                 }}
-                className="flex items-center justify-between p-3 bg-amber-950/70 hover:bg-amber-900/80 active:scale-98 border border-amber-500/60 rounded-xl text-amber-200 font-bold transition shadow"
+                className="flex items-center justify-between p-2.5 sm:p-3 bg-[#141224] hover:bg-[#1f1a38] active:scale-98 border border-amber-500/50 rounded-xl text-amber-200 font-bold transition shadow text-xs sm:text-sm"
               >
-                <div className="flex items-center gap-2.5">
-                  <Award className="w-5 h-5 text-amber-400" />
-                  <span>Logros y Recompensas</span>
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
+                  <span>Logros</span>
                 </div>
-                {unclaimedAchievementsCount > 0 && (
-                  <span className="text-xs text-slate-950 font-black bg-amber-400 px-2 py-0.5 rounded-full animate-bounce">
+                {unclaimedAchievementsCount > 0 ? (
+                  <span className="text-[10px] text-slate-950 font-black bg-amber-400 px-1.5 py-0.5 rounded-full animate-bounce">
                     {unclaimedAchievementsCount} listos
                   </span>
+                ) : (
+                  <span className="text-[10px] text-slate-400">Premios</span>
                 )}
               </button>
 
@@ -1439,13 +1459,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                   setShowGameMenuModal(false);
                   onOpenLoreCodex();
                 }}
-                className="flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-700 active:scale-98 border border-slate-600 rounded-xl text-amber-100 font-bold transition shadow"
+                className="flex items-center justify-between p-2.5 sm:p-3 bg-[#141224] hover:bg-[#1f1a38] active:scale-98 border border-purple-500/40 rounded-xl text-purple-200 font-bold transition shadow text-xs sm:text-sm"
               >
-                <div className="flex items-center gap-2.5">
-                  <BookOpen className="w-5 h-5 text-amber-300" />
-                  <span>Códice y Guía del Reino</span>
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-purple-300" />
+                  <span>Códice y Lore</span>
                 </div>
-                <span className="text-xs text-slate-400">Lore</span>
+                <span className="text-[10px] text-purple-400">Historia</span>
               </button>
 
               {/* Ranking */}
@@ -1455,13 +1475,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                   setShowGameMenuModal(false);
                   onOpenLeaderboard();
                 }}
-                className="flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-700 active:scale-98 border border-slate-600 rounded-xl text-slate-200 font-bold transition shadow"
+                className="flex items-center justify-between p-2.5 sm:p-3 bg-[#141224] hover:bg-[#1f1a38] active:scale-98 border border-yellow-500/40 rounded-xl text-yellow-200 font-bold transition shadow text-xs sm:text-sm"
               >
-                <div className="flex items-center gap-2.5">
-                  <Trophy className="w-5 h-5 text-yellow-400" />
-                  <span>Clasificación / Ranking</span>
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+                  <span>Clasificación</span>
                 </div>
-                <span className="text-xs text-yellow-400">Top 100</span>
+                <span className="text-[10px] text-yellow-400">Top 100</span>
               </button>
 
               {/* Ajustes */}
@@ -1471,12 +1491,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                   setShowGameMenuModal(false);
                   onOpenSettings();
                 }}
-                className="flex items-center justify-between p-3 bg-slate-800/80 hover:bg-slate-700 active:scale-98 border border-slate-600 rounded-xl text-slate-300 font-bold transition shadow"
+                className="flex items-center justify-between p-2.5 sm:p-3 bg-[#141224] hover:bg-[#1f1a38] active:scale-98 border border-slate-600 rounded-xl text-slate-300 font-bold transition shadow text-xs sm:text-sm"
               >
-                <div className="flex items-center gap-2.5">
-                  <Settings className="w-5 h-5 text-slate-400" />
-                  <span>Ajustes de Sonido y Gamepad</span>
+                <div className="flex items-center gap-2">
+                  <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
+                  <span>Ajustes y Sonido</span>
                 </div>
+                <span className="text-[10px] text-slate-400">Config</span>
               </button>
 
               {/* Salir al Título */}
@@ -1488,9 +1509,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
                     setShowGameMenuModal(false);
                     onReturnToTitle();
                   }}
-                  className="flex items-center justify-center gap-2 p-3 mt-2 bg-red-950/70 hover:bg-red-900 active:scale-98 border border-red-600/60 rounded-xl text-red-200 font-bold transition shadow"
+                  className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2 p-2.5 bg-red-950/70 hover:bg-red-900 active:scale-98 border border-red-600/60 rounded-xl text-red-200 font-bold transition shadow text-xs sm:text-sm mt-1"
                 >
-                  <span>🚪 Guardar y Volver al Título</span>
+                  <span>🚪 Guardar y Salir al Título</span>
                 </button>
               )}
             </div>
