@@ -353,8 +353,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_ambient_guard_south',
         zoneId: 'zone_forest',
-        x: 35,
-        y: 72,
+        x: 34,
+        y: 70,
         name: 'Centinela Vorn',
         title: 'Guardia de la Plaza y Puente Central',
         avatarStyle: 'knight',

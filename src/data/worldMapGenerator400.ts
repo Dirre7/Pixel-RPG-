@@ -440,24 +440,29 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[60][47] = 2; map[60][48] = 2; map[60][49] = 2; map[60][50] = 2; // Camino de acceso empedrado
   map[61][52] = 17; // Farola devocional
 
-  // 🐄 EDIFICIO 8: Granero y Establo de Animales (Suroeste X: 25, Y: 72)
-  map[72][25] = 5;  // Granero
-  map[71][24] = 15; map[71][26] = 15; // Vallas de madera
-  map[73][24] = 14; // Pacas de paja dorada
+  // 🏡 Casona del Valle Sur (Suroeste X: 25, Y: 72)
+  map[72][25] = 5;
+  map[71][24] = 0; map[71][25] = 0; map[71][26] = 0; // Tejado despejado sin vallas flotantes
+  map[73][24] = 12; map[73][26] = 12; // Setos florales decorativos
+  map[71][23] = 14; // Barriles junto al porche
 
-  // 📚 EDIFICIO 9: Biblioteca de los Sabios y Observatorio (Sureste X: 43, Y: 72)
-  map[72][43] = 30; // Torre de los Sabios
-  map[71][42] = 18; map[71][44] = 18; // Columnas de mármol
-  map[73][44] = 12;
-
-  // 🏡 Cabaña Fluvial del Pescador con Muelle (Sur X: 31, Y: 72)
+  // 🏡 Cabaña Fluvial del Pescador (Sur X: 31, Y: 72)
   map[72][31] = 5;
-  map[71][30] = 12; map[71][32] = 12;
-  map[73][32] = 14; // Barriles
+  map[71][30] = 0; map[71][31] = 0; map[71][32] = 0;
+  map[73][30] = 12; map[73][32] = 12; // Setos florales
+  map[73][33] = 12; // Banco con vistas al canal
 
-  // 🎣 Muelle de Pescadores en el Río
-  map[70][34] = 14; map[71][34] = 14; // Barriles de pesca y redes
-  map[70][33] = 17; // Farola del muelle
+  // 🌊 Ribera Oeste del Canal (Despejada y con farola espaciada)
+  map[70][34] = 0; map[71][34] = 0; map[70][33] = 0; // Despejar el borde del agua
+  map[69][33] = 17; // Farola en la acera del puente
+
+  // 🌳 Pérgola y Jardín Merendero del Sureste (X: 42..45, Y: 71..73)
+  map[71][40] = 2; map[71][41] = 2; map[71][42] = 2; map[71][43] = 2; // Senda ajardinada
+  map[72][40] = 2; map[72][41] = 2; map[72][42] = 2; map[72][43] = 2;
+  map[71][44] = 12; map[72][44] = 12; // Bancos de descanso de madera
+  map[70][42] = 1;  // Manzano frutal sombreado
+  map[73][42] = 17; // Farola del jardín
+  map[70][44] = 12; map[73][44] = 12; // Setos de rosas florales
 
   // 🌳 JARDINES COMUNITARIOS Y PLAZAS DE DESCANSO (Zonas Verdes Enriquecidas)
   // Jardín Oeste (Entre sendero oeste y plaza)
