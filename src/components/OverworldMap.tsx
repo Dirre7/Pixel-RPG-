@@ -1155,7 +1155,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           isMobileLandscape ? 'scale-75' : ''
         }`}
         style={{
-          bottom: isMobileLandscape ? 'max(0.25rem, env(safe-area-inset-bottom, 0.25rem))' : 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
+          bottom: isMobileLandscape
+            ? 'max(0.25rem, env(safe-area-inset-bottom, 0.25rem))'
+            : 'calc(max(0.5rem, env(safe-area-inset-bottom, 0.5rem)) + 60px)',
           left: 'max(0.5rem, env(safe-area-inset-left, 0.5rem))',
           touchAction: 'none',
         }}
@@ -1201,18 +1203,10 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           >
             ◄
           </button>
-          <button
-            onPointerDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleInteract();
-            }}
-            className="bg-amber-500/30 hover:bg-amber-500/50 active:bg-amber-400 text-amber-200 active:text-slate-950 rounded-full font-black text-sm sm:text-lg shadow-lg border border-amber-400/60 flex items-center justify-center active:scale-90 transition-all select-none"
-            style={{ touchAction: 'none' }}
-            aria-label="Interactuar"
-          >
-            A
-          </button>
+          {/* Neutral Center Pivot Guide */}
+          <div className="flex items-center justify-center text-amber-400/40 text-sm sm:text-base font-black select-none pointer-events-none">
+            ◉
+          </div>
           <button
             onPointerDown={(e) => {
               e.preventDefault();
@@ -1256,34 +1250,19 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         </div>
       </div>
 
-      {/* 7. Action Button [A] & Floating Backpack [🎒] (Bottom-Right con Safe Area) */}
+      {/* 7. Action Button [A] (Bottom-Right con Safe Area) */}
       <div
-        className={`absolute z-20 flex flex-col items-center gap-2 pointer-events-auto select-none transition-all origin-bottom-right ${
+        className={`absolute z-20 pointer-events-auto select-none transition-all origin-bottom-right ${
           isMobileLandscape ? 'scale-75' : ''
         }`}
         style={{
-          bottom: isMobileLandscape ? 'max(0.25rem, env(safe-area-inset-bottom, 0.25rem))' : 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
-          right: 'max(0.5rem, env(safe-area-inset-right, 0.5rem))',
+          bottom: isMobileLandscape
+            ? 'max(0.25rem, env(safe-area-inset-bottom, 0.25rem))'
+            : 'calc(max(0.5rem, env(safe-area-inset-bottom, 0.5rem)) + 60px)',
+          right: 'max(0.75rem, env(safe-area-inset-right, 0.75rem))',
           touchAction: 'none',
         }}
       >
-        {/* Floating Backpack / Inventory Button */}
-        <button
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            soundEngine.playSfx('select');
-            onOpenInventory();
-          }}
-          className="w-11 h-11 sm:w-13 sm:h-13 bg-black/40 hover:bg-black/60 active:scale-90 text-amber-300 rounded-full border-2 border-amber-500/50 shadow-2xl flex items-center justify-center backdrop-blur-[2px] transition-transform"
-          style={{ touchAction: 'manipulation' }}
-          title="Abrir Mochila e Inventario"
-          aria-label="Abrir Inventario"
-        >
-          <Package className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
-        </button>
-
-        {/* Action Button [A] */}
         <button
           onPointerDown={(e) => {
             e.preventDefault();
@@ -1292,18 +1271,16 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           }}
           className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-500/85 to-amber-600/85 hover:from-amber-500 hover:to-amber-600 active:from-amber-400 active:to-amber-500 text-slate-950 rounded-full font-black text-lg sm:text-2xl border-2 border-amber-300 shadow-[0_4px_25px_rgba(245,158,11,0.4)] flex items-center justify-center active:scale-90 backdrop-blur-[2px] transition-transform select-none"
           style={{ touchAction: 'none' }}
-          aria-label="Acción A"
+          aria-label="Acción Interactuar / Hablar / Atacar"
         >
           [A]
         </button>
       </div>
 
-      {/* 8. Bottom Center: Floating Glassmorphic Hotbar (Adaptativa a orientación) */}
+      {/* 8. Bottom Center: Floating Glassmorphic Hotbar (Ubicada en la base inferior) */}
       <div
-        className={`absolute z-20 pointer-events-auto left-1/2 -translate-x-1/2 transition-all ${
-          isMobileLandscape
-            ? 'bottom-[max(0.25rem,env(safe-area-inset-bottom,0.25rem))] scale-75 origin-bottom'
-            : 'bottom-[calc(max(0.5rem,env(safe-area-inset-bottom,0.5rem))+120px)] sm:bottom-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]'
+        className={`absolute z-20 pointer-events-auto left-1/2 -translate-x-1/2 transition-all origin-bottom bottom-[max(0.25rem,env(safe-area-inset-bottom,0.25rem))] sm:bottom-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))] ${
+          isMobileLandscape ? 'scale-75' : 'scale-90 sm:scale-100'
         }`}
       >
         <BottomActionBar
@@ -1324,12 +1301,14 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         />
       </div>
 
-      {/* Interactive Banner Toast / Prompt (Ubicado ergonómicamente sobre la Hotbar sin solapar la vida) */}
+      {/* Interactive Banner Toast / Prompt (Ubicado sobre el D-Pad y los botones de acción) */}
       {interactPrompt && (
         <div
           className="absolute left-1/2 transform -translate-x-1/2 w-11/12 max-w-sm bg-slate-950/95 border-2 border-amber-400 rounded-xl p-2 sm:p-2.5 shadow-2xl backdrop-blur-md text-center text-xs sm:text-sm font-mono text-amber-300 animate-pulse z-30 pointer-events-none"
           style={{
-            bottom: 'calc(max(0.5rem, env(safe-area-inset-bottom, 0.5rem)) + 64px)',
+            bottom: isMobileLandscape
+              ? 'calc(max(0.25rem, env(safe-area-inset-bottom, 0.25rem)) + 70px)'
+              : 'calc(max(0.5rem, env(safe-area-inset-bottom, 0.5rem)) + 215px)',
           }}
         >
           {interactPrompt}
