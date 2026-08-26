@@ -734,12 +734,13 @@ export function generateZoneOverworldEnemies(
 ): OverworldEnemy[] {
   // 🛑 Peaceful Interiors (Forge, Tavern, Apothecary, City Hall, Houses) have ZERO enemies
   if (
-    zoneId.includes('interior_') ||
-    zoneId === 'interior_forge' ||
-    zoneId === 'interior_tavern' ||
-    zoneId === 'interior_apothecary' ||
-    zoneId === 'interior_city_hall' ||
-    zoneId === 'interior_house'
+    zoneId.startsWith('subzone_') ||
+    zoneId.startsWith('interior_') ||
+    zoneId.includes('forge') ||
+    zoneId.includes('tavern') ||
+    zoneId.includes('botica') ||
+    zoneId.includes('apothecary') ||
+    zoneId.includes('house')
   ) {
     return [];
   }

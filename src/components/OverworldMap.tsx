@@ -168,16 +168,19 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     (amount: number) => {
       player.hp = Math.max(0, player.hp - amount);
       if (player.hp <= 0) {
-        // Player defeated: respawn at plaza
+        // Player defeated: respawn safely at central village plaza
         player.hp = player.maxHp;
         player.mp = player.maxMp;
-        onMove({ x: 36, y: 62 });
+        if (currentZone.id !== 'zone_forest') {
+          onChangeZone('zone_forest');
+        }
+        onMove({ x: 36, y: 60 });
         setToastMessage('💀 Has caído en combate... Has despertado en la Plaza de la Aldea.');
         setTimeout(() => setToastMessage(null), 4000);
         soundEngine.playSfx('gameover');
       }
     },
-    [player, onMove]
+    [player, currentZone.id, onChangeZone, onMove]
   );
 
   const handleLootCollected = useCallback(

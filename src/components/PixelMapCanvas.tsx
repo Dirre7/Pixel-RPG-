@@ -137,19 +137,18 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
   const targetPosRef = useRef({ x: playerPos.x, y: playerPos.y });
 
   useEffect(() => {
-    const maxX = (currentZone.mapWidth || 60) - 1;
-    const maxY = (currentZone.mapHeight || 60) - 1;
-    const safeX = Math.min(Math.max(0, playerPos.x), maxX);
-    const safeY = Math.min(Math.max(0, playerPos.y), maxY);
+    const maxX = Math.max(1, (currentZone.mapWidth || 60) - 2);
+    const maxY = Math.max(1, (currentZone.mapHeight || 60) - 2);
+    const safeX = Math.min(Math.max(1, playerPos.x), maxX);
+    const safeY = Math.min(Math.max(1, playerPos.y), maxY);
+
+    currentPosRef.current = { x: safeX, y: safeY };
+    targetPosRef.current = { x: safeX, y: safeY };
 
     if (safeX !== playerPos.x || safeY !== playerPos.y) {
-      currentPosRef.current = { x: safeX, y: safeY };
-      targetPosRef.current = { x: safeX, y: safeY };
       onPlayerMove({ x: safeX, y: safeY });
-    } else {
-      targetPosRef.current = { x: safeX, y: safeY };
     }
-  }, [playerPos, currentZone.mapWidth, currentZone.mapHeight]);
+  }, [currentZone.id, playerPos.x, playerPos.y, currentZone.mapWidth, currentZone.mapHeight]);
 
   // Bucle de Renderizado 2D a 60 FPS
   useEffect(() => {
@@ -440,12 +439,24 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       else if (dir === 'left') { dx = -1; dy = 0; }
       else if (dir === 'right') { dx = 1; dy = 0; }
 
-      if (skill.type === 'heal') {
+      if (skill.type === 'heal' || skill.healAmount) {
         const healAmt = Math.round(playerRef.current.maxHp * (skill.healAmount || 0.3));
         spawnDamageNumber(`+${healAmt} HP`, p.x * 32 + 16, p.y * 32, '#22c55e', true);
         soundEngine.playSfx('heal');
         onLootCollected?.('health_orb', healAmt);
-        return true;
+        if (skill.type === 'heal' || skill.type === 'buff') {
+          return true;
+        }
+      }
+
+      if (skill.type === 'dash_attack') {
+        const nextX = Math.min(Math.max(1, p.x + dx * 2), (currentZone.mapWidth || 60) - 2);
+        const nextY = Math.min(Math.max(1, p.y + dy * 2), (currentZone.mapHeight || 60) - 2);
+        if (currentZone.tileData[Math.round(nextY)]?.[Math.round(nextX)] === 0) {
+          targetPosRef.current = { x: nextX, y: nextY };
+          currentPosRef.current = { x: nextX, y: nextY };
+          onPlayerMove({ x: nextX, y: nextY });
+        }
       }
 
       if (skill.type === 'projectile') {
@@ -470,13 +481,13 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         return true;
       }
 
-      // AOE / Slam
+      // AOE / Slam / Melee Skill
       soundEngine.playSfx('magic');
       const hitRadius = (skill.aoeRadius || 3.0);
 
       slashEntities.push({
-        x: p.x * 32 + 16,
-        y: p.y * 32 + 16,
+        x: (p.x + dx * 0.5) * 32 + 16,
+        y: (p.y + dy * 0.5) * 32 + 16,
         dir: 'spin',
         createdAt: performance.now(),
       });
