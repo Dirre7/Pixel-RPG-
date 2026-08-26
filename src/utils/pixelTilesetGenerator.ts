@@ -82,6 +82,34 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
       ctx.fillStyle = '#c084fc'; // Polvo arcano lavanda
       ctx.fillRect(22, 6, 1, 1);
       ctx.fillRect(6, 22, 1, 1);
+    } else if (zoneId === 'subzone_crypt' || zoneId.includes('crypt')) {
+      // 🪦 Suelo de Cripta y Catacumbas: Losas de piedra ceniza fría con fisuras y polvo de tumbas
+      ctx.fillStyle = '#09090b'; // Fondo negro abisal
+      ctx.fillRect(0, 0, 32, 32);
+
+      // Losas de piedra oscura
+      ctx.fillStyle = '#18181b';
+      ctx.fillRect(1, 1, 14, 14);
+      ctx.fillRect(17, 1, 14, 14);
+      ctx.fillRect(1, 17, 14, 14);
+      ctx.fillRect(17, 17, 14, 14);
+
+      // Relieve y textura de desgaste
+      ctx.fillStyle = '#27272a';
+      ctx.fillRect(2, 2, 12, 12);
+      ctx.fillRect(18, 2, 12, 12);
+      ctx.fillRect(2, 18, 12, 12);
+      ctx.fillRect(18, 18, 12, 12);
+
+      // Fisuras en la piedra y polvo de ceniza
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(6, 4, 1, 5);
+      ctx.fillRect(7, 8, 3, 1);
+      ctx.fillRect(20, 22, 4, 1);
+      ctx.fillStyle = '#3f3f46';
+      ctx.fillRect(8, 8, 1, 1);
+      ctx.fillStyle = '#581c87'; // Brillo espectral tenue
+      ctx.fillRect(24, 6, 1, 1);
     } else if (zoneId === 'subzone_forge' || zoneId.includes('forge')) {
       // Suelo de Taller de Herrería: Losas de basalto oscuras con hollín y polvo de carbón
       ctx.fillStyle = '#1c1917'; // Base losa oscura
@@ -246,6 +274,33 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
 
       ctx.fillStyle = '#fef08a';
       ctx.fillRect(15, 15, 2, 2);
+      return canvas;
+    } else if (zoneId === 'subzone_crypt' || zoneId.includes('crypt')) {
+      // 🪦 Alfombra Ritual Púrpura Profanada con Calaveras y Runas de Muerte
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(0, 0, 32, 32);
+      ctx.fillStyle = '#3b0764'; // Púrpura ceremonial
+      ctx.fillRect(2, 2, 28, 28);
+      ctx.fillStyle = '#581c87';
+      ctx.fillRect(4, 4, 24, 24);
+
+      // Cenefa plateada desgastada
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(3, 3, 26, 26);
+
+      // Calavera mágica central
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(13, 11, 6, 6);
+      ctx.fillRect(14, 17, 4, 3);
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(14, 13, 2, 2);
+      ctx.fillRect(17, 13, 2, 2);
+
+      // Ojos espectrales brillantes
+      ctx.fillStyle = '#c084fc';
+      ctx.fillRect(14, 13, 1, 1);
+      ctx.fillRect(17, 13, 1, 1);
       return canvas;
     }
 
@@ -1687,6 +1742,332 @@ export function getHerbDryingRackCanvas(): HTMLCanvasElement {
   ctx.fillRect(18, 16, 3, 6);
   ctx.fillStyle = '#f97316'; // Hongo ígneo
   ctx.fillRect(23, 16, 3, 6);
+
+  return canvas;
+}
+
+/**
+ * 🪦 GRAN MAUSOLEO Y CRIPTA GÓTICA 2.5D HD (96x128 px)
+ * Estructura de sillería de piedra ceniza, portal ojival con verja de hierro negro,
+ * tímpano con calavera y cruz sepulcral, antorchas de fuego fatuo y niebla espectral.
+ */
+export function getCryptMausoleumCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 96;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // 1. Sombra de contacto
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+  ctx.beginPath();
+  ctx.ellipse(48, 120, 44, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 2. Podio y escalinata de piedra carcomida con musgo
+  ctx.fillStyle = '#18181b'; // Piedra basalto base
+  ctx.fillRect(8, 108, 80, 16);
+  ctx.fillStyle = '#27272a';
+  ctx.fillRect(10, 110, 76, 12);
+  ctx.fillStyle = '#3f3f46';
+  ctx.fillRect(12, 111, 72, 3); // Peldaño de luz
+  // Musgo en los escalones
+  ctx.fillStyle = '#14532d';
+  ctx.fillRect(14, 118, 12, 4);
+  ctx.fillRect(68, 116, 16, 5);
+
+  // 3. Fachada del Mausoleo de Piedra Ceniza Oscura
+  ctx.fillStyle = '#18181b'; // Muros exteriores
+  ctx.fillRect(16, 38, 64, 72);
+  ctx.fillStyle = '#27272a';
+  ctx.fillRect(18, 40, 60, 68);
+
+  // Sillares y bloques de piedra tallados con juntas oscuras
+  ctx.fillStyle = '#3f3f46';
+  for (let y = 42; y < 106; y += 10) {
+    for (let x = 20; x < 76; x += 14) {
+      ctx.fillRect(x + ((y / 10) % 2 * 6), y, 12, 8);
+    }
+  }
+
+  // 4. Gran Tejado a dos aguas de Pizarra Oscura
+  ctx.fillStyle = '#09090b';
+  ctx.beginPath();
+  ctx.moveTo(48, 12);
+  ctx.lineTo(88, 42);
+  ctx.lineTo(8, 42);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = '#18181b';
+  ctx.beginPath();
+  ctx.moveTo(48, 14);
+  ctx.lineTo(85, 40);
+  ctx.lineTo(11, 40);
+  ctx.closePath();
+  ctx.fill();
+
+  // Tejas de pizarra gótica
+  ctx.fillStyle = '#27272a';
+  ctx.fillRect(20, 32, 56, 4);
+  ctx.fillRect(28, 26, 40, 4);
+  ctx.fillRect(36, 20, 24, 4);
+
+  // Remate con Cruz Gótica y Gárgolas
+  ctx.fillStyle = '#52525b';
+  ctx.fillRect(46, 2, 4, 14); // Cruz gótica central
+  ctx.fillRect(43, 6, 10, 3);
+  // Pináculos góticos en las esquinas
+  ctx.fillStyle = '#3f3f46';
+  ctx.fillRect(14, 32, 4, 10);
+  ctx.fillRect(15, 26, 2, 6);
+  ctx.fillRect(78, 32, 4, 10);
+  ctx.fillRect(79, 26, 2, 6);
+
+  // 5. Frontispicio con relieve de Calavera (`☠️`)
+  ctx.fillStyle = '#18181b';
+  ctx.beginPath();
+  ctx.arc(48, 34, 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#e4e4e7'; // Calavera esculpida
+  ctx.fillRect(45, 30, 6, 5);
+  ctx.fillRect(46, 35, 4, 3);
+  ctx.fillStyle = '#09090b'; // Cuencas oculares
+  ctx.fillRect(46, 32, 2, 2);
+  ctx.fillRect(48, 32, 2, 2);
+
+  // 6. Gran Portal con Arco Ojival y Verja de Hierro Negro
+  ctx.fillStyle = '#09090b'; // Interior abismal oscuro
+  ctx.beginPath();
+  ctx.moveTo(32, 108);
+  ctx.lineTo(32, 70);
+  ctx.quadraticCurveTo(48, 52, 64, 70);
+  ctx.lineTo(64, 108);
+  ctx.closePath();
+  ctx.fill();
+
+  // Marco de piedra con moldura
+  ctx.strokeStyle = '#52525b';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(32, 108);
+  ctx.lineTo(32, 70);
+  ctx.quadraticCurveTo(48, 52, 64, 70);
+  ctx.lineTo(64, 108);
+  ctx.stroke();
+
+  // Rejas de hierro forjado negro con púas
+  ctx.fillStyle = '#27272a';
+  for (let rx = 36; rx <= 60; rx += 6) {
+    ctx.fillRect(rx, 68, 2, 40);
+    // Púas superiores
+    ctx.fillStyle = '#52525b';
+    ctx.fillRect(rx - 1, 65, 4, 3);
+    ctx.fillStyle = '#27272a';
+  }
+  ctx.fillRect(33, 82, 30, 2);
+  ctx.fillRect(33, 98, 30, 2);
+
+  // 7. Antorchas de Fuego Fatuo (Llama espectral púrpura/cian animada)
+  const specFlicker = Math.sin(time * 8) * 1.5;
+  const drawSpectralTorch = (tx: number) => {
+    ctx.fillStyle = '#09090b';
+    ctx.fillRect(tx, 74, 4, 8); // Soporte
+    ctx.fillStyle = '#7c3aed'; // Resplandor violeta
+    ctx.fillRect(tx - 2, 68 + specFlicker * 0.4, 8, 8);
+    ctx.fillStyle = '#a78bfa';
+    ctx.fillRect(tx - 1, 69 + specFlicker * 0.3, 6, 6);
+    ctx.fillStyle = '#38bdf8'; // Núcleo cian etéreo
+    ctx.fillRect(tx, 70 + specFlicker * 0.2, 4, 4);
+    ctx.fillStyle = '#e0f2fe';
+    ctx.fillRect(tx + 1, 71, 2, 2);
+  };
+  drawSpectralTorch(24);
+  drawSpectralTorch(68);
+
+  // 8. Niebla fría espectral deslizándose por la base
+  const mistShift1 = Math.sin(time * 2) * 6;
+  const mistShift2 = Math.cos(time * 1.8) * 8;
+  ctx.fillStyle = 'rgba(192, 132, 252, 0.25)';
+  ctx.beginPath();
+  ctx.ellipse(44 + mistShift1, 114, 28, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+  ctx.beginPath();
+  ctx.ellipse(52 + mistShift2, 118, 34, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  return canvas;
+}
+
+/**
+ * ⚰️ SARCÓFAGO DE PIEDRA CON EFIGIE TALLADA (32x48 px)
+ */
+export function getStoneSarcophagusCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 48;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  ctx.beginPath();
+  ctx.ellipse(16, 42, 14, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Base y caja del sarcófago de piedra
+  ctx.fillStyle = '#18181b';
+  ctx.fillRect(4, 10, 24, 34);
+  ctx.fillStyle = '#27272a';
+  ctx.fillRect(5, 11, 22, 32);
+
+  // Tapa esculpida de piedra
+  ctx.fillStyle = '#3f3f46';
+  ctx.fillRect(6, 8, 20, 32);
+  ctx.fillStyle = '#52525b';
+  ctx.fillRect(7, 9, 18, 30);
+
+  // Efigie del Caballero Caído tallada en relieve
+  // Cabeza con yelmo y almohada
+  ctx.fillStyle = '#71717a';
+  ctx.fillRect(12, 12, 8, 7);
+  ctx.fillStyle = '#27272a';
+  ctx.fillRect(13, 15, 6, 2); // Visera del yelmo
+
+  // Pecho con cruz en relieve y manos cruzadas
+  ctx.fillStyle = '#a1a1aa';
+  ctx.fillRect(11, 20, 10, 10);
+  ctx.fillStyle = '#71717a';
+  ctx.fillRect(15, 21, 2, 8); // Cruz
+  ctx.fillRect(13, 23, 6, 2);
+
+  // Espada descansando a lo largo del cuerpo
+  ctx.fillStyle = '#e4e4e7';
+  ctx.fillRect(15, 30, 2, 8); // Hoja
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(14, 29, 4, 1); // Guarda dorada
+
+  // Musgo en la base del sarcófago
+  ctx.fillStyle = '#14532d';
+  ctx.fillRect(4, 38, 4, 4);
+  ctx.fillRect(23, 40, 5, 3);
+
+  return canvas;
+}
+
+/**
+ * 🔥 BRASERO ESPECTRAL CON FUEGO FATUO VIOLETA (32x32 px)
+ */
+export function getSpectralBrazierCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 12, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Trípode de hierro forjado gótico
+  ctx.fillStyle = '#09090b';
+  ctx.fillRect(8, 16, 3, 12);
+  ctx.fillRect(21, 16, 3, 12);
+  ctx.fillRect(14, 18, 4, 10);
+
+  // Cuenco del brasero
+  ctx.fillStyle = '#18181b';
+  ctx.beginPath();
+  ctx.ellipse(16, 16, 10, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#27272a';
+  ctx.beginPath();
+  ctx.ellipse(16, 15, 8, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Llama espectral violeta y cian animada
+  const f1 = Math.sin(time * 7) * 1.5;
+  const f2 = Math.cos(time * 6) * 1.5;
+
+  ctx.fillStyle = 'rgba(124, 58, 237, 0.9)'; // Púrpura oscuro
+  ctx.beginPath();
+  ctx.moveTo(8, 15);
+  ctx.quadraticCurveTo(16 + f1, 2, 24, 15);
+  ctx.fill();
+
+  ctx.fillStyle = '#a78bfa'; // Lavanda
+  ctx.beginPath();
+  ctx.moveTo(11, 15);
+  ctx.quadraticCurveTo(16 + f2, 5, 21, 15);
+  ctx.fill();
+
+  ctx.fillStyle = '#38bdf8'; // Cian espectral interior
+  ctx.fillRect(14, 10 + f1 * 0.4, 4, 5);
+  ctx.fillStyle = '#e0f2fe';
+  ctx.fillRect(15, 11, 2, 3);
+
+  // Volutas de almas ascendiendo
+  const sRise = (time * 12) % 15;
+  ctx.fillStyle = 'rgba(192, 132, 252, 0.5)';
+  ctx.fillRect(15 + Math.sin(time * 4) * 3, 8 - sRise, 2, 2);
+
+  return canvas;
+}
+
+/**
+ * 💀 PILA DE URNAS FUNERARIAS Y CRÁNEOS CON CIRIOS (32x32 px)
+ */
+export function getBoneUrnStackCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 12, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Gran urna de arcilla oscura
+  ctx.fillStyle = '#27272a';
+  ctx.beginPath();
+  ctx.ellipse(10, 18, 7, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#3f3f46';
+  ctx.fillRect(7, 10, 6, 3); // Boca de la urna
+
+  // Urna dorada antigua con pátina
+  ctx.fillStyle = '#78350f';
+  ctx.beginPath();
+  ctx.ellipse(22, 20, 6, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Cráneo con cirio derritiéndose encima
+  ctx.fillStyle = '#e4e4e7';
+  ctx.fillRect(13, 19, 7, 6);
+  ctx.fillRect(14, 25, 5, 3); // Mandíbula
+  ctx.fillStyle = '#18181b';
+  ctx.fillRect(14, 21, 2, 2); // Ojos
+  ctx.fillRect(17, 21, 2, 2);
+
+  // Cirio blanco goteando cera sobre el cráneo
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(15, 12, 3, 7);
+  // Llama
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(15, 8, 3, 4);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(16, 9, 1, 2);
+
+  // Huesos y costillas dispersas
+  ctx.fillStyle = '#d4d4d8';
+  ctx.fillRect(4, 25, 8, 2);
+  ctx.fillRect(20, 26, 9, 2);
 
   return canvas;
 }

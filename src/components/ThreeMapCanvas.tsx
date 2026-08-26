@@ -107,6 +107,10 @@ import {
   getAlchemyCauldronCanvas,
   getApothecaryCounterCanvas,
   getHerbDryingRackCanvas,
+  getCryptMausoleumCanvas,
+  getStoneSarcophagusCanvas,
+  getSpectralBrazierCanvas,
+  getBoneUrnStackCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 // --- 🌟 2.5D HD PIXEL BILLBOARD SPRITE HELPERS ---
@@ -1214,9 +1218,15 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           addWorldEntity(chestGroup, x, y);
         }
 
-        // Village Cottage / House (Tile 8)
+        // 🪦 Gran Mausoleo de la Cripta Ancestral o Cabaña Aldeana (Tile 8)
         if (tileType === 8) {
-          const cottageGroup = create2DPixelSprite(getCottageCanvas((x + y) % 2 === 0 ? 'red' : 'straw'), 4.6, 4.6, 1.5);
+          const isCryptEntrance = currentZone.id === 'zone_forest' || (x >= 50 && y <= 35);
+          const cottageGroup = create2DPixelSprite(
+            isCryptEntrance ? getCryptMausoleumCanvas(0) : getCottageCanvas((x + y) % 2 === 0 ? 'red' : 'straw'),
+            isCryptEntrance ? 4.8 : 4.6,
+            isCryptEntrance ? 6.4 : 4.6,
+            isCryptEntrance ? 1.8 : 1.5
+          );
           cottageGroup.position.set(posX, elevation, posZ);
           addWorldEntity(cottageGroup, x, y);
           obstacleGroups.push({ group: cottageGroup, gridX: x, gridY: y });
@@ -1240,21 +1250,22 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: forgeGroup, gridX: x, gridY: y });
         }
 
-        // 🌋 Gran Horno de Fundición / Chimenea de Taberna / Hoguera (Tile 19)
+        // 🌋 Gran Horno de Fundición / Chimenea de Taberna / Caldero / Brasero Espectral (Tile 19)
         if (tileType === 19) {
           const isForge = currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge';
           const isTavern = currentZone.interiorType === 'tavern' || currentZone.id === 'subzone_tavern';
           const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';
+          const isCrypt = currentZone.interiorType === 'crypt' || currentZone.id === 'subzone_crypt';
           const furnaceGroup = create2DPixelSprite(
-            isForge ? getBlastFurnaceCanvas(0) : isTavern ? getTavernFireplaceCanvas(0) : isBotica ? getAlchemyCauldronCanvas(0) : getCampfireCanvas(0),
-            isForge ? 4.4 : isTavern ? 4.0 : isBotica ? 3.8 : 2.5,
-            isForge ? 4.4 : isTavern ? 4.0 : isBotica ? 3.8 : 2.5,
+            isForge ? getBlastFurnaceCanvas(0) : isTavern ? getTavernFireplaceCanvas(0) : isBotica ? getAlchemyCauldronCanvas(0) : isCrypt ? getSpectralBrazierCanvas(0) : getCampfireCanvas(0),
+            isForge ? 4.4 : isTavern ? 4.0 : isBotica ? 3.8 : isCrypt ? 2.6 : 2.5,
+            isForge ? 4.4 : isTavern ? 4.0 : isBotica ? 3.8 : isCrypt ? 2.6 : 2.5,
             1.2
           );
           furnaceGroup.position.set(posX, elevation, posZ);
           
-          if (isForge || isTavern || isBotica) {
-            const fireLight = new THREE.PointLight(isBotica ? 0x10b981 : 0xf97316, 2.5, 8);
+          if (isForge || isTavern || isBotica || isCrypt) {
+            const fireLight = new THREE.PointLight(isCrypt ? 0x8b5cf6 : isBotica ? 0x10b981 : 0xf97316, 2.5, 8);
             fireLight.position.set(0, 1.5, 0);
             furnaceGroup.add(fireLight);
           }
@@ -1263,10 +1274,16 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: furnaceGroup, gridX: x, gridY: y });
         }
 
-        // 🪑 Mesas de Comedor de Taberna o Estantes de Secado de Botica (Tile 30)
+        // 🪑 Mesas de Taberna, Estantes en Botica, o ⚰️ Sarcófagos de Piedra (Tile 30)
         if (tileType === 30) {
           const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';
-          const tableGroup = create2DPixelSprite(isBotica ? getHerbDryingRackCanvas() : getTavernTableCanvas(), 2.6, 2.6, 0.8);
+          const isCrypt = currentZone.interiorType === 'crypt' || currentZone.id === 'subzone_crypt';
+          const tableGroup = create2DPixelSprite(
+            isCrypt ? getStoneSarcophagusCanvas() : isBotica ? getHerbDryingRackCanvas() : getTavernTableCanvas(),
+            isCrypt ? 2.8 : 2.6,
+            isCrypt ? 3.8 : 2.6,
+            0.8
+          );
           tableGroup.position.set(posX, elevation, posZ);
           addWorldEntity(tableGroup, x, y);
           obstacleGroups.push({ group: tableGroup, gridX: x, gridY: y });
@@ -2439,6 +2456,36 @@ function createProceduralGroundPBRTextures(zoneId: string): { diffuse: THREE.Can
     // Mortar lines
     ctx.strokeStyle = '#022c22';
     ctx.lineWidth = 2;
+    for (let i = 0; i <= 512; i += tileSize) {
+      ctx.beginPath();
+      ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
+    }
+  } else if (zoneId === 'subzone_crypt' || zoneId.includes('crypt')) {
+    // 🪦 Cold Basalt & Crypt Ash Stone PBR Floor with Ancient Fractures
+    ctx.fillStyle = '#09090b';
+    ctx.fillRect(0, 0, 512, 512);
+
+    const tileSize = 64;
+    for (let py = 0; py < 512; py += tileSize) {
+      for (let px = 0; px < 512; px += tileSize) {
+        ctx.fillStyle = (px + py) % 128 === 0 ? '#18181b' : '#27272a';
+        ctx.beginPath();
+        ctx.roundRect(px + 2, py + 2, tileSize - 4, tileSize - 4, 3);
+        ctx.fill();
+
+        // Cracks and ash flecks
+        for (let i = 0; i < 25; i++) {
+          ctx.fillStyle = Math.random() > 0.6 ? '#3f3f46' : '#581c87';
+          ctx.fillRect(px + 4 + Math.random() * (tileSize - 8), py + 4 + Math.random() * (tileSize - 8), 2, 2);
+        }
+      }
+    }
+
+    // Mortar lines
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 3;
     for (let i = 0; i <= 512; i += tileSize) {
       ctx.beginPath();
       ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();

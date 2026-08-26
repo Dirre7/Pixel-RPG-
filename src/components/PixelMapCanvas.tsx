@@ -58,6 +58,10 @@ import {
   getAlchemyCauldronCanvas,
   getApothecaryCounterCanvas,
   getHerbDryingRackCanvas,
+  getCryptMausoleumCanvas,
+  getStoneSarcophagusCanvas,
+  getSpectralBrazierCanvas,
+  getBoneUrnStackCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -865,13 +869,21 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 14) {
-            // 🍷 Bodega de Barriles en Taberna, o Barriles/Cajas en Aldea
+            // 🍷 Bodega en Taberna, 💀 Urnas y Huesos en Cripta, o Barriles/Cajas en Aldea
             if (currentZone.interiorType === 'tavern' || currentZone.id === 'subzone_tavern') {
               const barrelStack = getTavernBarrelStackCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
                   c.drawImage(barrelStack, posX, posY, 32, 32);
+                },
+              });
+            } else if (currentZone.interiorType === 'crypt' || currentZone.id === 'subzone_crypt') {
+              const boneUrns = getBoneUrnStackCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(boneUrns, posX, posY, 32, 32);
                 },
               });
             } else {
@@ -932,14 +944,24 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 8) {
-            // Santuario Místico de Piedra
-            const shrine = getShrineCanvas();
-            entities.push({
-              ySort: posY + TILE_SIZE + 8,
-              draw: (c) => {
-                c.drawImage(shrine, posX - 8, posY - 16, 48, 48);
-              },
-            });
+            // 🪦 Gran Mausoleo / Cripta Ancestral o Santuario Místico
+            if (currentZone.id === 'zone_forest' || (x >= 50 && y <= 35)) {
+              entities.push({
+                ySort: posY + TILE_SIZE + 24,
+                draw: (c) => {
+                  const mausoleum = getCryptMausoleumCanvas(time);
+                  c.drawImage(mausoleum, 0, 0, 96, 128, posX - 32, posY - 76, 96, 128);
+                },
+              });
+            } else {
+              const shrine = getShrineCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE + 8,
+                draw: (c) => {
+                  c.drawImage(shrine, posX - 8, posY - 16, 48, 48);
+                },
+              });
+            }
           } else if (tileType === 9) {
             // Puesto de Bazar / Tienda
             const stallIndex = (x * 3 + y * 7) % 3;
@@ -1263,6 +1285,14 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                   c.drawImage(cauldron, posX - 8, posY - 14, 48, 48);
                 },
               });
+            } else if (currentZone.interiorType === 'crypt' || currentZone.id === 'subzone_crypt') {
+              const brazier = getSpectralBrazierCanvas(time);
+              entities.push({
+                ySort: posY + TILE_SIZE + 4,
+                draw: (c) => {
+                  c.drawImage(brazier, posX, posY, 32, 32);
+                },
+              });
             } else if (gameAssets.bonfire.complete && gameAssets.bonfire.naturalWidth > 0) {
               const fireFrame = Math.floor(time * 6) % 4;
               entities.push({
@@ -1281,15 +1311,25 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 30) {
-            // 🪑 Mesas de Taberna o Estantes de Secado de Hierbas en Botica
-            const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';
-            const tableOrRack = isBotica ? getHerbDryingRackCanvas() : getTavernTableCanvas();
-            entities.push({
-              ySort: posY + TILE_SIZE,
-              draw: (c) => {
-                c.drawImage(tableOrRack, posX, posY, 32, 32);
-              },
-            });
+            // 🪑 Mesas de Taberna, Estantes en Botica, o ⚰️ Sarcófagos de Piedra en Cripta
+            if (currentZone.interiorType === 'crypt' || currentZone.id === 'subzone_crypt') {
+              const sarcophagus = getStoneSarcophagusCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE + 8,
+                draw: (c) => {
+                  c.drawImage(sarcophagus, posX, posY - 16, 32, 48);
+                },
+              });
+            } else {
+              const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';
+              const tableOrRack = isBotica ? getHerbDryingRackCanvas() : getTavernTableCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(tableOrRack, posX, posY, 32, 32);
+                },
+              });
+            }
           } else if (tileType === 31) {
             // 🍷 Mostrador de Tabernero o Mostrador de Boticaria
             const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';

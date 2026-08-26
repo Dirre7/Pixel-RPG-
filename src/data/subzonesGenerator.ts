@@ -383,16 +383,40 @@ export function generateCryptDungeon(): SubZoneMapResult {
   carveCorridorV(4, 11, 14);
   carveRoom(9, 2, 10, 6);
 
-  // Cofre de Reliquias en la cámara del jefe
-  map[3][14] = 7; // Cofre sagrado de la cripta
+  // ⚰️ Cripta Oeste de los Caballeros: Sarcófagos de Piedra tallados (tile 30)
+  map[12][3] = 30; map[14][3] = 30;
+  map[12][5] = 30; map[14][5] = 30;
 
-  // Antorchas en las paredes de las criptas
-  map[2][11] = 17;
-  map[2][16] = 17;
-  map[10][4] = 17;
-  map[10][23] = 17;
+  // ⚰️ Cripta Este de los Monjes: Sarcófagos de Piedra tallados (tile 30)
+  map[12][22] = 30; map[14][22] = 30;
+  map[12][24] = 30; map[14][24] = 30;
 
-  // Escalera de salida hacia la superficie
+  // 🔥 Braseros Espectrales de Fuego Fatuo (tile 19)
+  map[11][11] = 19; map[11][16] = 19; // Sala central
+  map[14][11] = 19; map[14][16] = 19;
+  map[3][10] = 19;  map[3][17] = 19;  // Santuario del Jefe
+
+  // 💀 Urnas Funerarias y Montículos de Huesos con Cirios (tile 14)
+  map[10][2] = 14;  map[16][2] = 14;
+  map[10][25] = 14; map[16][25] = 14;
+  map[21][11] = 14; map[21][16] = 14;
+
+  // 🪦 Alfombra Ritual Púrpura hacia el Altar Mayor del Jefe (tile 2)
+  for (let y = 3; y <= 7; y++) {
+    map[y][13] = 2;
+    map[y][14] = 2;
+  }
+
+  // 🎁 Cofre de Reliquias Sagradas en el altar de la cámara del jefe
+  map[3][14] = 7;
+
+  // 🔥 Antorchas en las paredes de las criptas (tile 17)
+  map[2][11] = 17; map[2][16] = 17;
+  map[10][4] = 17; map[10][23] = 17;
+  map[13][10] = 17; map[13][17] = 17;
+  map[21][12] = 17; map[21][15] = 17;
+
+  // Escalera de salida hacia la superficie (tile 28)
   map[25][13] = 28;
   map[25][14] = 28;
 
