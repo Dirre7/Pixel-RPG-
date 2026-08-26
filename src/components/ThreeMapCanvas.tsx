@@ -95,6 +95,7 @@ import {
   getBlastFurnaceCanvas,
   getAnvilWorkstationCanvas,
   getOrePileCanvas,
+  getBlacksmithCuteHouseCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 // --- 🌟 2.5D HD PIXEL BILLBOARD SPRITE HELPERS ---
@@ -1214,9 +1215,11 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: stallGroup, gridX: x, gridY: y });
         }
 
-        // 🔨 Gran Edificio de la Forja Real y Maestranza (Tile 10)
+        // 🔨 Gran Forja Real y Maestranza (Cute Fantasy 2.5D HD - Tile 10)
         if (tileType === 10) {
-          const forgeGroup = create2DPixelSprite(getForgeCanvas(0), 5.6, 6.5, 2.2);
+          const houseImg = new Image();
+          houseImg.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
+          const forgeGroup = create2DPixelSprite(getBlacksmithCuteHouseCanvas(houseImg, 0), 4.8, 6.4, 1.8);
           forgeGroup.position.set(posX, elevation, posZ);
           addWorldEntity(forgeGroup, x, y);
           obstacleGroups.push({ group: forgeGroup, gridX: x, gridY: y });

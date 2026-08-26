@@ -46,6 +46,7 @@ import {
   getWaterTroughCanvas,
   getWoodenBenchCanvas,
   getRecoloredCuteHouseCanvas,
+  getBlacksmithCuteHouseCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -724,12 +725,22 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 10) {
-            // Gran Forja Imperial de Piedra y Maestranza Real (96x112 px)
+            // ⚒️ Gran Forja y Maestranza Real (Cute Fantasy 2.5D HD - 96x128 px)
             entities.push({
               ySort: posY + TILE_SIZE + 20,
               draw: (c) => {
-                const blacksmith = getForgeCanvas(time);
-                c.drawImage(blacksmith, posX - 32, posY - 76, 96, 112);
+                // Sombra de contacto
+                const hShadow = c.createRadialGradient(posX + 16, posY + 24, 6, posX + 16, posY + 24, 48);
+                hShadow.addColorStop(0, 'rgba(15, 23, 42, 0.7)');
+                hShadow.addColorStop(0.5, 'rgba(15, 23, 42, 0.35)');
+                hShadow.addColorStop(1, 'rgba(15, 23, 42, 0)');
+                c.fillStyle = hShadow;
+                c.beginPath();
+                c.ellipse(posX + 16, posY + 24, 48, 8, 0, 0, Math.PI * 2);
+                c.fill();
+
+                const blacksmithHouse = getBlacksmithCuteHouseCanvas(gameAssets.house, time);
+                c.drawImage(blacksmithHouse, 0, 0, 96, 128, posX - 32, posY - 76, 96, 128);
               },
             });
           } else if (tileType === 21) {

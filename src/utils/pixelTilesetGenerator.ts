@@ -766,6 +766,99 @@ export function getRecoloredCuteHouseCanvas(
 }
 
 /**
+ * ⚒️ GRAN FORJA Y HERRERÍA REAL (CUTE FANTASY 2.5D HD - 96x128 px)
+ * Misma arquitectura, madera y perspectiva 2.5D que la Taberna, con tejado de pizarra,
+ * chimenea humeante, ventanas con resplandor de fragua y rótulo de yunque dorado.
+ */
+export function getBlacksmithCuteHouseCanvas(
+  baseImg: HTMLImageElement,
+  time: number = 0
+): HTMLCanvasElement {
+  const baseHouse = getRecoloredCuteHouseCanvas(baseImg, 'stone');
+  const canvas = document.createElement('canvas');
+  canvas.width = 96;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // 1. Dibujar la casa base 2.5D de Cute Fantasy (tejado de pizarra)
+  ctx.drawImage(baseHouse, 0, 0);
+
+  // 2. Ventana con resplandor cálido de la fragua parpadeante
+  // Ventana superior (en buhardilla)
+  const flicker = Math.sin(time * 8) * 0.15 + 0.85;
+  ctx.fillStyle = `rgba(249, 115, 22, ${flicker})`;
+  ctx.fillRect(44, 46, 7, 7);
+  ctx.fillStyle = `rgba(254, 240, 138, ${flicker * 0.9})`;
+  ctx.fillRect(45, 47, 5, 5);
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(47, 46, 1, 7);
+  ctx.fillRect(44, 49, 7, 1);
+
+  // Ventana inferior derecha
+  ctx.fillStyle = `rgba(249, 115, 22, ${flicker})`;
+  ctx.fillRect(66, 68, 8, 8);
+  ctx.fillStyle = `rgba(254, 240, 138, ${flicker * 0.9})`;
+  ctx.fillRect(67, 69, 6, 6);
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(70, 68, 1, 8);
+  ctx.fillRect(66, 72, 8, 1);
+
+  // 3. Gran Chimenea de Cantería en el tejado con humo animado
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(68, 26, 8, 20);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(69, 28, 6, 17);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(67, 24, 10, 3); // Coronamiento de chimenea
+
+  // Bocanadas de humo animado
+  const sOffset1 = Math.sin(time * 3) * 3;
+  const sOffset2 = Math.cos(time * 2.5) * 4;
+  const sRise1 = (time * 12) % 18;
+  const sRise2 = ((time + 1) * 12) % 18;
+  ctx.fillStyle = 'rgba(203, 213, 225, 0.5)';
+  ctx.beginPath();
+  ctx.arc(72 + sOffset1, 20 - sRise1, 4 + (sRise1 / 4), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(148, 163, 184, 0.35)';
+  ctx.beginPath();
+  ctx.arc(74 + sOffset2, 12 - sRise2, 5 + (sRise2 / 3), 0, Math.PI * 2);
+  ctx.fill();
+
+  // 4. Rótulo de Madera de la Forja con Yunque Dorado sobre la entrada
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(36, 60, 24, 2); // Barra de hierro
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(38, 62, 20, 9);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(39, 63, 18, 7);
+  // Yunque dorado brillante
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(44, 65, 8, 3);
+  ctx.fillRect(42, 66, 12, 2);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(45, 65, 6, 1);
+
+  // 5. Cajas de Carbón y Leña al lado izquierdo del porche
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(20, 84, 12, 10);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(21, 85, 10, 8);
+  // Trozos de carbón negro
+  ctx.fillStyle = '#09090b';
+  ctx.fillRect(22, 82, 8, 3);
+  ctx.fillRect(24, 80, 4, 3);
+
+  // Troncos de leña apilados
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(14, 88, 5, 2);
+  ctx.fillRect(14, 91, 5, 2);
+
+  return canvas;
+}
+
+/**
  * 🏰 AYUNTAMIENTO / MANSIÓN CENTRAL DE PIEDRA (80x70 px)
  * Con escudo heráldico, columnas, arcada y tejado de tejas
  */
