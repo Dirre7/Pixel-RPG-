@@ -302,7 +302,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
       </div>
 
       {/* 3. Hero Stage Card & Creation Form (Zero-Scroll Compact View) */}
-      <div className="relative z-10 flex-1 grid grid-cols-1 md:grid-cols-12 gap-2 bg-slate-900/85 rounded-xl p-2 sm:p-3 border border-slate-800 shadow-xl overflow-hidden min-h-0">
+      <div className="relative z-10 flex-1 grid grid-cols-1 md:grid-cols-12 gap-2 bg-slate-900/85 rounded-xl p-2 sm:p-3 border border-slate-800 shadow-xl overflow-y-auto md:overflow-hidden min-h-0">
         {/* Left Column: 2.5D Hero Stage & Name */}
         <div className="md:col-span-5 flex flex-row md:flex-col items-center justify-between bg-slate-950/80 rounded-xl p-2 border border-slate-800/80 shadow-inner">
           {/* 2.5D Hero Canvas */}

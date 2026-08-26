@@ -747,26 +747,26 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       }}
     >
       {/* Top Banner: Enemy Info & Stage */}
-      <div className="w-full bg-slate-900/90 rounded-lg p-2 sm:p-3 border border-slate-800 flex justify-between items-center mb-1 sm:mb-2 flex-shrink-0">
+      <div className="w-full bg-slate-900/90 rounded-lg p-1.5 sm:p-3 border border-slate-800 flex justify-between items-center mb-1 flex-shrink-0">
         <div className="flex items-center space-x-2">
           {enemy.isBoss && <Skull className="w-4 h-4 text-red-500 animate-pulse" />}
           <div>
-            <h2 className="text-sm sm:text-lg font-bold text-amber-300">
+            <h2 className="text-xs sm:text-lg font-bold text-amber-300">
               {enemy.isBoss ? `👑 JEFE: ${enemy.name}` : enemy.name}
             </h2>
-            <p className="text-[10px] sm:text-xs text-slate-400 truncate max-w-[200px] sm:max-w-none">{enemy.description}</p>
+            <p className="text-[9px] sm:text-xs text-slate-400 truncate max-w-[160px] sm:max-w-none">{enemy.description}</p>
           </div>
         </div>
 
         <div className="text-right flex-shrink-0">
-          <span className="text-[10px] sm:text-xs px-2 py-0.5 sm:py-1 bg-red-950 text-red-300 border border-red-800 rounded">
+          <span className="text-[9px] sm:text-xs px-1.5 py-0.5 sm:py-1 bg-red-950 text-red-300 border border-red-800 rounded">
             {enemy.isBoss ? 'DESAFÍO ÉPICO' : 'COMBATE'}
           </span>
         </div>
       </div>
 
       {/* Main 2.5D Battle Arena Stage */}
-      <div className={`relative w-full flex-1 min-h-[160px] rounded-xl border-2 border-slate-800/80 p-2 flex flex-col justify-between overflow-hidden shadow-2xl bg-slate-950 ${playerIsHit || enemyIsHit ? 'animate-screen-shake' : ''}`}>
+      <div className={`relative w-full flex-1 min-h-[120px] rounded-xl border-2 border-slate-800/80 p-1.5 sm:p-2 flex flex-col justify-between overflow-hidden shadow-2xl bg-slate-950 ${playerIsHit || enemyIsHit ? 'animate-screen-shake' : ''}`}>
         {/* Floating Combat Text Overlay */}
         {floatingTexts.map((ft) => (
           <div
@@ -795,7 +795,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         )}
 
         {/* HUD OVERLAY TOP-LEFT: PLAYER HERO STATS */}
-        <div className="absolute top-3 left-3 z-20 pointer-events-none">
+        <div className="absolute top-2 left-2 z-20 pointer-events-none origin-top-left scale-75 sm:scale-100">
           <div className="bg-slate-950/90 backdrop-blur-md p-2.5 rounded-lg border border-emerald-500/40 w-52 sm:w-60 shadow-[0_0_15px_rgba(16,185,129,0.2)] space-y-1.5">
             <div className="flex justify-between items-center text-xs font-bold text-amber-300">
               <span className="truncate max-w-[130px]">
@@ -843,7 +843,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         </div>
 
         {/* HUD OVERLAY TOP-RIGHT: ENEMY STATS */}
-        <div className="absolute top-3 right-3 z-20 pointer-events-none">
+        <div className="absolute top-2 right-2 z-20 pointer-events-none origin-top-right scale-75 sm:scale-100">
           <div className="bg-slate-950/90 backdrop-blur-md p-2.5 rounded-lg border border-red-500/40 w-52 sm:w-60 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
             <div className="flex justify-between items-center text-xs font-bold text-red-400 mb-1">
               <span className="truncate max-w-[120px]">{enemy.name}</span>
@@ -866,7 +866,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         </div>
 
         {/* 🌟 AUTÉNTICA ARENA DE COMBATE 2.5D RETRO PIXEL ART */}
-        <div className="w-full h-full min-h-[300px]">
+        <div className="w-full h-full min-h-[120px] sm:min-h-[220px]">
           <PixelBattleCanvas
             player={player}
             equipment={inventory.equipment}
@@ -882,7 +882,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       </div>
 
       {/* Combat Log Text Box */}
-      <div className="w-full my-2 bg-slate-900/80 rounded-lg p-2.5 border border-slate-800 text-xs h-16 overflow-y-auto font-mono text-slate-300">
+      <div className="w-full my-1 bg-slate-900/80 rounded-lg p-1.5 sm:p-2.5 border border-slate-800 text-[10px] sm:text-xs h-10 sm:h-14 overflow-y-auto font-mono text-slate-300 flex-shrink-0">
         {combatLogs.length > 0 ? (
           combatLogs.map((log, idx) => (
             <div key={idx} className={idx === 0 ? 'text-amber-300 font-bold' : 'text-slate-400'}>
@@ -896,15 +896,15 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
       {/* Action Command Controls */}
       {battleState === 'in_progress' && (
-        <div className="w-full bg-slate-900 rounded-lg p-3 border border-slate-800">
+        <div className="w-full bg-slate-900 rounded-lg p-1.5 sm:p-2.5 border border-slate-800 flex-shrink-0">
           {activeMenu === 'main' && (
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2">
               <button
                 onClick={handlePlayerAttack}
                 disabled={turn !== 'player'}
-                className="flex items-center justify-center space-x-1.5 py-3 px-2 bg-red-900/80 hover:bg-red-800 disabled:opacity-50 text-red-100 rounded-lg border border-red-700 font-bold text-xs transition"
+                className="flex items-center justify-center space-x-1 py-2 sm:py-2.5 px-1.5 sm:px-2 bg-red-900/80 hover:bg-red-800 disabled:opacity-50 text-red-100 rounded-lg border border-red-700 font-bold text-[11px] sm:text-xs transition"
               >
-                <Swords className="w-4 h-4 text-red-300" />
+                <Swords className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-300" />
                 <span>Atacar [Z/A]</span>
               </button>
 
@@ -914,9 +914,9 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
                   soundEngine.playSfx('select');
                 }}
                 disabled={turn !== 'player'}
-                className="flex items-center justify-center space-x-1.5 py-3 px-2 bg-blue-900/80 hover:bg-blue-800 disabled:opacity-50 text-blue-100 rounded-lg border border-blue-700 font-bold text-xs transition"
+                className="flex items-center justify-center space-x-1 py-2 sm:py-2.5 px-1.5 sm:px-2 bg-blue-900/80 hover:bg-blue-800 disabled:opacity-50 text-blue-100 rounded-lg border border-blue-700 font-bold text-[11px] sm:text-xs transition"
               >
-                <Sparkles className="w-4 h-4 text-blue-300" />
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-300" />
                 <span>Habilidades</span>
               </button>
 
@@ -926,27 +926,27 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
                   soundEngine.playSfx('select');
                 }}
                 disabled={turn !== 'player'}
-                className="flex items-center justify-center space-x-1.5 py-3 px-2 bg-amber-900/80 hover:bg-amber-800 disabled:opacity-50 text-amber-100 rounded-lg border border-amber-700 font-bold text-xs transition"
+                className="flex items-center justify-center space-x-1 py-2 sm:py-2.5 px-1.5 sm:px-2 bg-amber-900/80 hover:bg-amber-800 disabled:opacity-50 text-amber-100 rounded-lg border border-amber-700 font-bold text-[11px] sm:text-xs transition"
               >
-                <Package className="w-4 h-4 text-amber-300" />
+                <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300" />
                 <span>Objetos</span>
               </button>
 
               <button
                 onClick={handleDefend}
                 disabled={turn !== 'player'}
-                className="flex items-center justify-center space-x-1.5 py-3 px-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 rounded-lg border border-slate-700 font-bold text-xs transition"
+                className="flex items-center justify-center space-x-1 py-2 sm:py-2.5 px-1.5 sm:px-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 rounded-lg border border-slate-700 font-bold text-[11px] sm:text-xs transition"
               >
-                <ShieldAlert className="w-4 h-4 text-sky-400" />
+                <ShieldAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400" />
                 <span>Defender</span>
               </button>
 
               <button
                 onClick={handleFlee}
                 disabled={turn !== 'player' || enemy.isBoss}
-                className="col-span-2 sm:col-span-1 flex items-center justify-center space-x-1.5 py-3 px-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-slate-400 rounded-lg border border-slate-800 font-bold text-xs transition"
+                className="col-span-2 sm:col-span-1 flex items-center justify-center space-x-1 py-2 sm:py-2.5 px-1.5 sm:px-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-slate-400 rounded-lg border border-slate-800 font-bold text-[11px] sm:text-xs transition"
               >
-                <Footprints className="w-4 h-4 text-slate-400" />
+                <Footprints className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                 <span>Huir [X/B]</span>
               </button>
             </div>
@@ -1039,7 +1039,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       {/* Victory / Defeat Resolution Overlay Modal */}
       {battleState !== 'in_progress' && (
         <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-40 rounded-xl">
-          <div className="bg-slate-900 border-2 border-slate-700 rounded-xl p-5 max-w-md w-full shadow-2xl text-center space-y-4">
+          <div className="bg-slate-900 border-2 border-slate-700 rounded-xl p-4 sm:p-5 max-w-md w-full shadow-2xl text-center space-y-3 max-h-[92dvh] overflow-y-auto">
             {battleState === 'victory' ? (
               <>
                 <div className="text-3xl sm:text-4xl">🏆</div>

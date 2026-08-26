@@ -29,7 +29,7 @@ export const BossVictoryModal: React.FC<BossVictoryModalProps> = ({
 }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-md animate-fade-in font-mono select-none">
-      <div className="relative w-full max-w-lg bg-slate-950 border-2 border-amber-500/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col p-5 sm:p-7 text-center text-slate-100">
+      <div className="relative w-full max-w-lg bg-slate-950 border-2 border-amber-500/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col p-4 sm:p-7 max-h-[90dvh] overflow-y-auto text-center text-slate-100">
         {/* Animated Glow Background */}
         <div className="absolute inset-0 bg-gradient-to-b from-amber-500/20 via-slate-900/40 to-slate-950 pointer-events-none" />
 

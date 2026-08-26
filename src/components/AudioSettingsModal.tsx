@@ -40,7 +40,7 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 z-50 font-mono">
-      <div className="bg-slate-900 border-2 border-slate-700 rounded-xl max-w-md w-full p-4 shadow-2xl space-y-4">
+      <div className="bg-slate-900 border-2 border-slate-700 rounded-xl max-w-md w-full p-4 shadow-2xl space-y-4 max-h-[90dvh] overflow-y-auto flex flex-col">
         <div className="flex justify-between items-center border-b border-slate-800 pb-2">
           <div className="flex items-center space-x-2">
             <Settings className="w-5 h-5 text-amber-400" />
