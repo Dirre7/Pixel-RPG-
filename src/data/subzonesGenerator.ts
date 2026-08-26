@@ -410,11 +410,15 @@ export function generateCryptDungeon(): SubZoneMapResult {
   // 🎁 Cofre de Reliquias Sagradas en el altar de la cámara del jefe
   map[3][14] = 7;
 
-  // 🔥 Antorchas en las paredes de las criptas (tile 17)
-  map[2][11] = 17; map[2][16] = 17;
-  map[10][4] = 17; map[10][23] = 17;
-  map[13][10] = 17; map[13][17] = 17;
+  // 🔥 Antorchas en las paredes de las criptas (tile 17 - en pilastras y muros, nunca en pasillos)
+  map[2][11] = 17;  map[2][16] = 17;
+  map[10][4] = 17;  map[10][23] = 17;
+  map[11][10] = 17; map[11][17] = 17; // Muros norte de la sala central
+  map[15][10] = 17; map[15][17] = 17; // Muros sur de la sala central
   map[21][12] = 17; map[21][15] = 17;
+
+  // Pasillos este y oeste totalmente diáfanos (tile 0)
+  map[13][10] = 0; map[13][17] = 0;
 
   // Escalera de salida hacia la superficie (tile 28)
   map[25][13] = 28;
