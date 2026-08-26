@@ -1149,10 +1149,10 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         );
       })()}
 
-      {/* 6. Mobile D-Pad Overlay (Bottom-Left con Safe Area) */}
+      {/* 6. Mobile D-Pad Overlay (Enlarged & Semi-Transparent Glassmorphic HUD) */}
       <div
         className={`absolute z-20 pointer-events-auto select-none transition-all origin-bottom-left ${
-          isMobileLandscape ? 'scale-70' : ''
+          isMobileLandscape ? 'scale-75' : ''
         }`}
         style={{
           bottom: isMobileLandscape ? 'max(0.25rem, env(safe-area-inset-bottom, 0.25rem))' : 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
@@ -1160,7 +1160,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           touchAction: 'none',
         }}
       >
-        <div className="grid grid-cols-3 gap-1 w-28 h-28 sm:w-36 sm:h-36 bg-slate-950/80 p-1 sm:p-1.5 rounded-full border border-amber-500/60 backdrop-blur-md shadow-2xl">
+        <div className="grid grid-cols-3 gap-1.5 w-36 h-36 sm:w-44 sm:h-44 bg-black/35 p-1.5 sm:p-2 rounded-full border-2 border-amber-500/30 backdrop-blur-[2px] shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
           <div />
           <button
             onPointerDown={(e) => {
@@ -1175,7 +1175,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
             }}
             onPointerLeave={stopHoldMove}
             onPointerCancel={stopHoldMove}
-            className="bg-slate-800/90 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-t-full border border-slate-600 flex items-center justify-center text-base sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
+            className="bg-white/10 active:bg-amber-500/60 hover:bg-white/20 text-amber-300 active:text-slate-950 rounded-t-full border border-amber-400/30 flex items-center justify-center text-lg sm:text-2xl font-black shadow-md active:scale-95 transition-all select-none"
             style={{ touchAction: 'none' }}
             aria-label="Mover Arriba"
           >
@@ -1195,7 +1195,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
             }}
             onPointerLeave={stopHoldMove}
             onPointerCancel={stopHoldMove}
-            className="bg-slate-800/90 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-l-full border border-slate-600 flex items-center justify-center text-base sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
+            className="bg-white/10 active:bg-amber-500/60 hover:bg-white/20 text-amber-300 active:text-slate-950 rounded-l-full border border-amber-400/30 flex items-center justify-center text-lg sm:text-2xl font-black shadow-md active:scale-95 transition-all select-none"
             style={{ touchAction: 'none' }}
             aria-label="Mover Izquierda"
           >
@@ -1207,7 +1207,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
               e.stopPropagation();
               handleInteract();
             }}
-            className="bg-amber-600 active:bg-amber-400 text-slate-950 rounded-full font-black text-xs sm:text-base shadow-lg border border-amber-300 flex items-center justify-center active:scale-90 transition-transform select-none"
+            className="bg-amber-500/30 hover:bg-amber-500/50 active:bg-amber-400 text-amber-200 active:text-slate-950 rounded-full font-black text-sm sm:text-lg shadow-lg border border-amber-400/60 flex items-center justify-center active:scale-90 transition-all select-none"
             style={{ touchAction: 'none' }}
             aria-label="Interactuar"
           >
@@ -1226,7 +1226,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
             }}
             onPointerLeave={stopHoldMove}
             onPointerCancel={stopHoldMove}
-            className="bg-slate-800/90 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-r-full border border-slate-600 flex items-center justify-center text-base sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
+            className="bg-white/10 active:bg-amber-500/60 hover:bg-white/20 text-amber-300 active:text-slate-950 rounded-r-full border border-amber-400/30 flex items-center justify-center text-lg sm:text-2xl font-black shadow-md active:scale-95 transition-all select-none"
             style={{ touchAction: 'none' }}
             aria-label="Mover Derecha"
           >
@@ -1246,7 +1246,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
             }}
             onPointerLeave={stopHoldMove}
             onPointerCancel={stopHoldMove}
-            className="bg-slate-800/90 active:bg-amber-500 hover:bg-slate-700 text-amber-300 active:text-slate-950 rounded-b-full border border-slate-600 flex items-center justify-center text-base sm:text-xl font-black shadow-md active:scale-90 transition-transform select-none"
+            className="bg-white/10 active:bg-amber-500/60 hover:bg-white/20 text-amber-300 active:text-slate-950 rounded-b-full border border-amber-400/30 flex items-center justify-center text-lg sm:text-2xl font-black shadow-md active:scale-95 transition-all select-none"
             style={{ touchAction: 'none' }}
             aria-label="Mover Abajo"
           >
@@ -1259,7 +1259,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       {/* 7. Action Button [A] & Floating Backpack [🎒] (Bottom-Right con Safe Area) */}
       <div
         className={`absolute z-20 flex flex-col items-center gap-2 pointer-events-auto select-none transition-all origin-bottom-right ${
-          isMobileLandscape ? 'scale-70' : ''
+          isMobileLandscape ? 'scale-75' : ''
         }`}
         style={{
           bottom: isMobileLandscape ? 'max(0.25rem, env(safe-area-inset-bottom, 0.25rem))' : 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
@@ -1269,11 +1269,14 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       >
         {/* Floating Backpack / Inventory Button */}
         <button
-          onClick={() => {
+          onPointerDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
             soundEngine.playSfx('select');
             onOpenInventory();
           }}
-          className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-950/85 hover:bg-slate-800 active:scale-90 text-amber-300 rounded-full border border-amber-500/70 shadow-2xl flex items-center justify-center backdrop-blur-md transition-transform"
+          className="w-11 h-11 sm:w-13 sm:h-13 bg-black/40 hover:bg-black/60 active:scale-90 text-amber-300 rounded-full border-2 border-amber-500/50 shadow-2xl flex items-center justify-center backdrop-blur-[2px] transition-transform"
+          style={{ touchAction: 'manipulation' }}
           title="Abrir Mochila e Inventario"
           aria-label="Abrir Inventario"
         >
@@ -1287,7 +1290,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
             e.stopPropagation();
             handleInteract();
           }}
-          className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-500 to-amber-600 active:from-amber-400 active:to-amber-500 text-slate-950 rounded-full font-black text-base sm:text-xl border-2 border-amber-300 shadow-2xl flex items-center justify-center active:scale-90 transition-transform select-none"
+          className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-500/85 to-amber-600/85 hover:from-amber-500 hover:to-amber-600 active:from-amber-400 active:to-amber-500 text-slate-950 rounded-full font-black text-lg sm:text-2xl border-2 border-amber-300 shadow-[0_4px_25px_rgba(245,158,11,0.4)] flex items-center justify-center active:scale-90 backdrop-blur-[2px] transition-transform select-none"
           style={{ touchAction: 'none' }}
           aria-label="Acción A"
         >
