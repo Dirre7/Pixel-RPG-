@@ -148,7 +148,13 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       }
     };
     resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    const handleOrientationOrResize = () => {
+      resizeCanvas();
+      setTimeout(resizeCanvas, 60);
+      setTimeout(resizeCanvas, 200);
+    };
+    window.addEventListener('resize', handleOrientationOrResize);
+    window.addEventListener('orientationchange', handleOrientationOrResize);
     ctx.imageSmoothingEnabled = false;
 
     // Carga Conjunta Armonizada: Cute Fantasy + Pixel Crawler
@@ -2105,7 +2111,11 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
     render();
 
-    return () => cancelAnimationFrame(animId);
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleOrientationOrResize);
+      window.removeEventListener('orientationchange', handleOrientationOrResize);
+    };
   }, [currentZone.id]);
 
   return (

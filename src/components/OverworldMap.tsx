@@ -119,6 +119,24 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   const [showZoneTravelModal, setShowZoneTravelModal] = useState(false);
   const [activeChestLoot, setActiveChestLoot] = useState<ChestLoot | null>(null);
   const [depletedNodes, setDepletedNodes] = useState<string[]>([]);
+  const [isMobileLandscape, setIsMobileLandscape] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerHeight <= 520 && window.innerWidth > window.innerHeight;
+  });
+
+  useEffect(() => {
+    const handleOrientationCheck = () => {
+      const isLandscape = window.innerHeight <= 520 && window.innerWidth > window.innerHeight;
+      setIsMobileLandscape(isLandscape);
+    };
+    handleOrientationCheck();
+    window.addEventListener('resize', handleOrientationCheck);
+    window.addEventListener('orientationchange', handleOrientationCheck);
+    return () => {
+      window.removeEventListener('resize', handleOrientationCheck);
+      window.removeEventListener('orientationchange', handleOrientationCheck);
+    };
+  }, []);
 
   // Initialize Sets from saved string arrays
   const [exploredTilesSets, setExploredTilesSets] = useState<Record<string, Set<string>>>(() => {
@@ -832,9 +850,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
       {/* 2. Top-Left: Player Hero & Vitals Dark Fantasy Beveled Box (Protegido con Safe Area) */}
       <div
-        className="absolute z-20 pointer-events-auto flex items-center gap-2 bg-[#0e0d18]/95 border-2 border-amber-600/70 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.85)] backdrop-blur-md font-mono min-w-[210px] sm:min-w-[270px] max-w-[310px]"
+        className={`absolute z-20 pointer-events-auto flex items-center gap-2 bg-[#0e0d18]/95 border-2 border-amber-600/70 rounded-xl sm:rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.85)] backdrop-blur-md font-mono transition-all origin-top-left ${
+          isMobileLandscape
+            ? 'scale-70 p-1.5 min-w-[210px] max-w-[260px]'
+            : 'p-2 sm:p-2.5 min-w-[210px] sm:min-w-[270px] max-w-[310px]'
+        }`}
         style={{
-          top: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))',
+          top: isMobileLandscape ? 'max(0.25rem, env(safe-area-inset-top, 0.25rem))' : 'max(0.5rem, env(safe-area-inset-top, 0.5rem))',
           left: 'max(0.5rem, env(safe-area-inset-left, 0.5rem))',
         }}
       >
@@ -950,11 +972,12 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         </div>
       </div>
 
-      {/* 4. Top-Right: Fast Travel, Save, Menu & Minimap Siempre Visible */}
       <div
-        className="absolute z-20 pointer-events-auto flex flex-col items-end gap-1 font-mono"
+        className={`absolute z-20 pointer-events-auto flex flex-col items-end gap-1 font-mono transition-all origin-top-right ${
+          isMobileLandscape ? 'scale-70' : ''
+        }`}
         style={{
-          top: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))',
+          top: isMobileLandscape ? 'max(0.25rem, env(safe-area-inset-top, 0.25rem))' : 'max(0.5rem, env(safe-area-inset-top, 0.5rem))',
           right: 'max(0.5rem, env(safe-area-inset-right, 0.5rem))',
         }}
       >
@@ -1050,9 +1073,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
         return (
           <div
-            className="absolute z-20 pointer-events-auto max-w-[190px] sm:max-w-[260px] transition-all"
+            className={`absolute z-20 pointer-events-auto transition-all origin-top-left ${
+              isMobileLandscape ? 'scale-70 max-w-[210px]' : 'max-w-[190px] sm:max-w-[260px]'
+            }`}
             style={{
-              top: 'calc(max(0.5rem, env(safe-area-inset-top, 0.5rem)) + 120px)',
+              top: isMobileLandscape
+                ? 'calc(max(0.25rem, env(safe-area-inset-top, 0.25rem)) + 74px)'
+                : 'calc(max(0.5rem, env(safe-area-inset-top, 0.5rem)) + 120px)',
               left: 'max(0.5rem, env(safe-area-inset-left, 0.5rem))',
             }}
           >
@@ -1104,9 +1131,11 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
       {/* 6. Mobile D-Pad Overlay (Bottom-Left con Safe Area) */}
       <div
-        className="absolute z-20 pointer-events-auto select-none"
+        className={`absolute z-20 pointer-events-auto select-none transition-all origin-bottom-left ${
+          isMobileLandscape ? 'scale-70' : ''
+        }`}
         style={{
-          bottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
+          bottom: isMobileLandscape ? 'max(0.25rem, env(safe-area-inset-bottom, 0.25rem))' : 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
           left: 'max(0.5rem, env(safe-area-inset-left, 0.5rem))',
           touchAction: 'none',
         }}
@@ -1209,9 +1238,11 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
       {/* 7. Action Button [A] & Floating Backpack [🎒] (Bottom-Right con Safe Area) */}
       <div
-        className="absolute z-20 flex flex-col items-center gap-2 pointer-events-auto select-none"
+        className={`absolute z-20 flex flex-col items-center gap-2 pointer-events-auto select-none transition-all origin-bottom-right ${
+          isMobileLandscape ? 'scale-70' : ''
+        }`}
         style={{
-          bottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
+          bottom: isMobileLandscape ? 'max(0.25rem, env(safe-area-inset-bottom, 0.25rem))' : 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
           right: 'max(0.5rem, env(safe-area-inset-right, 0.5rem))',
           touchAction: 'none',
         }}
@@ -1244,9 +1275,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         </button>
       </div>
 
-      {/* 8. Bottom Center: Floating Glassmorphic Hotbar (Elevada en móviles sobre el D-Pad y botón A) */}
+      {/* 8. Bottom Center: Floating Glassmorphic Hotbar (Adaptativa a orientación) */}
       <div
-        className="absolute z-20 pointer-events-auto left-1/2 -translate-x-1/2 bottom-[calc(max(0.5rem,env(safe-area-inset-bottom,0.5rem))+120px)] sm:bottom-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]"
+        className={`absolute z-20 pointer-events-auto left-1/2 -translate-x-1/2 transition-all ${
+          isMobileLandscape
+            ? 'bottom-[max(0.25rem,env(safe-area-inset-bottom,0.25rem))] scale-75 origin-bottom'
+            : 'bottom-[calc(max(0.5rem,env(safe-area-inset-bottom,0.5rem))+120px)] sm:bottom-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]'
+        }`}
       >
         <BottomActionBar
           player={player}
