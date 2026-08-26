@@ -101,6 +101,8 @@ import {
   getTavernTableCanvas,
   getTavernFireplaceCanvas,
   getTavernBarrelStackCanvas,
+  getWallTorchCanvas,
+  getTavernChandelierCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 // --- 🌟 2.5D HD PIXEL BILLBOARD SPRITE HELPERS ---
@@ -1320,12 +1322,25 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: woodGroup, gridX: x, gridY: y });
         }
 
-        // 🏮 Farola de la Calle / Poste de Luz (Tile 17)
+        // 🔥 Antorcha de Pared en Interiores / 🏮 Farola de la Calle (Tile 17)
         if (tileType === 17) {
-          const lampGroup = create3DLanternPostMesh(posX, posZ);
-          lampGroup.position.y += elevation;
-          addWorldEntity(lampGroup, x, y);
-          obstacleGroups.push({ group: lampGroup, gridX: x, gridY: y });
+          if (currentZone.isInterior || currentZone.id.includes('subzone')) {
+            const side = x <= 2 ? 'left' : x >= (currentZone.mapWidth || 18) - 2 ? 'right' : 'front';
+            const torchGroup = create2DPixelSprite(getWallTorchCanvas(0, side), 2.2, 2.2, 0.4);
+            torchGroup.position.set(posX, elevation + 0.5, posZ);
+            
+            const torchLight = new THREE.PointLight(0xf59e0b, 1.8, 6);
+            torchLight.position.set(0, 0.5, 0);
+            torchGroup.add(torchLight);
+
+            addWorldEntity(torchGroup, x, y);
+            obstacleGroups.push({ group: torchGroup, gridX: x, gridY: y });
+          } else {
+            const lampGroup = create3DLanternPostMesh(posX, posZ);
+            lampGroup.position.y += elevation;
+            addWorldEntity(lampGroup, x, y);
+            obstacleGroups.push({ group: lampGroup, gridX: x, gridY: y });
+          }
         }
 
         // 🪨 Cantera de Piedra Natural & Veta de Mineral (Tile 18)

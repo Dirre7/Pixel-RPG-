@@ -1232,6 +1232,138 @@ export function getTavernBarrelStackCanvas(): HTMLCanvasElement {
 }
 
 /**
+ * 🔥 ANTORCHA Y APLIQUE DE PARED MEDIEVAL DE FORJA (32x32 px)
+ * Con soporte de hierro, antorcha de madera con llama crepitante animada y halo cálido
+ */
+export function getWallTorchCanvas(
+  time: number = 0,
+  side: 'front' | 'left' | 'right' = 'front'
+): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  const flicker = Math.sin(time * 8) * 1.5;
+  const tX = side === 'left' ? 8 : side === 'right' ? 24 : 16;
+  const tY = 16;
+
+  // 1. Halo de luz cálida ámbar proyectado en la pared
+  const glow = ctx.createRadialGradient(tX, tY - 4, 2, tX, tY - 4, 16);
+  glow.addColorStop(0, 'rgba(251, 191, 36, 0.55)');
+  glow.addColorStop(0.5, 'rgba(245, 158, 11, 0.25)');
+  glow.addColorStop(1, 'rgba(245, 158, 11, 0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(tX, tY - 4, 16, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 2. Placa y soporte de hierro forjado en la pared
+  ctx.fillStyle = '#0f172a';
+  if (side === 'left') {
+    ctx.fillRect(2, tY + 2, 4, 8); // Placa pared
+    ctx.fillRect(4, tY + 4, 6, 3); // Brazo curvo
+  } else if (side === 'right') {
+    ctx.fillRect(26, tY + 2, 4, 8);
+    ctx.fillRect(22, tY + 4, 6, 3);
+  } else {
+    ctx.fillRect(tX - 4, tY + 4, 8, 8);
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(tX - 3, tY + 5, 6, 6);
+  }
+
+  // 3. Casquillo de bronce y mango de madera de la antorcha
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(tX - 2, tY - 2, 4, 12); // Palo de madera
+  ctx.fillStyle = '#b45309';
+  ctx.fillRect(tX - 3, tY - 4, 6, 4); // Casquillo de bronce
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(tX - 4, tY - 6, 8, 3); // Aro superior
+
+  // 4. Llama animada de fuego vivo
+  ctx.fillStyle = '#ea580c'; // Fuego exterior
+  ctx.beginPath();
+  ctx.ellipse(tX, tY - 9 + flicker * 0.5, 4, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#f59e0b'; // Núcleo naranja
+  ctx.beginPath();
+  ctx.ellipse(tX, tY - 8 + flicker * 0.4, 3, 4.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#fef08a'; // Brillo blanco/amarillo
+  ctx.beginPath();
+  ctx.ellipse(tX, tY - 7 + flicker * 0.3, 1.5, 2.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Chispas flotantes
+  const sparkY = ((time * 20) % 10);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(tX - 1 + Math.sin(time * 6) * 3, tY - 14 - sparkY, 1, 1);
+
+  return canvas;
+}
+
+/**
+ * 🕯️ CANDELABRO DE ARAÑA COLGANTE DE TABERNA (48x48 px)
+ */
+export function getTavernChandelierCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 48;
+  canvas.height = 48;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  const flicker = Math.sin(time * 7) * 1.2;
+
+  // Cadena superior de hierro
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(23, 0, 2, 16);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(23, 4, 2, 2);
+  ctx.fillRect(23, 10, 2, 2);
+
+  // Rueda de madera de roble y hierro
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.beginPath();
+  ctx.ellipse(24, 40, 18, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#451a03';
+  ctx.beginPath();
+  ctx.ellipse(24, 24, 20, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#78350f';
+  ctx.beginPath();
+  ctx.ellipse(24, 24, 18, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Aros de hierro
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // 4 Velas con llamas vivas
+  const candlePositions = [8, 16, 32, 40];
+  for (let i = 0; i < candlePositions.length; i++) {
+    const cX = candlePositions[i];
+    const cY = 20;
+
+    // Cera blanca
+    ctx.fillStyle = '#fef3c7';
+    ctx.fillRect(cX - 1, cY - 5, 3, 6);
+    // Llama
+    ctx.fillStyle = '#ea580c';
+    ctx.fillRect(cX - 2, cY - 9 + flicker * 0.4, 4, 4);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(cX - 1, cY - 8 + flicker * 0.3, 2, 3);
+  }
+
+  return canvas;
+}
+
+/**
  * 🏰 AYUNTAMIENTO / MANSIÓN CENTRAL DE PIEDRA (80x70 px)
  * Con escudo heráldico, columnas, arcada y tejado de tejas
  */

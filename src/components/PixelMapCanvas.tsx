@@ -52,6 +52,8 @@ import {
   getTavernTableCanvas,
   getTavernFireplaceCanvas,
   getTavernBarrelStackCanvas,
+  getWallTorchCanvas,
+  getTavernChandelierCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -1164,14 +1166,25 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 17) {
-            // Farola de Camino / Brasero de Forja
-            const lamp = getStreetLampCanvas(time);
-            entities.push({
-              ySort: posY + TILE_SIZE + 4,
-              draw: (c) => {
-                c.drawImage(lamp, posX - 8, posY - 20, 48, 56);
-              },
-            });
+            // 🔥 Antorchas de Pared en Interiores / 🏮 Farolas de Calle en Exteriores
+            if (currentZone.isInterior || currentZone.id.includes('subzone')) {
+              const side = x <= 2 ? 'left' : x >= (currentZone.mapWidth || 18) - 2 ? 'right' : 'front';
+              const torch = getWallTorchCanvas(time, side);
+              entities.push({
+                ySort: posY + TILE_SIZE + 4,
+                draw: (c) => {
+                  c.drawImage(torch, posX, posY - 6, 32, 32);
+                },
+              });
+            } else {
+              const lamp = getStreetLampCanvas(time);
+              entities.push({
+                ySort: posY + TILE_SIZE + 4,
+                draw: (c) => {
+                  c.drawImage(lamp, posX - 8, posY - 20, 48, 56);
+                },
+              });
+            }
           } else if (tileType === 18) {
             // Rocas Redondeadas con Musgo (Estilo Cute Fantasy) o Columnas de Mármol con Hiedra
             const isBoulder = currentZone.id === 'zone_forest' && ((x * 13 + y * 7) % 2 === 0);
