@@ -96,6 +96,11 @@ import {
   getAnvilWorkstationCanvas,
   getOrePileCanvas,
   getBlacksmithCuteHouseCanvas,
+  getTavernCuteHouseCanvas,
+  getTavernBarCounterCanvas,
+  getTavernTableCanvas,
+  getTavernFireplaceCanvas,
+  getTavernBarrelStackCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 // --- 🌟 2.5D HD PIXEL BILLBOARD SPRITE HELPERS ---
@@ -1158,9 +1163,11 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: shopGroup, gridX: x, gridY: y });
         }
 
-        // Inn (Tavern / Inn Building - Tile 5)
+        // 🍺 Gran Taberna y Posada "El Jabalí Dorado" (Cute Fantasy 2.5D HD - Tile 5)
         if (tileType === 5) {
-          const tavernGroup = create2DPixelSprite(getStoneManorCanvas(), 5.2, 5.2, 1.8);
+          const houseImg = new Image();
+          houseImg.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
+          const tavernGroup = create2DPixelSprite(getTavernCuteHouseCanvas(houseImg, 0), 4.8, 6.4, 1.8);
           tavernGroup.position.set(posX, elevation, posZ);
           addWorldEntity(tavernGroup, x, y);
           obstacleGroups.push({ group: tavernGroup, gridX: x, gridY: y });
@@ -1225,13 +1232,19 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: forgeGroup, gridX: x, gridY: y });
         }
 
-        // 🌋 Gran Horno de Fundición / Hoguera (Tile 19)
+        // 🌋 Gran Horno de Fundición / Chimenea de Taberna / Hoguera (Tile 19)
         if (tileType === 19) {
           const isForge = currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge';
-          const furnaceGroup = create2DPixelSprite(isForge ? getBlastFurnaceCanvas(0) : getCampfireCanvas(0), isForge ? 4.4 : 2.5, isForge ? 4.4 : 2.5, 1.2);
+          const isTavern = currentZone.interiorType === 'tavern' || currentZone.id === 'subzone_tavern';
+          const furnaceGroup = create2DPixelSprite(
+            isForge ? getBlastFurnaceCanvas(0) : isTavern ? getTavernFireplaceCanvas(0) : getCampfireCanvas(0),
+            isForge ? 4.4 : isTavern ? 4.0 : 2.5,
+            isForge ? 4.4 : isTavern ? 4.0 : 2.5,
+            1.2
+          );
           furnaceGroup.position.set(posX, elevation, posZ);
           
-          if (isForge) {
+          if (isForge || isTavern) {
             const fireLight = new THREE.PointLight(0xf97316, 2.5, 8);
             fireLight.position.set(0, 1.5, 0);
             furnaceGroup.add(fireLight);
@@ -1239,6 +1252,22 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
 
           addWorldEntity(furnaceGroup, x, y);
           obstacleGroups.push({ group: furnaceGroup, gridX: x, gridY: y });
+        }
+
+        // 🪑 Mesas de Comedor de Taberna con Banquete (Tile 30)
+        if (tileType === 30) {
+          const tableGroup = create2DPixelSprite(getTavernTableCanvas(), 2.6, 2.6, 0.8);
+          tableGroup.position.set(posX, elevation, posZ);
+          addWorldEntity(tableGroup, x, y);
+          obstacleGroups.push({ group: tableGroup, gridX: x, gridY: y });
+        }
+
+        // 🍷 Gran Barra del Tabernero (Tile 31)
+        if (tileType === 31) {
+          const barGroup = create2DPixelSprite(getTavernBarCounterCanvas(0), 2.8, 2.8, 0.8);
+          barGroup.position.set(posX, elevation, posZ);
+          addWorldEntity(barGroup, x, y);
+          obstacleGroups.push({ group: barGroup, gridX: x, gridY: y });
         }
 
         // 🔨 Yunque de Herrero y Estación de Trabajo (Tile 29)
@@ -2331,6 +2360,36 @@ function createProceduralGroundPBRTextures(zoneId: string): { diffuse: THREE.Can
     for (let i = 0; i < 200; i++) {
       ctx.fillStyle = Math.random() > 0.5 ? '#ea580c' : '#f59e0b';
       ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
+    }
+  } else if (zoneId === 'subzone_tavern' || zoneId.includes('tavern')) {
+    // 🪵 Warm Polished Oak Parquet Ground for Tavern & Inn
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(0, 0, 512, 512);
+
+    const plankH = 32;
+    for (let py = 0; py < 512; py += plankH) {
+      const tone = (py / plankH) % 3;
+      ctx.fillStyle = tone === 0 ? '#78350f' : tone === 1 ? '#92400e' : '#854d0e';
+      ctx.fillRect(0, py, 512, plankH - 2);
+
+      // Wood grain streaks
+      for (let i = 0; i < 25; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? '#b45309' : '#a16207';
+        ctx.fillRect(Math.random() * 512, py + 4 + Math.random() * (plankH - 8), 30 + Math.random() * 50, 2);
+      }
+    }
+
+    // Dark plank groove lines
+    ctx.fillStyle = '#271202';
+    for (let py = 0; py < 512; py += plankH) {
+      ctx.fillRect(0, py + plankH - 2, 512, 2);
+    }
+    // Staggered vertical plank joints
+    for (let py = 0; py < 512; py += plankH) {
+      const offset = (py / plankH) * 120;
+      for (let px = (offset % 160); px < 512; px += 160) {
+        ctx.fillRect(px, py, 2, plankH - 2);
+      }
     }
   } else if (zoneId === 'zone_volcano') {
     // Cracked Basalt Slabs with Glowing Magma Fissures

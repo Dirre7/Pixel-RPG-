@@ -47,6 +47,11 @@ import {
   getWoodenBenchCanvas,
   getRecoloredCuteHouseCanvas,
   getBlacksmithCuteHouseCanvas,
+  getTavernCuteHouseCanvas,
+  getTavernBarCounterCanvas,
+  getTavernTableCanvas,
+  getTavernFireplaceCanvas,
+  getTavernBarrelStackCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -695,32 +700,13 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 c.ellipse(posX + 16, posY + 24, 48, 8, 0, 0, Math.PI * 2);
                 c.fill();
 
-                const houseCanvas = getRecoloredCuteHouseCanvas(gameAssets.house, vName);
-                c.drawImage(houseCanvas, 0, 0, 96, 128, posX - 32, posY - 76, 96, 128);
-
-                // Toldo de rayas rojas y blancas sobre el porche de la taberna (Estilo Cute Fantasy Reference)
-                if (x === 27 && y === 24) {
-                  // Toldo a rayas rojas y blancas
-                  for (let i = 0; i < 6; i++) {
-                    c.fillStyle = i % 2 === 0 ? '#dc2626' : '#ffffff';
-                    c.fillRect(posX - 28 + i * 6, posY - 12, 6, 12);
-                  }
-                  c.fillStyle = '#991b1b';
-                  c.fillRect(posX - 28, posY, 36, 2);
-
-                  // Cajas de tomates / manzanas
-                  c.fillStyle = '#78350f';
-                  c.fillRect(posX + 12, posY - 4, 14, 10);
-                  c.fillStyle = '#dc2626';
-                  c.fillRect(posX + 14, posY - 6, 10, 4);
-
-                  // Barril con pescado al lado
-                  c.fillStyle = '#451a03';
-                  c.fillRect(posX - 38, posY - 4, 8, 14);
-                  c.fillStyle = '#78350f';
-                  c.fillRect(posX - 37, posY - 3, 6, 12);
-                  c.fillStyle = '#38bdf8';
-                  c.fillRect(posX - 36, posY - 6, 4, 3);
+                if (x === 31 && y === 51) {
+                  // 🍺 Gran Taberna y Posada "El Jabalí Dorado" (Cute Fantasy 2.5D HD - 96x128 px)
+                  const tavernHouse = getTavernCuteHouseCanvas(gameAssets.house, time);
+                  c.drawImage(tavernHouse, 0, 0, 96, 128, posX - 32, posY - 76, 96, 128);
+                } else {
+                  const houseCanvas = getRecoloredCuteHouseCanvas(gameAssets.house, vName);
+                  c.drawImage(houseCanvas, 0, 0, 96, 128, posX - 32, posY - 76, 96, 128);
                 }
               },
             });
@@ -873,43 +859,53 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 14) {
-            // 🪵 Barriles de Roble, Cajas de Mercancías y Pilas de Leña
-            const isCrate = (x * 7 + y * 13) % 2 === 0;
-            entities.push({
-              ySort: posY + TILE_SIZE,
-              draw: (c) => {
-                c.fillStyle = 'rgba(0, 0, 0, 0.35)';
-                c.beginPath();
-                c.ellipse(posX + 16, posY + 26, 10, 4, 0, 0, Math.PI * 2);
-                c.fill();
-                if (isCrate) {
-                  // Cajas de madera apiladas
-                  c.fillStyle = '#78350f';
-                  c.fillRect(posX + 4, posY + 8, 24, 20);
-                  c.fillStyle = '#92400e';
-                  c.fillRect(posX + 6, posY + 10, 20, 16);
-                  c.fillStyle = '#d97706';
-                  c.fillRect(posX + 5, posY + 9, 2, 18);
-                  c.fillRect(posX + 25, posY + 9, 2, 18);
-                  c.fillRect(posX + 5, posY + 9, 22, 2);
-                  c.fillRect(posX + 5, posY + 25, 22, 2);
-                } else {
-                  // Barril de roble con aros de hierro
-                  c.fillStyle = '#451a03';
+            // 🍷 Bodega de Barriles en Taberna, o Barriles/Cajas en Aldea
+            if (currentZone.interiorType === 'tavern' || currentZone.id === 'subzone_tavern') {
+              const barrelStack = getTavernBarrelStackCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(barrelStack, posX, posY, 32, 32);
+                },
+              });
+            } else {
+              const isCrate = (x * 7 + y * 13) % 2 === 0;
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.fillStyle = 'rgba(0, 0, 0, 0.35)';
                   c.beginPath();
-                  c.ellipse(posX + 16, posY + 16, 10, 12, 0, 0, Math.PI * 2);
+                  c.ellipse(posX + 16, posY + 26, 10, 4, 0, 0, Math.PI * 2);
                   c.fill();
-                  c.fillStyle = '#78350f';
-                  c.beginPath();
-                  c.ellipse(posX + 16, posY + 16, 8, 11, 0, 0, Math.PI * 2);
-                  c.fill();
-                  // Aros de hierro
-                  c.fillStyle = '#64748b';
-                  c.fillRect(posX + 8, posY + 10, 16, 2);
-                  c.fillRect(posX + 8, posY + 22, 16, 2);
-                }
-              },
-            });
+                  if (isCrate) {
+                    // Cajas de madera apiladas
+                    c.fillStyle = '#78350f';
+                    c.fillRect(posX + 4, posY + 8, 24, 20);
+                    c.fillStyle = '#92400e';
+                    c.fillRect(posX + 6, posY + 10, 20, 16);
+                    c.fillStyle = '#d97706';
+                    c.fillRect(posX + 5, posY + 9, 2, 18);
+                    c.fillRect(posX + 25, posY + 9, 2, 18);
+                    c.fillRect(posX + 5, posY + 9, 22, 2);
+                    c.fillRect(posX + 5, posY + 25, 22, 2);
+                  } else {
+                    // Barril de roble con aros de hierro
+                    c.fillStyle = '#451a03';
+                    c.beginPath();
+                    c.ellipse(posX + 16, posY + 16, 10, 12, 0, 0, Math.PI * 2);
+                    c.fill();
+                    c.fillStyle = '#78350f';
+                    c.beginPath();
+                    c.ellipse(posX + 16, posY + 16, 8, 11, 0, 0, Math.PI * 2);
+                    c.fill();
+                    // Aros de hierro
+                    c.fillStyle = '#64748b';
+                    c.fillRect(posX + 8, posY + 10, 16, 2);
+                    c.fillRect(posX + 8, posY + 22, 16, 2);
+                  }
+                },
+              });
+            }
           } else if (tileType === 6) {
             // Molino de Viento con aspas
             entities.push({
@@ -1225,13 +1221,21 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 19) {
-            // Gran Horno de Fundición en la Forja, o Hoguera en exteriores
+            // Gran Horno de Fundición en la Forja, Chimenea en Taberna, o Hoguera en exteriores
             if (currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge') {
               const blastFurnace = getBlastFurnaceCanvas(time);
               entities.push({
                 ySort: posY + TILE_SIZE + 10,
                 draw: (c) => {
                   c.drawImage(blastFurnace, posX - 16, posY - 28, 64, 64);
+                },
+              });
+            } else if (currentZone.interiorType === 'tavern' || currentZone.id === 'subzone_tavern') {
+              const tavernFireplace = getTavernFireplaceCanvas(time);
+              entities.push({
+                ySort: posY + TILE_SIZE + 8,
+                draw: (c) => {
+                  c.drawImage(tavernFireplace, posX - 8, posY - 14, 48, 48);
                 },
               });
             } else if (gameAssets.bonfire.complete && gameAssets.bonfire.naturalWidth > 0) {
@@ -1251,6 +1255,24 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             }
+          } else if (tileType === 30) {
+            // 🪑 Mesas de Comedor de la Taberna con Banquete y Taburetes
+            const tavernTable = getTavernTableCanvas();
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(tavernTable, posX, posY, 32, 32);
+              },
+            });
+          } else if (tileType === 31) {
+            // 🍷 Gran Barra de Tabernero y Mostrador de Roble
+            const barCounter = getTavernBarCounterCanvas(time);
+            entities.push({
+              ySort: posY + TILE_SIZE,
+              draw: (c) => {
+                c.drawImage(barCounter, posX, posY, 32, 32);
+              },
+            });
           } else if (tileType === 20) {
             // Árbol del Bosque Encantado (Follaje Púrpura 2.5D)
             const { trunk: encTrunk, canopy: encCanopy } = getEnchantedTreeCanvas();

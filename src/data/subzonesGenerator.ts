@@ -9,53 +9,85 @@ export interface SubZoneMapResult {
 }
 
 /**
- * 1. 🍻 TABERNA Y POSADA "EL JABALÍ DORADO" (18x14)
- * Interior acogedor de madera con chimenea, barra, mesas y barriles.
+ * 1. 🍻 TABERNA Y POSADA "EL JABALÍ DORADO" (18x16)
+ * Gran salón acogedor de madera con chimenea monumental, barra de tabernero,
+ * mesas de banquete con comida y jarras, bodega de barriles y alfombra roja bordada.
  */
 export function generateTavernInterior(): SubZoneMapResult {
   const width = 18;
-  const height = 14;
+  const height = 16;
   const map: number[][] = [];
 
   for (let y = 0; y < height; y++) {
     const row: number[] = [];
     for (let x = 0; x < width; x++) {
-      // Muros perimetrales
       if (y === 0 || y === height - 1 || x === 0 || x === width - 1) {
-        row.push(1); // Muro de madera noble
+        row.push(1); // Muros de madera de roble noble y vigas
       } else {
-        row.push(0); // Suelo de parqué de roble
+        row.push(0); // Suelo de parqué de roble pulido
       }
     }
     map.push(row);
   }
 
-  // Chimenea en la pared norte
-  map[1][9] = 19; // Fuego ardiente
-  map[1][8] = 1;  // Mampostería de chimenea
-  map[1][10] = 1; // Mampostería de chimenea
+  // Columnas maestras de madera
+  map[4][4] = 1;
+  map[4][13] = 1;
+  map[10][4] = 1;
+  map[10][13] = 1;
 
-  // Barra del Tabernero en la esquina noroeste
-  for (let x = 2; x <= 6; x++) map[3][x] = 1;
-  map[4][6] = 1;
-  map[5][6] = 1;
+  // Gran Chimenea de piedra con cornamenta en la pared norte
+  map[1][8] = 19;
+  map[1][9] = 19;
+  map[1][7] = 1;
+  map[1][10] = 1;
 
-  // Lámparas en las paredes
-  map[1][3] = 17;
-  map[1][15] = 17;
-  map[7][1] = 17;
-  map[7][16] = 17;
+  // Gran Barra del Tabernero en la esquina noroeste (tile 31)
+  map[3][2] = 31;
+  map[3][3] = 31;
+  map[3][4] = 31;
+  map[3][5] = 31;
+  map[4][5] = 31;
+  map[5][5] = 31;
 
-  // Alfombra central
-  for (let y = 6; y <= 9; y++) {
-    for (let x = 7; x <= 11; x++) {
-      map[y][x] = 2; // Alfombra roja bordada
+  // Mesas de Comedor de la Taberna con Banquete y Taburetes (tile 30)
+  map[7][3] = 30;   // Mesa Oeste Superior
+  map[11][3] = 30;  // Mesa Oeste Inferior
+  map[7][14] = 30;  // Mesa Este Superior
+  map[11][14] = 30; // Mesa Este Inferior
+
+  // Gran Alfombra Roja Real Bordada en el centro (tile 2)
+  for (let y = 6; y <= 10; y++) {
+    for (let x = 7; x <= 10; x++) {
+      map[y][x] = 2;
     }
   }
 
-  // Puerta de salida hacia la Plaza Mayor
-  map[height - 1][9] = 28; // Puerta principal de salida
-  map[height - 2][9] = 2;  // Felpudo de bienvenida
+  // Bodega de Barriles de Cerveza y Vino en la esquina noreste (tile 14)
+  map[2][14] = 14;
+  map[2][15] = 14;
+  map[3][15] = 14;
+  map[4][15] = 14;
+
+  // Lámparas y Candiles de Pared (tile 17)
+  map[1][2] = 17;
+  map[1][15] = 17;
+  map[5][1] = 17;
+  map[5][16] = 17;
+  map[9][1] = 17;
+  map[9][16] = 17;
+  map[13][1] = 17;
+  map[13][16] = 17;
+
+  // Camino de entrada con felpudo (tile 2)
+  for (let y = 11; y < height - 1; y++) {
+    map[y][8] = 2;
+    map[y][9] = 2;
+  }
+
+  // Puerta doble de salida hacia la aldea (tile 28)
+  map[height - 1][8] = 28;
+  map[height - 1][9] = 28;
 
   return { width, height, tileData: map };
 }

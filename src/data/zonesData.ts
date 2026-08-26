@@ -2079,10 +2079,18 @@ export const ZONES: Zone[] = [
     tileData: tavernWorld.tileData,
     portals: [
       {
-        x: 9,
-        y: 13,
+        x: 8,
+        y: 15,
         targetZoneId: 'zone_forest',
-        targetPos: { x: 31, y: 54 },
+        targetPos: { x: 31, y: 53 },
+        label: 'Salir a la Plaza Mayor de Aethelgard',
+        isDoor: true,
+      },
+      {
+        x: 9,
+        y: 15,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 31, y: 53 },
         label: 'Salir a la Plaza Mayor de Aethelgard',
         isDoor: true,
       },
@@ -2121,8 +2129,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_tavern_bard',
         zoneId: 'subzone_tavern',
-        x: 13,
-        y: 5,
+        x: 9,
+        y: 8,
         name: 'Bardo Elorien',
         title: 'Trovador Errante',
         avatarStyle: 'scout',
@@ -2135,8 +2143,8 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_tavern_veteran',
         zoneId: 'subzone_tavern',
-        x: 13,
-        y: 10,
+        x: 4,
+        y: 7,
         name: 'Capitán Jubilado Ronald',
         title: 'Veterano de la Guardia Real',
         avatarStyle: 'knight',

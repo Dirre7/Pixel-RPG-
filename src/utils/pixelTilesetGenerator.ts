@@ -23,10 +23,40 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
   const phase = Math.floor(animPhase % 4);
 
   // ---------------------------------------------------------------------------
-  // 0. SUELO BASE: CÉSPED FRONDOSO / LOSAS DE FORJA / PIEDRA IGNÍFUGA
+  // 0. SUELO BASE: CÉSPED / FORJA / PARQUÉ DE TABERNA / PIEDRA IGNÍFUGA
   // ---------------------------------------------------------------------------
   if (tileType === 0) {
-    if (zoneId === 'subzone_forge' || zoneId.includes('forge')) {
+    if (zoneId === 'subzone_tavern' || zoneId.includes('tavern')) {
+      // 🪵 Suelo de Taberna Medieval: Parqué de tablones de roble noble pulido
+      ctx.fillStyle = '#451a03'; // Base de sombra
+      ctx.fillRect(0, 0, 32, 32);
+
+      // Tablones horizontales de roble
+      const drawPlank = (y: number, h: number, tone: number) => {
+        ctx.fillStyle = tone === 0 ? '#78350f' : tone === 1 ? '#92400e' : '#854d0e';
+        ctx.fillRect(0, y, 32, h - 1);
+        // Veta de madera
+        ctx.fillStyle = tone === 0 ? '#92400e' : '#a16207';
+        ctx.fillRect(4, y + 2, 16, 1);
+        ctx.fillRect(22, y + 4, 8, 1);
+        // Clavos de hierro en los extremos
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(2, y + 3, 1, 1);
+        ctx.fillRect(30, y + 3, 1, 1);
+      };
+
+      drawPlank(0, 8, 0);
+      drawPlank(8, 8, 1);
+      drawPlank(16, 8, 2);
+      drawPlank(24, 8, 0);
+
+      // Juntas verticales escalonadas
+      ctx.fillStyle = '#271202';
+      ctx.fillRect(14, 0, 1, 7);
+      ctx.fillRect(24, 8, 1, 7);
+      ctx.fillRect(10, 16, 1, 7);
+      ctx.fillRect(20, 24, 1, 7);
+    } else if (zoneId === 'subzone_forge' || zoneId.includes('forge')) {
       // Suelo de Taller de Herrería: Losas de basalto oscuras con hollín y polvo de carbón
       ctx.fillStyle = '#1c1917'; // Base losa oscura
       ctx.fillRect(0, 0, 32, 32);
@@ -138,6 +168,36 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
   // 2. CALZADAS Y PLAZAS DE ADOQUINES MEDIEVALES CÁLIDOS (SEAMLESS 2.5D)
   // ---------------------------------------------------------------------------
   else if (tileType === 2) {
+    if (zoneId === 'subzone_tavern' || zoneId.includes('tavern')) {
+      // 🔴 Alfombra Roja Real de Terciopelo con Cenefa Dorada
+      ctx.fillStyle = '#7f1d1d'; // Borde sombra
+      ctx.fillRect(0, 0, 32, 32);
+      ctx.fillStyle = '#991b1b'; // Terciopelo rojo
+      ctx.fillRect(2, 2, 28, 28);
+      ctx.fillStyle = '#b91c1c';
+      ctx.fillRect(4, 4, 24, 24);
+
+      // Cenefa dorada bordada
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(3, 3, 26, 26);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(3, 3, 2, 2);
+      ctx.fillRect(27, 3, 2, 2);
+      ctx.fillRect(3, 27, 2, 2);
+      ctx.fillRect(27, 27, 2, 2);
+
+      // Patrón de rombos bordados en el centro
+      ctx.fillStyle = '#d97706';
+      ctx.beginPath();
+      ctx.moveTo(16, 8); ctx.lineTo(24, 16); ctx.lineTo(16, 24); ctx.lineTo(8, 16);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(15, 15, 2, 2);
+      return canvas;
+    }
+
     // Mortero de tierra y piedra cálida continua
     ctx.fillStyle = '#5c4e3f';
     ctx.fillRect(0, 0, 32, 32);
@@ -854,6 +914,319 @@ export function getBlacksmithCuteHouseCanvas(
   ctx.fillStyle = '#92400e';
   ctx.fillRect(14, 88, 5, 2);
   ctx.fillRect(14, 91, 5, 2);
+
+  return canvas;
+}
+
+/**
+ * 🍺 GRAN TABERNA Y POSADA "EL JABALÍ DORADO" (CUTE FANTASY 2.5D HD - 96x128 px)
+ * Tejado cálido de terracota/madera, toldo festivo a rayas rojas y blancas,
+ * jarras de cerveza, barriles de roble y rótulo de posada con jarra de cerveza espumosa.
+ */
+export function getTavernCuteHouseCanvas(
+  baseImg: HTMLImageElement,
+  time: number = 0
+): HTMLCanvasElement {
+  const baseHouse = getRecoloredCuteHouseCanvas(baseImg, 'red');
+  const canvas = document.createElement('canvas');
+  canvas.width = 96;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // 1. Dibujar la casa base 2.5D con tejado rojo cálido
+  ctx.drawImage(baseHouse, 0, 0);
+
+  // 2. Toldo festivo a rayas rojas y blancas sobre el porche (Perspectiva 2.5D)
+  const awningW = 44;
+  const awningH = 14;
+  const aX = 26;
+  const aY = 66;
+
+  // Faldón de rayas rojas y blancas con volantes
+  for (let i = 0; i < 7; i++) {
+    ctx.fillStyle = i % 2 === 0 ? '#dc2626' : '#f8fafc';
+    ctx.fillRect(aX + i * 6, aY, 6, awningH);
+    // Borde inferior ondeado / festoneado
+    ctx.fillStyle = i % 2 === 0 ? '#991b1b' : '#cbd5e1';
+    ctx.fillRect(aX + i * 6 + 1, aY + awningH, 4, 3);
+  }
+  // Viga de soporte del toldo
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(aX - 2, aY - 2, awningW + 4, 2);
+
+  // Guirnalda de farolillos cálidos festivos bajo el toldo
+  for (let i = 0; i < 4; i++) {
+    const lX = aX + 4 + i * 11;
+    const lY = aY + awningH + 2;
+    const lGlow = Math.sin(time * 4 + i) * 0.2 + 0.8;
+    ctx.fillStyle = `rgba(251, 191, 36, ${lGlow})`;
+    ctx.fillRect(lX, lY, 3, 4);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(lX + 1, lY + 1, 1, 2);
+  }
+
+  // 3. Rótulo colgante de taberna con Jarra de Cerveza Dorada (`🍺`)
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(40, 52, 20, 2); // Soporte de hierro
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(42, 54, 18, 9);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(43, 55, 16, 7);
+  // Jarra de cerveza dorada con espuma blanca
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(48, 57, 6, 4);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(49, 58, 4, 3);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(48, 56, 6, 2); // Espuma
+  // Asa de la jarra
+  ctx.fillStyle = '#d97706';
+  ctx.fillRect(54, 58, 2, 2);
+
+  // 4. Barriles de Roble y Cerveza a los lados del porche
+  // Barril izquierdo
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(16, 84, 10, 14);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(17, 85, 8, 12);
+  // Aros de hierro del barril
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(16, 87, 10, 2);
+  ctx.fillRect(16, 93, 10, 2);
+  // Grifo de latón dorado
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(14, 90, 3, 2);
+
+  // Barril derecho / Cesta de manzanas
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(72, 86, 10, 12);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(73, 87, 8, 10);
+  ctx.fillStyle = '#ea580c';
+  ctx.fillRect(74, 85, 6, 3); // Manzanas
+
+  return canvas;
+}
+
+/**
+ * 🍷 BARRA DE TABERNERO Y MOSTRADOR DE ROBLE (32x32 px)
+ */
+export function getTavernBarCounterCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 14, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Cuerpo del mostrador de madera de caoba
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(2, 10, 28, 18);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(4, 12, 24, 15);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(6, 14, 20, 12);
+
+  // Tablero superior de roble barnizado con brillo
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(0, 8, 32, 5);
+  ctx.fillStyle = '#b45309';
+  ctx.fillRect(1, 8, 30, 2);
+
+  // Botellas de vino y licor sobre la barra
+  ctx.fillStyle = '#15803d'; // Botella verde
+  ctx.fillRect(4, 3, 3, 6);
+  ctx.fillStyle = '#dc2626'; // Botella de vino tinto
+  ctx.fillRect(9, 2, 3, 7);
+  ctx.fillStyle = '#38bdf8'; // Botella de licor azul
+  ctx.fillRect(14, 4, 3, 5);
+
+  // Jarras de cerveza de barro
+  ctx.fillStyle = '#d97706';
+  ctx.fillRect(20, 4, 4, 5);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(20, 3, 4, 2); // Espuma blanca
+
+  ctx.fillStyle = '#d97706';
+  ctx.fillRect(26, 4, 4, 5);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(26, 3, 4, 2);
+
+  return canvas;
+}
+
+/**
+ * 🪑 MESA DE COMEDOR DE TABERNA CON BANQUETE Y TABURETES (32x32 px)
+ */
+export function getTavernTableCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 14, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Patas de la mesa
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(6, 16, 3, 10);
+  ctx.fillRect(23, 16, 3, 10);
+
+  // Tablero de madera noble
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(3, 8, 26, 10);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(4, 9, 24, 8);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(5, 9, 22, 2);
+
+  // Plato de asado / pollo
+  ctx.fillStyle = '#e2e8f0';
+  ctx.beginPath();
+  ctx.ellipse(16, 13, 5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#b45309';
+  ctx.fillRect(14, 11, 4, 3);
+
+  // Jarra de cerveza con espuma
+  ctx.fillStyle = '#d97706';
+  ctx.fillRect(8, 7, 3, 4);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(8, 6, 3, 2);
+
+  // Vela en candelabro de latón
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(23, 8, 2, 2);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(23, 6, 2, 3);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(23, 4, 2, 2); // Llama
+
+  // Taburetes de madera redondos
+  // Taburete izquierdo
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(1, 18, 4, 8);
+  ctx.fillStyle = '#78350f';
+  ctx.beginPath();
+  ctx.ellipse(3, 18, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Taburete derecho
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(27, 18, 4, 8);
+  ctx.fillStyle = '#78350f';
+  ctx.beginPath();
+  ctx.ellipse(29, 18, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  return canvas;
+}
+
+/**
+ * 🔥 CHIMENEA ACOGEDORA DE TABERNA CON CORNAMENTA (48x48 px)
+ */
+export function getTavernFireplaceCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 48;
+  canvas.height = 48;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+  ctx.beginPath();
+  ctx.ellipse(24, 42, 20, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Estructura de piedra de chimenea
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(6, 12, 36, 32);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(8, 14, 32, 28);
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(10, 16, 28, 24);
+
+  // Repisa de madera noble
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(4, 10, 40, 5);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(5, 10, 38, 2);
+
+  // Cornamenta de ciervo decorativa sobre la repisa
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(23, 4, 2, 6); // Cabeza
+  ctx.fillRect(17, 2, 2, 5); // Asta izq
+  ctx.fillRect(19, 4, 4, 2);
+  ctx.fillRect(29, 2, 2, 5); // Asta der
+  ctx.fillRect(25, 4, 4, 2);
+
+  // Hogar ardiente con leña y fuego vivo
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(14, 24, 20, 18);
+  ctx.fillStyle = '#450a0a';
+  ctx.fillRect(16, 26, 16, 15);
+
+  // Troncos
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(16, 37, 16, 4);
+
+  // Fuego animado parpadeante
+  const flicker = Math.sin(time * 8) * 2;
+  ctx.fillStyle = '#ea580c';
+  ctx.fillRect(17, 30 + flicker, 14, 9);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(19, 32 + flicker * 0.7, 10, 7);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(22, 35 + flicker * 0.5, 4, 4);
+
+  return canvas;
+}
+
+/**
+ * 🍷 PILA DE BARRILES DE VINO Y CERVEZA (32x32 px)
+ */
+export function getTavernBarrelStackCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 13, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 2 Barriles inferiores
+  const drawBarrel = (x: number, y: number) => {
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(x, y, 14, 14);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(x + 1, y + 1, 12, 12);
+    // Aros de hierro
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(x, y + 3, 14, 2);
+    ctx.fillRect(x, y + 9, 14, 2);
+    // Grifo de latón
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(x + 5, y + 6, 4, 2);
+  };
+
+  drawBarrel(2, 14);
+  drawBarrel(16, 14);
+  // 1 Barril superior
+  drawBarrel(9, 4);
 
   return canvas;
 }
