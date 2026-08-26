@@ -981,48 +981,60 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           right: 'max(0.5rem, env(safe-area-inset-right, 0.5rem))',
         }}
       >
-        {/* System Bar Quick Controls */}
-        <div className="flex items-center gap-1">
+        {/* System Bar Quick Controls (Optimizado Táctil Móvil Ergonómico) */}
+        <div className="flex items-center gap-1.5">
           {/* Fast-Travel Zone Button */}
           <button
-            onClick={() => {
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               soundEngine.playSfx('select');
               setShowZoneTravelModal(true);
             }}
-            className="px-2 py-1 bg-slate-950/80 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-lg border border-amber-500/50 shadow-md text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 transition"
+            className="h-8 sm:h-9 px-2.5 sm:px-3 bg-[#0e0d18]/95 hover:bg-[#1f1a38] active:scale-90 text-amber-300 rounded-xl border-2 border-amber-600/70 shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-xs font-black backdrop-blur-md flex items-center gap-1.5 transition select-none"
+            style={{ touchAction: 'manipulation' }}
             title="Viaje Rápido entre Zonas"
+            aria-label="Viaje Zonas"
           >
-            <MapPin className="w-3 h-3 text-amber-400" />
-            <span className="hidden sm:inline">Zonas</span>
+            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
+            <span className="text-[11px] sm:text-xs">Zonas</span>
           </button>
 
           {/* Quick Save Button */}
           <button
-            onClick={() => {
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               soundEngine.playSfx('levelup');
               onAutoSave();
               showToast(`💾 ¡Partida Guardada en Ranura ${activeSlotIndex + 1}!`);
             }}
-            className="px-2 py-1 bg-emerald-950/80 hover:bg-emerald-900 active:scale-95 text-emerald-200 rounded-lg border border-emerald-500/50 shadow-md text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 transition"
+            className="h-8 sm:h-9 px-2.5 sm:px-3 bg-emerald-950/95 hover:bg-emerald-900 active:scale-90 text-emerald-200 rounded-xl border-2 border-emerald-500/70 shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-xs font-black backdrop-blur-md flex items-center gap-1.5 transition select-none"
+            style={{ touchAction: 'manipulation' }}
             title={`Guardar partida (Ranura ${activeSlotIndex + 1})`}
+            aria-label="Guardar Partida"
           >
-            <Save className="w-3 h-3 text-emerald-400" />
-            <span className="hidden sm:inline">Guardar</span>
+            <Save className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
+            <span className="text-[11px] sm:text-xs">Guardar</span>
           </button>
 
           {/* Unified Game Menu Button */}
           <button
-            onClick={() => {
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               soundEngine.playSfx('select');
               setShowGameMenuModal(true);
             }}
-            className="relative p-1 px-2 bg-slate-950/80 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-lg border border-amber-500/50 shadow-md text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 transition"
+            className="relative h-8 sm:h-9 px-2.5 sm:px-3 bg-[#0e0d18]/95 hover:bg-[#1f1a38] active:scale-90 text-amber-300 rounded-xl border-2 border-amber-600/70 shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-xs font-black backdrop-blur-md flex items-center gap-1.5 transition select-none"
+            style={{ touchAction: 'manipulation' }}
             title="Abrir Menú Principal del Juego"
+            aria-label="Abrir Menú"
           >
-            <Menu className="w-3 h-3 text-amber-400" />
-            <span className="hidden sm:inline">Menú</span>
+            <Menu className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
+            <span className="text-[11px] sm:text-xs">Menú</span>
             {unclaimedAchievementsCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-amber-500 text-[8px] font-black text-slate-950 shadow animate-bounce">
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-amber-500 text-[9px] font-black text-slate-950 shadow animate-bounce border border-slate-950">
                 {unclaimedAchievementsCount}
               </span>
             )}
@@ -1030,14 +1042,22 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
 
           {/* Minimap Toggle */}
           <button
-            onClick={(e) => {
+            onPointerDown={(e) => {
+              e.preventDefault();
               e.stopPropagation();
+              soundEngine.playSfx('select');
               setShowMinimap(!showMinimap);
             }}
-            className="p-1 px-1.5 bg-slate-950/80 hover:bg-slate-800 active:scale-95 text-amber-300 rounded-lg border border-amber-500/50 shadow-md text-[10px] font-bold backdrop-blur-sm flex items-center gap-1 transition"
+            className={`h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl border-2 shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-xs font-black backdrop-blur-md flex items-center justify-center transition active:scale-90 select-none ${
+              showMinimap
+                ? 'bg-[#0e0d18]/95 border-amber-600/70 text-amber-300 hover:bg-[#1f1a38]'
+                : 'bg-slate-900/90 border-slate-700 text-slate-400 hover:text-slate-200'
+            }`}
+            style={{ touchAction: 'manipulation' }}
             title="Mostrar / Ocultar Minimapa"
+            aria-label="Alternar Minimapa"
           >
-            <Compass className="w-3 h-3 text-amber-400" />
+            <Compass className="w-4 h-4 text-amber-400" />
           </button>
         </div>
 
