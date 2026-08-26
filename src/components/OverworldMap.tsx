@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { PlayerStats, Zone, Inventory, NPC } from '../types';
+import { PlayerStats, Zone, Inventory, NPC, HeroCombatSkill, OverworldEnemy, EquipmentItem } from '../types';
 import { ZONES, areZoneMainQuestsCompleted, ALL_GAME_QUESTS, isZoneUnlocked, getZoneRequirementMessage, GAME_ACHIEVEMENTS, getAchievementProgress, getQuestRewardEquipment } from '../data/gameData';
 import { PixelCanvas } from './PixelCanvas';
 import { PixelMapCanvas } from './PixelMapCanvas';
 import { ThreeMapCanvas } from './ThreeMapCanvas';
+import { ActionCombatControls } from './ActionCombatControls';
 import { NPCDialogModal } from './NPCDialogModal';
 import { Minimap } from './Minimap';
 import { QuestLogModal } from './QuestLogModal';
@@ -13,7 +14,6 @@ import { BottomActionBar } from './BottomActionBar';
 import { ForgeModal } from './ForgeModal';
 import { soundEngine } from '../utils/soundEngine';
 import { useGamepadControls, ControllerAction } from '../utils/gamepadManager';
-import { EquipmentItem } from '../types';
 import {
   ShoppingBag,
   HeartPulse,
@@ -119,6 +119,92 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   const [showZoneTravelModal, setShowZoneTravelModal] = useState(false);
   const [activeChestLoot, setActiveChestLoot] = useState<ChestLoot | null>(null);
   const [depletedNodes, setDepletedNodes] = useState<string[]>([]);
+  const [activeBoss, setActiveBoss] = useState<OverworldEnemy | null>(null);
+  const combatActionRef = useRef<{
+    triggerBasicAttack: () => void;
+    triggerSkill: (skill: HeroCombatSkill) => boolean;
+    triggerDash: () => boolean;
+  } | null>(null);
+
+  const handleEnemyKilled = useCallback(
+    (enemy: OverworldEnemy) => {
+      // Award gold & exp
+      player.gold += enemy.goldReward;
+      player.exp += enemy.expReward;
+
+      // Defeated count
+      if (defeatedEnemyCounts) {
+        defeatedEnemyCounts[enemy.name] = (defeatedEnemyCounts[enemy.name] || 0) + 1;
+      }
+
+      // Check level up
+      if (player.exp >= player.maxExp) {
+        player.level += 1;
+        player.exp -= player.maxExp;
+        player.maxExp = Math.round(player.maxExp * 1.4);
+        player.maxHp += 20;
+        player.hp = player.maxHp;
+        player.maxMp += 10;
+        player.mp = player.maxMp;
+        player.attack += 4;
+        player.defense += 2;
+        soundEngine.playSfx('levelup');
+        setToastMessage(`¡SUBISTE DE NIVEL! 🎉 Nivel ${player.level}`);
+        setTimeout(() => setToastMessage(null), 3000);
+      }
+
+      if (enemy.isBoss && !defeatedBosses.includes(enemy.name)) {
+        defeatedBosses.push(enemy.name);
+        setToastMessage(`👑 ¡HAS DERROTADO AL JEFE ${enemy.name.toUpperCase()}!`);
+        setTimeout(() => setToastMessage(null), 4000);
+      }
+
+      onAutoSave();
+    },
+    [player, defeatedEnemyCounts, defeatedBosses, onAutoSave]
+  );
+
+  const handlePlayerDamaged = useCallback(
+    (amount: number) => {
+      player.hp = Math.max(0, player.hp - amount);
+      if (player.hp <= 0) {
+        // Player defeated: respawn at plaza
+        player.hp = player.maxHp;
+        player.mp = player.maxMp;
+        onMove({ x: 36, y: 62 });
+        setToastMessage('💀 Has caído en combate... Has despertado en la Plaza de la Aldea.');
+        setTimeout(() => setToastMessage(null), 4000);
+        soundEngine.playSfx('gameover');
+      }
+    },
+    [player, onMove]
+  );
+
+  const handleLootCollected = useCallback(
+    (type: 'gold' | 'exp' | 'item' | 'health_orb', amount?: number) => {
+      if (type === 'gold' && amount) {
+        player.gold += amount;
+      } else if (type === 'exp' && amount) {
+        player.exp += amount;
+        if (player.exp >= player.maxExp) {
+          player.level += 1;
+          player.exp -= player.maxExp;
+          player.maxExp = Math.round(player.maxExp * 1.4);
+          player.maxHp += 20;
+          player.hp = player.maxHp;
+          player.maxMp += 10;
+          player.mp = player.maxMp;
+          player.attack += 4;
+          player.defense += 2;
+          soundEngine.playSfx('levelup');
+        }
+      } else if (type === 'health_orb' && amount) {
+        player.hp = Math.min(player.maxHp, player.hp + amount);
+      }
+    },
+    [player]
+  );
+
   const [isMobileLandscape, setIsMobileLandscape] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.innerHeight <= 520 && window.innerWidth > window.innerHeight;
@@ -679,31 +765,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     const isSpecialPoi = [4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19, 28].includes(targetTile);
     const isInsideTown = (currentZone.id === 'zone_forest' && (Math.abs(newX - 36) <= 18 && Math.abs(newY - 60) <= 16)) || (currentZone.isInterior && currentZone.interiorType !== 'crypt' && currentZone.interiorType !== 'smugglers_cave');
 
-    const isSafeZone = isPavedRoad || isSpecialPoi || isInsideTown;
-
-    if (!isSafeZone && safeStepsRemaining <= 0) {
-      let encounterChance = 0;
-
-      if (targetTile === 0) {
-        // Natural wilderness (grass / deep caves / wild mud / dungeon corridors)
-        if (currentZone.interiorType === 'crypt' || currentZone.interiorType === 'smugglers_cave') {
-          encounterChance = 0.16; // Dungeon encounter rate
-        } else {
-          encounterChance = currentZone.id === 'zone_forest' ? 0.08 : 0.12;
-        }
-      } else if (targetTile === 14) {
-        // Elite danger grounds / cursed earth
-        encounterChance = 0.22;
-      }
-
-      if (encounterChance > 0 && Math.random() < encounterChance) {
-        // 8 steps of grace after battle
-        setSafeStepsRemaining(8);
-        setTimeout(() => {
-          onStartBattle(false);
-        }, 180);
-      }
-    }
+    // ⚔️ Note: Turn-based random encounters are disabled in favor of real-time overworld ARPG combat
   };
 
   const attemptMoveRef = React.useRef(attemptMove);
@@ -834,7 +896,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* 🌟 1. AUTÉNTICO MOTOR 2.5D / HD PIXEL ART RETRO RPG - 100% Fullscreen Viewport */}
+      {/* 🌟 1. 2.5D RETRO PIXEL ART REAL-TIME ARPG MOTOR - 100% Fullscreen Viewport */}
       <div className="absolute inset-0 w-full h-full">
         <PixelMapCanvas
           currentZone={currentZone}
@@ -843,10 +905,29 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           equipment={inventory.equipment}
           facingDir={facingDir}
           openedChests={openedChests}
+          defeatedBosses={defeatedBosses}
           onPlayerMove={onMove}
-          onInteract={() => {}}
+          onEnemyKilled={handleEnemyKilled}
+          onPlayerDamaged={handlePlayerDamaged}
+          onLootCollected={handleLootCollected}
+          onBossStateChange={setActiveBoss}
+          combatActionRef={combatActionRef}
         />
       </div>
+
+      {/* ⚔️ 2. REAL-TIME ARPG COMBAT ACTION CONTROLS HUD */}
+      <ActionCombatControls
+        heroClass={player.heroClass}
+        currentMp={player.mp}
+        maxMp={player.maxMp}
+        onBasicAttack={() => combatActionRef.current?.triggerBasicAttack()}
+        onUseSkill={(skill) => {
+          if (player.mp < skill.manaCost) return false;
+          player.mp = Math.max(0, player.mp - skill.manaCost);
+          return combatActionRef.current?.triggerSkill(skill) || false;
+        }}
+        activeBoss={activeBoss}
+      />
 
       {/* 2. Top-Left: Player Hero & Vitals Dark Fantasy Beveled Box (Protegido con Safe Area) */}
       <div

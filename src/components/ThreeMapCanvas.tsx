@@ -1,8 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { Zone, PlayerStats, EquipmentItem } from '../types';
-import { areZoneMainQuestsCompleted } from '../data/gameData';
+import { Zone, PlayerStats, EquipmentItem, HeroCombatSkill, OverworldEnemy, CombatProjectile, GroundDrop } from '../types';
+import { areZoneMainQuestsCompleted, generateZoneOverworldEnemies } from '../data/gameData';
+import {
+  createEnemy3DMesh,
+  createCombatVfxMesh,
+  createGroundDrop3DMesh,
+  createDamageTextSprite,
+} from '../utils/arpgCombat3d';
+import { soundEngine } from '../utils/soundEngine';
 
 const heroGLTFLoader = new GLTFLoader();
 let cachedHeroGLTFScene: THREE.Group | null = null;
@@ -114,6 +121,9 @@ import {
   getCaveEntranceCanvas,
   getPirateCrateStackCanvas,
   getDockRowboatCanvas,
+  getGraveyardCanvas,
+  getWeaponRackCanvas,
+  getNoticeBoardCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 // --- 🌟 2.5D HD PIXEL BILLBOARD SPRITE HELPERS ---
@@ -169,6 +179,16 @@ interface ThreeMapCanvasProps {
   defeatedBosses: string[];
   completedQuests?: string[];
   onTileClick?: (x: number, y: number) => void;
+  // ARPG Real-time combat callbacks
+  onEnemyKilled?: (enemy: OverworldEnemy) => void;
+  onPlayerDamaged?: (amount: number) => void;
+  onLootCollected?: (type: 'gold' | 'exp' | 'item' | 'health_orb', amount?: number, itemId?: string) => void;
+  onBossStateChange?: (boss: OverworldEnemy | null) => void;
+  combatActionRef?: React.MutableRefObject<{
+    triggerBasicAttack: () => void;
+    triggerSkill: (skill: HeroCombatSkill) => boolean;
+    triggerDash: () => boolean;
+  } | null>;
 }
 
 const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
@@ -181,6 +201,11 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
   defeatedBosses,
   completedQuests = [],
   onTileClick,
+  onEnemyKilled,
+  onPlayerDamaged,
+  onLootCollected,
+  onBossStateChange,
+  combatActionRef,
 }) => {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const isBossDefeated = defeatedBosses.includes(currentZone.boss.name);
@@ -1665,6 +1690,315 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
     const particleSystem = new THREE.Points(particleGeo, particleMat);
     scene.add(particleSystem);
 
+    // ========================================================================
+    // ⚔️ LIVE OVERWORLD ARPG COMBAT SYSTEM (Enemies, Projectiles, Drops, Damage)
+    // ========================================================================
+    const zoneEnemies = generateZoneOverworldEnemies(currentZone.id, currentZone.mapWidth, currentZone.mapHeight, currentZone.tileData);
+
+    // Add Zone Boss if not yet defeated
+    if (!isBossDefeated) {
+      const bossTemplate = currentZone.boss;
+      const bx = Math.min(currentZone.mapWidth - 8, Math.max(8, Math.round(currentZone.mapWidth / 2)));
+      const by = Math.min(currentZone.mapHeight - 8, Math.max(8, Math.round(currentZone.mapHeight / 2) + 8));
+      zoneEnemies.push({
+        id: `boss_${currentZone.id}`,
+        name: bossTemplate.name,
+        level: bossTemplate.level,
+        hp: bossTemplate.hp,
+        maxHp: bossTemplate.maxHp,
+        attack: bossTemplate.attack,
+        defense: bossTemplate.defense,
+        expReward: bossTemplate.expReward,
+        goldReward: bossTemplate.goldReward,
+        x: bx,
+        y: by,
+        worldX: bx * 2.5,
+        worldZ: by * 2.5,
+        spawnX: bx * 2.5,
+        spawnY: by * 2.5,
+        patrolRadius: 6.0,
+        aggroRadius: 9.0,
+        attackRange: 3.5,
+        attackCooldown: 2.2,
+        lastAttackTime: 0,
+        state: 'patrol',
+        enemyType: 'boss',
+        color: '#b91c1c',
+        scale: 1.8,
+        isBoss: true,
+        bossTitle: `👑 JEFE DE ${currentZone.name.toUpperCase()}`,
+      });
+    }
+
+    // 3D Enemy Entities in Scene
+    const enemyEntities: {
+      enemy: OverworldEnemy;
+      group: THREE.Group;
+      healthBar: THREE.Mesh;
+      animator?: (time: number, isMoving: boolean) => void;
+      hitFlashTime: number;
+    }[] = [];
+    const enemyGroup = new THREE.Group();
+    scene.add(enemyGroup);
+
+    zoneEnemies.forEach((enemy) => {
+      const { group, healthBarMesh, animator } = createEnemy3DMesh(enemy);
+      group.position.set(enemy.worldX, 0, enemy.worldZ);
+      enemyGroup.add(group);
+      enemyEntities.push({
+        enemy,
+        group,
+        healthBar: healthBarMesh,
+        animator,
+        hitFlashTime: 0,
+      });
+    });
+
+    // 3D Projectiles
+    const projectileEntities: {
+      data: CombatProjectile;
+      mesh: THREE.Group;
+    }[] = [];
+    const projectileGroup = new THREE.Group();
+    scene.add(projectileGroup);
+
+    // 3D Floating Damage Numbers
+    const damageNumberEntities: {
+      sprite: THREE.Sprite;
+      startY: number;
+      createdAt: number;
+    }[] = [];
+    const damageNumberGroup = new THREE.Group();
+    scene.add(damageNumberGroup);
+
+    // 3D Magnetic Ground Loot Drops
+    const groundDropEntities: {
+      data: GroundDrop;
+      mesh: THREE.Group;
+    }[] = [];
+    const groundDropGroup = new THREE.Group();
+    scene.add(groundDropGroup);
+
+    const spawnDamageNumber = (text: string, x: number, y: number, z: number, color: string = '#fde047', isCrit: boolean = false) => {
+      const sprite = createDamageTextSprite(text, color, isCrit);
+      sprite.position.set(x + (Math.random() - 0.5) * 0.4, y + 1.2, z + (Math.random() - 0.5) * 0.4);
+      damageNumberGroup.add(sprite);
+      damageNumberEntities.push({
+        sprite,
+        startY: sprite.position.y,
+        createdAt: performance.now(),
+      });
+    };
+
+    const spawnGroundDrop = (type: 'gold' | 'exp' | 'item' | 'health_orb', x: number, z: number, amount?: number, itemId?: string, itemName?: string) => {
+      const color = type === 'gold' ? '#facc15' : type === 'exp' ? '#38bdf8' : type === 'health_orb' ? '#22c55e' : '#c084fc';
+      const mesh = createGroundDrop3DMesh(type, color);
+      mesh.position.set(x + (Math.random() - 0.5) * 0.8, 0.25, z + (Math.random() - 0.5) * 0.8);
+      groundDropGroup.add(mesh);
+      groundDropEntities.push({
+        data: {
+          id: `drop_${Date.now()}_${Math.random()}`,
+          x: mesh.position.x,
+          z: mesh.position.z,
+          y: 0.25,
+          type,
+          amount,
+          itemId,
+          itemName,
+          color,
+          createdAt: performance.now(),
+        },
+        mesh,
+      });
+    };
+
+    const handleEnemyDefeat = (ent: typeof enemyEntities[0]) => {
+      ent.enemy.state = 'dead';
+      ent.enemy.hp = 0;
+      soundEngine.playSfx('victory');
+
+      // Spawn drops
+      spawnGroundDrop('gold', ent.enemy.worldX, ent.enemy.worldZ, ent.enemy.goldReward);
+      spawnGroundDrop('exp', ent.enemy.worldX, ent.enemy.worldZ, ent.enemy.expReward);
+      if (Math.random() < 0.35) {
+        spawnGroundDrop('health_orb', ent.enemy.worldX, ent.enemy.worldZ, 30);
+      }
+
+      // Check boss defeat
+      if (ent.enemy.isBoss) {
+        onBossStateChange?.(null);
+      }
+
+      // Shrink and remove enemy mesh
+      let fadeCount = 0;
+      const fadeInterval = setInterval(() => {
+        fadeCount++;
+        ent.group.scale.multiplyScalar(0.85);
+        ent.group.position.y -= 0.08;
+        if (fadeCount > 10) {
+          clearInterval(fadeInterval);
+          enemyGroup.remove(ent.group);
+        }
+      }, 40);
+
+      onEnemyKilled?.(ent.enemy);
+    };
+
+    const triggerPlayerAttack = () => {
+      const curr = playerCurrentPosRef.current;
+      const heroDir = facingDirRef.current;
+      let dirX = 0;
+      let dirZ = 1;
+      if (heroDir === 'up') { dirX = 0; dirZ = -1; }
+      else if (heroDir === 'down') { dirX = 0; dirZ = 1; }
+      else if (heroDir === 'left') { dirX = -1; dirZ = 0; }
+      else if (heroDir === 'right') { dirX = 1; dirZ = 0; }
+
+      // Swing slash VFX
+      const slash = createCombatVfxMesh('slash_wave', 0xf59e0b);
+      slash.position.set(curr.x + dirX * 1.2, 0.8, curr.z + dirZ * 1.2);
+      scene.add(slash);
+      setTimeout(() => scene.remove(slash), 150);
+
+      soundEngine.playSfx('attack');
+
+      // Hit check for enemies within melee reach
+      enemyEntities.forEach((ent) => {
+        if (ent.enemy.hp <= 0) return;
+        const dx = ent.enemy.worldX - curr.x;
+        const dz = ent.enemy.worldZ - curr.z;
+        const dist = Math.hypot(dx, dz);
+
+        // Dot product to check if enemy is in front of hero
+        const forwardDot = (dx * dirX + dz * dirZ) / Math.max(0.1, dist);
+
+        if (dist <= 3.2 && forwardDot > 0.15) {
+          const isCrit = Math.random() < ((player.critRate || 5) / 100);
+          const baseAtk = Math.max(1, (player.attack || 15) - Math.floor(ent.enemy.defense * 0.35));
+          const dmg = Math.round(isCrit ? baseAtk * 1.85 : baseAtk * (0.9 + Math.random() * 0.25));
+
+          ent.enemy.hp -= dmg;
+          ent.hitFlashTime = performance.now();
+          ent.enemy.state = 'chase';
+
+          // Knockback
+          ent.enemy.worldX += dirX * 0.6;
+          ent.enemy.worldZ += dirZ * 0.6;
+          ent.group.position.set(ent.enemy.worldX, 0, ent.enemy.worldZ);
+
+          spawnDamageNumber(`-${dmg}`, ent.enemy.worldX, 1.2, ent.enemy.worldZ, isCrit ? '#ef4444' : '#fde047', isCrit);
+          soundEngine.playSfx('hit');
+
+          if (ent.enemy.hp <= 0) {
+            handleEnemyDefeat(ent);
+          }
+        }
+      });
+    };
+
+    const triggerPlayerSkill = (skill: HeroCombatSkill): boolean => {
+      const curr = playerCurrentPosRef.current;
+      const heroDir = facingDirRef.current;
+      let dirX = 0;
+      let dirZ = 1;
+      if (heroDir === 'up') { dirX = 0; dirZ = -1; }
+      else if (heroDir === 'down') { dirX = 0; dirZ = 1; }
+      else if (heroDir === 'left') { dirX = -1; dirZ = 0; }
+      else if (heroDir === 'right') { dirX = 1; dirZ = 0; }
+
+      if (skill.type === 'heal') {
+        const healAmt = Math.round(player.maxHp * (skill.healAmount || 0.3));
+        spawnDamageNumber(`+${healAmt} HP`, curr.x, 1.8, curr.z, '#22c55e', true);
+        soundEngine.playSfx('heal');
+        onLootCollected?.('health_orb', healAmt);
+        return true;
+      }
+
+      if (skill.type === 'projectile') {
+        const projMesh = createCombatVfxMesh(skill.vfxType, 0xf97316);
+        projMesh.position.set(curr.x + dirX * 1.0, 0.8, curr.z + dirZ * 1.0);
+        projectileGroup.add(projMesh);
+
+        projectileEntities.push({
+          data: {
+            id: `proj_${Date.now()}_${Math.random()}`,
+            x: projMesh.position.x,
+            z: projMesh.position.z,
+            y: 0.8,
+            dirX,
+            dirZ,
+            speed: 16.0,
+            damage: Math.round(player.attack * skill.damageMultiplier),
+            isPlayer: true,
+            maxDistance: skill.range * 2.5,
+            traveledDistance: 0,
+            vfxType: skill.vfxType as any,
+            color: '#f97316',
+            radius: 1.2,
+          },
+          mesh: projMesh,
+        });
+
+        soundEngine.playSfx('magic');
+        return true;
+      }
+
+      // Melee AOE / Dash Attack (Whirlwind, Holy Smite, Ground Slam)
+      const vfx = createCombatVfxMesh(skill.vfxType, 0x38bdf8);
+      vfx.position.set(curr.x, 0.6, curr.z);
+      scene.add(vfx);
+      setTimeout(() => scene.remove(vfx), 250);
+
+      soundEngine.playSfx('magic');
+
+      const hitRadius = (skill.aoeRadius || 3.5) * 2.5;
+      enemyEntities.forEach((ent) => {
+        if (ent.enemy.hp <= 0) return;
+        const dist = Math.hypot(ent.enemy.worldX - curr.x, ent.enemy.worldZ - curr.z);
+        if (dist <= hitRadius) {
+          const dmg = Math.round(player.attack * skill.damageMultiplier * (0.9 + Math.random() * 0.25));
+          ent.enemy.hp -= dmg;
+          ent.hitFlashTime = performance.now();
+          ent.enemy.state = 'chase';
+
+          spawnDamageNumber(`-${dmg}`, ent.enemy.worldX, 1.4, ent.enemy.worldZ, '#38bdf8', true);
+          soundEngine.playSfx('hit');
+
+          if (ent.enemy.hp <= 0) {
+            handleEnemyDefeat(ent);
+          }
+        }
+      });
+
+      return true;
+    };
+
+    const triggerPlayerDash = (): boolean => {
+      const curr = playerCurrentPosRef.current;
+      const heroDir = facingDirRef.current;
+      let dirX = 0;
+      let dirZ = 1;
+      if (heroDir === 'up') { dirX = 0; dirZ = -1; }
+      else if (heroDir === 'down') { dirX = 0; dirZ = 1; }
+      else if (heroDir === 'left') { dirX = -1; dirZ = 0; }
+      else if (heroDir === 'right') { dirX = 1; dirZ = 0; }
+
+      // Teleport hero forward in target position
+      playerTargetPosRef.current.x += dirX * 3.5;
+      playerTargetPosRef.current.z += dirZ * 3.5;
+
+      soundEngine.playSfx('dash');
+      return true;
+    };
+
+    if (combatActionRef) {
+      combatActionRef.current = {
+        triggerBasicAttack: triggerPlayerAttack,
+        triggerSkill: triggerPlayerSkill,
+        triggerDash: triggerPlayerDash,
+      };
+    }
+
     // 8. ANIMATION, ADVANCED PHYSICS & CAMERA FOLLOW LOOP
     let animationFrameId: number;
     let clock = new THREE.Clock();
@@ -1680,6 +2014,7 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
       animationFrameId = requestAnimationFrame(animate);
       const delta = Math.min(clock.getDelta(), 0.08);
       const time = clock.getElapsedTime();
+      const nowMs = performance.now();
 
       // Smoothly move hero position with exponential delta-time damper (Immune to FPS drops)
       const curr = playerCurrentPosRef.current;
@@ -1696,6 +2031,171 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           const item = cullingEntities[i];
           const isVisible = Math.abs(item.gridX - playerGX) <= cullRadius && Math.abs(item.gridY - playerGZ) <= cullRadius;
           item.object.visible = isVisible;
+        }
+      }
+
+      // ========================================================================
+      // ⚔️ REAL-TIME OVERWORLD ENEMY AI & COMBAT LOOP
+      // ========================================================================
+      let nearestBoss: OverworldEnemy | null = null;
+      let minBossDist = Infinity;
+
+      for (let i = 0; i < enemyEntities.length; i++) {
+        const ent = enemyEntities[i];
+        if (ent.enemy.hp <= 0) continue;
+
+        const dx = curr.x - ent.enemy.worldX;
+        const dz = curr.z - ent.enemy.worldZ;
+        const dist = Math.hypot(dx, dz);
+
+        // Check if fighting an active boss
+        if (ent.enemy.isBoss && dist < 22) {
+          if (dist < minBossDist) {
+            minBossDist = dist;
+            nearestBoss = ent.enemy;
+          }
+        }
+
+        // Distance culling for AI computation
+        if (dist > 35) {
+          ent.group.visible = false;
+          continue;
+        }
+        ent.group.visible = true;
+
+        // Health Bar Update & Camera Billboard Facing
+        const hpPct = Math.max(0, ent.enemy.hp / ent.enemy.maxHp);
+        ent.healthBar.scale.x = hpPct;
+        ent.healthBar.position.x = (hpPct - 1.0) * 0.55;
+
+        // AI States: Patrol, Chase, Attack
+        const aggroDist = ent.enemy.aggroRadius * 2.5;
+        const atkDist = ent.enemy.attackRange * 2.5;
+        let isMoving = false;
+
+        if (dist <= aggroDist) {
+          ent.enemy.state = 'chase';
+          const angle = Math.atan2(dx, dz);
+          ent.group.rotation.y = angle;
+
+          if (dist > atkDist) {
+            // Chase hero
+            const moveSpeed = (ent.enemy.level * 0.04 + 1.6) * delta;
+            ent.enemy.worldX += (dx / dist) * moveSpeed;
+            ent.enemy.worldZ += (dz / dist) * moveSpeed;
+            ent.group.position.set(ent.enemy.worldX, 0, ent.enemy.worldZ);
+            isMoving = true;
+          } else {
+            // Attack Hero
+            if (nowMs - ent.enemy.lastAttackTime > ent.enemy.attackCooldown * 1000) {
+              ent.enemy.lastAttackTime = nowMs;
+              const enemyDmg = Math.max(1, Math.round(ent.enemy.attack * 1.3 - (player.defense || 5) * 0.45));
+              onPlayerDamaged?.(enemyDmg);
+              spawnDamageNumber(`-${enemyDmg}`, curr.x, 1.4, curr.z, '#ef4444', false);
+              soundEngine.playSfx('hit');
+            }
+          }
+        } else {
+          // Patrol wander slowly around spawn position
+          ent.enemy.state = 'patrol';
+          const wanderAng = time * 0.8 + i;
+          ent.enemy.worldX = ent.enemy.spawnX + Math.cos(wanderAng) * (ent.enemy.patrolRadius * 0.8);
+          ent.enemy.worldZ = ent.enemy.spawnY + Math.sin(wanderAng) * (ent.enemy.patrolRadius * 0.8);
+          ent.group.position.set(ent.enemy.worldX, 0, ent.enemy.worldZ);
+          ent.group.rotation.y = wanderAng + Math.PI / 2;
+          isMoving = true;
+        }
+
+        // Run enemy custom animation (bounce, wing flap, etc.)
+        ent.animator?.(time, isMoving);
+      }
+
+      onBossStateChange?.(nearestBoss);
+
+      // ========================================================================
+      // 🏹 REAL-TIME PROJECTILES UPDATE LOOP
+      // ========================================================================
+      for (let pIdx = projectileEntities.length - 1; pIdx >= 0; pIdx--) {
+        const proj = projectileEntities[pIdx];
+        const pMove = proj.data.speed * delta;
+        proj.data.x += proj.data.dirX * pMove;
+        proj.data.z += proj.data.dirZ * pMove;
+        proj.data.traveledDistance += pMove;
+        proj.mesh.position.set(proj.data.x, proj.data.y, proj.data.z);
+
+        let hit = false;
+        // Collision check with enemies
+        for (let eIdx = 0; eIdx < enemyEntities.length; eIdx++) {
+          const ent = enemyEntities[eIdx];
+          if (ent.enemy.hp <= 0) continue;
+          const pDist = Math.hypot(ent.enemy.worldX - proj.data.x, ent.enemy.worldZ - proj.data.z);
+          if (pDist < proj.data.radius + 0.8) {
+            hit = true;
+            ent.enemy.hp -= proj.data.damage;
+            ent.hitFlashTime = nowMs;
+            ent.enemy.state = 'chase';
+            spawnDamageNumber(`-${proj.data.damage}`, ent.enemy.worldX, 1.4, ent.enemy.worldZ, '#f97316', true);
+            soundEngine.playSfx('hit');
+
+            if (ent.enemy.hp <= 0) {
+              handleEnemyDefeat(ent);
+            }
+            break;
+          }
+        }
+
+        if (hit || proj.data.traveledDistance >= proj.data.maxDistance) {
+          projectileGroup.remove(proj.mesh);
+          projectileEntities.splice(pIdx, 1);
+        }
+      }
+
+      // ========================================================================
+      // 💎 MAGNETIC GROUND LOOT DROPS UPDATE LOOP
+      // ========================================================================
+      for (let dIdx = groundDropEntities.length - 1; dIdx >= 0; dIdx--) {
+        const drop = groundDropEntities[dIdx];
+        drop.mesh.rotation.y += delta * 3.0;
+
+        const dDist = Math.hypot(curr.x - drop.data.x, curr.z - drop.data.z);
+        if (dDist < 5.0) {
+          // Magnet pull toward hero
+          const pullSpeed = 9.0 * delta;
+          drop.data.x += ((curr.x - drop.data.x) / dDist) * pullSpeed;
+          drop.data.z += ((curr.z - drop.data.z) / dDist) * pullSpeed;
+          drop.mesh.position.set(drop.data.x, 0.35 + Math.sin(time * 6) * 0.1, drop.data.z);
+
+          if (dDist < 1.0) {
+            // Collect loot
+            soundEngine.playSfx(drop.data.type === 'gold' ? 'gold' : 'pickup');
+            onLootCollected?.(drop.data.type, drop.data.amount, drop.data.itemId);
+            spawnDamageNumber(
+              drop.data.type === 'gold' ? `+${drop.data.amount} Oro` : drop.data.type === 'exp' ? `+${drop.data.amount} EXP` : '+30 HP',
+              curr.x,
+              1.6,
+              curr.z,
+              drop.data.color,
+              true
+            );
+
+            groundDropGroup.remove(drop.mesh);
+            groundDropEntities.splice(dIdx, 1);
+          }
+        }
+      }
+
+      // ========================================================================
+      // 💥 FLOATING DAMAGE NUMBERS UPDATE LOOP
+      // ========================================================================
+      for (let nIdx = damageNumberEntities.length - 1; nIdx >= 0; nIdx--) {
+        const num = damageNumberEntities[nIdx];
+        const ageMs = nowMs - num.createdAt;
+        if (ageMs > 900) {
+          damageNumberGroup.remove(num.sprite);
+          damageNumberEntities.splice(nIdx, 1);
+        } else {
+          num.sprite.position.y = num.startY + (ageMs / 900) * 0.9;
+          (num.sprite.material as THREE.SpriteMaterial).opacity = Math.max(0, 1.0 - ageMs / 900);
         }
       }
 

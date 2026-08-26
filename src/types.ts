@@ -330,3 +330,112 @@ export interface LeaderboardEntry {
   date: string;
 }
 
+// ============================================================================
+// ⚔️ REAL-TIME ARPG OVERWORLD COMBAT SYSTEM TYPES
+// ============================================================================
+
+export interface HeroCombatSkill {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  cooldownSeconds: number;
+  manaCost: number;
+  damageMultiplier: number;
+  type: 'melee_aoe' | 'projectile' | 'buff' | 'heal' | 'dash_attack' | 'channel' | 'summon';
+  vfxType: 'slash_wave' | 'fireball' | 'frost_nova' | 'multi_arrow' | 'holy_beam' | 'shadow_strike' | 'ground_slam' | 'soul_drain';
+  range: number;
+  aoeRadius?: number;
+  stunDuration?: number;
+  healAmount?: number;
+}
+
+export type OverworldEnemyType =
+  | 'slime'
+  | 'wolf'
+  | 'goblin'
+  | 'skeleton'
+  | 'bandit'
+  | 'golem'
+  | 'dragon'
+  | 'elemental'
+  | 'knight'
+  | 'boss';
+
+export interface OverworldEnemy {
+  id: string;
+  name: string;
+  level: number;
+  hp: number;
+  maxHp: number;
+  attack: number;
+  defense: number;
+  expReward: number;
+  goldReward: number;
+  x: number; // grid x
+  y: number; // grid y
+  worldX: number; // 3D world x
+  worldZ: number; // 3D world z
+  spawnX: number;
+  spawnY: number;
+  patrolRadius: number;
+  aggroRadius: number; // tiles
+  attackRange: number; // distance units
+  attackCooldown: number;
+  lastAttackTime: number;
+  state: 'idle' | 'patrol' | 'chase' | 'attack' | 'hit' | 'dead';
+  enemyType: OverworldEnemyType;
+  color: string;
+  scale?: number;
+  isBoss?: boolean;
+  bossTitle?: string;
+  deathTime?: number;
+  targetHero?: boolean;
+}
+
+export interface CombatProjectile {
+  id: string;
+  x: number;
+  z: number;
+  y: number;
+  dirX: number;
+  dirZ: number;
+  speed: number;
+  damage: number;
+  isPlayer: boolean;
+  maxDistance: number;
+  traveledDistance: number;
+  vfxType: 'arrow' | 'fireball' | 'arcane_orb' | 'slash_wave' | 'holy_bolt' | 'dark_skull';
+  color: string;
+  radius: number;
+  isCrit?: boolean;
+  pierceCount?: number;
+}
+
+export interface CombatDamageNumber {
+  id: string;
+  text: string;
+  x: number;
+  y: number;
+  z: number;
+  color: string;
+  isCrit?: boolean;
+  isHeal?: boolean;
+  createdAt: number;
+  opacity: number;
+}
+
+export interface GroundDrop {
+  id: string;
+  x: number;
+  z: number;
+  y: number;
+  type: 'gold' | 'exp' | 'item' | 'health_orb';
+  amount?: number;
+  itemId?: string;
+  itemName?: string;
+  itemIcon?: string;
+  color: string;
+  createdAt: number;
+}
+

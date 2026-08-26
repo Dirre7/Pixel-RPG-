@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Zone, PlayerStats, EquipmentItem } from '../types';
+import { Zone, PlayerStats, EquipmentItem, HeroCombatSkill, OverworldEnemy, CombatProjectile, GroundDrop } from '../types';
+import { generateZoneOverworldEnemies } from '../data/gameData';
+import { getPixelEnemyCanvas } from '../utils/pixelEnemySpriteGenerator';
+import { soundEngine } from '../utils/soundEngine';
 import { getHeroSpriteCanvas, Direction, AnimationState } from '../utils/pixelSpriteGenerator';
 import {
   getTileCanvas,
@@ -81,8 +84,18 @@ interface PixelMapCanvasProps {
   facingDir?: Direction;
   openedChests: string[];
   activeShrines?: string[];
+  defeatedBosses?: string[];
   onPlayerMove: (newPos: { x: number; y: number }) => void;
   onInteract?: () => void;
+  onEnemyKilled?: (enemy: OverworldEnemy) => void;
+  onPlayerDamaged?: (amount: number) => void;
+  onLootCollected?: (type: 'gold' | 'exp' | 'item' | 'health_orb', amount?: number, itemId?: string) => void;
+  onBossStateChange?: (boss: OverworldEnemy | null) => void;
+  combatActionRef?: React.MutableRefObject<{
+    triggerBasicAttack: () => void;
+    triggerSkill: (skill: HeroCombatSkill) => boolean;
+    triggerDash: () => boolean;
+  } | null>;
 }
 
 export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
@@ -91,8 +104,14 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
   player,
   facingDir = 'down',
   openedChests,
+  defeatedBosses = [],
   onPlayerMove,
   onInteract,
+  onEnemyKilled,
+  onPlayerDamaged,
+  onLootCollected,
+  onBossStateChange,
+  combatActionRef,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [direction, setDirection] = useState<Direction>(facingDir);
@@ -265,11 +284,262 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     gameAssets.ratWarriorIdle.src = '/Pixel Crawler - Free Pack/Pixel Crawler - Sewer/Enemy/Rat - Warrior/Idle/Idle-Sheet.png';
     gameAssets.floorTiles.src = '/Pixel Crawler - Free Pack/Environment/Tilesets/Floors_Tiles.png';
 
+    // ========================================================================
+    // ⚔️ 2.5D REAL-TIME ARPG OVERWORLD COMBAT SYSTEM
+    // ========================================================================
+    const zoneEnemies = generateZoneOverworldEnemies(
+      currentZone.id,
+      currentZone.mapWidth || 60,
+      currentZone.mapHeight || 60,
+      currentZone.tileData
+    );
+
+    const isPeacefulInterior = currentZone.isInterior && currentZone.interiorType !== 'crypt' && currentZone.interiorType !== 'smugglers_cave';
+    const isBossDefeated = defeatedBosses.includes(currentZone.boss.name);
+    if (!isBossDefeated && !isPeacefulInterior && currentZone.boss) {
+      const bossTemplate = currentZone.boss;
+      const bx = Math.min((currentZone.mapWidth || 60) - 8, Math.max(8, Math.round((currentZone.mapWidth || 60) / 2)));
+      const by = Math.min((currentZone.mapHeight || 60) - 8, Math.max(8, Math.round((currentZone.mapHeight || 60) / 2) + 8));
+      zoneEnemies.push({
+        id: `boss_${currentZone.id}`,
+        name: bossTemplate.name,
+        level: bossTemplate.level,
+        hp: bossTemplate.hp,
+        maxHp: bossTemplate.maxHp,
+        attack: bossTemplate.attack,
+        defense: bossTemplate.defense,
+        expReward: bossTemplate.expReward,
+        goldReward: bossTemplate.goldReward,
+        x: bx,
+        y: by,
+        worldX: bx,
+        worldZ: by,
+        spawnX: bx,
+        spawnY: by,
+        patrolRadius: 4.0,
+        aggroRadius: 7.0,
+        attackRange: 1.6,
+        attackCooldown: 2.0,
+        lastAttackTime: 0,
+        state: 'patrol',
+        enemyType: 'boss',
+        color: '#b91c1c',
+        scale: 1.8,
+        isBoss: true,
+      });
+    }
+
+    const enemyEntities = zoneEnemies.map((enemy) => ({
+      enemy,
+      sprite: getPixelEnemyCanvas(enemy.enemyType, enemy.color, enemy.isBoss),
+      hitFlashTime: 0,
+    }));
+
+    const projectileEntities: CombatProjectile[] = [];
+    const groundDropEntities: GroundDrop[] = [];
+    const damageNumberEntities: { text: string; x: number; y: number; color: string; isCrit?: boolean; createdAt: number }[] = [];
+    const slashEntities: { x: number; y: number; dir: string; createdAt: number }[] = [];
+
+    const spawnDamageNumber = (text: string, x: number, y: number, color: string = '#fde047', isCrit: boolean = false) => {
+      damageNumberEntities.push({
+        text,
+        x: x + (Math.random() - 0.5) * 8,
+        y: y - 8,
+        color,
+        isCrit,
+        createdAt: performance.now(),
+      });
+    };
+
+    const spawnGroundDrop = (type: 'gold' | 'exp' | 'item' | 'health_orb', x: number, y: number, amount?: number, itemId?: string) => {
+      groundDropEntities.push({
+        id: `drop_${Date.now()}_${Math.random()}`,
+        x: x + (Math.random() - 0.5) * 16,
+        z: y + (Math.random() - 0.5) * 16,
+        y: 0,
+        type,
+        amount,
+        itemId,
+        color: type === 'gold' ? '#facc15' : type === 'exp' ? '#38bdf8' : '#22c55e',
+        createdAt: performance.now(),
+      });
+    };
+
+    const handleEnemyDefeat = (ent: typeof enemyEntities[0]) => {
+      ent.enemy.state = 'dead';
+      ent.enemy.hp = 0;
+      soundEngine.playSfx('victory');
+
+      spawnGroundDrop('gold', ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, ent.enemy.goldReward);
+      spawnGroundDrop('exp', ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, ent.enemy.expReward);
+      if (Math.random() < 0.35) {
+        spawnGroundDrop('health_orb', ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, 30);
+      }
+
+      if (ent.enemy.isBoss) {
+        onBossStateChange?.(null);
+      }
+
+      onEnemyKilled?.(ent.enemy);
+    };
+
+    const triggerPlayerAttack = () => {
+      const p = currentPosRef.current;
+      const dir = directionRef.current;
+      let dx = 0;
+      let dy = 1;
+      if (dir === 'up') { dx = 0; dy = -1; }
+      else if (dir === 'down') { dx = 0; dy = 1; }
+      else if (dir === 'left') { dx = -1; dy = 0; }
+      else if (dir === 'right') { dx = 1; dy = 0; }
+
+      slashEntities.push({
+        x: (p.x + dx * 0.8) * 32 + 16,
+        y: (p.y + dy * 0.8) * 32 + 16,
+        dir,
+        createdAt: performance.now(),
+      });
+
+      soundEngine.playSfx('attack');
+
+      enemyEntities.forEach((ent) => {
+        if (ent.enemy.hp <= 0) return;
+        const dist = Math.hypot(ent.enemy.worldX - p.x, ent.enemy.worldZ - p.y);
+        const forwardDot = ((ent.enemy.worldX - p.x) * dx + (ent.enemy.worldZ - p.y) * dy) / Math.max(0.1, dist);
+
+        if (dist <= 2.2 && forwardDot > 0.1) {
+          const isCrit = Math.random() < ((playerRef.current.critRate || 5) / 100);
+          const baseAtk = Math.max(1, (playerRef.current.attack || 15) - Math.floor(ent.enemy.defense * 0.35));
+          const dmg = Math.round(isCrit ? baseAtk * 1.85 : baseAtk * (0.9 + Math.random() * 0.25));
+
+          ent.enemy.hp -= dmg;
+          ent.hitFlashTime = performance.now();
+          ent.enemy.state = 'chase';
+
+          // Knockback
+          ent.enemy.worldX += dx * 0.5;
+          ent.enemy.worldZ += dy * 0.5;
+
+          spawnDamageNumber(`-${dmg}`, ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32, isCrit ? '#ef4444' : '#fde047', isCrit);
+          soundEngine.playSfx('hit');
+
+          if (ent.enemy.hp <= 0) {
+            handleEnemyDefeat(ent);
+          }
+        }
+      });
+    };
+
+    const triggerPlayerSkill = (skill: HeroCombatSkill): boolean => {
+      const p = currentPosRef.current;
+      const dir = directionRef.current;
+      let dx = 0;
+      let dy = 1;
+      if (dir === 'up') { dx = 0; dy = -1; }
+      else if (dir === 'down') { dx = 0; dy = 1; }
+      else if (dir === 'left') { dx = -1; dy = 0; }
+      else if (dir === 'right') { dx = 1; dy = 0; }
+
+      if (skill.type === 'heal') {
+        const healAmt = Math.round(playerRef.current.maxHp * (skill.healAmount || 0.3));
+        spawnDamageNumber(`+${healAmt} HP`, p.x * 32 + 16, p.y * 32, '#22c55e', true);
+        soundEngine.playSfx('heal');
+        onLootCollected?.('health_orb', healAmt);
+        return true;
+      }
+
+      if (skill.type === 'projectile') {
+        projectileEntities.push({
+          id: `proj_${Date.now()}_${Math.random()}`,
+          x: (p.x + dx * 0.6) * 32 + 16,
+          z: (p.y + dy * 0.6) * 32 + 16,
+          y: 0,
+          dirX: dx,
+          dirZ: dy,
+          speed: 280, // pixels per second
+          damage: Math.round(playerRef.current.attack * skill.damageMultiplier),
+          isPlayer: true,
+          maxDistance: skill.range * 32,
+          traveledDistance: 0,
+          vfxType: skill.vfxType as any,
+          color: '#f97316',
+          radius: 12,
+        });
+
+        soundEngine.playSfx('magic');
+        return true;
+      }
+
+      // AOE / Slam
+      soundEngine.playSfx('magic');
+      const hitRadius = (skill.aoeRadius || 3.0);
+
+      slashEntities.push({
+        x: p.x * 32 + 16,
+        y: p.y * 32 + 16,
+        dir: 'spin',
+        createdAt: performance.now(),
+      });
+
+      enemyEntities.forEach((ent) => {
+        if (ent.enemy.hp <= 0) return;
+        const dist = Math.hypot(ent.enemy.worldX - p.x, ent.enemy.worldZ - p.y);
+        if (dist <= hitRadius) {
+          const dmg = Math.round(playerRef.current.attack * skill.damageMultiplier * (0.9 + Math.random() * 0.25));
+          ent.enemy.hp -= dmg;
+          ent.hitFlashTime = performance.now();
+          ent.enemy.state = 'chase';
+
+          spawnDamageNumber(`-${dmg}`, ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32, '#38bdf8', true);
+          soundEngine.playSfx('hit');
+
+          if (ent.enemy.hp <= 0) {
+            handleEnemyDefeat(ent);
+          }
+        }
+      });
+
+      return true;
+    };
+
+    const triggerPlayerDash = (): boolean => {
+      const p = currentPosRef.current;
+      const dir = directionRef.current;
+      let dx = 0;
+      let dy = 1;
+      if (dir === 'up') { dx = 0; dy = -1; }
+      else if (dir === 'down') { dx = 0; dy = 1; }
+      else if (dir === 'left') { dx = -1; dy = 0; }
+      else if (dir === 'right') { dx = 1; dy = 0; }
+
+      const targetX = Math.min(Math.max(1, p.x + dx * 3), (currentZone.mapWidth || 60) - 2);
+      const targetY = Math.min(Math.max(1, p.y + dy * 3), (currentZone.mapHeight || 60) - 2);
+
+      targetPosRef.current = { x: targetX, y: targetY };
+      currentPosRef.current = { x: targetX, y: targetY };
+      onPlayerMove({ x: targetX, y: targetY });
+
+      soundEngine.playSfx('dash');
+      return true;
+    };
+
+    if (combatActionRef) {
+      combatActionRef.current = {
+        triggerBasicAttack: triggerPlayerAttack,
+        triggerSkill: triggerPlayerSkill,
+        triggerDash: triggerPlayerDash,
+      };
+    }
+
     let animId: number;
     let time = 0;
+    let lastTimeMs = performance.now();
     const TILE_SIZE = 32;
 
     const render = () => {
+      const nowMs = performance.now();
+      const delta = Math.min(0.08, (nowMs - lastTimeMs) / 1000);
+      lastTimeMs = nowMs;
       time += 0.03;
 
       const canvas = canvasRef.current;
@@ -2060,10 +2330,156 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         });
       }
 
-      // 4. Jugador
+      // Posición pixel del jugador para cálculos de proximidad y render
       const pX = Math.round(currentPosRef.current.x * TILE_SIZE);
       const pY = Math.round(currentPosRef.current.y * TILE_SIZE);
 
+      // 4. MONSTRUOS 2.5D EN EL MAPA (IA de patrulla, persecución y combate)
+      let nearestBoss: OverworldEnemy | null = null;
+      let minBossDist = Infinity;
+
+      enemyEntities.forEach((ent) => {
+        if (ent.enemy.hp <= 0) return;
+
+        const distToHero = Math.hypot(
+          ent.enemy.worldX - currentPosRef.current.x,
+          ent.enemy.worldZ - currentPosRef.current.y
+        );
+
+        if (ent.enemy.isBoss && distToHero < 14) {
+          if (distToHero < minBossDist) {
+            minBossDist = distToHero;
+            nearestBoss = ent.enemy;
+          }
+        }
+
+        // IA: Persecución vs Patrulla con verificación de colisión de paredes
+        if (distToHero <= ent.enemy.aggroRadius) {
+          ent.enemy.state = 'chase';
+          const dx = currentPosRef.current.x - ent.enemy.worldX;
+          const dy = currentPosRef.current.y - ent.enemy.worldZ;
+
+          if (distToHero > ent.enemy.attackRange) {
+            // Caminar hacia el jugador comprobando que la casilla sea transitable
+            const moveSpeed = (1.2 + ent.enemy.level * 0.02) * delta;
+            const nextX = ent.enemy.worldX + (dx / distToHero) * moveSpeed;
+            const nextY = ent.enemy.worldZ + (dy / distToHero) * moveSpeed;
+
+            const tX = Math.round(nextX);
+            const tY = Math.round(nextY);
+            if (currentZone.tileData[tY]?.[tX] === 0) {
+              ent.enemy.worldX = nextX;
+              ent.enemy.worldZ = nextY;
+            }
+          } else {
+            // Atacar al jugador
+            if (nowMs - ent.enemy.lastAttackTime > ent.enemy.attackCooldown * 1000) {
+              ent.enemy.lastAttackTime = nowMs;
+              const enemyDmg = Math.max(1, Math.round(ent.enemy.attack * 1.3 - (playerRef.current.defense || 5) * 0.45));
+              onPlayerDamaged?.(enemyDmg);
+              spawnDamageNumber(`-${enemyDmg}`, pX + 16, pY, '#ef4444', false);
+              soundEngine.playSfx('hit');
+            }
+          }
+        } else {
+          // Patrulla lenta dentro de su habitación
+          ent.enemy.state = 'patrol';
+          const wanderAng = time * 0.5 + ent.enemy.x;
+          const nextPatrolX = ent.enemy.spawnX + Math.cos(wanderAng) * (ent.enemy.patrolRadius * 0.6);
+          const nextPatrolY = ent.enemy.spawnY + Math.sin(wanderAng) * (ent.enemy.patrolRadius * 0.6);
+
+          const tX = Math.round(nextPatrolX);
+          const tY = Math.round(nextPatrolY);
+          if (currentZone.tileData[tY]?.[tX] === 0) {
+            ent.enemy.worldX = nextPatrolX;
+            ent.enemy.worldZ = nextPatrolY;
+          }
+        }
+
+        // Renderizado 2.5D del Monstruo
+        const ePxX = Math.round(ent.enemy.worldX * TILE_SIZE);
+        const ePxY = Math.round(ent.enemy.worldZ * TILE_SIZE);
+        const isHit = nowMs - ent.hitFlashTime < 140;
+        const bounce = Math.abs(Math.sin(time * 8 + ent.enemy.x)) * 2;
+        const spriteSize = ent.enemy.isBoss ? TILE_SIZE * 2 : TILE_SIZE;
+
+        entities.push({
+          ySort: ePxY + spriteSize,
+          draw: (c) => {
+            // Sombra ovalada en el suelo
+            c.fillStyle = 'rgba(0,0,0,0.35)';
+            c.beginPath();
+            c.ellipse(ePxX + spriteSize / 2, ePxY + spriteSize - 2, spriteSize / 2.8, spriteSize / 5, 0, 0, Math.PI * 2);
+            c.fill();
+
+            // Sprite del monstruo con parpadeo blanco/rojo si recibe golpe
+            if (isHit) {
+              c.filter = 'brightness(2.0) saturate(0.5)';
+            }
+            c.drawImage(ent.sprite, ePxX, ePxY - bounce, spriteSize, spriteSize);
+            c.filter = 'none';
+
+            // Barra de vida superior
+            const barW = spriteSize;
+            const hpPct = Math.max(0, ent.enemy.hp / ent.enemy.maxHp);
+            c.fillStyle = '#0f172a';
+            c.fillRect(ePxX, ePxY - 8 - bounce, barW, 4);
+            c.fillStyle = hpPct > 0.4 ? '#22c55e' : '#ef4444';
+            c.fillRect(ePxX, ePxY - 8 - bounce, barW * hpPct, 4);
+
+            // Nivel del enemigo
+            c.font = 'bold 9px monospace';
+            c.fillStyle = '#fde047';
+            c.fillText(`Nv.${ent.enemy.level}`, ePxX, ePxY - 10 - bounce);
+          },
+        });
+      });
+
+      onBossStateChange?.(nearestBoss);
+
+      // 5. BOTÍN MAGNÉTICO EN EL SUELO (Monedas, EXP, Pociones)
+      for (let dIdx = groundDropEntities.length - 1; dIdx >= 0; dIdx--) {
+        const drop = groundDropEntities[dIdx];
+        const dDist = Math.hypot(drop.x - (pX + 16), drop.z - (pY + 16));
+
+        if (dDist < 90) {
+          // Atracción magnética hacia el héroe
+          const pullSpeed = 180 * delta;
+          drop.x += ((pX + 16 - drop.x) / dDist) * pullSpeed;
+          drop.z += ((pY + 16 - drop.z) / dDist) * pullSpeed;
+
+          if (dDist < 16) {
+            // Recoger botín
+            soundEngine.playSfx(drop.type === 'gold' ? 'gold' : 'pickup');
+            onLootCollected?.(drop.type, drop.amount, drop.itemId);
+            spawnDamageNumber(
+              drop.type === 'gold' ? `+${drop.amount} Oro` : drop.type === 'exp' ? `+${drop.amount} EXP` : '+30 HP',
+              pX + 16,
+              pY - 10,
+              drop.color,
+              true
+            );
+            groundDropEntities.splice(dIdx, 1);
+            continue;
+          }
+        }
+
+        const dropBounce = Math.sin(time * 6 + dIdx) * 3;
+        entities.push({
+          ySort: drop.z + 8,
+          draw: (c) => {
+            c.fillStyle = drop.color;
+            c.beginPath();
+            c.arc(drop.x, drop.z + dropBounce, drop.type === 'gold' ? 5 : 6, 0, Math.PI * 2);
+            c.fill();
+            c.strokeStyle = '#ffffff';
+            c.lineWidth = 1;
+            c.stroke();
+          },
+        });
+      }
+
+      // 6. Jugador
       let animState: AnimationState = 'idle';
       if (moving) {
         const stepFrame = Math.floor(time * 10) % 2;
@@ -2082,6 +2498,86 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       // Ordenar por Y para que lo que esté más abajo se dibuje encima
       entities.sort((a, b) => a.ySort - b.ySort);
       entities.forEach((e) => e.draw(ctx));
+
+      // 7. PROYECTILES 2.5D (Flechas, Bolas de Fuego, Magias)
+      for (let pIdx = projectileEntities.length - 1; pIdx >= 0; pIdx--) {
+        const proj = projectileEntities[pIdx];
+        const pMove = proj.speed * delta;
+        proj.x += proj.dirX * pMove;
+        proj.z += proj.dirZ * pMove;
+        proj.traveledDistance += pMove;
+
+        // Dibujar proyectil
+        ctx.fillStyle = proj.color;
+        ctx.beginPath();
+        ctx.arc(proj.x, proj.z, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(proj.x - 2, proj.z - 2, 4, 4);
+
+        let hit = false;
+        // Colisión con enemigos
+        for (let eIdx = 0; eIdx < enemyEntities.length; eIdx++) {
+          const ent = enemyEntities[eIdx];
+          if (ent.enemy.hp <= 0) continue;
+          const eCenterPxX = ent.enemy.worldX * TILE_SIZE + 16;
+          const eCenterPxY = ent.enemy.worldZ * TILE_SIZE + 16;
+          const pDist = Math.hypot(eCenterPxX - proj.x, eCenterPxY - proj.z);
+
+          if (pDist < 20) {
+            hit = true;
+            ent.enemy.hp -= proj.damage;
+            ent.hitFlashTime = nowMs;
+            ent.enemy.state = 'chase';
+            spawnDamageNumber(`-${proj.damage}`, eCenterPxX, eCenterPxY - 10, '#f97316', true);
+            soundEngine.playSfx('hit');
+
+            if (ent.enemy.hp <= 0) {
+              handleEnemyDefeat(ent);
+            }
+            break;
+          }
+        }
+
+        if (hit || proj.traveledDistance >= proj.maxDistance) {
+          projectileEntities.splice(pIdx, 1);
+        }
+      }
+
+      // 8. EFECTOS DE ESPADAZOS Y CORTES (Slashes)
+      for (let sIdx = slashEntities.length - 1; sIdx >= 0; sIdx--) {
+        const sl = slashEntities[sIdx];
+        const age = nowMs - sl.createdAt;
+        if (age > 160) {
+          slashEntities.splice(sIdx, 1);
+        } else {
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(sl.x, sl.y, 18, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      // 9. NÚMEROS DE DAÑO FLOTANTES
+      for (let nIdx = damageNumberEntities.length - 1; nIdx >= 0; nIdx--) {
+        const num = damageNumberEntities[nIdx];
+        const age = nowMs - num.createdAt;
+        if (age > 850) {
+          damageNumberEntities.splice(nIdx, 1);
+        } else {
+          const floatY = num.y - (age / 850) * 22;
+          const alpha = 1.0 - age / 850;
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.font = num.isCrit ? 'bold 15px monospace' : 'bold 12px monospace';
+          ctx.fillStyle = '#000000';
+          ctx.fillText(num.text, num.x + 1, floatY + 1);
+          ctx.fillStyle = num.color;
+          ctx.fillText(num.text, num.x, floatY);
+          ctx.restore();
+        }
+      }
 
       // ------------------------------------------------------------------------
       // CAPA 3: CLIMA Y PARTÍCULAS PIXELADAS
