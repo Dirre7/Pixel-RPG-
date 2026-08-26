@@ -166,25 +166,68 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
       map[y][x] = 0;
     }
   }
+  // Calzada principal norte a sur totalmente limpia y despejada (X: 18..19)
   for (let y = 74; y <= 108; y++) {
-    map[y][18] = 2; map[y][19] = 2; // Sendero del valle
+    map[y][18] = 2; map[y][19] = 2;
   }
-  map[82][24] = 6;  // 🌾 Molino de Viento con aspas animadas
-  map[82][20] = 5;  // Casona del molinero
-  map[78][12] = 5;  // Granja del Valle Alto
-  map[84][12] = 5;  // Granero y Establo
-  map[90][22] = 5;  // Cabaña de los Hortelanos
-  map[96][22] = 5;  // Cobertizo de Herramientas
-  map[88][18] = 4;  // Pozo de agua de la granja
-  for (let y = 88; y <= 96; y++) {
-    for (let x = 10; x <= 16; x++) {
-      map[y][x] = 13; // Huertos de cultivo
+
+  // 🏡 Sector Agrícola Oeste: Granjas, Plazoleta del Pozo y Huertos Reales
+  // Cabaña 1: Granja del Valle Alto
+  map[78][13] = 5;
+  map[79][13] = 2; map[79][14] = 2; map[79][15] = 2; map[79][16] = 2; map[79][17] = 2; map[79][18] = 2;
+  map[78][12] = 14; // Barriles y suministros
+
+  // Cabaña 2: Granero y Establo
+  map[82][13] = 5;
+  map[83][13] = 2; map[83][14] = 2; map[83][15] = 2; map[83][16] = 2; map[83][17] = 2; map[83][18] = 2;
+
+  // Plazoleta de Descanso del Pozo (Lateral Oeste, sin invadir la calzada)
+  map[86][15] = 4; // Pozo de piedra
+  map[85][15] = 12; map[87][15] = 12; // Bancos
+  map[86][16] = 2; map[86][17] = 2; // Acceso
+
+  // Huerto Real de Cultivo (Calabazas y Zanahorias)
+  for (let y = 90; y <= 98; y++) {
+    for (let x = 9; x <= 15; x++) {
+      map[y][x] = 13;
     }
   }
-  map[106][18] = 8;  // 🏛️ Gran Santuario Místico de los Valles
-  map[105][16] = 18; map[105][20] = 18; // Columnas sagradas
-  map[107][16] = 12; map[107][20] = 12; // Parterres florales
-  map[108][18] = 7;  // 🎁 Cofre Sagrado del Valle
+  map[89][9] = 12; map[89][12] = 12; map[89][15] = 12; // Setos protectores del huerto
+  map[99][9] = 12; map[99][12] = 12; map[99][15] = 12;
+
+  // 🌾 Sector del Molino y Casonas del Este (X: 24)
+  // Cabaña 3: Casona del Molinero
+  map[78][24] = 5;
+  map[79][19] = 2; map[79][20] = 2; map[79][21] = 2; map[79][22] = 2; map[79][23] = 2; map[79][24] = 2;
+
+  // 🌾 Gran Molino de Viento con aspas animadas y sacos de grano
+  map[84][25] = 6;
+  map[85][19] = 2; map[85][20] = 2; map[85][21] = 2; map[85][22] = 2; map[85][23] = 2; map[85][24] = 2; map[85][25] = 2;
+  map[85][26] = 14; map[83][25] = 14; // Sacos de harina y pacas de trigo
+
+  // Cabaña 4: Cabaña de los Hortelanos
+  map[92][24] = 5;
+  map[93][19] = 2; map[93][20] = 2; map[93][21] = 2; map[93][22] = 2; map[93][23] = 2; map[93][24] = 2;
+
+  // Cabaña 5: Cobertizo de Herramientas
+  map[96][24] = 5;
+  map[97][19] = 2; map[97][20] = 2; map[97][21] = 2; map[97][22] = 2; map[97][23] = 2; map[97][24] = 2;
+
+  // Farolas de la calzada
+  map[76][20] = 17; map[84][20] = 17; map[92][20] = 17; map[100][20] = 17;
+
+  // 🏛️ Recinto Sagrado del Santuario Místico (Plaza Monumental Oeste)
+  map[104][12] = 8; // 🏛️ Santuario Místico de Mármol
+  map[103][10] = 18; map[103][14] = 18; // Columnas de mármol
+  map[105][10] = 18; map[105][14] = 18;
+  map[104][13] = 2; map[104][14] = 2; map[104][15] = 2; map[104][16] = 2; map[104][17] = 2; map[104][18] = 2;
+  map[105][12] = 7; // 🎁 Cofre Sagrado del Valle
+
+  // 🌄 Glorieta y Mirador del Valle al final del camino sur
+  map[107][17] = 2; map[107][20] = 2;
+  map[108][17] = 2; map[108][20] = 2;
+  map[107][16] = 12; map[107][21] = 12; // Bancos de piedra
+  map[108][16] = 17; map[108][21] = 17; // Farolas de mirador
 
   // =========================================================================
   // 7. CARVE REGION 7: 🏴‍☠️ ENSENADA DE LOS CONTRABANDISTAS Y PUERTO (Sureste, X: 44..66, Y: 76..112)

@@ -955,8 +955,9 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 8) {
-            // 🪦 Gran Mausoleo / Cripta Ancestral 2.5D o Santuario Místico
-            if (currentZone.id === 'zone_forest' || (x >= 50 && y <= 35)) {
+            // 🪦 Gran Mausoleo en Cementerio Noreste o Santuario Místico de Mármol
+            const isCryptMausoleum = (currentZone.id === 'zone_forest' && x >= 50 && y <= 35) || currentZone.id === 'subzone_crypt';
+            if (isCryptMausoleum) {
               entities.push({
                 ySort: posY + TILE_SIZE + 24,
                 draw: (c) => {
