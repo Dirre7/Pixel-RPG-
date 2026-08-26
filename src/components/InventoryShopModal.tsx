@@ -299,7 +299,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
         paddingRight: 'max(0.5rem, env(safe-area-inset-right, 0.5rem))',
       }}
     >
-      <div className="bg-slate-900 border-2 border-slate-700 rounded-xl max-w-5xl w-full max-h-[96dvh] flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-[#0e0d18] border-2 border-amber-600/70 rounded-2xl max-w-5xl w-full h-[88dvh] sm:h-[85vh] max-h-[92dvh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="p-3 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
           <div className="flex items-center space-x-1.5 min-w-0">
@@ -385,10 +385,10 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
         )}
 
         {/* Modal Body */}
-        <div className="flex-1 p-2.5 sm:p-4 overflow-y-auto">
+        <div className="flex-1 p-2.5 sm:p-4 overflow-hidden flex flex-col min-h-0">
           {/* TAB 1: EQUIPMENT (7 SLOTS VISUALES CON BOTONES GRANDES) */}
           {activeTab === 'equipment' && (
-            <div className="space-y-3">
+            <div className="space-y-3 h-full overflow-y-auto pr-1">
               {/* Hero Showcase Header */}
               <div className="flex items-center justify-between p-2.5 bg-slate-950 rounded-xl border border-slate-800">
                 <div className="flex items-center space-x-2.5 min-w-0">
@@ -484,7 +484,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
 
           {/* TAB 2: STATS (HOJA COMPLETA DE 19 ATRIBUTOS TÁCTICOS POR ROLES) */}
           {activeTab === 'stats' && (
-            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3.5">
+            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3.5 h-full overflow-y-auto pr-1">
               {/* Header: Hero Badge & Level */}
               <div className="flex items-center space-x-3 pb-2.5 border-b border-slate-800">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-2xl shadow-md border border-amber-300/40 flex-shrink-0">
@@ -629,9 +629,9 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
 
           {/* TAB 2: INVENTORY (GRID RPG 4x7 + WEAPON / ITEM DETAIL CARD - IMAGEN 2 & 3) */}
           {activeTab === 'inventory' && (
-            <div className="flex flex-col lg:flex-row gap-3">
+            <div className="flex flex-col lg:flex-row gap-3 h-full flex-1 min-h-0 overflow-hidden">
               {/* LEFT COLUMN: 4x7 ITEM GRID */}
-              <div className="flex-1 space-y-2.5">
+              <div className="flex-1 flex flex-col gap-2 min-h-0 h-full overflow-hidden">
                 {/* Category Filter Tabs */}
                 <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-1 text-[10px]">
                   {[
@@ -664,7 +664,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
                 </div>
 
                 {/* 4x7 Grid Container (Biselado de Bronce) */}
-                <div className="bg-[#0b0a14] p-3 rounded-xl border-2 border-amber-600/50 shadow-inner min-h-[220px]">
+                <div className="bg-[#0b0a14] p-3 rounded-xl border-2 border-amber-600/50 shadow-inner flex-1 min-h-0 overflow-y-auto">
                   {/* Empty state check */}
                   {filterSlot !== 'all' &&
                   filterSlot !== 'consumable' &&
@@ -783,7 +783,7 @@ export const InventoryShopModal: React.FC<InventoryShopModalProps> = ({
               </div>
 
               {/* RIGHT COLUMN: 🗡️ WEAPON & ITEM DETAIL CARD (DIRECTAMENTE ESTILO IMAGEN 2 & 3) */}
-              <div className="w-full lg:w-80 bg-[#0e0d18] border-2 border-amber-600/70 rounded-xl p-3.5 flex flex-col justify-between gap-3 shadow-2xl">
+              <div className="w-full lg:w-80 bg-[#0e0d18] border-2 border-amber-600/70 rounded-xl p-3.5 flex flex-col justify-between gap-3 shadow-2xl flex-shrink-0 h-auto lg:h-full overflow-y-auto">
                 {selectedItem ? (
                   <div className="space-y-3">
                     {/* Header Card: Name & Stars */}

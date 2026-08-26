@@ -124,7 +124,7 @@ export const QuestLogModal: React.FC<QuestLogModalProps> = ({
         paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))',
       }}
     >
-      <div className="relative w-full max-w-4xl bg-slate-950 border-2 border-amber-500/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[96dvh]">
+      <div className="relative w-full max-w-4xl bg-slate-950 border-2 border-amber-500/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[88dvh] sm:h-[85vh] max-h-[92dvh]">
         {/* Modal Header */}
         <div className="flex items-center justify-between p-3.5 sm:p-4 bg-slate-900/95 border-b border-amber-500/40">
           <div className="flex items-center space-x-2.5">
