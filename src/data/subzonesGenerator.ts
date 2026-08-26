@@ -470,23 +470,25 @@ export function generateSmugglersCaveDungeon(): SubZoneMapResult {
       map[y][x] = 0;
     }
   }
-  map[5][19] = 7; // Cofre del Gran Botín Pirata
+  // 🎁 Cofre del Gran Botín Pirata
+  map[5][19] = 7;
 
-  // Pasarela hacia el almacén clandestino (Noroeste)
-  for (let x = 3; x <= 7; x++) {
-    map[10][x] = 2;
-  }
-  for (let y = 4; y <= 9; y++) {
-    for (let x = 2; x <= 6; x++) {
-      map[y][x] = 0;
-    }
-  }
+  // 📦 Pilas de Cajas de Botín Pirata y Barriles de Ron (tile 14)
+  map[5][3] = 14;  map[5][4] = 14;  map[8][3] = 14;  map[8][5] = 14;  // Almacén Noroeste
+  map[9][8] = 14;  map[9][15] = 14; map[12][8] = 14; map[12][15] = 14; // Plataforma Central
+  map[4][18] = 14; map[4][20] = 14; // Altar del Tesoro
 
-  // Braseros y antorchas piratas
-  map[8][7] = 19;
-  map[8][16] = 19;
+  // 🚣 Botes de Remos y Chalupas Amarradas al Muelle (tile 30)
+  map[12][6] = 30;
+  map[12][17] = 30;
+  map[17][10] = 30;
 
-  // Escalera de salida hacia el muelle exterior
+  // 🔥 Braseros y Antorchas Náuticas Piratas (tile 19 y tile 17)
+  map[8][7] = 19;  map[8][16] = 19;  map[6][18] = 19;
+  map[4][2] = 17;  map[4][6] = 17;   map[4][17] = 17;  map[4][21] = 17;
+  map[14][10] = 17; map[14][13] = 17;
+
+  // Escalera de salida hacia el muelle exterior (tile 28)
   map[height - 1][11] = 28;
   map[height - 1][12] = 28;
 

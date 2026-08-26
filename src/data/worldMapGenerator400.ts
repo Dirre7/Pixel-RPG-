@@ -194,20 +194,45 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
       map[y][x] = 0;
     }
   }
+  // Senda ancha del paseo marítimo norte a sur (X: 53..54)
   for (let y = 74; y <= 108; y++) {
-    map[y][52] = 2; map[y][53] = 2; // Senda del puerto
+    map[y][53] = 2; map[y][54] = 2;
   }
-  map[86][56] = 5;   // 🏠 Almacén Clandestino de Contrabando
-  map[87][56] = 28;  // 🚪 Entrada a la Mazmorra: Cueva Secreta de los Contrabandistas
-  map[80][58] = 5;   // Cabaña del Contramaestre
-  map[84][58] = 5;   // Almacén de Velámenes
-  map[92][56] = 5;   // Taller del Calafate
-  map[86][50] = 14;  // Pilas de leña y suministros
-  map[90][50] = 14;  map[94][50] = 14; // Cajas de provisiones marítimas
-  map[96][60] = 18; map[98][60] = 18; // Canteras de pizarra
-  map[97][62] = 20;  // 💎 Geoda de cristal de la cala
-  map[106][56] = 7;  // 🎁 Cofre del Tesoro de los Contrabandistas
-  map[108][52] = 18; map[108][56] = 18; // Torres vigía del muelle
+
+  // 🪨 GRAN ENTRADA A LA CUEVA DE LOS CONTRABANDISTAS (X: 58, Y: 86)
+  map[86][58] = 26;  // Gran Acantilado y Gruta Marina 2.5D HD
+  map[87][58] = 28;  // 🚪 Portal de Descenso a la Cueva
+  for (let x = 54; x <= 58; x++) {
+    map[87][x] = 2;  // Sendero empedrado de acceso a la cueva
+  }
+
+  // 🏡 Cabañas de Pescadores Alineadas y Ordenadas en la Ribera Este (X: 60)
+  // Cabaña 1: Cabaña del Contramaestre
+  map[78][60] = 5;
+  map[79][55] = 2; map[79][56] = 2; map[79][57] = 2; map[79][58] = 2; map[79][59] = 2; map[79][60] = 2;
+  map[78][59] = 14; // Redes y barriles
+  map[77][60] = 12; // Setos
+
+  // Cabaña 2: Almacén de Velámenes
+  map[82][60] = 5;
+  map[83][55] = 2; map[83][56] = 2; map[83][57] = 2; map[83][58] = 2; map[83][59] = 2; map[83][60] = 2;
+  map[82][59] = 14;
+
+  // Cabaña 3: Taller del Calafate
+  map[92][60] = 5;
+  map[93][55] = 2; map[93][56] = 2; map[93][57] = 2; map[93][58] = 2; map[93][59] = 2; map[93][60] = 2;
+  map[92][59] = 14;
+
+  // 🌊 Paseo Fluvial y Muelle Oeste (X: 51..52)
+  map[76][51] = 17; map[84][51] = 17; map[92][51] = 17; map[100][51] = 17; // Farolas náuticas del paseo
+  map[80][51] = 12; map[88][51] = 12; map[96][51] = 12; // Bancos de madera con vistas al agua
+  map[78][51] = 14; map[86][51] = 14; map[94][51] = 14; // Barriles de pesca y redes
+
+  // Canteras de pizarra y geodas del acantilado sur
+  map[102][60] = 18; map[104][60] = 18;
+  map[103][62] = 20; // 💎 Geoda marina
+  map[106][56] = 7;  // 🎁 Cofre del Tesoro Pirata
+  map[108][52] = 18; map[108][56] = 18; // Balizas de piedra marítimas
 
   // =========================================================================
   // 8. CARVE REGION 8: 🌊 EL GRAN DELTA FLUVIAL Y ESTUARIO (Sur Fluvial, X: 30..42, Y: 76..115)

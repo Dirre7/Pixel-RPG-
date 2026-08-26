@@ -2050,6 +2050,243 @@ export function getBoneUrnStackCanvas(): HTMLCanvasElement {
 }
 
 /**
+ * ⚓ GRAN ENTRADA A LA CUEVA DE LOS CONTRABANDISTAS (2.5D HD - 96x128 px)
+ * Boca de gruta marina en acantilado de roca natural escarpada, vigas de madera apuntaladas,
+ * farol náutico de latón colgante, redes de pesca, barriles de ron y rótulo marítimo.
+ */
+export function getCaveEntranceCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 96;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // 1. Sombra de contacto
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+  ctx.beginPath();
+  ctx.ellipse(48, 120, 46, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 2. Acantilado de Roca Natural Escarpada (Base y Aleros 2.5D)
+  // Roca de fondo
+  ctx.fillStyle = '#1e293b'; // Pizarra marina oscura
+  ctx.beginPath();
+  ctx.moveTo(8, 116);
+  ctx.lineTo(12, 50);
+  ctx.lineTo(24, 24);
+  ctx.lineTo(48, 14);
+  ctx.lineTo(76, 20);
+  ctx.lineTo(88, 54);
+  ctx.lineTo(88, 116);
+  ctx.closePath();
+  ctx.fill();
+
+  // Bloques de roca escarpada y estratos geológicos
+  ctx.fillStyle = '#334155';
+  ctx.beginPath();
+  ctx.moveTo(14, 114);
+  ctx.lineTo(16, 52);
+  ctx.lineTo(28, 28);
+  ctx.lineTo(48, 18);
+  ctx.lineTo(74, 24);
+  ctx.lineTo(84, 56);
+  ctx.lineTo(84, 114);
+  ctx.closePath();
+  ctx.fill();
+
+  // Relieves y facetas de piedra iluminadas
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(20, 32, 24, 12);
+  ctx.fillRect(52, 28, 26, 14);
+  ctx.fillRect(16, 60, 16, 24);
+  ctx.fillRect(68, 64, 16, 26);
+
+  // Musgo marino y líquenes verdes en la roca
+  ctx.fillStyle = '#065f46';
+  ctx.fillRect(14, 46, 10, 6);
+  ctx.fillRect(72, 42, 12, 5);
+  ctx.fillRect(18, 92, 8, 8);
+  ctx.fillRect(74, 96, 10, 6);
+
+  // 3. Boca de la Gruta Marina (Oscuridad Abisal Interior)
+  ctx.fillStyle = '#020617'; // Fondo negro oceánico
+  ctx.beginPath();
+  ctx.moveTo(28, 114);
+  ctx.lineTo(28, 68);
+  ctx.quadraticCurveTo(48, 48, 68, 68);
+  ctx.lineTo(68, 114);
+  ctx.closePath();
+  ctx.fill();
+
+  // Estalactitas de roca colgando del arco superior
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.moveTo(34, 58); ctx.lineTo(38, 72); ctx.lineTo(42, 58);
+  ctx.moveTo(46, 54); ctx.lineTo(50, 70); ctx.lineTo(54, 54);
+  ctx.moveTo(58, 60); ctx.lineTo(61, 69); ctx.lineTo(64, 60);
+  ctx.fill();
+
+  // 4. Vigas de Madera y Maderos de Apuntalamiento Minero
+  ctx.fillStyle = '#451a03'; // Vigas de roble envejecido
+  ctx.fillRect(26, 62, 5, 52); // Poste izquierdo
+  ctx.fillRect(65, 62, 5, 52); // Poste derecho
+  ctx.fillRect(24, 60, 48, 6); // Dintel superior
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(27, 63, 3, 50);
+  ctx.fillRect(66, 63, 3, 50);
+  ctx.fillRect(25, 61, 46, 4);
+  // Refuerzos en diagonal
+  ctx.fillStyle = '#451a03';
+  ctx.beginPath();
+  ctx.moveTo(26, 76); ctx.lineTo(38, 64); ctx.lineTo(34, 64); ctx.lineTo(26, 72);
+  ctx.moveTo(70, 76); ctx.lineTo(58, 64); ctx.lineTo(62, 64); ctx.lineTo(70, 72);
+  ctx.fill();
+
+  // 5. Farol Náutico de Latón Colgante con Luz Cálida Animada
+  const fPulse = Math.sin(time * 6) * 1.5;
+  // Cuerda/Cadena
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(47, 66, 2, 8);
+  // Farol de latón
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(44, 74, 8, 10);
+  ctx.fillStyle = '#f59e0b'; // Luz ámbar brillante
+  ctx.fillRect(45, 75, 6, 7);
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(46, 76 + fPulse * 0.2, 4, 5);
+
+  // 6. Rótulo Náutico con Ancla (`⚓ CUEVA`)
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(32, 48, 32, 9);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(33, 49, 30, 7);
+  // Ancla metálica
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(46, 50, 4, 5);
+  ctx.fillRect(45, 53, 6, 2);
+
+  // 7. Barriles de Ron, Cajas de Contrabando y Redes
+  // Barriles a la izquierda
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(16, 102, 10, 12);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(17, 103, 8, 10);
+  ctx.fillStyle = '#0f172a'; // Aros de hierro
+  ctx.fillRect(16, 105, 10, 1);
+  ctx.fillRect(16, 110, 10, 1);
+
+  // Red de pesca colgando a la derecha
+  ctx.strokeStyle = '#d97706';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let ny = 88; ny <= 112; ny += 4) {
+    ctx.moveTo(70, ny);
+    ctx.lineTo(82, ny + 4);
+    ctx.moveTo(82, ny);
+    ctx.lineTo(70, ny + 4);
+  }
+  ctx.stroke();
+
+  // 8. Espuma de Agua Marina en la Orilla
+  const wave = Math.sin(time * 3) * 3;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(48 + wave, 115, 30, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  return canvas;
+}
+
+/**
+ * 📦 PILA DE CAJAS DE BOTÍN PIRATA Y BARRILES DE RON (32x32 px)
+ */
+export function getPirateCrateStackCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 13, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Gran caja de botín de madera
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(2, 12, 16, 16);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(3, 13, 14, 14);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(4, 14, 12, 12);
+  // Refuerzos de hierro
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(2, 12, 16, 2);
+  ctx.fillRect(2, 26, 16, 2);
+
+  // Barril de ron apilado a la derecha
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(18, 14, 12, 14);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(19, 15, 10, 12);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(18, 17, 12, 1);
+  ctx.fillRect(18, 23, 12, 1);
+
+  // Ancla marina apoyada
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(12, 4, 3, 12);
+  ctx.fillRect(8, 12, 11, 2);
+
+  return canvas;
+}
+
+/**
+ * 🚣 BOTE DE REMOS / CHALUPA AMARRADA (32x32 px)
+ */
+export function getDockRowboatCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Casco de madera del bote
+  ctx.fillStyle = '#451a03';
+  ctx.beginPath();
+  ctx.ellipse(16, 16, 14, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Interior del bote
+  ctx.fillStyle = '#78350f';
+  ctx.beginPath();
+  ctx.ellipse(16, 16, 12, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Bancos de madera para sentarse
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(10, 13, 2, 6);
+  ctx.fillRect(16, 12, 2, 8);
+  ctx.fillRect(22, 13, 2, 6);
+
+  // Remo de madera cruzado
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(6, 6, 20, 2);
+  ctx.fillRect(24, 5, 4, 4); // Pala del remo
+
+  // Cuerda de amarre
+  ctx.strokeStyle = '#d97706';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(3, 16);
+  ctx.lineTo(0, 24);
+  ctx.stroke();
+
+  return canvas;
+}
+
+/**
  * 🏰 AYUNTAMIENTO / MANSIÓN CENTRAL DE PIEDRA (80x70 px)
  * Con escudo heráldico, columnas, arcada y tejado de tejas
  */

@@ -62,6 +62,9 @@ import {
   getStoneSarcophagusCanvas,
   getSpectralBrazierCanvas,
   getBoneUrnStackCanvas,
+  getCaveEntranceCanvas,
+  getPirateCrateStackCanvas,
+  getDockRowboatCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -886,6 +889,14 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                   c.drawImage(boneUrns, posX, posY, 32, 32);
                 },
               });
+            } else if (currentZone.interiorType === 'smugglers_cave' || currentZone.id === 'subzone_smugglers_cave') {
+              const pirateCrates = getPirateCrateStackCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(pirateCrates, posX, posY, 32, 32);
+                },
+              });
             } else {
               const isCrate = (x * 7 + y * 13) % 2 === 0;
               entities.push({
@@ -1311,13 +1322,21 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 30) {
-            // 🪑 Mesas de Taberna, Estantes en Botica, o ⚰️ Sarcófagos de Piedra en Cripta
+            // 🪑 Mesas de Taberna, Estantes en Botica, ⚰️ Sarcófagos en Cripta, o 🚣 Botes en Cueva
             if (currentZone.interiorType === 'crypt' || currentZone.id === 'subzone_crypt') {
               const sarcophagus = getStoneSarcophagusCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE + 8,
                 draw: (c) => {
                   c.drawImage(sarcophagus, posX, posY - 16, 32, 48);
+                },
+              });
+            } else if (currentZone.interiorType === 'smugglers_cave' || currentZone.id === 'subzone_smugglers_cave') {
+              const rowboat = getDockRowboatCanvas();
+              entities.push({
+                ySort: posY + TILE_SIZE,
+                draw: (c) => {
+                  c.drawImage(rowboat, posX, posY, 32, 32);
                 },
               });
             } else {
@@ -1330,6 +1349,15 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             }
+          } else if (tileType === 26) {
+            // ⚓ Gran Entrada a la Cueva de los Contrabandistas (2.5D HD)
+            entities.push({
+              ySort: posY + TILE_SIZE + 24,
+              draw: (c) => {
+                const cave = getCaveEntranceCanvas(time);
+                c.drawImage(cave, 0, 0, 96, 128, posX - 32, posY - 76, 96, 128);
+              },
+            });
           } else if (tileType === 31) {
             // 🍷 Mostrador de Tabernero o Mostrador de Boticaria
             const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';

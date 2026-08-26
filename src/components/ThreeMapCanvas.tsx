@@ -111,6 +111,9 @@ import {
   getStoneSarcophagusCanvas,
   getSpectralBrazierCanvas,
   getBoneUrnStackCanvas,
+  getCaveEntranceCanvas,
+  getPirateCrateStackCanvas,
+  getDockRowboatCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 // --- 🌟 2.5D HD PIXEL BILLBOARD SPRITE HELPERS ---
@@ -1276,19 +1279,28 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: furnaceGroup, gridX: x, gridY: y });
         }
 
-        // 🪑 Mesas de Taberna, Estantes en Botica, o ⚰️ Sarcófagos de Piedra (Tile 30)
+        // 🪑 Mesas de Taberna, Estantes en Botica, ⚰️ Sarcófagos en Cripta, o 🚣 Botes en Cueva (Tile 30)
         if (tileType === 30) {
           const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';
           const isCrypt = currentZone.interiorType === 'crypt' || currentZone.id === 'subzone_crypt';
+          const isSmugglers = currentZone.interiorType === 'smugglers_cave' || currentZone.id === 'subzone_smugglers_cave';
           const tableGroup = create2DPixelSprite(
-            isCrypt ? getStoneSarcophagusCanvas() : isBotica ? getHerbDryingRackCanvas() : getTavernTableCanvas(),
-            isCrypt ? 2.8 : 2.6,
-            isCrypt ? 3.8 : 2.6,
+            isCrypt ? getStoneSarcophagusCanvas() : isSmugglers ? getDockRowboatCanvas() : isBotica ? getHerbDryingRackCanvas() : getTavernTableCanvas(),
+            isCrypt ? 2.8 : isSmugglers ? 2.8 : 2.6,
+            isCrypt ? 3.8 : isSmugglers ? 2.8 : 2.6,
             0.8
           );
           tableGroup.position.set(posX, elevation, posZ);
           addWorldEntity(tableGroup, x, y);
           obstacleGroups.push({ group: tableGroup, gridX: x, gridY: y });
+        }
+
+        // ⚓ Gran Entrada a la Cueva de los Contrabandistas (Tile 26)
+        if (tileType === 26) {
+          const caveGroup = create2DPixelSprite(getCaveEntranceCanvas(0), 4.8, 6.4, 1.8);
+          caveGroup.position.set(posX, elevation, posZ);
+          addWorldEntity(caveGroup, x, y);
+          obstacleGroups.push({ group: caveGroup, gridX: x, gridY: y });
         }
 
         // 🍷 Gran Barra del Tabernero o Mostrador de Boticaria (Tile 31)
@@ -1342,12 +1354,24 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: cropGroup, gridX: x, gridY: y });
         }
 
-        // 🪵 Depósito de Leña y Pila de Troncos (Tile 14)
+        // 🪵 Depósito de Leña, Cajas de Botín Pirata, o Urnas de Cripta (Tile 14)
         if (tileType === 14) {
-          const woodGroup = create3DWoodpileMesh(posX, posZ);
-          woodGroup.position.y += elevation;
-          addWorldEntity(woodGroup, x, y);
-          obstacleGroups.push({ group: woodGroup, gridX: x, gridY: y });
+          const isCrypt = currentZone.interiorType === 'crypt' || currentZone.id === 'subzone_crypt';
+          const isSmugglers = currentZone.interiorType === 'smugglers_cave' || currentZone.id === 'subzone_smugglers_cave';
+          if (isCrypt || isSmugglers) {
+            const propGroup = create2DPixelSprite(
+              isCrypt ? getBoneUrnStackCanvas() : getPirateCrateStackCanvas(),
+              2.6, 2.6, 0.8
+            );
+            propGroup.position.set(posX, elevation, posZ);
+            addWorldEntity(propGroup, x, y);
+            obstacleGroups.push({ group: propGroup, gridX: x, gridY: y });
+          } else {
+            const woodGroup = create3DWoodpileMesh(posX, posZ);
+            woodGroup.position.y += elevation;
+            addWorldEntity(woodGroup, x, y);
+            obstacleGroups.push({ group: woodGroup, gridX: x, gridY: y });
+          }
         }
 
         // 🔥 Antorcha de Pared en Interiores / 🏮 Farola de la Calle (Tile 17)
