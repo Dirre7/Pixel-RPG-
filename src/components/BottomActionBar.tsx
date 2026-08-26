@@ -60,56 +60,7 @@ const BottomActionBarComponent: React.FC<BottomActionBarProps> = ({
 
   return (
     <div className="flex flex-col items-center gap-1.5 pointer-events-auto select-none font-mono">
-      {/* 🌟 1. DUAL HEALTH & MANA STATUS BARS (Estilo Dark Fantasy & Bronze Beveled) */}
-      <div className="flex items-center gap-2 bg-[#0e0d18]/95 border-2 border-amber-600/70 p-1.5 sm:p-2 rounded-xl shadow-[0_4px_25px_rgba(0,0,0,0.8)] backdrop-blur-md w-[310px] sm:w-[380px] max-w-[95vw]">
-        {/* Hero Class Emblem */}
-        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br from-amber-600/30 via-slate-900 to-slate-950 border border-amber-400/60 flex items-center justify-center text-base sm:text-lg flex-shrink-0 shadow-inner">
-          {player.heroClass === 'Guerrero' ? '⚔️' : player.heroClass === 'Mago' ? '🪄' : player.heroClass === 'Pícaro' ? '🗡️' : player.heroClass === 'Paladín' ? '🛡️' : '🏹'}
-        </div>
-
-        {/* Dual Bars Container */}
-        <div className="flex-1 flex flex-col gap-1 min-w-0">
-          {/* Health Bar */}
-          <div className="flex flex-col">
-            <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black leading-none mb-0.5">
-              <span className="text-red-300 flex items-center gap-0.5">
-                <Heart className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-red-400 fill-red-400" />
-                <span>Salud:</span>
-              </span>
-              <span className="text-red-200">
-                {player.hp} / {player.maxHp} ({Math.round(hpPercent)}%)
-              </span>
-            </div>
-            <div className="w-full bg-[#06060c] rounded-full h-2 sm:h-2.5 overflow-hidden border border-red-950 p-[1px] shadow-inner">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-red-700 via-rose-500 to-red-400 transition-all duration-300 shadow-[0_0_8px_rgba(239,68,68,0.7)]"
-                style={{ width: `${hpPercent}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Mana Bar */}
-          <div className="flex flex-col">
-            <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black leading-none mb-0.5">
-              <span className="text-cyan-300 flex items-center gap-0.5">
-                <Droplet className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-cyan-400 fill-cyan-400" />
-                <span>Maná:</span>
-              </span>
-              <span className="text-cyan-200">
-                {player.mp} / {player.maxMp} ({Math.round(mpPercent)}%)
-              </span>
-            </div>
-            <div className="w-full bg-[#06060c] rounded-full h-2 sm:h-2.5 overflow-hidden border border-cyan-950 p-[1px] shadow-inner">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-blue-700 via-indigo-500 to-cyan-400 transition-all duration-300 shadow-[0_0_8px_rgba(6,182,212,0.7)]"
-                style={{ width: `${mpPercent}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 🌟 2. 8-SLOT ACTION BELT / HOTBAR (Estilo Medieval Biselado) */}
+      {/* 🌟 8-SLOT ACTION BELT / HOTBAR (Estilo Medieval Biselado Centrado) */}
       <div className="flex items-center gap-1 sm:gap-1.5 bg-[#0e0d18]/95 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl border-2 border-amber-600/70 shadow-[0_4px_25px_rgba(0,0,0,0.85)] backdrop-blur-md overflow-x-auto max-w-full no-scrollbar">
         {hotbarSlots.map((slot) => (
           <button

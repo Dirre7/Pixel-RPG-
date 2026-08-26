@@ -33,7 +33,9 @@ import {
   MapPin,
   X,
   Calendar,
-  Settings
+  Settings,
+  Heart,
+  Droplet
 } from 'lucide-react';
 
 interface OverworldMapProps {
@@ -828,62 +830,92 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         />
       </div>
 
-      {/* 2. Top-Left: Player Vitals Glassmorphic Capsule (Protegido con Safe Area) */}
+      {/* 2. Top-Left: Player Hero & Vitals Dark Fantasy Beveled Box (Protegido con Safe Area) */}
       <div
-        className="absolute z-20 pointer-events-auto flex flex-col gap-1 bg-slate-950/80 border border-amber-500/50 rounded-xl p-1.5 sm:p-2 shadow-2xl backdrop-blur-md font-mono min-w-[140px] sm:min-w-[200px] max-w-[220px]"
+        className="absolute z-20 pointer-events-auto flex items-center gap-2 bg-[#0e0d18]/95 border-2 border-amber-600/70 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.85)] backdrop-blur-md font-mono min-w-[210px] sm:min-w-[270px] max-w-[310px]"
         style={{
           top: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))',
           left: 'max(0.5rem, env(safe-area-inset-left, 0.5rem))',
         }}
       >
-        {/* Header: Class, Name, Level, Gold */}
-        <div className="flex items-center justify-between text-xs font-bold">
-          <div className="flex items-center gap-1 min-w-0">
-            <span className="text-sm">{player.heroClass === 'Guerrero' ? '⚔️' : player.heroClass === 'Mago' ? '🪄' : '🗡️'}</span>
-            <span className="text-amber-300 font-black truncate max-w-[70px] sm:max-w-[100px] text-xs">{player.name}</span>
-            <span className="text-amber-400 text-[10px]">Nv.{player.level}</span>
-          </div>
-          <div className="flex items-center gap-0.5 text-yellow-300 font-black text-[11px] ml-1">
-            <span>🪙</span>
-            <span>{player.gold.toLocaleString()}G</span>
-          </div>
+        {/* Hero Class Emblem */}
+        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-amber-600/30 via-slate-900 to-slate-950 border border-amber-400/60 flex items-center justify-center text-xl sm:text-2xl flex-shrink-0 shadow-inner">
+          {player.heroClass === 'Guerrero' ? '⚔️' : player.heroClass === 'Mago' ? '🪄' : player.heroClass === 'Pícaro' ? '🗡️' : player.heroClass === 'Paladín' ? '🛡️' : '🏹'}
         </div>
 
-        {/* HP Bar */}
-        <div className="w-full">
-          <div className="flex justify-between text-emerald-400 font-black text-[8px] sm:text-[9px]">
-            <span>HP</span>
-            <span>{player.hp}/{player.maxHp}</span>
+        {/* Hero Info & Vitals */}
+        <div className="flex-1 flex flex-col gap-1 min-w-0">
+          {/* Header Row: Name, Level, Gold */}
+          <div className="flex items-center justify-between text-xs font-bold gap-1 leading-none">
+            <div className="flex items-center gap-1 min-w-0">
+              <span className="text-amber-300 font-black truncate max-w-[80px] sm:max-w-[110px] text-xs sm:text-sm">
+                {player.name}
+              </span>
+              <span className="text-amber-400 text-[10px] sm:text-[11px] font-black bg-[#1f1a38] px-1.5 py-0.5 rounded border border-amber-500/40">
+                Nv.{player.level}
+              </span>
+            </div>
+            <div className="flex items-center gap-0.5 text-yellow-300 font-black text-[11px] sm:text-xs">
+              <span>🪙</span>
+              <span>{player.gold.toLocaleString()}G</span>
+            </div>
           </div>
-          <div className="w-full bg-slate-800/90 h-1.5 sm:h-2 rounded-full overflow-hidden">
-            <div
-              className="bg-emerald-500 h-full transition-all duration-300"
-              style={{ width: `${Math.min(100, Math.max(0, (player.hp / player.maxHp) * 100))}%` }}
-            />
-          </div>
-        </div>
 
-        {/* MP Bar */}
-        <div className="w-full">
-          <div className="flex justify-between text-sky-400 font-black text-[8px] sm:text-[9px]">
-            <span>MP</span>
-            <span>{player.mp}/{player.maxMp}</span>
+          {/* Health Bar */}
+          <div className="flex flex-col">
+            <div className="flex justify-between items-center text-[8px] sm:text-[9px] font-black leading-none mb-0.5">
+              <span className="text-red-300 flex items-center gap-0.5">
+                <Heart className="w-2.5 h-2.5 text-red-400 fill-red-400" />
+                <span>Salud:</span>
+              </span>
+              <span className="text-red-200">
+                {player.hp}/{player.maxHp} ({Math.round(Math.max(0, Math.min(100, (player.hp / player.maxHp) * 100)))}%)
+              </span>
+            </div>
+            <div className="w-full bg-[#06060c] rounded-full h-1.5 sm:h-2 overflow-hidden border border-red-950 p-[1px] shadow-inner">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-red-700 via-rose-500 to-red-400 transition-all duration-300 shadow-[0_0_8px_rgba(239,68,68,0.7)]"
+                style={{ width: `${Math.max(0, Math.min(100, (player.hp / player.maxHp) * 100))}%` }}
+              />
+            </div>
           </div>
-          <div className="w-full bg-slate-800/90 h-1.5 sm:h-2 rounded-full overflow-hidden">
-            <div
-              className="bg-sky-500 h-full transition-all duration-300"
-              style={{ width: `${Math.min(100, Math.max(0, (player.mp / player.maxMp) * 100))}%` }}
-            />
-          </div>
-        </div>
 
-        {/* EXP Bar */}
-        <div className="w-full" title={`EXP: ${player.exp} / ${player.maxExp}`}>
-          <div className="w-full bg-slate-800/90 h-1 rounded-full overflow-hidden mt-0.5">
-            <div
-              className="bg-gradient-to-r from-purple-500 via-fuchsia-400 to-amber-300 h-full transition-all duration-300"
-              style={{ width: `${Math.min(100, Math.max(0, (player.exp / player.maxExp) * 100))}%` }}
-            />
+          {/* Mana Bar */}
+          <div className="flex flex-col">
+            <div className="flex justify-between items-center text-[8px] sm:text-[9px] font-black leading-none mb-0.5">
+              <span className="text-cyan-300 flex items-center gap-0.5">
+                <Droplet className="w-2.5 h-2.5 text-cyan-400 fill-cyan-400" />
+                <span>Maná:</span>
+              </span>
+              <span className="text-cyan-200">
+                {player.mp}/{player.maxMp} ({Math.round(Math.max(0, Math.min(100, (player.mp / player.maxMp) * 100)))}%)
+              </span>
+            </div>
+            <div className="w-full bg-[#06060c] rounded-full h-1.5 sm:h-2 overflow-hidden border border-cyan-950 p-[1px] shadow-inner">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-blue-700 via-indigo-500 to-cyan-400 transition-all duration-300 shadow-[0_0_8px_rgba(6,182,212,0.7)]"
+                style={{ width: `${Math.max(0, Math.min(100, (player.mp / player.maxMp) * 100))}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Experience (EXP) Bar */}
+          <div className="flex flex-col">
+            <div className="flex justify-between items-center text-[8px] sm:text-[9px] font-black leading-none mb-0.5">
+              <span className="text-purple-300 flex items-center gap-0.5">
+                <Sparkles className="w-2.5 h-2.5 text-purple-400" />
+                <span>EXP:</span>
+              </span>
+              <span className="text-purple-200">
+                {player.exp}/{player.maxExp} ({Math.round(Math.max(0, Math.min(100, (player.exp / player.maxExp) * 100)))}%)
+              </span>
+            </div>
+            <div className="w-full bg-[#06060c] rounded-full h-1 sm:h-1.5 overflow-hidden border border-purple-950 p-[1px] shadow-inner">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-400 to-amber-300 transition-all duration-300 shadow-[0_0_8px_rgba(168,85,247,0.7)]"
+                style={{ width: `${Math.max(0, Math.min(100, (player.exp / player.maxExp) * 100))}%` }}
+              />
+            </div>
           </div>
         </div>
       </div>
