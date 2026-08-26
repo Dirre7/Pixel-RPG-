@@ -445,7 +445,7 @@ export const ZONES: Zone[] = [
     portals: [
       {
         x: 31,
-        y: 53,
+        y: 52,
         targetZoneId: 'subzone_tavern',
         targetPos: { x: 9, y: 12 },
         label: 'Taberna y Posada "El Jabalí Dorado"',
@@ -453,7 +453,7 @@ export const ZONES: Zone[] = [
       },
       {
         x: 25,
-        y: 53,
+        y: 52,
         targetZoneId: 'subzone_forge',
         targetPos: { x: 8, y: 14 },
         label: 'La Gran Forja Real de Brom',
@@ -461,7 +461,7 @@ export const ZONES: Zone[] = [
       },
       {
         x: 47,
-        y: 53,
+        y: 52,
         targetZoneId: 'subzone_botica',
         targetPos: { x: 7, y: 12 },
         label: 'Botica Alquímica de Lynda',
@@ -469,7 +469,7 @@ export const ZONES: Zone[] = [
       },
       {
         x: 43,
-        y: 45,
+        y: 44,
         targetZoneId: 'subzone_castle',
         targetPos: { x: 10, y: 18 },
         label: 'Gran Salón del Trono de Aethelgard',
