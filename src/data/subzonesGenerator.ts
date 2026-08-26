@@ -184,42 +184,85 @@ export function generateForgeInterior(): SubZoneMapResult {
 }
 
 /**
- * 3. 🌿 BOTICA ALQUÍMICA DE LYNDA (16x14)
- * Laboratorio con caldero burbujeante, hierbas secas y frascos de pociones.
+ * 3. 🌿 BOTICA ALQUÍMICA DE LYNDA (18x16)
+ * Laboratorio botánico acogedor con gran caldero burbujeante central,
+ * mostrador de alquimia con alambique y matraces, estantes de hierbas aromáticas y alfombra arcana.
  */
 export function generateBoticaInterior(): SubZoneMapResult {
-  const width = 16;
-  const height = 14;
+  const width = 18;
+  const height = 16;
   const map: number[][] = [];
 
   for (let y = 0; y < height; y++) {
     const row: number[] = [];
     for (let x = 0; x < width; x++) {
       if (y === 0 || y === height - 1 || x === 0 || x === width - 1) {
-        row.push(1);
+        row.push(1); // Muros de madera y zócalo de cantería
       } else {
-        row.push(0); // Suelo botánico
+        row.push(0); // Suelo de losas botánicas de tilo
       }
     }
     map.push(row);
   }
 
-  // Caldero mágico central con poción verde
-  map[5][7] = 19;
-  map[5][8] = 19;
+  // Columnas maestras de madera noble
+  map[4][4] = 1;
+  map[4][13] = 1;
+  map[10][4] = 1;
+  map[10][13] = 1;
 
-  // Mostrador
-  for (let x = 2; x <= 5; x++) map[3][x] = 1;
+  // Gran Mostrador de Boticaria y Alquimia en el noroeste (tile 31)
+  map[3][2] = 31;
+  map[3][3] = 31;
+  map[3][4] = 31;
+  map[3][5] = 31;
+  map[4][5] = 31;
+  map[5][5] = 31;
 
-  // Linternas de boticario
-  map[1][3] = 17;
-  map[1][12] = 17;
-  map[7][1] = 17;
-  map[7][14] = 17;
+  // Gran Caldero de Alquimia Central sobre brasas (tile 19)
+  map[6][8] = 19;
+  map[6][9] = 19;
 
-  // Puerta de salida
-  map[height - 1][7] = 28;
+  // Alfombra Arcana Esmeralda alrededor del caldero (tile 2)
+  for (let y = 5; y <= 8; y++) {
+    for (let x = 7; x <= 10; x++) {
+      if (map[y][x] !== 19) {
+        map[y][x] = 2;
+      }
+    }
+  }
+
+  // Bastidores y Estantes de Secado de Hierbas (tile 30)
+  map[8][3] = 30;   // Secadero Oeste 1
+  map[11][3] = 30;  // Secadero Oeste 2
+  map[8][14] = 30;  // Secadero Este 1
+  map[11][14] = 30; // Secadero Este 2
+
+  // Bodega de Tarros y Esencias en la esquina noreste (tile 14)
+  map[2][14] = 14;
+  map[2][15] = 14;
+  map[3][15] = 14;
+  map[4][15] = 14;
+
+  // Antorchas y Apliques de Pared Alquímicos (tile 17)
+  map[1][2] = 17;
+  map[1][15] = 17;
+  map[5][1] = 17;
+  map[5][16] = 17;
+  map[9][1] = 17;
+  map[9][16] = 17;
+  map[13][1] = 17;
+  map[13][16] = 17;
+
+  // Pasillo de alfombra verde hacia la entrada (tile 2)
+  for (let y = 9; y < height - 1; y++) {
+    map[y][8] = 2;
+    map[y][9] = 2;
+  }
+
+  // Puerta doble de salida hacia la aldea (tile 28)
   map[height - 1][8] = 28;
+  map[height - 1][9] = 28;
 
   return { width, height, tileData: map };
 }

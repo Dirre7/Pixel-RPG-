@@ -56,6 +56,32 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
       ctx.fillRect(24, 8, 1, 7);
       ctx.fillRect(10, 16, 1, 7);
       ctx.fillRect(20, 24, 1, 7);
+    } else if (zoneId === 'subzone_botica' || zoneId.includes('botica')) {
+      // 🌿 Suelo de Botica Alquímica: Baldosas de cantería suave con vetas y musgo botánico
+      ctx.fillStyle = '#064e3b'; // Base sombra oscura
+      ctx.fillRect(0, 0, 32, 32);
+
+      // Losas de piedra caliza cálida
+      ctx.fillStyle = '#065f46';
+      ctx.fillRect(1, 1, 14, 14);
+      ctx.fillRect(17, 1, 14, 14);
+      ctx.fillRect(1, 17, 14, 14);
+      ctx.fillRect(17, 17, 14, 14);
+
+      // Brillo y relieve
+      ctx.fillStyle = '#047857';
+      ctx.fillRect(2, 2, 12, 12);
+      ctx.fillRect(18, 2, 12, 12);
+      ctx.fillRect(2, 18, 12, 12);
+      ctx.fillRect(18, 18, 12, 12);
+
+      // Detalles botánicos / polvo de hierbas
+      ctx.fillStyle = '#34d399';
+      ctx.fillRect(6, 6, 2, 2);
+      ctx.fillRect(22, 22, 2, 2);
+      ctx.fillStyle = '#c084fc'; // Polvo arcano lavanda
+      ctx.fillRect(22, 6, 1, 1);
+      ctx.fillRect(6, 22, 1, 1);
     } else if (zoneId === 'subzone_forge' || zoneId.includes('forge')) {
       // Suelo de Taller de Herrería: Losas de basalto oscuras con hollín y polvo de carbón
       ctx.fillStyle = '#1c1917'; // Base losa oscura
@@ -193,6 +219,31 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
       ctx.moveTo(16, 8); ctx.lineTo(24, 16); ctx.lineTo(16, 24); ctx.lineTo(8, 16);
       ctx.closePath();
       ctx.fill();
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(15, 15, 2, 2);
+      return canvas;
+    } else if (zoneId === 'subzone_botica' || zoneId.includes('botica')) {
+      // 🌿 Alfombra Arcana Esmeralda y Violeta con Runa Alquímica
+      ctx.fillStyle = '#064e3b';
+      ctx.fillRect(0, 0, 32, 32);
+      ctx.fillStyle = '#047857';
+      ctx.fillRect(2, 2, 28, 28);
+      ctx.fillStyle = '#059669';
+      ctx.fillRect(4, 4, 24, 24);
+
+      // Estrella mágica y runas doradas
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(16, 16, 10, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = '#c084fc';
+      ctx.beginPath();
+      ctx.moveTo(16, 8); ctx.lineTo(22, 22); ctx.lineTo(10, 22);
+      ctx.closePath();
+      ctx.fill();
+
       ctx.fillStyle = '#fef08a';
       ctx.fillRect(15, 15, 2, 2);
       return canvas;
@@ -1359,6 +1410,283 @@ export function getTavernChandelierCanvas(time: number = 0): HTMLCanvasElement {
     ctx.fillStyle = '#fef08a';
     ctx.fillRect(cX - 1, cY - 8 + flicker * 0.3, 2, 3);
   }
+
+  return canvas;
+}
+
+/**
+ * 🌿 GRAN BOTICA ALQUÍMICA DE LYNDA (CUTE FANTASY 2.5D HD - 96x128 px)
+ * Tejado amatista mística, ventanas con luz esmeralda viva, rótulo con matraz de poción,
+ * chimenea con humo mágico y jardineras de hierbas aromáticas en el porche.
+ */
+export function getApothecaryCuteHouseCanvas(
+  baseImg: HTMLImageElement,
+  time: number = 0
+): HTMLCanvasElement {
+  const baseHouse = getRecoloredCuteHouseCanvas(baseImg, 'purple');
+  const canvas = document.createElement('canvas');
+  canvas.width = 96;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // 1. Dibujar la casa base 2.5D de Cute Fantasy (tejado amatista)
+  ctx.drawImage(baseHouse, 0, 0);
+
+  // 2. Ventana con resplandor mágico esmeralda / cian alquímico
+  const pulse = Math.sin(time * 6) * 0.15 + 0.85;
+  // Ventana superior
+  ctx.fillStyle = `rgba(16, 185, 129, ${pulse})`;
+  ctx.fillRect(44, 46, 7, 7);
+  ctx.fillStyle = `rgba(167, 243, 208, ${pulse * 0.9})`;
+  ctx.fillRect(45, 47, 5, 5);
+  ctx.fillStyle = '#064e3b';
+  ctx.fillRect(47, 46, 1, 7);
+  ctx.fillRect(44, 49, 7, 1);
+
+  // Ventana inferior derecha
+  ctx.fillStyle = `rgba(16, 185, 129, ${pulse})`;
+  ctx.fillRect(66, 68, 8, 8);
+  ctx.fillStyle = `rgba(167, 243, 208, ${pulse * 0.9})`;
+  ctx.fillRect(67, 69, 6, 6);
+  ctx.fillStyle = '#064e3b';
+  ctx.fillRect(70, 68, 1, 8);
+  ctx.fillRect(66, 72, 8, 1);
+
+  // 3. Gran Chimenea con Humo Mágico Alquímico (púrpura y esmeralda)
+  ctx.fillStyle = '#1e1b4b';
+  ctx.fillRect(68, 26, 8, 20);
+  ctx.fillStyle = '#312e81';
+  ctx.fillRect(69, 28, 6, 17);
+  ctx.fillStyle = '#1e1b4b';
+  ctx.fillRect(67, 24, 10, 3);
+
+  // Volutas de humo mágico animado
+  const sOffset1 = Math.sin(time * 3) * 3;
+  const sOffset2 = Math.cos(time * 2.5) * 4;
+  const sRise1 = (time * 12) % 18;
+  const sRise2 = ((time + 1) * 12) % 18;
+  ctx.fillStyle = 'rgba(192, 132, 252, 0.55)'; // Humo lavanda
+  ctx.beginPath();
+  ctx.arc(72 + sOffset1, 20 - sRise1, 4 + (sRise1 / 4), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(110, 231, 183, 0.4)'; // Humo esmeralda
+  ctx.beginPath();
+  ctx.arc(74 + sOffset2, 12 - sRise2, 5 + (sRise2 / 3), 0, Math.PI * 2);
+  ctx.fill();
+
+  // 4. Rótulo colgante de boticario con Hoja y Matraz de Poción (`🌿`)
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(38, 52, 20, 2); // Soporte
+  ctx.fillStyle = '#064e3b';
+  ctx.fillRect(40, 54, 18, 9);
+  ctx.fillStyle = '#047857';
+  ctx.fillRect(41, 55, 16, 7);
+  // Matraz de poción verde esmeralda
+  ctx.fillStyle = '#10b981';
+  ctx.fillRect(47, 57, 5, 4);
+  ctx.fillRect(48, 56, 3, 2);
+  ctx.fillStyle = '#a7f3d0';
+  ctx.fillRect(48, 58, 2, 2);
+  // Hoja mágica dorada
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(53, 56, 3, 4);
+
+  // 5. Jardineras de Hierbas Medicinales en el Porche
+  // Jardinera izquierda
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(16, 86, 12, 10);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(17, 87, 10, 8);
+  // Flores de lavanda y hierbabuena
+  ctx.fillStyle = '#16a34a';
+  ctx.fillRect(17, 83, 10, 4);
+  ctx.fillStyle = '#c084fc'; // Lavanda
+  ctx.fillRect(18, 81, 2, 3);
+  ctx.fillRect(21, 80, 2, 4);
+  ctx.fillRect(24, 82, 2, 3);
+
+  // Cesta de ingredientes y tarros a la derecha
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(72, 88, 10, 10);
+  // Frascos de poción roja y azul en la cesta
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(73, 85, 3, 4);
+  ctx.fillStyle = '#3b82f6';
+  ctx.fillRect(77, 85, 3, 4);
+
+  return canvas;
+}
+
+/**
+ * 🧙 GRAN CALDERO DE ALQUIMIA BURBUJEANTE (48x48 px)
+ */
+export function getAlchemyCauldronCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 48;
+  canvas.height = 48;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+  ctx.beginPath();
+  ctx.ellipse(24, 40, 18, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Brasas y fuego bajo el caldero
+  const flicker = Math.sin(time * 8) * 1.5;
+  ctx.fillStyle = '#450a0a';
+  ctx.fillRect(14, 34, 20, 6);
+  ctx.fillStyle = '#ea580c';
+  ctx.fillRect(16, 33 + flicker * 0.4, 16, 5);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(18, 35 + flicker * 0.3, 12, 3);
+
+  // 3 Patas de hierro forjado
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(12, 30, 4, 10);
+  ctx.fillRect(32, 30, 4, 10);
+  ctx.fillRect(22, 32, 4, 8);
+
+  // Cuerpo del Caldero de hierro fundido
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.ellipse(24, 24, 16, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.ellipse(24, 23, 14, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Aro superior del caldero
+  ctx.fillStyle = '#334155';
+  ctx.beginPath();
+  ctx.ellipse(24, 15, 14, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Poción mágica esmeralda burbujeante
+  const pPulse = Math.sin(time * 5) * 0.1 + 0.9;
+  ctx.fillStyle = `rgba(16, 185, 129, ${pPulse})`;
+  ctx.beginPath();
+  ctx.ellipse(24, 15, 12, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#a7f3d0';
+  ctx.fillRect(20, 14, 3, 2);
+
+  // Burbujas y vapores mágicos animados ascendiendo
+  const bRise1 = (time * 15) % 20;
+  const bRise2 = ((time + 0.5) * 15) % 20;
+  ctx.fillStyle = 'rgba(52, 211, 153, 0.7)';
+  ctx.beginPath();
+  ctx.arc(20 + Math.sin(time * 4) * 4, 14 - bRise1, 2 + (bRise1 / 8), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(192, 132, 252, 0.6)';
+  ctx.beginPath();
+  ctx.arc(28 + Math.cos(time * 3) * 4, 14 - bRise2, 2.5 + (bRise2 / 7), 0, Math.PI * 2);
+  ctx.fill();
+
+  return canvas;
+}
+
+/**
+ * ⚗️ MOSTRADOR DE ALQUIMIA CON ALAMBIQUE Y MATRACES (32x32 px)
+ */
+export function getApothecaryCounterCanvas(time: number = 0): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 14, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Mostrador de madera de caoba
+  ctx.fillStyle = '#312e81';
+  ctx.fillRect(2, 10, 28, 18);
+  ctx.fillStyle = '#4338ca';
+  ctx.fillRect(4, 12, 24, 15);
+  ctx.fillStyle = '#6366f1';
+  ctx.fillRect(6, 14, 20, 12);
+
+  // Tablero superior pulido
+  ctx.fillStyle = '#064e3b';
+  ctx.fillRect(0, 8, 32, 5);
+  ctx.fillStyle = '#047857';
+  ctx.fillRect(1, 8, 30, 2);
+
+  // Alambique de cobre a la izquierda
+  ctx.fillStyle = '#b45309';
+  ctx.fillRect(4, 3, 5, 6);
+  ctx.fillStyle = '#d97706';
+  ctx.fillRect(5, 1, 3, 3);
+  // Tubo curvado
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(8, 2, 4, 1);
+  ctx.fillRect(11, 3, 1, 5);
+
+  // Mortero de piedra
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(14, 5, 5, 4);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillRect(16, 3, 2, 4); // Mano del mortero
+
+  // Matraces de pociones mágicas de colores
+  ctx.fillStyle = '#ef4444'; // Vida roja
+  ctx.fillRect(21, 4, 3, 5);
+  ctx.fillStyle = '#3b82f6'; // Maná azul
+  ctx.fillRect(25, 3, 3, 6);
+  ctx.fillStyle = '#10b981'; // Aguante verde
+  ctx.fillRect(29, 5, 2, 4);
+
+  return canvas;
+}
+
+/**
+ * 🌿 ESTANTE DE SECADO DE HIERBAS MEDICINALES (32x32 px)
+ */
+export function getHerbDryingRackCanvas(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Sombra base
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(16, 26, 13, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Marco de madera del bastidor
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(2, 4, 3, 24);
+  ctx.fillRect(27, 4, 3, 24);
+  ctx.fillRect(2, 6, 28, 2);
+  ctx.fillRect(2, 14, 28, 2);
+
+  // Manojos de hierbas secándose colgadas
+  // Fila superior
+  ctx.fillStyle = '#c084fc'; // Lavanda
+  ctx.fillRect(8, 8, 3, 6);
+  ctx.fillStyle = '#15803d'; // Salvia
+  ctx.fillRect(14, 8, 3, 6);
+  ctx.fillStyle = '#eab308'; // Manzanilla
+  ctx.fillRect(20, 8, 3, 6);
+
+  // Fila inferior
+  ctx.fillStyle = '#16a34a'; // Menta
+  ctx.fillRect(6, 16, 3, 6);
+  ctx.fillStyle = '#ec4899'; // Flor de loto
+  ctx.fillRect(12, 16, 3, 6);
+  ctx.fillStyle = '#38bdf8'; // Raíz de escarcha
+  ctx.fillRect(18, 16, 3, 6);
+  ctx.fillStyle = '#f97316'; // Hongo ígneo
+  ctx.fillRect(23, 16, 3, 6);
 
   return canvas;
 }

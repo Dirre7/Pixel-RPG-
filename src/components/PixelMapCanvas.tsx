@@ -54,6 +54,10 @@ import {
   getTavernBarrelStackCanvas,
   getWallTorchCanvas,
   getTavernChandelierCanvas,
+  getApothecaryCuteHouseCanvas,
+  getAlchemyCauldronCanvas,
+  getApothecaryCounterCanvas,
+  getHerbDryingRackCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 interface PixelMapCanvasProps {
@@ -1234,7 +1238,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 19) {
-            // Gran Horno de Fundición en la Forja, Chimenea en Taberna, o Hoguera en exteriores
+            // Gran Horno de Fundición en la Forja, Chimenea en Taberna, Caldero en Botica, o Hoguera en exteriores
             if (currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge') {
               const blastFurnace = getBlastFurnaceCanvas(time);
               entities.push({
@@ -1249,6 +1253,14 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 ySort: posY + TILE_SIZE + 8,
                 draw: (c) => {
                   c.drawImage(tavernFireplace, posX - 8, posY - 14, 48, 48);
+                },
+              });
+            } else if (currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica') {
+              const cauldron = getAlchemyCauldronCanvas(time);
+              entities.push({
+                ySort: posY + TILE_SIZE + 8,
+                draw: (c) => {
+                  c.drawImage(cauldron, posX - 8, posY - 14, 48, 48);
                 },
               });
             } else if (gameAssets.bonfire.complete && gameAssets.bonfire.naturalWidth > 0) {
@@ -1269,21 +1281,23 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               });
             }
           } else if (tileType === 30) {
-            // 🪑 Mesas de Comedor de la Taberna con Banquete y Taburetes
-            const tavernTable = getTavernTableCanvas();
+            // 🪑 Mesas de Taberna o Estantes de Secado de Hierbas en Botica
+            const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';
+            const tableOrRack = isBotica ? getHerbDryingRackCanvas() : getTavernTableCanvas();
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(tavernTable, posX, posY, 32, 32);
+                c.drawImage(tableOrRack, posX, posY, 32, 32);
               },
             });
           } else if (tileType === 31) {
-            // 🍷 Gran Barra de Tabernero y Mostrador de Roble
-            const barCounter = getTavernBarCounterCanvas(time);
+            // 🍷 Mostrador de Tabernero o Mostrador de Boticaria
+            const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';
+            const counter = isBotica ? getApothecaryCounterCanvas(time) : getTavernBarCounterCanvas(time);
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
-                c.drawImage(barCounter, posX, posY, 32, 32);
+                c.drawImage(counter, posX, posY, 32, 32);
               },
             });
           } else if (tileType === 20) {
@@ -1351,24 +1365,24 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               },
             });
           } else if (tileType === 27) {
-            // Mesa de Alquimia y Botica Pixel Crawler
-            if (gameAssets.alchemy.complete && gameAssets.alchemy.naturalWidth > 0) {
-              const alchFrame = Math.floor(time * 3) % 4;
-              entities.push({
-                ySort: posY + TILE_SIZE + 6,
-                draw: (c) => {
-                  c.drawImage(gameAssets.alchemy, alchFrame * 48, 0, 48, 48, posX - 8, posY - 12, 48, 48);
-                },
-              });
-            } else {
-              const apothecary = getApothecaryCanvas();
-              entities.push({
-                ySort: posY + TILE_SIZE + 10,
-                draw: (c) => {
-                  c.drawImage(apothecary, posX - 12, posY - 20, 56, 56);
-                },
-              });
-            }
+            // 🌿 Gran Botica Alquímica de Lynda (Cute Fantasy 2.5D HD - 96x128 px)
+            entities.push({
+              ySort: posY + TILE_SIZE + 20,
+              draw: (c) => {
+                // Sombra de contacto
+                const hShadow = c.createRadialGradient(posX + 16, posY + 24, 6, posX + 16, posY + 24, 48);
+                hShadow.addColorStop(0, 'rgba(15, 23, 42, 0.7)');
+                hShadow.addColorStop(0.5, 'rgba(15, 23, 42, 0.35)');
+                hShadow.addColorStop(1, 'rgba(15, 23, 42, 0)');
+                c.fillStyle = hShadow;
+                c.beginPath();
+                c.ellipse(posX + 16, posY + 24, 48, 8, 0, 0, Math.PI * 2);
+                c.fill();
+
+                const apothecaryHouse = getApothecaryCuteHouseCanvas(gameAssets.house, time);
+                c.drawImage(apothecaryHouse, 0, 0, 96, 128, posX - 32, posY - 76, 96, 128);
+              },
+            });
           } else if (tileType === 28) {
             // Geoda de Cristales de Maná Arcano
             const crystal = getManaCrystalCanvas(time);

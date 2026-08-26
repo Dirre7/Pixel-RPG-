@@ -103,6 +103,10 @@ import {
   getTavernBarrelStackCanvas,
   getWallTorchCanvas,
   getTavernChandelierCanvas,
+  getApothecaryCuteHouseCanvas,
+  getAlchemyCauldronCanvas,
+  getApothecaryCounterCanvas,
+  getHerbDryingRackCanvas,
 } from '../utils/pixelTilesetGenerator';
 
 // --- 🌟 2.5D HD PIXEL BILLBOARD SPRITE HELPERS ---
@@ -1175,9 +1179,11 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: tavernGroup, gridX: x, gridY: y });
         }
 
-        // 🌿 Botica Alquímica de Lynda (Tile 27)
+        // 🌿 Gran Botica Alquímica de Lynda (Cute Fantasy 2.5D HD - Tile 27)
         if (tileType === 27) {
-          const boticaGroup = create2DPixelSprite(getApothecaryCanvas(), 4.6, 4.6, 1.5);
+          const houseImg = new Image();
+          houseImg.src = '/Cute_Fantasy_Free/Outdoor decoration/House_1_Wood_Base_Blue.png';
+          const boticaGroup = create2DPixelSprite(getApothecaryCuteHouseCanvas(houseImg, 0), 4.8, 6.4, 1.8);
           boticaGroup.position.set(posX, elevation, posZ);
           addWorldEntity(boticaGroup, x, y);
           obstacleGroups.push({ group: boticaGroup, gridX: x, gridY: y });
@@ -1238,16 +1244,17 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
         if (tileType === 19) {
           const isForge = currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge';
           const isTavern = currentZone.interiorType === 'tavern' || currentZone.id === 'subzone_tavern';
+          const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';
           const furnaceGroup = create2DPixelSprite(
-            isForge ? getBlastFurnaceCanvas(0) : isTavern ? getTavernFireplaceCanvas(0) : getCampfireCanvas(0),
-            isForge ? 4.4 : isTavern ? 4.0 : 2.5,
-            isForge ? 4.4 : isTavern ? 4.0 : 2.5,
+            isForge ? getBlastFurnaceCanvas(0) : isTavern ? getTavernFireplaceCanvas(0) : isBotica ? getAlchemyCauldronCanvas(0) : getCampfireCanvas(0),
+            isForge ? 4.4 : isTavern ? 4.0 : isBotica ? 3.8 : 2.5,
+            isForge ? 4.4 : isTavern ? 4.0 : isBotica ? 3.8 : 2.5,
             1.2
           );
           furnaceGroup.position.set(posX, elevation, posZ);
           
-          if (isForge || isTavern) {
-            const fireLight = new THREE.PointLight(0xf97316, 2.5, 8);
+          if (isForge || isTavern || isBotica) {
+            const fireLight = new THREE.PointLight(isBotica ? 0x10b981 : 0xf97316, 2.5, 8);
             fireLight.position.set(0, 1.5, 0);
             furnaceGroup.add(fireLight);
           }
@@ -1256,17 +1263,19 @@ const ThreeMapCanvasComponent: React.FC<ThreeMapCanvasProps> = ({
           obstacleGroups.push({ group: furnaceGroup, gridX: x, gridY: y });
         }
 
-        // 🪑 Mesas de Comedor de Taberna con Banquete (Tile 30)
+        // 🪑 Mesas de Comedor de Taberna o Estantes de Secado de Botica (Tile 30)
         if (tileType === 30) {
-          const tableGroup = create2DPixelSprite(getTavernTableCanvas(), 2.6, 2.6, 0.8);
+          const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';
+          const tableGroup = create2DPixelSprite(isBotica ? getHerbDryingRackCanvas() : getTavernTableCanvas(), 2.6, 2.6, 0.8);
           tableGroup.position.set(posX, elevation, posZ);
           addWorldEntity(tableGroup, x, y);
           obstacleGroups.push({ group: tableGroup, gridX: x, gridY: y });
         }
 
-        // 🍷 Gran Barra del Tabernero (Tile 31)
+        // 🍷 Gran Barra del Tabernero o Mostrador de Boticaria (Tile 31)
         if (tileType === 31) {
-          const barGroup = create2DPixelSprite(getTavernBarCounterCanvas(0), 2.8, 2.8, 0.8);
+          const isBotica = currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica';
+          const barGroup = create2DPixelSprite(isBotica ? getApothecaryCounterCanvas(0) : getTavernBarCounterCanvas(0), 2.8, 2.8, 0.8);
           barGroup.position.set(posX, elevation, posZ);
           addWorldEntity(barGroup, x, y);
           obstacleGroups.push({ group: barGroup, gridX: x, gridY: y });
@@ -2405,6 +2414,36 @@ function createProceduralGroundPBRTextures(zoneId: string): { diffuse: THREE.Can
       for (let px = (offset % 160); px < 512; px += 160) {
         ctx.fillRect(px, py, 2, plankH - 2);
       }
+    }
+  } else if (zoneId === 'subzone_botica' || zoneId.includes('botica')) {
+    // 🌿 Mystic Emerald Botanical Mosaic & Limestone PBR Floor
+    ctx.fillStyle = '#064e3b';
+    ctx.fillRect(0, 0, 512, 512);
+
+    const tileSize = 64;
+    for (let py = 0; py < 512; py += tileSize) {
+      for (let px = 0; px < 512; px += tileSize) {
+        ctx.fillStyle = (px + py) % 128 === 0 ? '#065f46' : '#047857';
+        ctx.beginPath();
+        ctx.roundRect(px + 2, py + 2, tileSize - 4, tileSize - 4, 3);
+        ctx.fill();
+
+        // Botanical specks
+        for (let i = 0; i < 20; i++) {
+          ctx.fillStyle = Math.random() > 0.6 ? '#34d399' : '#c084fc';
+          ctx.fillRect(px + 4 + Math.random() * (tileSize - 8), py + 4 + Math.random() * (tileSize - 8), 2, 2);
+        }
+      }
+    }
+
+    // Mortar lines
+    ctx.strokeStyle = '#022c22';
+    ctx.lineWidth = 2;
+    for (let i = 0; i <= 512; i += tileSize) {
+      ctx.beginPath();
+      ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
     }
   } else if (zoneId === 'zone_volcano') {
     // Cracked Basalt Slabs with Glowing Magma Fissures
