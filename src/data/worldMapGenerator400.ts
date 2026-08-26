@@ -311,26 +311,29 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[58][41] = 9;  // Puesto de Armería y Escudos
   map[62][41] = 9;  // Puesto de Pociones y Pergaminos
 
-  // 🍻 EDIFICIO 1: Gran Taberna y Posada "El Jabalí Dorado" (X: 31, Y: 51, Puerta: 31, 53)
+  // 🍻 EDIFICIO 1: Gran Taberna y Posada "El Jabalí Dorado" (X: 31, Y: 51, Puerta: 31, 52)
   map[51][31] = 5;  // Edificio de la Taberna
   map[52][28] = 14; map[52][29] = 14; // Barriles de cerveza y cajas en terraza
   map[50][30] = 12; map[50][32] = 12; // Setos florales
-  map[53][33] = 17; // Farola de bienvenida al porche
+  map[52][34] = 17; // Farola en la orilla del canal/césped
+  map[53][33] = 2;  // Calzada despejada
 
-  // ⚔️ EDIFICIO 2: Gran Forja Real de Brom (X: 25, Y: 51, Puerta: 25, 53)
+  // ⚔️ EDIFICIO 2: Gran Forja Real de Brom (X: 25, Y: 51, Puerta: 25, 52)
   map[51][25] = 10; // Gran Edificio de la Forja con Chimenea y Rótulo
   map[52][24] = 2; map[52][25] = 2; map[52][26] = 2; // Patio empedrado de la forja
   map[51][24] = 2; map[51][26] = 2;
   map[52][23] = 29; // Yunque de trabajo exterior con martillo y chispas
   map[52][27] = 22; // Pilas de mineral de hierro, carbón y lingotes
   map[50][27] = 16; // Armero con espadas y hachas
-  map[53][23] = 17; // Farola/Brasero de la forja
+  map[52][22] = 17; // Farola en el borde exterior
+  map[53][23] = 2;  // Calzada despejada
 
-  // 🌿 EDIFICIO 3: Botica Alquímica de Lynda (X: 47, Y: 51, Puerta: 47, 53)
+  // 🌿 EDIFICIO 3: Botica Alquímica de Lynda (X: 47, Y: 51, Puerta: 47, 52)
   map[51][47] = 27; // Edificio de la Botica
   map[50][46] = 12; map[50][48] = 12; // Setos de lavanda y rosas
   map[52][49] = 14; // Maceteros con hierbas
-  map[53][45] = 17; // Farola de la botica
+  map[52][43] = 17; // Farola en la esquina del jardín botánico
+  map[53][45] = 2;  // Calzada despejada
 
   // 👑 EDIFICIO 4: Gran Salón del Trono de Aethelgard (X: 43, Y: 43, Puerta: 43, 45)
   map[43][43] = 31; // Gran Mansión Consistorial
