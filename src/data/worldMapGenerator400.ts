@@ -213,8 +213,8 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   map[96][24] = 5;
   map[97][19] = 2; map[97][20] = 2; map[97][21] = 2; map[97][22] = 2; map[97][23] = 2; map[97][24] = 2;
 
-  // Farolas de la calzada
-  map[76][20] = 17; map[84][20] = 17; map[92][20] = 17; map[100][20] = 17;
+  // Farolas de la calzada (en márgenes verdes, sin solapar NPCs)
+  map[76][20] = 17; map[84][20] = 17; map[90][20] = 17; map[100][20] = 17;
 
   // 🏛️ Recinto Sagrado del Santuario Místico (Plaza Monumental Oeste)
   map[104][12] = 8; // 🏛️ Santuario Místico de Mármol
