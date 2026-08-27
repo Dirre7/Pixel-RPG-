@@ -358,6 +358,23 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     const groundDropEntities: GroundDrop[] = [];
     const damageNumberEntities: { text: string; x: number; y: number; color: string; isCrit?: boolean; createdAt: number }[] = [];
     const slashEntities: { x: number; y: number; dir: string; createdAt: number }[] = [];
+    const hitSparkEntities: { x: number; y: number; vx: number; vy: number; color: string; size: number; createdAt: number }[] = [];
+
+    const spawnHitSparks = (x: number, y: number, color: string = '#fef08a', count: number = 7) => {
+      for (let i = 0; i < count; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 60 + Math.random() * 120;
+        hitSparkEntities.push({
+          x,
+          y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          color,
+          size: 2 + Math.random() * 2.5,
+          createdAt: performance.now(),
+        });
+      }
+    };
 
     const spawnDamageNumber = (text: string, x: number, y: number, color: string = '#fde047', isCrit: boolean = false) => {
       damageNumberEntities.push({
@@ -529,6 +546,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             ent.enemy.worldX += dx * 0.3;
             ent.enemy.worldZ += dy * 0.3;
 
+            spawnHitSparks(ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, isCrit ? '#e879f9' : '#c084fc', 8);
             spawnDamageNumber(`-${dmg}`, ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32, isCrit ? '#c084fc' : '#e879f9', isCrit);
             soundEngine.playSfx('hit');
 
@@ -572,6 +590,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           ent.enemy.worldZ += dy * kb;
 
           const eOffset = ent.enemy.isBoss ? 32 : 16;
+          spawnHitSparks(ent.enemy.worldX * 32 + eOffset, ent.enemy.worldZ * 32 + eOffset, isCrit ? '#f59e0b' : '#fef08a', 9);
           spawnDamageNumber(`-${dmg}`, ent.enemy.worldX * 32 + eOffset, ent.enemy.worldZ * 32, isCrit ? '#ef4444' : '#fde047', isCrit);
           soundEngine.playSfx('hit');
 
@@ -654,6 +673,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           ent.hitFlashTime = performance.now();
           ent.enemy.state = 'chase';
 
+          spawnHitSparks(ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, '#38bdf8', 10);
           spawnDamageNumber(`-${dmg}`, ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32, '#38bdf8', true);
           soundEngine.playSfx('hit');
 
@@ -2774,6 +2794,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               ent.enemy.lastAttackTime = nowMs;
               const enemyDmg = Math.max(1, Math.round(ent.enemy.attack * 1.3 - (playerRef.current.defense || 5) * 0.45));
               onPlayerDamaged?.(enemyDmg);
+              spawnHitSparks(pX + 16, pY + 16, '#ef4444', 7);
               spawnDamageNumber(`-${enemyDmg}`, pX + 16, pY, '#ef4444', false);
               soundEngine.playSfx('hit');
             }
@@ -3018,6 +3039,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             ent.enemy.hp -= actualDmg;
             ent.hitFlashTime = nowMs;
             ent.enemy.state = 'chase';
+            spawnHitSparks(eCenterPxX, eCenterPxY, proj.vfxType === 'arrow' ? '#f59e0b' : '#ef4444', 9);
             spawnDamageNumber(`-${actualDmg}`, eCenterPxX, eCenterPxY - 14, proj.vfxType === 'arrow' ? '#f59e0b' : '#f97316', true);
             soundEngine.playSfx('hit');
 
@@ -3033,53 +3055,53 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         }
       }
 
-      // 8. EFECTOS DE ESPADAZOS Y CORTES (Crescent Blade Slashes & Daggers)
+      // 8. EFECTOS DE ESPADAZOS Y CORTES VISTOSOS (280ms duration)
       for (let sIdx = slashEntities.length - 1; sIdx >= 0; sIdx--) {
         const sl = slashEntities[sIdx];
         const age = nowMs - sl.createdAt;
-        if (age > 180) {
+        if (age > 280) {
           slashEntities.splice(sIdx, 1);
           continue;
         }
-        const progress = age / 180;
+        const progress = age / 280;
         ctx.save();
         ctx.translate(sl.x, sl.y);
 
         if (sl.dir === 'dagger1') {
           // 🗡️ Corte Diagonal 1 de Daga (Pícaro)
           ctx.strokeStyle = '#c084fc';
-          ctx.lineWidth = 5 * (1 - progress);
-          ctx.beginPath();
-          ctx.moveTo(-18, -18);
-          ctx.lineTo(18, 18);
-          ctx.stroke();
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2 * (1 - progress);
-          ctx.stroke();
-        } else if (sl.dir === 'dagger2') {
-          // 🗡️ Corte Diagonal 2 de Daga (Pícaro)
-          ctx.strokeStyle = '#e879f9';
-          ctx.lineWidth = 5 * (1 - progress);
-          ctx.beginPath();
-          ctx.moveTo(18, -18);
-          ctx.lineTo(-18, 18);
-          ctx.stroke();
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2 * (1 - progress);
-          ctx.stroke();
-        } else if (sl.dir === 'spin') {
-          // 🌀 Torbellino 360° (Habilidad de área)
-          const spinRadius = 24 + progress * 16;
-          ctx.strokeStyle = `rgba(59, 130, 246, ${0.9 * (1 - progress)})`;
           ctx.lineWidth = 6 * (1 - progress);
           ctx.beginPath();
-          ctx.arc(0, 0, spinRadius, 0, Math.PI * 2);
+          ctx.moveTo(-22, -22);
+          ctx.lineTo(22, 22);
           ctx.stroke();
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 2.5 * (1 - progress);
           ctx.stroke();
+        } else if (sl.dir === 'dagger2') {
+          // 🗡️ Corte Diagonal 2 de Daga (Pícaro)
+          ctx.strokeStyle = '#e879f9';
+          ctx.lineWidth = 6 * (1 - progress);
+          ctx.beginPath();
+          ctx.moveTo(22, -22);
+          ctx.lineTo(-22, 22);
+          ctx.stroke();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2.5 * (1 - progress);
+          ctx.stroke();
+        } else if (sl.dir === 'spin') {
+          // 🌀 Torbellino 360° (Habilidad de área)
+          const spinRadius = 26 + progress * 20;
+          ctx.strokeStyle = `rgba(59, 130, 246, ${0.95 * (1 - progress)})`;
+          ctx.lineWidth = 7 * (1 - progress);
+          ctx.beginPath();
+          ctx.arc(0, 0, spinRadius, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3 * (1 - progress);
+          ctx.stroke();
         } else {
-          // ⚔️ Tajo de Espada de Acero Animado con Hoja Visible y Estela de Corte
+          // ⚔️ Tajo de Espada de Acero Animado con Hoja Visible y Estela de Corte Luminosa
           let baseAngle = 0;
           if (sl.dir === 'up') baseAngle = -Math.PI / 2;
           else if (sl.dir === 'down') baseAngle = Math.PI / 2;
@@ -3089,19 +3111,19 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           ctx.rotate(baseAngle);
 
           // 1. Estela de corte en media luna expansiva
-          const arcRadius = 22 + progress * 12;
-          const arcSpread = Math.PI * 0.75;
+          const arcRadius = 26 + progress * 14;
+          const arcSpread = Math.PI * 0.85;
           ctx.strokeStyle = `rgba(254, 240, 138, ${0.95 * (1 - progress)})`;
-          ctx.lineWidth = 7 * (1 - progress);
+          ctx.lineWidth = 8 * (1 - progress);
           ctx.beginPath();
           ctx.arc(0, 0, arcRadius, -arcSpread / 2, arcSpread / 2);
           ctx.stroke();
 
           // Filo de luz cortante blanco
           ctx.strokeStyle = `rgba(255, 255, 255, ${1 - progress})`;
-          ctx.lineWidth = 3.5 * (1 - progress);
+          ctx.lineWidth = 4 * (1 - progress);
           ctx.beginPath();
-          ctx.arc(0, 0, arcRadius + 1, -arcSpread / 2.3, arcSpread / 2.3);
+          ctx.arc(0, 0, arcRadius + 1, -arcSpread / 2.2, arcSpread / 2.2);
           ctx.stroke();
 
           // 2. Hoja de la Espada de Acero girando físicamente en el arco de corte
@@ -3117,28 +3139,52 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
           // Hoja de acero brillante
           ctx.fillStyle = '#94a3b8';
-          ctx.fillRect(12, -2.5, 20, 5);
-          ctx.fillStyle = '#f8fafc';
-          ctx.fillRect(13, -1, 18, 2);
+          ctx.fillRect(12, -2.5, 22, 5);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(13, -1, 20, 2);
           // Punta de la espada
           ctx.beginPath();
-          ctx.moveTo(32, -2.5);
-          ctx.lineTo(37, 0);
-          ctx.lineTo(32, 2.5);
+          ctx.moveTo(34, -2.5);
+          ctx.lineTo(39, 0);
+          ctx.lineTo(34, 2.5);
           ctx.closePath();
-          ctx.fillStyle = '#f8fafc';
+          ctx.fillStyle = '#ffffff';
           ctx.fill();
           ctx.restore();
 
           // 3. Chispas y ráfagas de corte
-          const sparkA1 = currentSwing - 0.2;
-          const sparkA2 = currentSwing + 0.2;
+          const sparkA1 = currentSwing - 0.25;
+          const sparkA2 = currentSwing + 0.25;
           ctx.fillStyle = '#ffffff';
-          ctx.fillRect(arcRadius * Math.cos(sparkA1), arcRadius * Math.sin(sparkA1), 3, 3);
-          ctx.fillRect(arcRadius * Math.cos(sparkA2), arcRadius * Math.sin(sparkA2), 3, 3);
+          ctx.fillRect(arcRadius * Math.cos(sparkA1), arcRadius * Math.sin(sparkA1), 3.5, 3.5);
+          ctx.fillRect(arcRadius * Math.cos(sparkA2), arcRadius * Math.sin(sparkA2), 3.5, 3.5);
           ctx.fillStyle = '#facc15';
-          ctx.fillRect((arcRadius + 4) * Math.cos(currentSwing), (arcRadius + 4) * Math.sin(currentSwing), 4, 4);
+          ctx.fillRect((arcRadius + 4) * Math.cos(currentSwing), (arcRadius + 4) * Math.sin(currentSwing), 4.5, 4.5);
         }
+        ctx.restore();
+      }
+
+      // 8.5 CHISPAS DE IMPACTO EXPANSIVAS (Hit Sparks)
+      for (let hsIdx = hitSparkEntities.length - 1; hsIdx >= 0; hsIdx--) {
+        const hs = hitSparkEntities[hsIdx];
+        const age = nowMs - hs.createdAt;
+        if (age > 240) {
+          hitSparkEntities.splice(hsIdx, 1);
+          continue;
+        }
+        const progress = age / 240;
+        const currentX = hs.x + hs.vx * (age / 1000);
+        const currentY = hs.y + hs.vy * (age / 1000);
+        const alpha = 1.0 - progress;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = hs.color;
+        ctx.beginPath();
+        ctx.arc(currentX, currentY, hs.size * (1 - progress * 0.4), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(currentX - 1, currentY - 1, 2, 2);
         ctx.restore();
       }
 
