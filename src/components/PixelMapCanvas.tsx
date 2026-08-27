@@ -346,6 +346,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       enemy,
       sprite: getPixelEnemyCanvas(enemy.enemyType, enemy.color, enemy.isBoss),
       hitFlashTime: 0,
+      deathTime: 0,
     }));
 
     const projectileEntities: CombatProjectile[] = [];
@@ -381,6 +382,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     const handleEnemyDefeat = (ent: typeof enemyEntities[0]) => {
       ent.enemy.state = 'dead';
       ent.enemy.hp = 0;
+      ent.deathTime = performance.now();
       soundEngine.playSfx('victory');
 
       const gold = Math.max(1, ent.enemy.goldReward || 10);
@@ -2632,7 +2634,19 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       let minBossDist = Infinity;
 
       enemyEntities.forEach((ent) => {
-        if (ent.enemy.hp <= 0) return;
+        if (ent.enemy.hp <= 0) {
+          // ⏱️ Respawn automático de 120 segundos (2 minutos) para enemigos comunes
+          if (!ent.enemy.isBoss && ent.deathTime && (nowMs - ent.deathTime >= 120000)) {
+            ent.enemy.hp = ent.enemy.maxHp;
+            ent.enemy.state = 'patrol';
+            ent.enemy.worldX = ent.enemy.spawnX;
+            ent.enemy.worldZ = ent.enemy.spawnY;
+            ent.deathTime = 0;
+            ent.hitFlashTime = 0;
+            spawnDamageNumber('✨ Reaparición', ent.enemy.worldX * TILE_SIZE + 16, ent.enemy.worldZ * TILE_SIZE, '#c084fc', false);
+          }
+          return;
+        }
 
         const distToHero = Math.hypot(
           ent.enemy.worldX - currentPosRef.current.x,
