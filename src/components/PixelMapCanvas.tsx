@@ -408,7 +408,9 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       soundEngine.playSfx('victory');
 
       const gold = Math.max(1, ent.enemy.goldReward || 10);
-      const exp = Math.max(1, ent.enemy.expReward || 15);
+      const pLevel = playerRef.current.level || 1;
+      const maxExpFromSingleKill = Math.max(15, Math.round(getRequiredExpForLevel(pLevel) * 0.32));
+      const exp = Math.min(maxExpFromSingleKill, Math.max(1, ent.enemy.expReward || 15));
 
       spawnGroundDrop('gold', ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, gold);
       spawnGroundDrop('exp', ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, exp);
@@ -536,9 +538,20 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           const forwardDot = ((ent.enemy.worldX - p.x) * dx + (ent.enemy.worldZ - p.y) * dy) / Math.max(0.1, dist);
 
           if (dist <= 1.9 && forwardDot > 0.05) {
+            const pLevel = playerRef.current.level || 1;
+            const levelDiff = ent.enemy.level - pLevel;
+            let levelMult = 1.0;
+            if (levelDiff >= 6) levelMult = 0.08;
+            else if (levelDiff === 5) levelMult = 0.20;
+            else if (levelDiff === 4) levelMult = 0.40;
+            else if (levelDiff === 3) levelMult = 0.65;
+            else if (levelDiff === 2) levelMult = 0.85;
+
             const isCrit = Math.random() < (((playerRef.current.critRate || 5) + 15) / 100);
-            const baseAtk = Math.max(1, (playerRef.current.attack || 14) - Math.floor(ent.enemy.defense * 0.25));
-            const dmg = Math.round(isCrit ? baseAtk * 2.1 : baseAtk * (0.9 + Math.random() * 0.2));
+            const playerAtk = playerRef.current.attack || 14;
+            const defDeduction = Math.floor(ent.enemy.defense * 0.45);
+            const baseAtk = Math.max(1, Math.round((playerAtk - defDeduction) * levelMult));
+            const dmg = Math.max(1, Math.round(isCrit ? baseAtk * 2.1 : baseAtk * (0.9 + Math.random() * 0.2)));
 
             ent.enemy.hp -= dmg;
             ent.hitFlashTime = performance.now();
@@ -547,7 +560,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             ent.enemy.worldZ += dy * 0.3;
 
             spawnHitSparks(ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, isCrit ? '#e879f9' : '#c084fc', 8);
-            spawnDamageNumber(`-${dmg}`, ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32, isCrit ? '#c084fc' : '#e879f9', isCrit);
+            spawnDamageNumber(levelDiff >= 5 && dmg <= 3 ? `¡ROZADO! -${dmg}` : `-${dmg}`, ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32, isCrit ? '#c084fc' : '#e879f9', isCrit);
             soundEngine.playSfx('hit');
 
             if (ent.enemy.hp <= 0) {
@@ -575,10 +588,20 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         const maxRange = ent.enemy.isBoss ? 3.5 : 2.5;
 
         if (dist <= maxRange && (forwardDot > -0.3 || dist <= 1.3)) {
+          const pLevel = playerRef.current.level || 1;
+          const levelDiff = ent.enemy.level - pLevel;
+          let levelMult = 1.0;
+          if (levelDiff >= 6) levelMult = 0.08;
+          else if (levelDiff === 5) levelMult = 0.20;
+          else if (levelDiff === 4) levelMult = 0.40;
+          else if (levelDiff === 3) levelMult = 0.65;
+          else if (levelDiff === 2) levelMult = 0.85;
+
           const isCrit = Math.random() < ((playerRef.current.critRate || 8) / 100);
-          const rawAtk = Math.max(16, playerRef.current.attack || 16);
-          const baseAtk = Math.max(10, rawAtk - Math.floor(ent.enemy.defense * 0.25));
-          const dmg = Math.round(isCrit ? baseAtk * 1.95 : baseAtk * (0.95 + Math.random() * 0.25));
+          const rawAtk = playerRef.current.attack || 16;
+          const defDeduction = Math.floor(ent.enemy.defense * 0.45);
+          const baseAtk = Math.max(1, Math.round((rawAtk - defDeduction) * levelMult));
+          const dmg = Math.max(1, Math.round(isCrit ? baseAtk * 1.95 : baseAtk * (0.95 + Math.random() * 0.25)));
 
           ent.enemy.hp -= dmg;
           ent.hitFlashTime = performance.now();
@@ -591,7 +614,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
           const eOffset = ent.enemy.isBoss ? 32 : 16;
           spawnHitSparks(ent.enemy.worldX * 32 + eOffset, ent.enemy.worldZ * 32 + eOffset, isCrit ? '#f59e0b' : '#fef08a', 9);
-          spawnDamageNumber(`-${dmg}`, ent.enemy.worldX * 32 + eOffset, ent.enemy.worldZ * 32, isCrit ? '#ef4444' : '#fde047', isCrit);
+          spawnDamageNumber(levelDiff >= 5 && dmg <= 3 ? `¡ROZADO! -${dmg}` : `-${dmg}`, ent.enemy.worldX * 32 + eOffset, ent.enemy.worldZ * 32, isCrit ? '#ef4444' : '#fde047', isCrit);
           soundEngine.playSfx('hit');
 
           if (ent.enemy.hp <= 0) {
@@ -668,13 +691,25 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         if (ent.enemy.hp <= 0) return;
         const dist = Math.hypot(ent.enemy.worldX - p.x, ent.enemy.worldZ - p.y);
         if (dist <= hitRadius) {
-          const dmg = Math.round(playerRef.current.attack * skill.damageMultiplier * (0.9 + Math.random() * 0.25));
+          const pLevel = playerRef.current.level || 1;
+          const levelDiff = ent.enemy.level - pLevel;
+          let levelMult = 1.0;
+          if (levelDiff >= 6) levelMult = 0.08;
+          else if (levelDiff === 5) levelMult = 0.20;
+          else if (levelDiff === 4) levelMult = 0.40;
+          else if (levelDiff === 3) levelMult = 0.65;
+          else if (levelDiff === 2) levelMult = 0.85;
+
+          const defDeduction = Math.floor(ent.enemy.defense * 0.45);
+          const baseSkillDmg = Math.max(1, Math.round(((playerRef.current.attack * skill.damageMultiplier) - defDeduction) * levelMult));
+          const dmg = Math.max(1, Math.round(baseSkillDmg * (0.9 + Math.random() * 0.25)));
+
           ent.enemy.hp -= dmg;
           ent.hitFlashTime = performance.now();
           ent.enemy.state = 'chase';
 
           spawnHitSparks(ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32 + 16, '#38bdf8', 10);
-          spawnDamageNumber(`-${dmg}`, ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32, '#38bdf8', true);
+          spawnDamageNumber(levelDiff >= 5 && dmg <= 4 ? `¡ROZADO! -${dmg}` : `-${dmg}`, ent.enemy.worldX * 32 + 16, ent.enemy.worldZ * 32, '#38bdf8', true);
           soundEngine.playSfx('hit');
 
           if (ent.enemy.hp <= 0) {
@@ -2792,10 +2827,15 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             // Atacar al jugador
             if (nowMs - ent.enemy.lastAttackTime > ent.enemy.attackCooldown * 1000) {
               ent.enemy.lastAttackTime = nowMs;
-              const enemyDmg = Math.max(1, Math.round(ent.enemy.attack * 1.3 - (playerRef.current.defense || 5) * 0.45));
+              const pLevel = playerRef.current.level || 1;
+              const levelAdvantage = Math.max(0, ent.enemy.level - pLevel);
+              const enemyBonus = 1 + levelAdvantage * 0.18;
+              const pDef = Math.max(0, (playerRef.current.defense || 5) * (1 - Math.min(0.6, levelAdvantage * 0.10)));
+              const enemyDmg = Math.max(2, Math.round((ent.enemy.attack * 1.35 - pDef * 0.45) * enemyBonus));
+
               onPlayerDamaged?.(enemyDmg);
               spawnHitSparks(pX + 16, pY + 16, '#ef4444', 7);
-              spawnDamageNumber(`-${enemyDmg}`, pX + 16, pY, '#ef4444', false);
+              spawnDamageNumber(levelAdvantage >= 4 ? `¡CRÍTICO! -${enemyDmg}` : `-${enemyDmg}`, pX + 16, pY, '#ef4444', levelAdvantage >= 3);
               soundEngine.playSfx('hit');
             }
           }
@@ -2842,13 +2882,24 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             const hpPct = Math.max(0, ent.enemy.hp / ent.enemy.maxHp);
             c.fillStyle = '#0f172a';
             c.fillRect(ePxX, ePxY - 8 - bounce, barW, 4);
-            c.fillStyle = hpPct > 0.4 ? '#22c55e' : '#ef4444';
+
+            const pLevel = playerRef.current.level || 1;
+            const lvlDiff = ent.enemy.level - pLevel;
+            c.fillStyle = lvlDiff >= 3 ? '#ef4444' : (hpPct > 0.4 ? '#22c55e' : '#ef4444');
             c.fillRect(ePxX, ePxY - 8 - bounce, barW * hpPct, 4);
 
-            // Nivel del enemigo
+            // Indicador de Nivel y Amenaza
             c.font = 'bold 9px monospace';
-            c.fillStyle = '#fde047';
-            c.fillText(`Nv.${ent.enemy.level}`, ePxX, ePxY - 10 - bounce);
+            if (lvlDiff >= 3) {
+              c.fillStyle = '#ef4444';
+              c.fillText(`💀 Nv.${ent.enemy.level} [PELIGRO]`, ePxX - 12, ePxY - 10 - bounce);
+            } else if (lvlDiff >= 1) {
+              c.fillStyle = '#facc15';
+              c.fillText(`Nv.${ent.enemy.level}`, ePxX, ePxY - 10 - bounce);
+            } else {
+              c.fillStyle = '#4ade80';
+              c.fillText(`Nv.${ent.enemy.level}`, ePxX, ePxY - 10 - bounce);
+            }
           },
         });
       });
@@ -3033,14 +3084,23 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
           if (pDist < hitRadius) {
             hit = true;
-            const defFactor = Math.floor(ent.enemy.defense * 0.25);
-            const actualDmg = Math.max(8, proj.damage - defFactor);
+            const pLevel = playerRef.current.level || 1;
+            const levelDiff = ent.enemy.level - pLevel;
+            let levelMult = 1.0;
+            if (levelDiff >= 6) levelMult = 0.08;
+            else if (levelDiff === 5) levelMult = 0.20;
+            else if (levelDiff === 4) levelMult = 0.40;
+            else if (levelDiff === 3) levelMult = 0.65;
+            else if (levelDiff === 2) levelMult = 0.85;
+
+            const defFactor = Math.floor(ent.enemy.defense * 0.45);
+            const actualDmg = Math.max(1, Math.round((proj.damage - defFactor) * levelMult));
 
             ent.enemy.hp -= actualDmg;
             ent.hitFlashTime = nowMs;
             ent.enemy.state = 'chase';
             spawnHitSparks(eCenterPxX, eCenterPxY, proj.vfxType === 'arrow' ? '#f59e0b' : '#ef4444', 9);
-            spawnDamageNumber(`-${actualDmg}`, eCenterPxX, eCenterPxY - 14, proj.vfxType === 'arrow' ? '#f59e0b' : '#f97316', true);
+            spawnDamageNumber(levelDiff >= 5 && actualDmg <= 3 ? `¡ROZADO! -${actualDmg}` : `-${actualDmg}`, eCenterPxX, eCenterPxY - 14, proj.vfxType === 'arrow' ? '#f59e0b' : '#f97316', true);
             soundEngine.playSfx('hit');
 
             if (ent.enemy.hp <= 0) {

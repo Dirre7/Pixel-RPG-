@@ -158,9 +158,17 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       setEnemyIsHit(true);
       soundEngine.playSfx('hit');
 
-      // Calculate Damage & Dynamic Crits with Armor Penetration
+      // Calculate Damage & Dynamic Crits with Armor Penetration and Level Scaling
+      const levelDiff = (enemy.level || 1) - (player.level || 1);
+      let levelMult = 1.0;
+      if (levelDiff >= 6) levelMult = 0.08;
+      else if (levelDiff === 5) levelMult = 0.20;
+      else if (levelDiff === 4) levelMult = 0.40;
+      else if (levelDiff === 3) levelMult = 0.65;
+      else if (levelDiff === 2) levelMult = 0.85;
+
       const enemyEffectiveDef = Math.max(0, enemy.defense * (1 - (player.armorPenetration ?? 0) / 100));
-      const baseDmg = Math.max(1, Math.round((player.attack * atkBuff) - enemyEffectiveDef * 0.4));
+      const baseDmg = Math.max(1, Math.round(((player.attack * atkBuff) - enemyEffectiveDef * 0.45) * levelMult));
       const critChance = (player.critRate ?? 10) / 100;
       const critMultiplier = (player.critDamage ?? 175) / 100;
       const isCrit = Math.random() < critChance;
@@ -278,12 +286,20 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         setEnemyIsHit(true);
         soundEngine.playSfx('hit');
 
+        const levelDiff = (enemy.level || 1) - (player.level || 1);
+        let levelMult = 1.0;
+        if (levelDiff >= 6) levelMult = 0.08;
+        else if (levelDiff === 5) levelMult = 0.20;
+        else if (levelDiff === 4) levelMult = 0.40;
+        else if (levelDiff === 3) levelMult = 0.65;
+        else if (levelDiff === 2) levelMult = 0.85;
+
         const effectivePower = skill.element === 'magic' || skill.element === 'fire' || skill.element === 'ice' || skill.element === 'thunder' || skill.element === 'holy' || skill.element === 'shadow'
           ? Math.max(player.attack, player.magicAttack ?? player.attack)
           : player.attack;
 
         const enemyEffectiveDef = Math.max(0, enemy.defense * (1 - (player.armorPenetration ?? 0) / 100));
-        const baseDmg = Math.max(1, Math.round(((effectivePower * atkBuff) * skill.power) - enemyEffectiveDef * 0.25));
+        const baseDmg = Math.max(1, Math.round((((effectivePower * atkBuff) * skill.power) - enemyEffectiveDef * 0.45) * levelMult));
         const critChance = (player.critRate ?? 10) / 100;
         const critMultiplier = (player.critDamage ?? 175) / 100;
         const isCrit = Math.random() < critChance;
@@ -486,14 +502,16 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         setPlayerIsHit(true);
         soundEngine.playSfx('hit');
 
-        // Damage Calculation with Physical DEF vs Magic DEF
+        // Damage Calculation with Physical DEF vs Magic DEF and Level Advantage
         const powerMult = specialSkill ? specialSkill.power : 1.0;
         const isMagicSkill = specialSkill && (specialSkill.element === 'magic' || specialSkill.element === 'fire' || specialSkill.element === 'ice' || specialSkill.element === 'thunder' || specialSkill.element === 'shadow');
-        const effectiveDef = isMagicSkill
+        const levelAdvantage = Math.max(0, (enemy.level || 1) - (player.level || 1));
+        const enemyBonus = 1 + levelAdvantage * 0.18;
+        const effectiveDef = (isMagicSkill
           ? ((player.magicDefense ?? player.defense) * defBuff) * (isDefending ? 2.0 : 1.0)
-          : (player.defense * defBuff) * (isDefending ? 2.0 : 1.0);
+          : (player.defense * defBuff) * (isDefending ? 2.0 : 1.0)) * (1 - Math.min(0.6, levelAdvantage * 0.10));
 
-        const rawDmg = Math.max(2, Math.round((enemy.attack * powerMult) - effectiveDef * 0.5));
+        const rawDmg = Math.max(2, Math.round(((enemy.attack * powerMult * 1.3) - effectiveDef * 0.45) * enemyBonus));
         let finalDmg = Math.round(rawDmg * (0.9 + Math.random() * 0.2));
 
         // Shield / Class Block Check (Only for physical attacks)
@@ -558,7 +576,8 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
     const expMultiplier = 1 + (player.expBonus ?? 0) / 100;
     const goldMultiplier = 1 + (player.goldBonus ?? 0) / 100;
-    const expGained = Math.round(enemy.expReward * expMultiplier);
+    const maxExpFromSingleKill = Math.max(15, Math.round(getRequiredExpForLevel(player.level || 1) * 0.32));
+    const expGained = Math.min(maxExpFromSingleKill, Math.round(enemy.expReward * expMultiplier));
     const goldGained = Math.round(enemy.goldReward * goldMultiplier);
 
     // Calculate probabilistic loot drop
