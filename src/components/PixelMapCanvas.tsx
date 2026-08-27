@@ -163,6 +163,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
     const safeY = Math.min(Math.max(1, playerPos.y), maxY);
 
     targetPosRef.current = { x: safeX, y: safeY };
+    const dist = Math.hypot(currentPosRef.current.x - safeX, currentPosRef.current.y - safeY);
+    if (dist > 4 || isNaN(currentPosRef.current.x) || isNaN(currentPosRef.current.y)) {
+      currentPosRef.current = { x: safeX, y: safeY };
+    }
   }, [playerPos.x, playerPos.y, currentZone.mapWidth, currentZone.mapHeight]);
 
   // Bucle de Renderizado 2D a 60 FPS
@@ -768,13 +772,15 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       // Helper para resolver el suelo base de cualquier casilla (incluso con farolas, animales o plantitas encima)
       const getGroundType = (gx: number, gy: number): number => {
         if (gy < 0 || gy >= rows || gx < 0 || gx >= cols) return 0;
+        if (!currentZone.tileData[gy]) return 0;
         const raw = currentZone.tileData[gy][gx];
+        if (raw === undefined) return 0;
         if (raw === 0 || raw === 2 || raw === 3 || raw === 4 || raw === 8 || raw === 13) return raw;
 
         // Para objetos colocados en la calle (farolas 17, pilares 18, cofres 7, puestos 9, etc.)
         let pathNeighbors = 0;
-        if (gy > 0 && (currentZone.tileData[gy - 1][gx] === 2 || currentZone.tileData[gy - 1][gx] === 9 || currentZone.tileData[gy - 1][gx] === 33)) pathNeighbors++;
-        if (gy < rows - 1 && (currentZone.tileData[gy + 1][gx] === 2 || currentZone.tileData[gy + 1][gx] === 9 || currentZone.tileData[gy + 1][gx] === 33)) pathNeighbors++;
+        if (gy > 0 && currentZone.tileData[gy - 1] && (currentZone.tileData[gy - 1][gx] === 2 || currentZone.tileData[gy - 1][gx] === 9 || currentZone.tileData[gy - 1][gx] === 33)) pathNeighbors++;
+        if (gy < rows - 1 && currentZone.tileData[gy + 1] && (currentZone.tileData[gy + 1][gx] === 2 || currentZone.tileData[gy + 1][gx] === 9 || currentZone.tileData[gy + 1][gx] === 33)) pathNeighbors++;
         if (gx > 0 && (currentZone.tileData[gy][gx - 1] === 2 || currentZone.tileData[gy][gx - 1] === 9 || currentZone.tileData[gy][gx - 1] === 33)) pathNeighbors++;
         if (gx < cols - 1 && (currentZone.tileData[gy][gx + 1] === 2 || currentZone.tileData[gy][gx + 1] === 9 || currentZone.tileData[gy][gx + 1] === 33)) pathNeighbors++;
         return pathNeighbors >= 2 ? 2 : 0;
@@ -949,6 +955,14 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 const fx = (x % 3) * 16;
                 const fy = (y % 3) * 16;
                 ctx.drawImage(gameAssets.farmLand, fx, fy, 16, 16, drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
+              } else {
+                ctx.fillStyle = '#78350f';
+                ctx.fillRect(drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
+                ctx.fillStyle = '#451a03';
+                ctx.fillRect(drawPosX, drawPosY + 3, TILE_SIZE + 0.5, 3);
+                ctx.fillRect(drawPosX, drawPosY + 11, TILE_SIZE + 0.5, 3);
+                ctx.fillRect(drawPosX, drawPosY + 19, TILE_SIZE + 0.5, 3);
+                ctx.fillRect(drawPosX, drawPosY + 27, TILE_SIZE + 0.5, 3);
               }
             } else if (groundType === 15) {
               // 🌉 Puente de Madera Rústico sobre el río
@@ -1061,8 +1075,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       const blastFurnace = getBlastFurnaceCanvas(time);
 
       for (let y = startRow; y <= endRow; y++) {
+        if (!currentZone.tileData[y]) continue;
         for (let x = startCol; x <= endCol; x++) {
           const tileType = currentZone.tileData[y][x];
+          if (tileType === undefined) continue;
           const posX = x * TILE_SIZE;
           const posY = y * TILE_SIZE;
 
@@ -1497,10 +1513,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 const pY = posY - 40;
 
                 // Sombra de contacto
-                const shadow = c.createRadialGradient(posX + 16, posY + 20, 4, posX + 16, posY + 20, 32);
-                shadow.addColorStop(0, 'rgba(0, 0, 0, 0.8)');
-                shadow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                c.fillStyle = shadow;
+                c.fillStyle = 'rgba(0, 0, 0, 0.45)';
                 c.beginPath();
                 c.ellipse(posX + 16, posY + 20, 32, 8, 0, 0, Math.PI * 2);
                 c.fill();
@@ -1521,23 +1534,22 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
                 // Vórtice de Energía Mágica Giratoria
                 const pulse = Math.sin(time * 4) * 0.2 + 0.8;
-                let vColor1 = 'rgba(34, 197, 94, 0.9)'; // Forest
-                let vColor2 = 'rgba(21, 128, 61, 0.4)';
-                if (currentZone.id === 'zone_cave') { vColor1 = 'rgba(168, 85, 247, 0.9)'; vColor2 = 'rgba(107, 33, 168, 0.4)'; }
-                else if (currentZone.id === 'zone_swamp') { vColor1 = 'rgba(16, 185, 129, 0.9)'; vColor2 = 'rgba(4, 120, 87, 0.4)'; }
-                else if (currentZone.id === 'zone_volcano') { vColor1 = 'rgba(239, 68, 68, 0.9)'; vColor2 = 'rgba(185, 28, 28, 0.4)'; }
-                else if (currentZone.id === 'zone_tundra') { vColor1 = 'rgba(56, 189, 248, 0.9)'; vColor2 = 'rgba(3, 105, 161, 0.4)'; }
-                else if (currentZone.id === 'zone_castle') { vColor1 = 'rgba(245, 158, 11, 0.9)'; vColor2 = 'rgba(180, 83, 9, 0.4)'; }
-                else if (currentZone.id === 'zone_void') { vColor1 = 'rgba(236, 72, 153, 0.9)'; vColor2 = 'rgba(131, 24, 67, 0.4)'; }
-                else if (currentZone.id === 'zone_sanctuary') { vColor1 = 'rgba(250, 204, 21, 0.9)'; vColor2 = 'rgba(202, 138, 4, 0.4)'; }
+                let vColor1 = '#22c55e'; // Forest
+                if (currentZone.id === 'zone_cave') { vColor1 = '#a855f7'; }
+                else if (currentZone.id === 'zone_swamp') { vColor1 = '#10b981'; }
+                else if (currentZone.id === 'zone_volcano') { vColor1 = '#ef4444'; }
+                else if (currentZone.id === 'zone_tundra') { vColor1 = '#38bdf8'; }
+                else if (currentZone.id === 'zone_castle') { vColor1 = '#f59e0b'; }
+                else if (currentZone.id === 'zone_void') { vColor1 = '#ec4899'; }
+                else if (currentZone.id === 'zone_sanctuary') { vColor1 = '#facc15'; }
 
-                const vortex = c.createRadialGradient(posX + 16, pY + 40, 2, posX + 16, pY + 40, 20);
-                vortex.addColorStop(0, '#ffffff');
-                vortex.addColorStop(0.5, vColor1);
-                vortex.addColorStop(1, vColor2);
-                c.fillStyle = vortex;
+                c.fillStyle = vColor1;
                 c.beginPath();
                 c.ellipse(posX + 16, pY + 40, 14 * pulse, 22 * pulse, 0, 0, Math.PI * 2);
+                c.fill();
+                c.fillStyle = '#ffffff';
+                c.beginPath();
+                c.ellipse(posX + 16, pY + 40, 6 * pulse, 10 * pulse, 0, 0, Math.PI * 2);
                 c.fill();
 
                 // Destellos de partículas orbitando
@@ -1919,11 +1931,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               ySort: posY + TILE_SIZE + 20,
               draw: (c) => {
                 // Sombra de contacto
-                const hShadow = c.createRadialGradient(posX + 16, posY + 24, 6, posX + 16, posY + 24, 48);
-                hShadow.addColorStop(0, 'rgba(15, 23, 42, 0.7)');
-                hShadow.addColorStop(0.5, 'rgba(15, 23, 42, 0.35)');
-                hShadow.addColorStop(1, 'rgba(15, 23, 42, 0)');
-                c.fillStyle = hShadow;
+                c.fillStyle = 'rgba(15, 23, 42, 0.45)';
                 c.beginPath();
                 c.ellipse(posX + 16, posY + 24, 48, 8, 0, 0, Math.PI * 2);
                 c.fill();
@@ -2294,7 +2302,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                   let textCol = '#e0f2fe';
 
                   if (portal.targetZoneId.includes('cave')) {
-                    badgeText = '⛰️ PASO AL CAÑÓN Y MINAS (Nv. 6)';
+                    badgeText = '⛰️ CUEVA Y MINAS DE ERIDU (Nv. 4)';
                     strokeCol = '#38bdf8'; textCol = '#e0f2fe';
                   } else if (portal.targetZoneId.includes('crypt')) {
                     badgeText = '🪦 PASO A LA CRIPTA (Nv. 10)';
@@ -2373,12 +2381,9 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 c.fillRect(pX + 27, pY - 7, 4, 4);
 
                 // Halo de luz dorada en el suelo
-                const glow = c.createRadialGradient(pX + 16, pY + 10, 4, pX + 16, pY + 10, 36);
-                glow.addColorStop(0, 'rgba(251, 191, 36, 0.45)');
-                glow.addColorStop(1, 'rgba(251, 191, 36, 0)');
-                c.fillStyle = glow;
+                c.fillStyle = 'rgba(251, 191, 36, 0.22)';
                 c.beginPath();
-                c.arc(pX + 16, pY + 10, 36, 0, Math.PI * 2);
+                c.arc(pX + 16, pY + 10, 32, 0, Math.PI * 2);
                 c.fill();
 
                 // Rótulo colgante flotante sobre la puerta
@@ -2897,8 +2902,14 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       });
 
       // Ordenar por Y para que lo que esté más abajo se dibuje encima
-      entities.sort((a, b) => a.ySort - b.ySort);
-      entities.forEach((e) => e.draw(ctx));
+      entities.sort((a, b) => (Number.isFinite(a.ySort) ? a.ySort : 0) - (Number.isFinite(b.ySort) ? b.ySort : 0));
+      entities.forEach((e) => {
+        try {
+          e.draw(ctx);
+        } catch (err) {
+          // Keep other entities rendering even if one fails
+        }
+      });
 
       // 7. PROYECTILES 2.5D (Flechas de Arquero, Bolas de Fuego de Mago, Magias)
       for (let pIdx = projectileEntities.length - 1; pIdx >= 0; pIdx--) {
@@ -2945,21 +2956,25 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         // B. 🪄 Bola de Fuego del Mago con Núcleo Brillante y Chispas
         else if (proj.vfxType === 'fireball') {
           ctx.save();
-          const fireGrad = ctx.createRadialGradient(proj.x, proj.z, 2, proj.x, proj.z, 14);
-          fireGrad.addColorStop(0, '#ffffff');
-          fireGrad.addColorStop(0.25, '#fef08a');
-          fireGrad.addColorStop(0.6, '#f97316');
-          fireGrad.addColorStop(0.9, '#dc2626');
-          fireGrad.addColorStop(1, 'rgba(220, 38, 38, 0)');
-          ctx.fillStyle = fireGrad;
+          ctx.fillStyle = '#dc2626';
           ctx.beginPath();
-          ctx.arc(proj.x, proj.z, 14, 0, Math.PI * 2);
+          ctx.arc(proj.x, proj.z, 12, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#f97316';
+          ctx.beginPath();
+          ctx.arc(proj.x, proj.z, 8, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(proj.x, proj.z, 5, 0, Math.PI * 2);
           ctx.fill();
 
           // Núcleo blanco incandescente
           ctx.fillStyle = '#ffffff';
           ctx.beginPath();
-          ctx.arc(proj.x, proj.z, 4, 0, Math.PI * 2);
+          ctx.arc(proj.x, proj.z, 3, 0, Math.PI * 2);
           ctx.fill();
 
           // Partículas de combustión tras la bola
@@ -2972,13 +2987,14 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         // C. 🌀 Magias y Orbes Arcanos
         else {
           ctx.save();
-          const grad = ctx.createRadialGradient(proj.x, proj.z, 2, proj.x, proj.z, 10);
-          grad.addColorStop(0, '#ffffff');
-          grad.addColorStop(0.5, proj.color);
-          grad.addColorStop(1, 'rgba(0,0,0,0)');
-          ctx.fillStyle = grad;
+          ctx.fillStyle = proj.color;
           ctx.beginPath();
-          ctx.arc(proj.x, proj.z, 10, 0, Math.PI * 2);
+          ctx.arc(proj.x, proj.z, 9, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(proj.x, proj.z, 4, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         }

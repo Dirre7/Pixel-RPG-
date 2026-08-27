@@ -832,103 +832,114 @@ export function getRecoloredCuteHouseCanvas(
     return getCottageCanvas(variant === 'purple' ? 'red' : variant);
   }
 
-  const canvas = document.createElement('canvas');
-  canvas.width = baseImg.naturalWidth || 96;
-  canvas.height = baseImg.naturalHeight || 128;
-  const ctx = canvas.getContext('2d')!;
-  ctx.drawImage(baseImg, 0, 0);
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = baseImg.naturalWidth || 96;
+    canvas.height = baseImg.naturalHeight || 128;
+    const ctx = canvas.getContext('2d')!;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(baseImg, 0, 0);
 
-  if (variant === 'blue') {
-    cuteHouseCache.set(variant, canvas);
-    return canvas;
-  }
+    if (variant === 'blue') {
+      cuteHouseCache.set(variant, canvas);
+      return canvas;
+    }
 
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imgData.data;
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imgData.data;
 
-  for (let i = 0; i < data.length; i += 4) {
-    const a = data[i + 3];
-    if (a === 0) continue;
+    for (let i = 0; i < data.length; i += 4) {
+      const a = data[i + 3];
+      if (a === 0) continue;
 
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
 
-    // Detectar exclusivamente los píxeles del tejado azul (azul dominante sobre rojo y verde)
-    if (b > r + 8 && b > g - 15) {
-      const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      // Detectar exclusivamente los píxeles del tejado azul (azul dominante sobre rojo y verde)
+      if (b > r + 8 && b > g - 15) {
+        const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 
-      if (variant === 'red') {
-        // Paleta Tejado Rojo Terracota 2.5D
-        if (lum < 0.3) {
-          data[i] = Math.min(255, Math.round(90 * (lum / 0.3)));
-          data[i + 1] = Math.min(255, Math.round(20 * (lum / 0.3)));
-          data[i + 2] = Math.min(255, Math.round(15 * (lum / 0.3)));
-        } else if (lum < 0.55) {
-          const t = (lum - 0.3) / 0.25;
-          data[i] = Math.round(90 + (186 - 90) * t);
-          data[i + 1] = Math.round(20 + (54 - 20) * t);
-          data[i + 2] = Math.round(15 + (32 - 15) * t);
-        } else if (lum < 0.8) {
-          const t = (lum - 0.55) / 0.25;
-          data[i] = Math.round(186 + (234 - 186) * t);
-          data[i + 1] = Math.round(54 + (100 - 54) * t);
-          data[i + 2] = Math.round(32 + (70 - 32) * t);
-        } else {
-          const t = (lum - 0.8) / 0.2;
-          data[i] = Math.round(234 + (248 - 234) * t);
-          data[i + 1] = Math.round(100 + (150 - 100) * t);
-          data[i + 2] = Math.round(70 + (115 - 70) * t);
-        }
-      } else if (variant === 'stone') {
-        // Paleta Tejado Pizarra Gris Señorial 2.5D
-        if (lum < 0.3) {
-          const v = Math.round(35 * (lum / 0.3));
-          data[i] = v; data[i + 1] = Math.round(v * 1.1); data[i + 2] = Math.round(v * 1.25);
-        } else if (lum < 0.55) {
-          const t = (lum - 0.3) / 0.25;
-          data[i] = Math.round(35 + (70 - 35) * t);
-          data[i + 1] = Math.round(40 + (80 - 40) * t);
-          data[i + 2] = Math.round(50 + (98 - 50) * t);
-        } else if (lum < 0.8) {
-          const t = (lum - 0.55) / 0.25;
-          data[i] = Math.round(70 + (115 - 70) * t);
-          data[i + 1] = Math.round(80 + (130 - 80) * t);
-          data[i + 2] = Math.round(98 + (150 - 98) * t);
-        } else {
-          const t = (lum - 0.8) / 0.2;
-          data[i] = Math.round(115 + (165 - 115) * t);
-          data[i + 1] = Math.round(130 + (180 - 130) * t);
-          data[i + 2] = Math.round(150 + (195 - 150) * t);
-        }
-      } else if (variant === 'purple') {
-        // Paleta Tejado Amatista Mística 2.5D
-        if (lum < 0.3) {
-          const v = Math.round(45 * (lum / 0.3));
-          data[i] = Math.round(v * 1.1); data[i + 1] = Math.round(v * 0.4); data[i + 2] = Math.round(v * 1.3);
-        } else if (lum < 0.55) {
-          const t = (lum - 0.3) / 0.25;
-          data[i] = Math.round(50 + (95 - 50) * t);
-          data[i + 1] = Math.round(20 + (35 - 20) * t);
-          data[i + 2] = Math.round(60 + (125 - 60) * t);
-        } else if (lum < 0.8) {
-          const t = (lum - 0.55) / 0.25;
-          data[i] = Math.round(95 + (155 - 95) * t);
-          data[i + 1] = Math.round(35 + (60 - 35) * t);
-          data[i + 2] = Math.round(125 + (195 - 125) * t);
-        } else {
-          const t = (lum - 0.8) / 0.2;
-          data[i] = Math.round(155 + (205 - 155) * t);
-          data[i + 1] = Math.round(60 + (95 - 60) * t);
-          data[i + 2] = Math.round(195 + (235 - 195) * t);
+        if (variant === 'red') {
+          // Paleta Tejado Rojo Terracota 2.5D
+          if (lum < 0.3) {
+            data[i] = Math.min(255, Math.round(90 * (lum / 0.3)));
+            data[i + 1] = Math.min(255, Math.round(20 * (lum / 0.3)));
+            data[i + 2] = Math.min(255, Math.round(15 * (lum / 0.3)));
+          } else if (lum < 0.55) {
+            const t = (lum - 0.3) / 0.25;
+            data[i] = Math.round(90 + (186 - 90) * t);
+            data[i + 1] = Math.round(20 + (54 - 20) * t);
+            data[i + 2] = Math.round(15 + (32 - 15) * t);
+          } else if (lum < 0.8) {
+            const t = (lum - 0.55) / 0.25;
+            data[i] = Math.round(186 + (234 - 186) * t);
+            data[i + 1] = Math.round(54 + (100 - 54) * t);
+            data[i + 2] = Math.round(32 + (70 - 32) * t);
+          } else {
+            const t = (lum - 0.8) / 0.2;
+            data[i] = Math.round(234 + (248 - 234) * t);
+            data[i + 1] = Math.round(100 + (150 - 100) * t);
+            data[i + 2] = Math.round(70 + (115 - 70) * t);
+          }
+        } else if (variant === 'stone') {
+          // Paleta Tejado Pizarra Gris Señorial 2.5D
+          if (lum < 0.3) {
+            const v = Math.round(35 * (lum / 0.3));
+            data[i] = v; data[i + 1] = Math.round(v * 1.1); data[i + 2] = Math.round(v * 1.25);
+          } else if (lum < 0.55) {
+            const t = (lum - 0.3) / 0.25;
+            data[i] = Math.round(35 + (70 - 35) * t);
+            data[i + 1] = Math.round(40 + (80 - 40) * t);
+            data[i + 2] = Math.round(50 + (98 - 50) * t);
+          } else if (lum < 0.8) {
+            const t = (lum - 0.55) / 0.25;
+            data[i] = Math.round(70 + (115 - 70) * t);
+            data[i + 1] = Math.round(80 + (130 - 80) * t);
+            data[i + 2] = Math.round(98 + (150 - 98) * t);
+          } else {
+            const t = (lum - 0.8) / 0.2;
+            data[i] = Math.round(115 + (165 - 115) * t);
+            data[i + 1] = Math.round(130 + (180 - 130) * t);
+            data[i + 2] = Math.round(150 + (195 - 150) * t);
+          }
+        } else if (variant === 'purple') {
+          // Paleta Tejado Amatista Mística 2.5D
+          if (lum < 0.3) {
+            const v = Math.round(45 * (lum / 0.3));
+            data[i] = Math.round(v * 1.1); data[i + 1] = Math.round(v * 0.4); data[i + 2] = Math.round(v * 1.3);
+          } else if (lum < 0.55) {
+            const t = (lum - 0.3) / 0.25;
+            data[i] = Math.round(50 + (95 - 50) * t);
+            data[i + 1] = Math.round(20 + (35 - 20) * t);
+            data[i + 2] = Math.round(60 + (125 - 60) * t);
+          } else if (lum < 0.8) {
+            const t = (lum - 0.55) / 0.25;
+            data[i] = Math.round(95 + (155 - 95) * t);
+            data[i + 1] = Math.round(35 + (60 - 35) * t);
+            data[i + 2] = Math.round(125 + (195 - 125) * t);
+          } else {
+            const t = (lum - 0.8) / 0.2;
+            data[i] = Math.round(155 + (205 - 155) * t);
+            data[i + 1] = Math.round(60 + (95 - 60) * t);
+            data[i + 2] = Math.round(195 + (235 - 195) * t);
+          }
         }
       }
     }
-  }
 
-  ctx.putImageData(imgData, 0, 0);
-  cuteHouseCache.set(variant, canvas);
-  return canvas;
+    ctx.putImageData(imgData, 0, 0);
+    cuteHouseCache.set(variant, canvas);
+    return canvas;
+  } catch (err) {
+    const fallbackCanvas = document.createElement('canvas');
+    fallbackCanvas.width = baseImg.naturalWidth || 96;
+    fallbackCanvas.height = baseImg.naturalHeight || 128;
+    const fCtx = fallbackCanvas.getContext('2d')!;
+    fCtx.drawImage(baseImg, 0, 0);
+    cuteHouseCache.set(variant, fallbackCanvas);
+    return fallbackCanvas;
+  }
 }
 
 /**

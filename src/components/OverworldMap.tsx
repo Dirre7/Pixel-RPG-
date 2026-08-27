@@ -899,6 +899,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       {/* 🌟 1. 2.5D RETRO PIXEL ART REAL-TIME ARPG MOTOR - 100% Fullscreen Viewport */}
       <div className="absolute inset-0 w-full h-full">
         <PixelMapCanvas
+          key={currentZone.id}
           currentZone={currentZone}
           playerPos={playerPos}
           player={player}

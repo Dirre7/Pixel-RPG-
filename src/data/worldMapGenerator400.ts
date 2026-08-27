@@ -53,26 +53,28 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
   }
 
   // =========================================================================
-  // 2. CARVE REGION 2: 🌸 LA ARBOLEDA MÁGICA DEL ÁRBOL MILENARIO (Noroeste Oculto, X: 6..24, Y: 12..38)
+  // 2. CARVE REGION 2: ⛰️ CUEVA Y MINAS DE ERIDU Y ARBOLEDA (Noroeste Oculto, X: 6..24, Y: 10..38)
   // =========================================================================
-  for (let y = 12; y <= 38; y++) {
+  for (let y = 10; y <= 38; y++) {
     for (let x = 6; x <= 24; x++) {
       map[y][x] = 0;
     }
   }
-  // Senda que conecta la ciudad con la Arboleda Mágica
+  // Senda que conecta la ciudad con la Cueva y la Arboleda Mágica
   for (let y = 36; y <= 48; y++) {
     map[y][22] = 2; map[y][23] = 2;
   }
-  for (let y = 18; y <= 36; y++) {
+  for (let y = 12; y <= 36; y++) {
     map[y][14] = 2; map[y][15] = 2;
   }
+  map[12][15] = 26; // ⛰️ Gran Entrada Monumental de la Cueva / Minas de Eridu
+  map[13][13] = 17; map[13][17] = 17; // Farolas mineras
   map[24][14] = 8;  // 🏛️ Santuario Druídico Ancestral
   map[22][12] = 20; map[22][16] = 20; // 💎 Geodas de cristal feérico
   map[26][12] = 12; map[26][16] = 12; // Parterres de rosas sagradas
   map[18][14] = 7;  // 🎁 Cofre Secreto de la Arboleda Mágica
   // Robles milenarios de la arboleda
-  [ [14,8], [14,12], [14,18], [16,10], [16,20], [28,8], [28,20], [32,10], [32,18] ].forEach(([y, x]) => {
+  [ [14,8], [14,18], [16,10], [16,20], [28,8], [28,20], [32,10], [32,18] ].forEach(([y, x]) => {
     map[y][x] = 1;
   });
 

@@ -500,8 +500,8 @@ export const ZONES: Zone[] = [
         y: 12,
         targetZoneId: 'zone_cave',
         targetPos: { x: 15, y: 106 },
-        label: '⛰️ Acceso 1: Cañón Rocoso y Minas de Eridu',
-        minLevel: 6,
+        label: '⛰️ CUEVA Y MINAS DE ERIDU (Nv. 4)',
+        minLevel: 4,
         isDoor: false,
       },
       {
