@@ -2392,6 +2392,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 else if (portal.targetZoneId.includes('forge')) badgeIcon = '🔨 GRAN FORJA';
                 else if (portal.targetZoneId.includes('botica')) badgeIcon = '🌿 BOTICA';
                 else if (portal.targetZoneId.includes('eridu')) badgeIcon = '⛏️ PROFUNDIDADES DE ERIDU (Nv.6-10)';
+                else if (portal.targetZoneId.includes('swamp_crypt')) badgeIcon = '🌫️ CRIPTA SUMERGIDA (Nv.15-20)';
 
                 c.font = 'bold 9px monospace';
                 const textW = c.measureText(badgeIcon).width;

@@ -118,6 +118,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   const [showGameMenuModal, setShowGameMenuModal] = useState(false);
   const [showZoneTravelModal, setShowZoneTravelModal] = useState(false);
   const [activeChestLoot, setActiveChestLoot] = useState<ChestLoot | null>(null);
+  const portalCooldownRef = useRef(0);
   const [depletedNodes, setDepletedNodes] = useState<string[]>([]);
   const [activeBoss, setActiveBoss] = useState<OverworldEnemy | null>(null);
   const combatActionRef = useRef<{
@@ -720,24 +721,27 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     onMove({ x: newX, y: newY });
 
     // 🚪 AUTOMATIC STEP-ON PORTAL TRIGGER (Doors, Stairs, Dungeons, Road Border Arches)
-    const stepPortal = currentZone.portals?.find((p) => {
-      if (p.x === newX && p.y === newY) return true;
-      if (!p.isDoor && Math.abs(p.x - newX) <= 1 && Math.abs(p.y - newY) <= 1) return true;
-      return false;
-    });
-    if (stepPortal) {
-      if (stepPortal.minLevel && player.level < stepPortal.minLevel) {
-        soundEngine.playSfx('error');
-        showToast(`🔒 Requiere Nivel ${stepPortal.minLevel} para cruzar a ${stepPortal.label}`);
+    if (Date.now() >= portalCooldownRef.current) {
+      const stepPortal = currentZone.portals?.find((p) => {
+        if (p.x === newX && p.y === newY) return true;
+        if (!p.isDoor && Math.abs(p.x - newX) <= 1 && Math.abs(p.y - newY) <= 1) return true;
+        return false;
+      });
+      if (stepPortal) {
+        if (stepPortal.minLevel && player.level < stepPortal.minLevel) {
+          soundEngine.playSfx('error');
+          showToast(`🔒 Requiere Nivel ${stepPortal.minLevel} para cruzar a ${stepPortal.label}`);
+          return;
+        }
+        portalCooldownRef.current = Date.now() + 1500; // 🛡️ 1.5s de protección para evitar bucles
+        soundEngine.playSfx('levelup');
+        showToast(`🚪 ${stepPortal.label}...`);
+        setTimeout(() => {
+          onChangeZone(stepPortal.targetZoneId);
+          onMove(stepPortal.targetPos);
+        }, 120);
         return;
       }
-      soundEngine.playSfx('levelup');
-      showToast(`🚪 ${stepPortal.label}...`);
-      setTimeout(() => {
-        onChangeZone(stepPortal.targetZoneId);
-        onMove(stepPortal.targetPos);
-      }, 120);
-      return;
     }
 
     // Step counter management

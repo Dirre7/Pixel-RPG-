@@ -876,75 +876,147 @@ export function generateCrypt400(): { tileData: number[][]; width: number; heigh
 }
 
 /**
- * 4. PANTANO SOMBRÍO DE VAEL (72x116 - Escala Colosal Artesanal)
+ * 4. PANTANO SOMBRÍO DE VAEL (72x116 - Escala Monumental con Aldea Flotante y Puentes Reales)
  */
 export function generateSwamp400(): { tileData: number[][]; width: number; height: number } {
   const WIDTH = 72;
   const HEIGHT = 116;
   const map: number[][] = [];
 
+  // 1. Inicializar con aguas poco profundas de ciénaga y bordes de acantilado
   for (let y = 0; y < HEIGHT; y++) {
     const row: number[] = [];
     for (let x = 0; x < WIDTH; x++) {
-      row.push(3); // Base de agua poco profunda
+      if (x <= 3 || x >= WIDTH - 4 || y <= 1 || y >= HEIGHT - 2) {
+        // En la entrada este (Y: 58..62, X: 68..71) dejar paso abierto
+        if (x >= WIDTH - 4 && y >= 58 && y <= 62) {
+          row.push(2);
+        } else {
+          row.push(21); // Acantilado infranqueable
+        }
+      } else {
+        row.push(3); // Ciénaga de agua
+      }
     }
     map.push(row);
   }
 
-  // 1. Gran Calzada de Entrada Este conectada al Bosque (X: 54..71, Y: 58..62)
+  // =========================================================================
+  // 2. ENTRADA ESTE: GRAN PUENTE IMPERIAL CONECTADO CON AETHELGARD (Y: 58..62)
+  // =========================================================================
   for (let y = 58; y <= 62; y++) {
-    for (let x = 54; x < WIDTH; x++) {
-      map[y][x] = 15; // Gran puente de madera
+    for (let x = 50; x < WIDTH; x++) {
+      map[y][x] = 2; // Gran calzada de piedra y madera sólida (Capa 0)
     }
   }
+  for (let x = 54; x <= 66; x += 4) {
+    map[57][x] = 17; map[63][x] = 17; // Farolas de puente
+  }
 
-  // 2. Pueblo de Pescadores sobre Pilotes de Vael (X: 28..54, Y: 44..76)
-  for (let y = 44; y <= 76; y++) {
-    for (let x = 28; x <= 54; x++) {
-      if (Math.hypot(x - 40, y - 60) <= 15) {
-        map[y][x] = 0; // Islote firme de tierra
+  // =========================================================================
+  // 3. LA GRAN ALDEA FLOTANTE DE PALAFITOS DE VAEL (X: 14..56, Y: 46..86)
+  // =========================================================================
+  // Gran Plataforma Central y Avenidas Principales (Tile 2)
+  for (let y = 46; y <= 86; y++) {
+    map[y][34] = 2; map[y][35] = 2; map[y][36] = 2; map[y][37] = 2; map[y][38] = 2;
+  }
+  for (let y = 58; y <= 62; y++) {
+    for (let x = 14; x <= 56; x++) map[y][x] = 2;
+  }
+  // Anillo de Pasarelas Residenciales
+  for (let y = 50; y <= 53; y++) {
+    for (let x = 18; x <= 54; x++) map[y][x] = 2;
+  }
+  for (let y = 78; y <= 81; y++) {
+    for (let x = 18; x <= 54; x++) map[y][x] = 2;
+  }
+
+  // 🏛️ Plaza Mayor del Gran Pozo del Pantano (X: 28..44, Y: 56..68)
+  for (let y = 56; y <= 68; y++) {
+    for (let x = 28; x <= 44; x++) map[y][x] = 2;
+  }
+  map[62][36] = 4; // Gran Pozo de Aguas Puras
+  map[62][32] = 12; map[62][40] = 12; // Bancos de descanso
+  map[58][36] = 12; map[66][36] = 12;
+  map[57][29] = 17; map[57][43] = 17; // Farolas de plaza
+  map[67][29] = 17; map[67][43] = 17;
+
+  // 🧪 Choza de la Bruja y Taller Alquímico (Oeste, X: 16..28, Y: 54..72)
+  for (let y = 54; y <= 72; y++) {
+    for (let x = 16; x <= 28; x++) map[y][x] = 2;
+  }
+  map[62][20] = 5; // Choza de la Bruja
+  map[60][24] = 19; map[64][24] = 19; // Calderos humeantes
+  map[62][24] = 14; map[58][20] = 14; map[66][20] = 14; // Barriles de pociones
+
+  // 🏘️ Barrios de Palafitos Norte y Sur (Casas de Pescadores sobre Pilotes)
+  map[48][20] = 5; map[48][30] = 5; map[48][42] = 5; map[48][52] = 5;
+  map[84][20] = 5; map[84][30] = 5; map[84][42] = 5; map[84][52] = 5;
+  map[48][25] = 17; map[48][36] = 17; map[48][47] = 17;
+  map[84][25] = 17; map[84][36] = 17; map[84][47] = 17;
+
+  // 🎣 Distrito de Muelles y Pescadores (Este, X: 44..56, Y: 56..72)
+  for (let y = 56; y <= 72; y++) {
+    for (let x = 44; x <= 56; x++) map[y][x] = 2;
+  }
+  map[60][52] = 14; map[66][52] = 14; // Barriles de pescado y redes
+  map[63][50] = 4; // Pozo de agua fresca
+
+  // =========================================================================
+  // 4. RUTAS SECUNDARIAS DEL PANTANO (72x116)
+  // =========================================================================
+  // 🍄 Sudoeste: Los Manglares Venenosos y Bosque de Esporas (X: 8..34, Y: 86..112)
+  for (let y = 88; y <= 108; y++) {
+    for (let x = 12; x <= 32; x++) {
+      if (x >= 20 && x <= 24) map[y][x] = 2; // Calzada principal sur
+      else if (Math.hypot(x - 18, y - 98) <= 8 || Math.hypot(x - 28, y - 102) <= 7) {
+        map[y][x] = 0; // Islotes de tierra firme
       }
     }
   }
-  // Pasarelas del pueblo
-  for (let x = 24; x <= 58; x++) {
-    map[59][x] = 15; map[60][x] = 15; map[61][x] = 15;
-  }
-  for (let y = 46; y <= 74; y++) {
-    map[y][39] = 15; map[y][40] = 15; map[y][41] = 15;
-  }
-  // Choza de pescadores, faroles y barriles
-  map[52][34] = 5; map[52][46] = 5;
-  map[68][34] = 5; map[68][46] = 5;
-  map[60][40] = 4; map[60][30] = 17; map[60][50] = 17;
-  map[64][30] = 14;
+  map[98][18] = 7; map[102][28] = 7; // Cofres de reliquias del fango
+  map[100][22] = 19; // Fogata de campamento
 
-  // 3. Islotes del Pantano con Ruinas Hundidas (X: 8..64, Y: 16..44)
-  for (let y = 16; y <= 44; y++) {
-    for (let x = 8; x <= 64; x++) {
-      const isIslandNW = Math.hypot(x - 20, y - 30) <= 11;
-      const isIslandNE = Math.hypot(x - 52, y - 30) <= 11;
-      if (isIslandNW || isIslandNE) {
-        map[y][x] = 0;
-      }
+  // 🏛️ Sureste: Archipiélago de las Ruinas Hundidas (X: 44..66, Y: 86..112)
+  for (let y = 88; y <= 108; y++) {
+    for (let x = 46; x <= 62; x++) {
+      if (x >= 48 && x <= 52) map[y][x] = 2;
+      else if (Math.hypot(x - 56, y - 98) <= 7) map[y][x] = 0;
     }
   }
-  for (let y = 20; y <= 58; y++) {
-    map[y][20] = 15; map[y][52] = 15;
-  }
-  map[30][20] = 7; map[30][52] = 7; map[26][20] = 18; map[26][52] = 18;
+  map[96][56] = 18; map[104][56] = 18; // Columnas sumergidas
+  map[100][56] = 7; // Cofre de las ruinas
 
-  // 4. Santuario de la Reina Gorgona (Norte X: 28..44, Y: 2..16)
-  for (let y = 2; y <= 16; y++) {
-    for (let x = 28; x <= 44; x++) {
-      map[y][x] = 0;
+  // 🚪 Noroeste: Distrito de la Mazmorra "La Cripta Sumergida de Vael" (X: 8..34, Y: 18..44)
+  for (let y = 26; y <= 34; y++) {
+    for (let x = 10; x <= 34; x++) map[y][x] = 2;
+  }
+  for (let y = 24; y <= 36; y++) {
+    for (let x = 10; x <= 22; x++) map[y][x] = 2; // Gran explanada de la mazmorra
+  }
+  map[30][14] = 28; // Puerta de la Mazmorra Instanciada
+  map[28][12] = 19; map[28][16] = 19;
+  map[32][12] = 19; map[32][16] = 19;
+  map[30][10] = 18; map[30][18] = 18;
+
+  // =========================================================================
+  // 5. CIMA NORTE: GRAN SANTUARIO DE LA REINA SERPIENTE GORGONA (X: 20..52, Y: 2..18)
+  // =========================================================================
+  // Avenida Ceremonial Norte
+  for (let y = 16; y <= 46; y++) {
+    map[y][34] = 2; map[y][35] = 2; map[y][36] = 2; map[y][37] = 2; map[y][38] = 2;
+  }
+  // Gran Arena Circular de Piedra para el Combate en Tiempo Real
+  for (let y = 4; y <= 16; y++) {
+    for (let x = 22; x <= 50; x++) {
+      map[y][x] = 2;
     }
   }
-  for (let y = 4; y <= 20; y++) {
-    map[y][35] = 15; map[y][36] = 15; map[y][37] = 15;
-  }
-  map[6][36] = 11;
-  map[6][32] = 18; map[6][40] = 18;
+  // Columnas Serpentinas y Braseros de Fuego Esmeralda
+  map[4][24] = 18; map[4][48] = 18;
+  map[16][24] = 18; map[16][48] = 18;
+  map[4][32] = 19; map[4][40] = 19;
+  map[16][32] = 19; map[16][40] = 19;
 
   return { tileData: map, width: WIDTH, height: HEIGHT };
 }

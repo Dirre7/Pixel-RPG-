@@ -21,6 +21,7 @@ import {
   generateCryptDungeon,
   generateSmugglersCaveDungeon,
   generateEriduDepthsDungeon,
+  generateSwampCryptDungeon,
 } from './subzonesGenerator';
 
 // ==============================================================================
@@ -44,6 +45,7 @@ const forgeWorld = generateForgeInterior();
 const boticaWorld = generateBoticaInterior();
 const castleInteriorWorld = generateCastleInterior();
 const eriduDepthsWorld = generateEriduDepthsDungeon();
+const swampCryptWorld = generateSwampCryptDungeon();
 
 // ==============================================================================
 // 🌟 CONFIGURACIÓN COMPLETA DE LAS 8 REGIONES DE AETHELGARD (88 MISIONES)
@@ -492,7 +494,7 @@ export const ZONES: Zone[] = [
         x: 15,
         y: 12,
         targetZoneId: 'zone_cave',
-        targetPos: { x: 15, y: 108 },
+        targetPos: { x: 15, y: 106 },
         label: '⛰️ Acceso 1: Cañón Rocoso y Minas de Eridu',
         minLevel: 6,
         isDoor: false,
@@ -501,7 +503,7 @@ export const ZONES: Zone[] = [
         x: 58,
         y: 12,
         targetZoneId: 'subzone_crypt',
-        targetPos: { x: 58, y: 110 },
+        targetPos: { x: 58, y: 106 },
         label: '🪦 Acceso 2: Cripta y Monasterio Caído',
         minLevel: 10,
         isDoor: false,
@@ -510,7 +512,7 @@ export const ZONES: Zone[] = [
         x: 3,
         y: 60,
         targetZoneId: 'zone_swamp',
-        targetPos: { x: 68, y: 60 },
+        targetPos: { x: 64, y: 60 },
         label: '🌫️ Acceso 3: Pantano Sombrío de Vael',
         minLevel: 15,
         isDoor: false,
@@ -519,7 +521,7 @@ export const ZONES: Zone[] = [
         x: 15,
         y: 106,
         targetZoneId: 'subzone_smugglers_cave',
-        targetPos: { x: 15, y: 6 },
+        targetPos: { x: 15, y: 8 },
         label: '🌊 Acceso 4: Costa y Caleta de Contrabandistas',
         minLevel: 20,
         isDoor: false,
@@ -528,7 +530,7 @@ export const ZONES: Zone[] = [
         x: 58,
         y: 106,
         targetZoneId: 'zone_volcano',
-        targetPos: { x: 58, y: 6 },
+        targetPos: { x: 58, y: 8 },
         label: '🌋 Acceso 5: Garganta del Volcán Ignis',
         minLevel: 25,
         isDoor: false,
@@ -867,6 +869,7 @@ export const ZONES: Zone[] = [
     boss: {
       name: 'Reina Serpiente Gorgona',
       isBoss: true,
+      spawnPos: { x: 36, y: 10 },
       hp: 1650,
       maxHp: 1650,
       attack: 85,
@@ -887,31 +890,31 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_swamp_1',
         zoneId: 'zone_swamp',
-        x: 16,
-        y: 17,
+        x: 22,
+        y: 64,
         name: 'Bruja Morgath',
         title: 'Hechicera de las Brumas',
         avatarStyle: 'wizard',
         dialogue: [
           'Jijiji... ¿Buscas poder en este lodo ponzoñoso, caminante?',
-          'Las aguas del pantano ocultan secretos que los reyes del sol prefieren olvidar.'
+          'Hacia el noroeste se alza la entrada a la Cripta Sumergida, custodiada por hidras y tesoros antiguos.'
         ],
-        tip: '💡 CONSEJO: Lleva antídotos; los basiliscos del pantano aplican veneno letal.',
+        tip: '💡 CONSEJO: Lleva antídotos; las bestias de la ciénaga aplican veneno letal.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_swamp_1'),
       },
       {
         id: 'npc_swamp_2',
         zoneId: 'zone_swamp',
-        x: 30,
-        y: 31,
+        x: 34,
+        y: 62,
         name: 'Cazador Fenris',
         title: 'Rastreador de Palafitos',
         avatarStyle: 'scout',
         dialogue: [
-          'Camina solo por las pasarelas de madera; el fango verde traga a los imprudentes.',
-          'Al este reposan los restos del galeón corsario naufragado.'
+          '¡Bienvenido a la Aldea de Vael! Estas calzadas elevadas nos mantienen a salvo del cieno.',
+          'Al norte, en el templo antiguo, la Reina Gorgona acecha en su santuario.'
         ],
-        tip: '💡 CONSEJO: Las pasarelas de madera te protegen de las sanguijuelas gigantes.',
+        tip: '💡 CONSEJO: Las pasarelas de madera y piedra te protegen de las sanguijuelas gigantes.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_swamp_2'),
       },
       {
@@ -1028,11 +1031,20 @@ export const ZONES: Zone[] = [
     ],
     portals: [
       {
-        x: 70,
+        x: 68,
         y: 60,
         targetZoneId: 'zone_forest',
-        targetPos: { x: 5, y: 60 },
+        targetPos: { x: 8, y: 60 },
         label: '🔙 Regresar al Bosque de Aethelgard',
+        isDoor: false,
+      },
+      {
+        x: 14,
+        y: 30,
+        targetZoneId: 'subzone_swamp_crypt',
+        targetPos: { x: 13, y: 23 },
+        label: '🌫️ Cripta Sumergida de Vael (Mazmorra Nv. 15-20)',
+        isDoor: true,
       },
     ],
   },
@@ -2767,6 +2779,111 @@ export const ZONES: Zone[] = [
           'Al fondo de esta cámara se encuentra el Gran Cofre de Eridu con gemas y equipamiento minero.'
         ],
         tip: '💡 FARMEANDO EN LA MAZMORRA: Los monstruos de esta cueva reaparecen y sueltan valiosas gemas y hierro.',
+      },
+    ],
+  },
+
+  // 8. 🌫️ MAZMORRA INSTANCIADA: LA CRIPTA SUMERGIDA DE VAEL (Farmeo Nv. 15 a 20)
+  {
+    id: 'subzone_swamp_crypt',
+    name: 'Mazmorra: La Cripta Sumergida de Vael',
+    description: 'Antigua cripta druídica inundada donde moran hidras venenosas, ciemos ácidos y cultistas del pantano.',
+    themeColor: '#059669',
+    bgMusicTheme: 'swamp',
+    requiredLevel: 15,
+    isInterior: true,
+    interiorType: 'crypt',
+    parentZoneId: 'zone_swamp',
+    exitPosition: { x: 14, y: 32 },
+    mapWidth: swampCryptWorld.width,
+    mapHeight: swampCryptWorld.height,
+    tileData: swampCryptWorld.tileData,
+    portals: [
+      {
+        x: 13,
+        y: 24,
+        targetZoneId: 'zone_swamp',
+        targetPos: { x: 14, y: 32 },
+        label: 'Salir al Pantano Sombrío',
+        isDoor: true,
+      },
+    ],
+    enemies: [
+      {
+        name: 'Cieno Ácido Supremo',
+        isBoss: false,
+        hp: 380,
+        maxHp: 380,
+        attack: 48,
+        defense: 24,
+        speed: 10,
+        expReward: 110,
+        goldReward: 32,
+        spriteType: 'slime',
+        color: '#15803d',
+        zoneId: 'subzone_swamp_crypt',
+        description: 'Masa gelatinosa que corroe armaduras con secreciones tóxicas.',
+      },
+      {
+        name: 'Víbora Esmeralda de la Ciénaga',
+        isBoss: false,
+        hp: 440,
+        maxHp: 440,
+        attack: 58,
+        defense: 26,
+        speed: 22,
+        expReward: 140,
+        goldReward: 42,
+        spriteType: 'spider',
+        color: '#10b981',
+        zoneId: 'subzone_swamp_crypt',
+        description: 'Serpiente acuática rápida y sumamente venenosa.',
+      },
+      {
+        name: 'Cultista de la Serpiente Negra',
+        isBoss: false,
+        hp: 520,
+        maxHp: 520,
+        attack: 66,
+        defense: 30,
+        speed: 15,
+        expReward: 180,
+        goldReward: 55,
+        spriteType: 'bandit',
+        color: '#064e3b',
+        zoneId: 'subzone_swamp_crypt',
+        description: 'Fanático que rinde culto a la Reina Gorgona en las catacumbas.',
+      },
+    ],
+    boss: {
+      name: 'Hidra Abisal de Tres Cabezas',
+      isBoss: true,
+      hp: 1150,
+      maxHp: 1150,
+      attack: 74,
+      defense: 38,
+      speed: 14,
+      expReward: 800,
+      goldReward: 350,
+      spriteType: 'boss_serpent',
+      color: '#047857',
+      zoneId: 'subzone_swamp_crypt',
+      description: 'Monstruo serpentino tricéfalo que custodia el Gran Cofre de Vael.',
+    },
+    npcs: [
+      {
+        id: 'npc_swamp_crypt_scholar',
+        zoneId: 'subzone_swamp_crypt',
+        x: 13,
+        y: 20,
+        name: 'Erudito Aldus',
+        title: 'Investigador de Ruinas Sumergidas',
+        avatarStyle: 'wizard',
+        dialogue: [
+          '¡Las aguas de esta cripta están cargadas de energía nigromántica!',
+          'En el altar norte reposa el Cofre Sumergido con reliquias de la antigua Vael.'
+        ],
+        tip: '💡 FARMEANDO EN LA CRIPTA: Derrota a la Hidra y a los ciemos para recolectar gemas y esporas arcanas.',
       },
     ],
   },

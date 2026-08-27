@@ -564,3 +564,61 @@ export function generateEriduDepthsDungeon(): SubZoneMapResult {
 
   return { width, height, tileData: map };
 }
+
+/**
+ * 8. 🌫️ MAZMORRA INSTANCIADA: LA CRIPTA SUMERGIDA DE VAEL (26x26)
+ * Cripta ancestral anegada de aguas cenagosas (Nv. 15 a 20) con pasarelas de piedra,
+ * ciénagas ácidas, hidras serpenteantes, cieno venenoso y el Gran Cofre de Vael.
+ */
+export function generateSwampCryptDungeon(): SubZoneMapResult {
+  const width = 26;
+  const height = 26;
+  const map: number[][] = [];
+
+  for (let y = 0; y < height; y++) {
+    const row: number[] = [];
+    for (let x = 0; x < width; x++) {
+      if (y === 0 || y === height - 1 || x === 0 || x === width - 1) {
+        row.push(1); // Muros de piedra musgosa
+      } else {
+        row.push(3); // Aguas poco profundas de ciénaga
+      }
+    }
+    map.push(row);
+  }
+
+  // Pasarelas de piedra elevadas sobre las aguas
+  for (let y = 4; y <= 22; y++) {
+    map[y][12] = 2; map[y][13] = 2;
+  }
+  for (let x = 4; x <= 22; x++) {
+    map[12][x] = 2; map[13][x] = 2;
+  }
+
+  // Cámaras de tierra firme en las 4 esquinas
+  for (let y = 3; y <= 7; y++) {
+    for (let x = 3; x <= 7; x++) map[y][x] = 0;
+  }
+  for (let y = 3; y <= 7; y++) {
+    for (let x = 18; x <= 22; x++) map[y][x] = 0;
+  }
+  for (let y = 18; y <= 22; y++) {
+    for (let x = 3; x <= 7; x++) map[y][x] = 0;
+  }
+  for (let y = 18; y <= 22; y++) {
+    for (let x = 18; x <= 22; x++) map[y][x] = 0;
+  }
+
+  // Columnas de piedra y antorchas esmeralda
+  map[5][5] = 18; map[5][20] = 18; map[20][5] = 18; map[20][20] = 18;
+  map[12][6] = 19; map[12][19] = 19;
+
+  // Gran Cámara del Tesoro de la Cripta Sumergida (Norte)
+  map[3][13] = 7; // Cofre legendario
+  map[3][11] = 19; map[3][15] = 19;
+
+  // Entrada/Salida al sur
+  map[24][13] = 28;
+
+  return { width, height, tileData: map };
+}
