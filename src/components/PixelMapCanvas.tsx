@@ -1587,51 +1587,36 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 c.fillRect(pX + 6, pY + 36, 10, 8);
                 c.fillRect(pX + 48, pY + 36, 10, 8);
 
-                // Vórtice de Energía Mágica Giratoria
-                const pulse = Math.sin(time * 4) * 0.2 + 0.8;
-                let vColor1 = '#22c55e'; // Forest
-                if (currentZone.id === 'zone_cave') { vColor1 = '#a855f7'; }
-                else if (currentZone.id === 'zone_swamp') { vColor1 = '#10b981'; }
-                else if (currentZone.id === 'zone_volcano') { vColor1 = '#ef4444'; }
-                else if (currentZone.id === 'zone_tundra') { vColor1 = '#38bdf8'; }
-                else if (currentZone.id === 'zone_castle') { vColor1 = '#f59e0b'; }
-                else if (currentZone.id === 'zone_void') { vColor1 = '#ec4899'; }
-                else if (currentZone.id === 'zone_sanctuary') { vColor1 = '#facc15'; }
+                // Fondo de Muralla de Piedra Tallada y Altar (Sin vórtice de teletransporte)
+                c.fillStyle = '#0f172a';
+                c.fillRect(pX + 18, pY + 22, 28, 42);
+                c.fillStyle = '#1e293b';
+                c.fillRect(pX + 20, pY + 24, 24, 38);
 
-                c.fillStyle = vColor1;
-                c.beginPath();
-                c.ellipse(posX + 16, pY + 40, 14 * pulse, 22 * pulse, 0, 0, Math.PI * 2);
-                c.fill();
-                c.fillStyle = '#ffffff';
-                c.beginPath();
-                c.ellipse(posX + 16, pY + 40, 6 * pulse, 10 * pulse, 0, 0, Math.PI * 2);
-                c.fill();
+                // Runas ancestrales talladas en la losa de piedra
+                const runeGlow = Math.sin(time * 3) * 0.2 + 0.8;
+                c.fillStyle = `rgba(34, 197, 94, ${0.45 * runeGlow})`;
+                c.fillRect(pX + 26, pY + 32, 12, 3);
+                c.fillRect(pX + 30, pY + 30, 4, 14);
+                c.fillRect(pX + 24, pY + 46, 16, 2);
+                c.fillRect(pX + 28, pY + 44, 8, 8);
 
-                // Destellos de partículas orbitando
-                for (let i = 0; i < 4; i++) {
-                  const angle = time * 3 + (i * Math.PI / 2);
-                  const orbX = posX + 16 + Math.cos(angle) * 12;
-                  const orbY = pY + 40 + Math.sin(angle) * 18;
-                  c.fillStyle = '#ffffff';
-                  c.fillRect(orbX, orbY, 3, 3);
-                }
-
-                // Antorchas de llama mágica a los lados
-                const fPulse = Math.sin(time * 6) * 2;
-                c.fillStyle = vColor1;
+                // Braseros de fuego sagrado en los pilares superiores
+                const fPulse = Math.sin(time * 6) * 1.5;
+                c.fillStyle = '#ea580c';
                 c.beginPath();
                 c.arc(pX + 11, pY + 6 + fPulse, 5, 0, Math.PI * 2);
                 c.arc(pX + 53, pY + 6 + fPulse, 5, 0, Math.PI * 2);
                 c.fill();
-                c.fillStyle = '#ffffff';
+                c.fillStyle = '#fde047';
                 c.fillRect(pX + 10, pY + 4 + fPulse, 2, 2);
                 c.fillRect(pX + 52, pY + 4 + fPulse, 2, 2);
 
-                // Calavera / Runa en el dintel
+                // Emblema del Rey en el dintel
                 c.fillStyle = '#fef08a';
-                c.font = '10px monospace';
+                c.font = 'bold 9px monospace';
                 c.textAlign = 'center';
-                c.fillText('⚔️', posX + 16, pY + 18);
+                c.fillText('👑', posX + 16, pY + 18);
               },
             });
           } else if (tileType === 12) {

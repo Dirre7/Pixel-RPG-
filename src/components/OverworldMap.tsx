@@ -466,17 +466,8 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
         }
       } else if (tile === 20) {
         setInteractPrompt('💎 Geoda de Cristal Arcano (Presiona A / Espacio para Extraer Gemas)');
-      } else if (tile === 11) {
-        if (isBossDefeatedInZone) {
-          setInteractPrompt('✨ Portal despejado. ¡Jefe derrotado! (A / Espacio para Cambiar de Zona)');
-        } else {
-          const { isUnlocked, pendingQuests } = areZoneMainQuestsCompleted(currentZone.id, completedQuests);
-          if (!isUnlocked) {
-            setInteractPrompt(`🔒 Portal Sellado: Completa las misiones principales de la zona (${pendingQuests.length} pendientes)`);
-          } else {
-            setInteractPrompt(`⚔️ ¡Portal Desbloqueado! Santuario del Jefe: ${currentZone.boss.name} (Presiona A / Espacio para Luchar)`);
-          }
-        }
+      } else if (tile === 11 || tile === 8) {
+        setInteractPrompt('🏛️ Altar Ancestral del Cañón Norte (Trono del Gran Rey Slime)');
       } else {
         setInteractPrompt(null);
       }
@@ -650,29 +641,9 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
       player.resources.gems = (player.resources.gems || 0) + gemGain;
       onAutoSave();
       showToast(`💎 ¡Has extraído cristales arcanos de la geoda! (+${gemGain} Gemas Arcanas)`);
-    } else if (tile === 11) {
-      if (isBossDefeatedInZone) {
-        // Open zone selector
-        const currentIndex = ZONES.findIndex((z) => z.id === currentZone.id);
-        const nextZone = ZONES[currentIndex + 1];
-        if (nextZone) {
-          soundEngine.playSfx('select');
-          onChangeZone(nextZone.id);
-          showToast(`🚀 ¡Avanzando a ${nextZone.name}!`);
-        } else {
-          showToast('👑 ¡Has completado todas las zonas principales! Eres una leyenda.');
-        }
-      } else {
-        const { isUnlocked, pendingQuests } = areZoneMainQuestsCompleted(currentZone.id, completedQuests);
-        if (!isUnlocked) {
-          soundEngine.playSfx('error');
-          const questList = pendingQuests.map((q) => `"${q.title}"`).join(', ');
-          showToast(`🔒 Portal Sellado: Debes completar las misiones principales de la zona (${questList}).`);
-        } else {
-          soundEngine.playSfx('boss_roar');
-          onStartBattle(true);
-        }
-      }
+    } else if (tile === 11 || tile === 8) {
+      soundEngine.playSfx('select');
+      showToast('🏛️ Altar de Piedra Rúnica Ancestral. El aire vibra con el poder del Gran Rey Slime.');
     }
   };
 
