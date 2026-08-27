@@ -2715,6 +2715,84 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         }
       }
 
+      // 🌿 POSTES DE SEÑALIZACIÓN Y RUTAS DE NIVELES EN LAS SALIDAS DE LA ALDEA (zone_forest)
+      if (currentZone.id === 'zone_forest') {
+        const signposts = [
+          { x: 49, y: 60, title: '➡️ PRADOS DEL ESTE', sub: 'Slimes y Farmeo (Nv. 1-3)', col: '#4ade80' },
+          { x: 36, y: 73, title: '⬇️ SENDA DEL SUR', sub: 'Lobos y Caza (Nv. 4-7)', col: '#facc15' },
+          { x: 23, y: 60, title: '⬅️ PASO DEL OESTE', sub: 'Bandidos y Peligro (Nv. 8-12)', col: '#fb923c' },
+          { x: 36, y: 44, title: '⬆️ CAÑÓN DEL NORTE', sub: 'Altar del Rey Slime (Nv. 12-15)', col: '#f87171' },
+        ];
+
+        signposts.forEach((sign) => {
+          if (sign.x >= startCol - 2 && sign.x <= endCol + 2 && sign.y >= startRow - 2 && sign.y <= endRow + 2) {
+            const sX = sign.x * TILE_SIZE;
+            const sY = sign.y * TILE_SIZE;
+            const dist = Math.hypot(currentPosRef.current.x - sign.x, currentPosRef.current.y - sign.y);
+
+            entities.push({
+              ySort: sY + TILE_SIZE,
+              draw: (c) => {
+                // Sombra del poste
+                c.fillStyle = 'rgba(0, 0, 0, 0.35)';
+                c.beginPath();
+                c.ellipse(sX + 16, sY + 28, 8, 4, 0, 0, Math.PI * 2);
+                c.fill();
+
+                // Poste de madera de roble
+                c.fillStyle = '#451a03';
+                c.fillRect(sX + 13, sY + 10, 6, 20);
+                c.fillStyle = '#78350f';
+                c.fillRect(sX + 14, sY + 11, 4, 18);
+
+                // Tablón indicador de madera
+                c.fillStyle = '#78350f';
+                c.fillRect(sX + 4, sY - 2, 24, 13);
+                c.fillStyle = '#b45309';
+                c.fillRect(sX + 6, sY, 20, 9);
+                c.fillStyle = '#451a03';
+                c.fillRect(sX + 8, sY + 2, 16, 2);
+                c.fillRect(sX + 8, sY + 6, 16, 2);
+
+                // Rótulo legible flotante cuando el héroe está cerca
+                const isNear = dist < 7.0;
+                c.font = 'bold 8.5px monospace';
+                const textW = c.measureText(sign.title).width;
+                const badgeY = sY - 14 + (isNear ? Math.sin(time * 2) * 1.5 : 0);
+
+                c.fillStyle = 'rgba(15, 23, 42, 0.88)';
+                c.strokeStyle = sign.col;
+                c.lineWidth = 1.2;
+                c.beginPath();
+                c.roundRect(sX + 16 - textW / 2 - 5, badgeY - 7, textW + 10, 14, 3);
+                c.fill();
+                c.stroke();
+
+                c.fillStyle = sign.col;
+                c.textAlign = 'center';
+                c.textBaseline = 'middle';
+                c.fillText(sign.title, sX + 16, badgeY);
+
+                if (isNear) {
+                  c.font = 'bold 7.5px monospace';
+                  const subW = c.measureText(sign.sub).width;
+                  c.fillStyle = 'rgba(15, 23, 42, 0.95)';
+                  c.strokeStyle = '#64748b';
+                  c.lineWidth = 1;
+                  c.beginPath();
+                  c.roundRect(sX + 16 - subW / 2 - 4, badgeY + 12 - 5, subW + 8, 12, 2);
+                  c.fill();
+                  c.stroke();
+
+                  c.fillStyle = '#f8fafc';
+                  c.fillText(sign.sub, sX + 16, badgeY + 12);
+                }
+              },
+            });
+          }
+        });
+      }
+
       // 3. Cofres del tesoro registrados en currentZone.chests (si no están ya en tileData)
       if (currentZone.chests) {
         currentZone.chests.forEach((chest) => {
@@ -2780,8 +2858,8 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
       enemyEntities.forEach((ent) => {
         if (ent.enemy.hp <= 0) {
-          // ⏱️ Respawn automático de 120 segundos (2 minutos) para enemigos comunes
-          if (!ent.enemy.isBoss && ent.deathTime && (nowMs - ent.deathTime >= 120000)) {
+          // ⏱️ Respawn dinámico y rápido de 25 segundos para farmeo fluido de enemigos comunes
+          if (!ent.enemy.isBoss && ent.deathTime && (nowMs - ent.deathTime >= 25000)) {
             ent.enemy.hp = ent.enemy.maxHp;
             ent.enemy.state = 'patrol';
             ent.enemy.worldX = ent.enemy.spawnX;

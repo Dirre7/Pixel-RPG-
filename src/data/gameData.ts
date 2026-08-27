@@ -761,42 +761,105 @@ export function generateZoneOverworldEnemies(
   };
 
   if (zoneId === 'zone_forest') {
-    let attempts = 0;
-    while (enemies.length < 22 && attempts < 500) {
-      attempts++;
-      const gx = 3 + Math.floor(Math.random() * (mapW - 6));
-      const gy = 3 + Math.floor(Math.random() * (mapH - 6));
+    // 🗺️ DISTRIBUCIÓN CLARA POR CUADRANTES TEMÁTICOS EN EL BOSQUE PRINCIPAL (40 Enemigos)
 
+    // 1. ➡️ CUADRANTE ESTE: "PRADOS DE ENTRENAMIENTO" (Nv. 1 a 3 - Ideal para inicio)
+    let eastAttempts = 0;
+    while (enemies.filter(e => e.x > 46 && e.y >= 44 && e.y <= 76).length < 12 && eastAttempts < 200) {
+      eastAttempts++;
+      const gx = 48 + Math.floor(Math.random() * 18);
+      const gy = 46 + Math.floor(Math.random() * 28);
+      const tile = tileData[gy]?.[gx];
+      if (tile === 0) {
+        const lvl = Math.random() < 0.6 ? 1 : 2;
+        enemies.push({
+          id: `forest_east_${enemies.length}`,
+          name: lvl === 1 ? 'Slime Verde Joven' : 'Slime del Bosque',
+          level: lvl,
+          hp: lvl === 1 ? 30 : 42,
+          maxHp: lvl === 1 ? 30 : 42,
+          attack: lvl === 1 ? 8 : 11,
+          defense: lvl === 1 ? 2 : 4,
+          expReward: lvl === 1 ? 14 : 18,
+          goldReward: lvl === 1 ? 4 : 6,
+          x: gx,
+          y: gy,
+          worldX: gx,
+          worldZ: gy,
+          spawnX: gx,
+          spawnY: gy,
+          patrolRadius: 2.5,
+          aggroRadius: 4.5,
+          attackRange: 1.3,
+          attackCooldown: 1.6,
+          lastAttackTime: 0,
+          state: 'patrol',
+          enemyType: 'slime',
+          color: lvl === 1 ? '#4ade80' : '#22c55e',
+          scale: lvl === 1 ? 0.85 : 0.95,
+        });
+      }
+    }
+
+    // 2. ⬇️ CUADRANTE SUR: "SENDA DEL CAZADOR Y CLAROS DEL RÍO" (Nv. 4 a 7 - Media dificultad)
+    let southAttempts = 0;
+    while (enemies.filter(e => e.y > 74).length < 12 && southAttempts < 200) {
+      southAttempts++;
+      const gx = 18 + Math.floor(Math.random() * 36);
+      const gy = 76 + Math.floor(Math.random() * 32);
       const tile = tileData[gy]?.[gx];
       if (tile === 0 && !isInsideSafeTown(gx, gy)) {
-        // Calculate distance from town center (36, 56)
-        const distFromTown = Math.hypot(gx - 36, gy - 56);
-
-        let template: { type: OverworldEnemyType; name: string; color: string; level: number; hp: number; atk: number; def: number; exp: number; gold: number; scale?: number };
-
-        if (distFromTown < 22) {
-          // 🟢 Region 1: Perímetro Cercano a la Aldea (Slimes Nv. 1-3)
-          template = { type: 'slime', name: 'Slime del Bosque', color: '#22c55e', level: 2, hp: 45, atk: 12, def: 4, exp: 15, gold: 4, scale: 0.9 };
-        } else if (distFromTown < 34) {
-          // 🐺 Region 2: Bosque Medio (Lobos Salvajes Nv. 4-7)
-          template = { type: 'wolf', name: 'Lobo Salvaje', color: '#64748b', level: 5, hp: 95, atk: 22, def: 8, exp: 35, gold: 8, scale: 1.0 };
-        } else {
-          // 🧝 Region 3: Bosque Profundo y Ruinas Lejanas (Bandidos Nv. 8-12)
-          template = Math.random() < 0.5
-            ? { type: 'goblin', name: 'Chamán Goblin', color: '#15803d', level: 9, hp: 140, atk: 32, def: 12, exp: 55, gold: 14, scale: 0.95 }
-            : { type: 'bandit', name: 'Bandido de los Caminos', color: '#b45309', level: 12, hp: 180, atk: 40, def: 16, exp: 75, gold: 18, scale: 1.05 };
-        }
-
+        const isWolf = Math.random() < 0.55;
+        const lvl = isWolf ? (Math.random() < 0.5 ? 4 : 5) : (Math.random() < 0.5 ? 6 : 7);
         enemies.push({
-          id: `overworld_${zoneId}_${gx}_${gy}_${enemies.length}`,
-          name: template.name,
-          level: template.level,
-          hp: template.hp,
-          maxHp: template.hp,
-          attack: template.atk,
-          defense: template.def,
-          expReward: template.exp,
-          goldReward: template.gold,
+          id: `forest_south_${enemies.length}`,
+          name: isWolf ? 'Lobo Salvaje' : 'Jabalí de los Robles',
+          level: lvl,
+          hp: isWolf ? 85 : 120,
+          maxHp: isWolf ? 85 : 120,
+          attack: isWolf ? 19 : 25,
+          defense: isWolf ? 7 : 10,
+          expReward: isWolf ? 32 : 48,
+          goldReward: isWolf ? 9 : 14,
+          x: gx,
+          y: gy,
+          worldX: gx,
+          worldZ: gy,
+          spawnX: gx,
+          spawnY: gy,
+          patrolRadius: 2.5,
+          aggroRadius: 5.5,
+          attackRange: 1.4,
+          attackCooldown: 1.5,
+          lastAttackTime: 0,
+          state: 'patrol',
+          enemyType: isWolf ? 'wolf' : 'boar' as any,
+          color: isWolf ? '#64748b' : '#78350f',
+          scale: 1.05,
+        });
+      }
+    }
+
+    // 3. ⬅️ CUADRANTE OESTE: "BOSQUE DE LOS BANDIDOS Y LABERINTO" (Nv. 8 a 12 - Alto desafío)
+    let westAttempts = 0;
+    while (enemies.filter(e => e.x < 24 && e.y >= 38 && e.y <= 82).length < 10 && westAttempts < 200) {
+      westAttempts++;
+      const gx = 6 + Math.floor(Math.random() * 16);
+      const gy = 40 + Math.floor(Math.random() * 40);
+      const tile = tileData[gy]?.[gx];
+      if (tile === 0) {
+        const isBandit = Math.random() < 0.6;
+        const lvl = isBandit ? (Math.random() < 0.5 ? 8 : 10) : (Math.random() < 0.5 ? 11 : 12);
+        enemies.push({
+          id: `forest_west_${enemies.length}`,
+          name: isBandit ? 'Bandido del Camino' : 'Chamán Goblin',
+          level: lvl,
+          hp: isBandit ? 160 : 140,
+          maxHp: isBandit ? 160 : 140,
+          attack: isBandit ? 34 : 42,
+          defense: isBandit ? 14 : 12,
+          expReward: isBandit ? 65 : 82,
+          goldReward: isBandit ? 18 : 24,
           x: gx,
           y: gy,
           worldX: gx,
@@ -804,17 +867,55 @@ export function generateZoneOverworldEnemies(
           spawnX: gx,
           spawnY: gy,
           patrolRadius: 2.2,
-          aggroRadius: 5.5,
+          aggroRadius: 6.0,
           attackRange: 1.4,
-          attackCooldown: 1.5,
+          attackCooldown: 1.4,
           lastAttackTime: 0,
           state: 'patrol',
-          enemyType: template.type,
-          color: template.color,
-          scale: template.scale || 1.0,
+          enemyType: isBandit ? 'bandit' : 'goblin',
+          color: isBandit ? '#b45309' : '#15803d',
+          scale: 1.0,
         });
       }
     }
+
+    // 4. ⬆️ CUADRANTE NORTE: "CAÑÓN DEL REY SLIME Y GUARDIANES" (Nv. 12 a 14)
+    let northAttempts = 0;
+    while (enemies.filter(e => e.y < 36 && e.x >= 24 && e.x <= 48).length < 8 && northAttempts < 200) {
+      northAttempts++;
+      const gx = 26 + Math.floor(Math.random() * 20);
+      const gy = 10 + Math.floor(Math.random() * 25);
+      const tile = tileData[gy]?.[gx];
+      if (tile === 0) {
+        enemies.push({
+          id: `forest_north_${enemies.length}`,
+          name: 'Treant Corrupto del Cañón',
+          level: 13,
+          hp: 230,
+          maxHp: 230,
+          attack: 48,
+          defense: 18,
+          expReward: 110,
+          goldReward: 32,
+          x: gx,
+          y: gy,
+          worldX: gx,
+          worldZ: gy,
+          spawnX: gx,
+          spawnY: gy,
+          patrolRadius: 2.0,
+          aggroRadius: 6.5,
+          attackRange: 1.5,
+          attackCooldown: 1.7,
+          lastAttackTime: 0,
+          state: 'patrol',
+          enemyType: 'treant',
+          color: '#14532d',
+          scale: 1.25,
+        });
+      }
+    }
+
     return enemies;
   }
 
