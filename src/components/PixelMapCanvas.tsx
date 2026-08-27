@@ -2356,23 +2356,23 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                   let strokeCol = '#38bdf8';
                   let textCol = '#e0f2fe';
 
-                  if (portal.targetZoneId.includes('cave')) {
-                    badgeText = '⛰️ CUEVA Y MINAS DE ERIDU (Nv. 4)';
+                  if (portal.targetZoneId === 'zone_cave') {
+                    badgeText = '⛰️ MINAS Y CAÑÓN DE ERIDU (Nv. 15)';
                     strokeCol = '#38bdf8'; textCol = '#e0f2fe';
                   } else if (portal.targetZoneId.includes('crypt')) {
-                    badgeText = '🪦 PASO A LA CRIPTA (Nv. 10)';
+                    badgeText = '🪦 CRIPTA Y MONASTERIO (Nv. 30)';
                     strokeCol = '#a855f7'; textCol = '#f3e8ff';
                   } else if (portal.targetZoneId.includes('swamp')) {
-                    badgeText = '🌫️ PUENTE DEL PANTANO (Nv. 15)';
+                    badgeText = '🌫️ PANTANO SOMBRÍO DE VAEL (Nv. 45)';
                     strokeCol = '#10b981'; textCol = '#d1fae5';
                   } else if (portal.targetZoneId.includes('smuggler')) {
-                    badgeText = '🌊 PASO A LA COSTA (Nv. 20)';
+                    badgeText = '🌊 COSTA Y CALETA DE CONTRABANDISTAS (Nv. 65)';
                     strokeCol = '#0284c7'; textCol = '#e0f2fe';
                   } else if (portal.targetZoneId.includes('volcano')) {
-                    badgeText = '🌋 GARGANTA DEL VOLCÁN (Nv. 25)';
+                    badgeText = '🌋 VOLCÁN IGNIS [ENDGAME] (Nv. 80)';
                     strokeCol = '#ef4444'; textCol = '#fee2e2';
                   } else if (portal.targetZoneId.includes('forest')) {
-                    badgeText = '🔙 SENDERO A AETHELGARD';
+                    badgeText = '🔙 RETORNO A AETHELGARD (Nv. 1-15)';
                     strokeCol = '#f59e0b'; textCol = '#fef08a';
                   }
 

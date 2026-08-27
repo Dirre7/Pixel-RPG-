@@ -775,16 +775,16 @@ export function generateZoneOverworldEnemies(
         let template: { type: OverworldEnemyType; name: string; color: string; level: number; hp: number; atk: number; def: number; exp: number; gold: number; scale?: number };
 
         if (distFromTown < 22) {
-          // 🟢 Region 1: Perímetro Exterior (Slimes Nv. 1-2)
-          template = { type: 'slime', name: 'Slime de Bosque', color: '#22c55e', level: 2, hp: 85, atk: 22, def: 6, exp: 12, gold: 3, scale: 0.9 };
-        } else if (distFromTown < 32) {
-          // 🐺 Region 2: Bosque Medio (Lobos Salvajes Nv. 3-4)
-          template = { type: 'wolf', name: 'Lobo Salvaje', color: '#64748b', level: 4, hp: 150, atk: 34, def: 12, exp: 26, gold: 6, scale: 1.0 };
+          // 🟢 Region 1: Perímetro Cercano a la Aldea (Slimes Nv. 1-3)
+          template = { type: 'slime', name: 'Slime del Bosque', color: '#22c55e', level: 2, hp: 45, atk: 12, def: 4, exp: 15, gold: 4, scale: 0.9 };
+        } else if (distFromTown < 34) {
+          // 🐺 Region 2: Bosque Medio (Lobos Salvajes Nv. 4-7)
+          template = { type: 'wolf', name: 'Lobo Salvaje', color: '#64748b', level: 5, hp: 95, atk: 22, def: 8, exp: 35, gold: 8, scale: 1.0 };
         } else {
-          // 🧝 Region 3: Bosque Profundo y Ruinas Lejanas (Bandidos Nv. 5-7)
+          // 🧝 Region 3: Bosque Profundo y Ruinas Lejanas (Bandidos Nv. 8-12)
           template = Math.random() < 0.5
-            ? { type: 'goblin', name: 'Duende Saqueador', color: '#15803d', level: 5, hp: 210, atk: 46, def: 16, exp: 42, gold: 12, scale: 0.95 }
-            : { type: 'bandit', name: 'Bandido de los Caminos', color: '#b45309', level: 7, hp: 280, atk: 58, def: 22, exp: 60, gold: 16, scale: 1.05 };
+            ? { type: 'goblin', name: 'Chamán Goblin', color: '#15803d', level: 9, hp: 140, atk: 32, def: 12, exp: 55, gold: 14, scale: 0.95 }
+            : { type: 'bandit', name: 'Bandido de los Caminos', color: '#b45309', level: 12, hp: 180, atk: 40, def: 16, exp: 75, gold: 18, scale: 1.05 };
         }
 
         enemies.push({
@@ -818,7 +818,7 @@ export function generateZoneOverworldEnemies(
     return enemies;
   }
 
-  // Dungeon and dangerous wilderness zone configurations
+  // Dungeon and dangerous wilderness zone configurations (Levels 15 to 99)
   const zoneConfig: Record<
     string,
     {
@@ -829,63 +829,63 @@ export function generateZoneOverworldEnemies(
     zone_cave: {
       count: 18,
       types: [
-        { type: 'bat', name: 'Murciélago de Cañón', color: '#64748b', level: 6, hp: 190, atk: 36, def: 14, exp: 45, gold: 12, scale: 0.95 },
-        { type: 'skeleton', name: 'Esqueleto Minero con Pico', color: '#e2e8f0', level: 8, hp: 280, atk: 46, def: 20, exp: 65, gold: 18, scale: 1.0 },
-        { type: 'bandit', name: 'Ladrón de Gemas', color: '#7c3aed', level: 10, hp: 340, atk: 54, def: 24, exp: 90, gold: 24, scale: 1.0 },
+        { type: 'bat', name: 'Murciélago de Cañón', color: '#64748b', level: 18, hp: 260, atk: 48, def: 20, exp: 120, gold: 30, scale: 0.95 },
+        { type: 'skeleton', name: 'Esqueleto Minero de Eridu', color: '#e2e8f0', level: 23, hp: 420, atk: 65, def: 32, exp: 190, gold: 45, scale: 1.0 },
+        { type: 'golem', name: 'Gólem de Piedra y Cantería', color: '#7c3aed', level: 28, hp: 680, atk: 85, def: 48, exp: 280, gold: 65, scale: 1.15 },
       ],
     },
     subzone_crypt: {
       count: 18,
       types: [
-        { type: 'elemental', name: 'Espectro Afligido', color: '#93c5fd', level: 11, hp: 420, atk: 68, def: 28, exp: 120, gold: 30, scale: 1.0 },
-        { type: 'skeleton', name: 'Guerrero No-Muerto Acorazado', color: '#94a3b8', level: 13, hp: 560, atk: 82, def: 40, exp: 160, gold: 40, scale: 1.1 },
-        { type: 'goblin', name: 'Chamán Nigromante', color: '#6366f1', level: 15, hp: 640, atk: 96, def: 32, exp: 210, gold: 50, scale: 1.05 },
+        { type: 'elemental', name: 'Espectro Afligido del Claustro', color: '#93c5fd', level: 33, hp: 850, atk: 110, def: 52, exp: 380, gold: 85, scale: 1.0 },
+        { type: 'skeleton', name: 'Guerrero No-Muerto Acorazado', color: '#94a3b8', level: 38, hp: 1200, atk: 135, def: 68, exp: 520, gold: 120, scale: 1.1 },
+        { type: 'goblin', name: 'Chamán Nigromante Caído', color: '#6366f1', level: 43, hp: 1550, atk: 160, def: 78, exp: 700, gold: 160, scale: 1.05 },
       ],
     },
     zone_swamp: {
       count: 18,
       types: [
-        { type: 'slime', name: 'Cieno Ponzoñoso Ácido', color: '#166534', level: 16, hp: 720, atk: 105, def: 48, exp: 260, gold: 60, scale: 1.1 },
-        { type: 'wolf', name: 'Serpiente del Fango Gigante', color: '#047857', level: 18, hp: 880, atk: 122, def: 54, exp: 320, gold: 75, scale: 1.15 },
-        { type: 'wolf', name: 'Bestia Cazadora del Pantano', color: '#334155', level: 20, hp: 1050, atk: 140, def: 60, exp: 400, gold: 90, scale: 1.2 },
+        { type: 'slime', name: 'Cieno Ponzoñoso de Vael', color: '#166534', level: 49, hp: 1900, atk: 195, def: 95, exp: 950, gold: 220, scale: 1.1 },
+        { type: 'wolf', name: 'Serpiente Gigante del Fango', color: '#047857', level: 55, hp: 2500, atk: 235, def: 115, exp: 1300, gold: 300, scale: 1.15 },
+        { type: 'elemental', name: 'Bruja de la Ciénaga Maldita', color: '#334155', level: 62, hp: 3200, atk: 285, def: 135, exp: 1800, gold: 420, scale: 1.2 },
       ],
     },
     subzone_smugglers_cave: {
       count: 18,
       types: [
-        { type: 'bandit', name: 'Corsario Renegado', color: '#b45309', level: 21, hp: 1200, atk: 155, def: 70, exp: 480, gold: 110, scale: 1.1 },
-        { type: 'golem', name: 'Gólem de Coral y Mareas', color: '#0284c7', level: 23, hp: 1450, atk: 175, def: 90, exp: 580, gold: 130, scale: 1.25 },
-        { type: 'elemental', name: 'Hechicera de las Olas', color: '#38bdf8', level: 25, hp: 1600, atk: 195, def: 78, exp: 700, gold: 160, scale: 1.1 },
+        { type: 'bandit', name: 'Corsario Renegado de la Costa', color: '#b45309', level: 68, hp: 3800, atk: 330, def: 160, exp: 2400, gold: 580, scale: 1.1 },
+        { type: 'golem', name: 'Gólem de Coral Abisal', color: '#0284c7', level: 73, hp: 4800, atk: 385, def: 195, exp: 3200, gold: 750, scale: 1.25 },
+        { type: 'elemental', name: 'Sirena Hechicera de Mareas', color: '#38bdf8', level: 78, hp: 5900, atk: 440, def: 225, exp: 4200, gold: 980, scale: 1.1 },
       ],
     },
     zone_volcano: {
       count: 20,
       types: [
-        { type: 'skeleton', name: 'Guerrero Calcinado de Lava', color: '#7c2d12', level: 26, hp: 1800, atk: 215, def: 100, exp: 820, gold: 180, scale: 1.1 },
-        { type: 'elemental', name: 'Elemental de Magma Supremo', color: '#ea580c', level: 28, hp: 2200, atk: 245, def: 110, exp: 960, gold: 220, scale: 1.2 },
-        { type: 'dragon', name: 'Gárgola de Obsidiana Volcánica', color: '#991b1b', level: 30, hp: 2600, atk: 275, def: 130, exp: 1150, gold: 260, scale: 1.35 },
+        { type: 'skeleton', name: 'Guerrero Calcinado de Lava', color: '#7c2d12', level: 84, hp: 7200, atk: 520, def: 270, exp: 5800, gold: 1400, scale: 1.1 },
+        { type: 'elemental', name: 'Elemental de Magma Supremo', color: '#ea580c', level: 90, hp: 9000, atk: 610, def: 320, exp: 7800, gold: 1900, scale: 1.2 },
+        { type: 'dragon', name: 'Titán de Fuego y Obsidiana', color: '#991b1b', level: 96, hp: 11500, atk: 720, def: 380, exp: 10500, gold: 2600, scale: 1.35 },
       ],
     },
     zone_castle: {
       count: 22,
       types: [
-        { type: 'knight', name: 'Caballero Corrupto', color: '#334155', level: 35, hp: 1500, atk: 230, def: 100, exp: 850, gold: 650, scale: 1.15 },
-        { type: 'elemental', name: 'Espectro de las Sombras', color: '#a855f7', level: 37, hp: 1750, atk: 270, def: 85, exp: 1050, gold: 800, scale: 1.1 },
-        { type: 'golem', name: 'Gárgola Imperial', color: '#6366f1', level: 40, hp: 2300, atk: 310, def: 130, exp: 1400, gold: 1100, scale: 1.2 },
+        { type: 'knight', name: 'Caballero Corrupto', color: '#334155', level: 85, hp: 7500, atk: 540, def: 280, exp: 6000, gold: 1500, scale: 1.15 },
+        { type: 'elemental', name: 'Espectro de las Sombras', color: '#a855f7', level: 90, hp: 9200, atk: 620, def: 330, exp: 8000, gold: 2000, scale: 1.1 },
+        { type: 'golem', name: 'Gárgola Imperial', color: '#6366f1', level: 95, hp: 11200, atk: 710, def: 370, exp: 10000, gold: 2500, scale: 1.2 },
       ],
     },
     zone_tundra: {
       count: 18,
       types: [
-        { type: 'wolf', name: 'Lobo Ártico', color: '#f8fafc', level: 28, hp: 950, atk: 160, def: 65, exp: 500, gold: 360, scale: 1.1 },
-        { type: 'golem', name: 'Gigante de Hielo', color: '#93c5fd', level: 30, hp: 1300, atk: 190, def: 85, exp: 680, gold: 500, scale: 1.3 },
+        { type: 'wolf', name: 'Lobo Ártico', color: '#f8fafc', level: 50, hp: 2000, atk: 210, def: 100, exp: 1000, gold: 250, scale: 1.1 },
+        { type: 'golem', name: 'Gigante de Hielo', color: '#93c5fd', level: 58, hp: 2800, atk: 260, def: 125, exp: 1500, gold: 350, scale: 1.3 },
       ],
     },
     zone_sanctuary: {
       count: 24,
       types: [
-        { type: 'knight', name: 'Custodio Celestial', color: '#fbbf24', level: 50, hp: 2800, atk: 380, def: 160, exp: 2000, gold: 1500, scale: 1.25 },
-        { type: 'dragon', name: 'Dragón Astral', color: '#38bdf8', level: 55, hp: 4200, atk: 480, def: 210, exp: 3500, gold: 2500, scale: 1.5 },
+        { type: 'knight', name: 'Custodio Celestial', color: '#fbbf24', level: 92, hp: 9500, atk: 650, def: 340, exp: 8500, gold: 2200, scale: 1.25 },
+        { type: 'dragon', name: 'Dragón Astral Supremo', color: '#38bdf8', level: 98, hp: 12500, atk: 760, def: 400, exp: 12000, gold: 3000, scale: 1.5 },
       ],
     },
   };
