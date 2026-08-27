@@ -416,14 +416,24 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
             <span>CONTINUAR PARTIDA (Nv.{slots[selectedSlot]?.player?.level})</span>
           </button>
         ) : (
-          <button
-            type="button"
-            onClick={handleStart}
-            className="flex-1 h-12 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-xl flex items-center justify-center gap-2"
-          >
-            <Play className="w-4 h-4 fill-current" />
-            <span>¡COMENZAR AVENTURA EN RANURA {selectedSlot + 1}!</span>
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={handleStart}
+              className="flex-1 h-12 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-xl flex items-center justify-center gap-2"
+            >
+              <Play className="w-4 h-4 fill-current" />
+              <span>¡COMENZAR (NV. 1)!</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleShowcase}
+              className="flex-1 h-12 bg-gradient-to-r from-purple-600 via-indigo-600 to-amber-500 hover:from-purple-500 hover:to-amber-400 active:scale-98 text-white font-black rounded-xl text-xs sm:text-sm transition shadow-xl flex items-center justify-center gap-1.5 border border-amber-400/60"
+              title="Iniciar con Nivel 99, todas las zonas, armas Tier 8 y oro al máximo"
+            >
+              <span>👑 NV. 99 (DESBLOQUEAR TODO)</span>
+            </button>
+          </>
         )}
 
         {slots?.[selectedSlot]?.player && (
