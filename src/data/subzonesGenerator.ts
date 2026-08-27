@@ -622,3 +622,59 @@ export function generateSwampCryptDungeon(): SubZoneMapResult {
 
   return { width, height, tileData: map };
 }
+
+/**
+ * 9. 🌊 MAZMORRA INSTANCIADA: LA GRUTA SECRETA DE CONTRABANDISTAS (26x26)
+ * Caverna marina inundada con pozas de marea, muelles piratas, corsarios renegados,
+ * hechiceras de las olas, gólems de coral y el Gran Cofre del Botín Pirata.
+ */
+export function generateSmugglersGrottoDungeon(): SubZoneMapResult {
+  const width = 26;
+  const height = 26;
+  const map: number[][] = [];
+
+  for (let y = 0; y < height; y++) {
+    const row: number[] = [];
+    for (let x = 0; x < width; x++) {
+      if (y === 0 || y === height - 1 || x === 0 || x === width - 1) {
+        row.push(1); // Muros de roca marina
+      } else {
+        row.push(0); // Arena de cueva y roca
+      }
+    }
+    map.push(row);
+  }
+
+  // Canales de agua marina en el interior
+  for (let y = 6; y <= 20; y++) {
+    map[y][7] = 3; map[y][18] = 3;
+  }
+  for (let x = 6; x <= 19; x++) {
+    map[14][x] = 3;
+  }
+
+  // Muelles de madera cruzando los canales
+  for (let y = 4; y <= 22; y++) {
+    map[y][12] = 2; map[y][13] = 2;
+  }
+  for (let x = 4; x <= 22; x++) {
+    map[8][x] = 2; map[18][x] = 2;
+  }
+
+  // Pilas de barriles de ron y botines de contrabando
+  map[6][4] = 14; map[6][5] = 14; map[6][20] = 14; map[6][21] = 14;
+  map[16][4] = 14; map[16][5] = 14; map[16][20] = 14; map[16][21] = 14;
+
+  // Braseros náuticos azules y faroles
+  map[4][10] = 19; map[4][15] = 19;
+  map[12][6] = 17; map[12][19] = 17;
+
+  // Gran Cámara del Tesoro del Capitán Pirata (Norte)
+  map[3][13] = 7; // Cofre del Botín Pirata
+  map[3][11] = 18; map[3][15] = 18; // Columnas de coral
+
+  // Entrada/Salida al sur
+  map[24][13] = 28;
+
+  return { width, height, tileData: map };
+}

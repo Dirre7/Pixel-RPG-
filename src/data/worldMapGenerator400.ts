@@ -1022,63 +1022,147 @@ export function generateSwamp400(): { tileData: number[][]; width: number; heigh
 }
 
 /**
- * 5. COSTA Y CALETA DE CONTRABANDISTAS (72x116 - Escala Colosal Artesanal)
+ * 5. COSTA Y CALETA DE CONTRABANDISTAS (72x116 - Escala Monumental con Gran Puerto Corsario)
  */
 export function generateCoast400(): { tileData: number[][]; width: number; height: number } {
   const WIDTH = 72;
   const HEIGHT = 116;
   const map: number[][] = [];
 
+  // 1. Inicializar con mar profundo y acantilados exteriores
   for (let y = 0; y < HEIGHT; y++) {
     const row: number[] = [];
     for (let x = 0; x < WIDTH; x++) {
-      row.push(3); // Mar abierto profundo
+      if (x <= 3 || x >= WIDTH - 4 || y >= HEIGHT - 2 || (y <= 1 && (x < 13 || x > 18))) {
+        row.push(21); // Acantilado infranqueable
+      } else {
+        row.push(3); // Mar abierto profundo
+      }
     }
     map.push(row);
   }
 
-  // 1. Calzada de Entrada Norte (X: 10..22, Y: 0..20)
-  for (let y = 0; y <= 20; y++) {
-    for (let x = 10; x <= 22; x++) {
-      map[y][x] = 0;
+  // =========================================================================
+  // 2. ENTRADA NORTE: GRAN CALZADA DEL ACANTILADO (Y: 0..24)
+  // =========================================================================
+  for (let y = 0; y <= 22; y++) {
+    for (let x = 14; x <= 17; x++) {
+      map[y][x] = 2; // Calzada de piedra sólida
     }
   }
-  for (let y = 0; y <= 20; y++) {
-    map[y][14] = 2; map[y][15] = 2; map[y][16] = 2;
+  for (let y = 4; y <= 20; y += 4) {
+    map[y][13] = 17; map[y][18] = 17; // Farolas náuticas
+  }
+  // Curva hacia el centro del Puerto Corsario
+  for (let x = 15; x <= 36; x++) {
+    map[22][x] = 2; map[23][x] = 2; map[24][x] = 2;
   }
 
-  // 2. Poblado Corsario y Playas de Arena (X: 12..60, Y: 18..76)
-  for (let y = 18; y <= 76; y++) {
-    for (let x = 12; x <= 60; x++) {
-      if (Math.hypot(x - 36, y - 48) <= 22) {
-        map[y][x] = 0;
+  // =========================================================================
+  // 3. LA GRAN CIUDADELA Y PUERTO CORSARIO DE PUERTO NEGRO (X: 14..58, Y: 24..72)
+  // =========================================================================
+  // Gran Bulevar Central y Explanada (Tile 2)
+  for (let y = 24; y <= 72; y++) {
+    map[y][34] = 2; map[y][35] = 2; map[y][36] = 2; map[y][37] = 2; map[y][38] = 2;
+  }
+  for (let y = 44; y <= 48; y++) {
+    for (let x = 14; x <= 58; x++) map[y][x] = 2;
+  }
+  // Anillo de Pasarelas y Muelles
+  for (let y = 32; y <= 35; y++) {
+    for (let x = 18; x <= 54; x++) map[y][x] = 2;
+  }
+  for (let y = 62; y <= 65; y++) {
+    for (let x = 18; x <= 54; x++) map[y][x] = 2;
+  }
+
+  // 🏛️ Plaza Mayor del Gran Faro (X: 28..44, Y: 42..54)
+  for (let y = 42; y <= 54; y++) {
+    for (let x = 28; x <= 44; x++) map[y][x] = 2;
+  }
+  map[48][36] = 18; // Gran Faro de Cantería Marina
+  map[48][32] = 4;  // Pozo de agua dulce
+  map[48][40] = 12; map[44][36] = 12; map[52][36] = 12; // Bancos
+  map[43][29] = 17; map[43][43] = 17; // Farolas de plaza
+  map[53][29] = 17; map[53][43] = 17;
+
+  // ⚓ Distrito de Muelles y Astillero (Este, X: 44..58, Y: 36..60)
+  for (let y = 36; y <= 60; y++) {
+    for (let x = 44; x <= 58; x++) map[y][x] = 2;
+  }
+  map[40][52] = 5; map[56][52] = 5; // Almacenes de contrabando
+  map[44][48] = 14; map[48][48] = 14; map[52][48] = 14; // Barriles de ron y anclas
+
+  // 🍻 Barrio de Pescadores y Taberna Pirata (Oeste, X: 14..28, Y: 36..60)
+  for (let y = 36; y <= 60; y++) {
+    for (let x = 14; x <= 28; x++) map[y][x] = 2;
+  }
+  map[40][20] = 5; map[56][20] = 5; // Cabañas corsarias
+  map[48][20] = 10; // Forja y calafateado de anclas
+  map[44][24] = 14; map[52][24] = 14;
+
+  // 🏘️ Barrios Residenciales Norte y Sur
+  map[30][20] = 5; map[30][30] = 5; map[30][42] = 5; map[30][52] = 5;
+  map[68][20] = 5; map[68][30] = 5; map[68][42] = 5; map[68][52] = 5;
+  map[30][25] = 17; map[30][36] = 17; map[30][47] = 17;
+  map[68][25] = 17; map[68][36] = 17; map[68][47] = 17;
+
+  // =========================================================================
+  // 4. RUTAS SECUNDARIAS DEL LITORAL (72x116)
+  // =========================================================================
+  // ⛵ Este: Bahía del Gran Galeón Encallado (X: 44..66, Y: 72..96)
+  for (let y = 74; y <= 94; y++) {
+    for (let x = 46; x <= 62; x++) {
+      if (y >= 78 && y <= 82) map[y][x] = 2; // Pasarela de abordaje
+      else if (Math.hypot(x - 56, y - 84) <= 8) map[y][x] = 0; // Islote arenoso
+    }
+  }
+  map[84][56] = 19; // Fogata pirata
+  map[80][60] = 7; map[88][52] = 7; // Cofres del Gran Botín del Galeón
+  map[82][54] = 14; map[86][54] = 14;
+
+  // 🏖️ Sudoeste: Calas Secretas y Pozas de Marea (X: 8..34, Y: 72..96)
+  for (let y = 74; y <= 94; y++) {
+    for (let x = 12; x <= 32; x++) {
+      if (x >= 20 && x <= 24) map[y][x] = 2;
+      else if (Math.hypot(x - 18, y - 84) <= 8 || Math.hypot(x - 28, y - 88) <= 7) {
+        map[y][x] = 0; // Arena firme de playa
       }
     }
   }
-  // Muelles de madera
-  for (let y = 20; y <= 74; y++) {
-    map[y][35] = 15; map[y][36] = 15; map[y][37] = 15;
-  }
-  for (let x = 18; x <= 54; x++) {
-    map[48][x] = 15; map[49][x] = 15;
-  }
-  // Cabañas piratas y almacenes
-  map[40][24] = 5; map[40][48] = 5;
-  map[58][24] = 5; map[58][48] = 5;
-  map[48][36] = 14; map[48][20] = 17; map[48][52] = 17;
-  map[36][36] = 7; map[60][36] = 7;
+  map[84][18] = 19; // Fogata de náufragos
+  map[80][14] = 7; map[90][26] = 7; // Cofres enterrados
 
-  // 3. Santuario del Leviatán de las Mareas (Sur X: 28..44, Y: 96..112)
-  for (let y = 96; y <= 112; y++) {
-    for (let x = 28; x <= 44; x++) {
-      map[y][x] = 0;
+  // 🚪 Noroeste: Distrito de la Mazmorra "La Gruta Secreta de Contrabandistas" (X: 8..34, Y: 10..32)
+  for (let y = 14; y <= 22; y++) {
+    for (let x = 10; x <= 34; x++) map[y][x] = 2;
+  }
+  for (let y = 12; y <= 24; y++) {
+    for (let x = 10; x <= 20; x++) map[y][x] = 2; // Explanada de la Gruta
+  }
+  map[18][12] = 28; // Entrada a la Mazmorra Instanciada
+  map[16][10] = 19; map[16][14] = 19;
+  map[20][10] = 19; map[20][14] = 19;
+  map[18][8] = 18; map[18][16] = 18;
+
+  // =========================================================================
+  // 5. BAHÍA SUR: SANTUARIO DEL LEVIATÁN DE LAS MAREAS (X: 20..52, Y: 96..114)
+  // =========================================================================
+  // Gran Calzada Marina hacia el Arrecife
+  for (let y = 72; y <= 100; y++) {
+    map[y][34] = 2; map[y][35] = 2; map[y][36] = 2; map[y][37] = 2; map[y][38] = 2;
+  }
+  // Gran Arena Circular de Arrecife para el Combate en Tiempo Real
+  for (let y = 100; y <= 112; y++) {
+    for (let x = 22; x <= 50; x++) {
+      map[y][x] = 2;
     }
   }
-  for (let y = 72; y <= 104; y++) {
-    map[y][35] = 15; map[y][36] = 15; map[y][37] = 15;
-  }
-  map[106][36] = 11;
-  map[106][33] = 18; map[106][39] = 18;
+  // Columnas de Coral y Braseros Náuticos
+  map[100][24] = 18; map[100][48] = 18;
+  map[112][24] = 18; map[112][48] = 18;
+  map[100][32] = 19; map[100][40] = 19;
+  map[112][32] = 19; map[112][40] = 19;
 
   return { tileData: map, width: WIDTH, height: HEIGHT };
 }
