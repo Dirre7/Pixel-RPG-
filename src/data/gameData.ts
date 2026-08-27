@@ -830,17 +830,41 @@ export function generateZoneOverworldEnemies(
     zone_cave: {
       count: 18,
       types: [
-        { type: 'skeleton', name: 'Esqueleto Minero', color: '#e2e8f0', level: 12, hp: 360, atk: 68, def: 26, exp: 130, gold: 90, scale: 1.0 },
-        { type: 'bandit', name: 'Ladrón de Gemas', color: '#7c3aed', level: 14, hp: 440, atk: 80, def: 32, exp: 170, gold: 120, scale: 1.0 },
-        { type: 'golem', name: 'Golem de Cuarzo', color: '#38bdf8', level: 16, hp: 650, atk: 96, def: 48, exp: 240, gold: 170, scale: 1.25 },
+        { type: 'bat', name: 'Murciélago de Cañón', color: '#64748b', level: 6, hp: 190, atk: 36, def: 14, exp: 45, gold: 12, scale: 0.95 },
+        { type: 'skeleton', name: 'Esqueleto Minero con Pico', color: '#e2e8f0', level: 8, hp: 280, atk: 46, def: 20, exp: 65, gold: 18, scale: 1.0 },
+        { type: 'bandit', name: 'Ladrón de Gemas', color: '#7c3aed', level: 10, hp: 340, atk: 54, def: 24, exp: 90, gold: 24, scale: 1.0 },
+      ],
+    },
+    subzone_crypt: {
+      count: 18,
+      types: [
+        { type: 'elemental', name: 'Espectro Afligido', color: '#93c5fd', level: 11, hp: 420, atk: 68, def: 28, exp: 120, gold: 30, scale: 1.0 },
+        { type: 'skeleton', name: 'Guerrero No-Muerto Acorazado', color: '#94a3b8', level: 13, hp: 560, atk: 82, def: 40, exp: 160, gold: 40, scale: 1.1 },
+        { type: 'goblin', name: 'Chamán Nigromante', color: '#6366f1', level: 15, hp: 640, atk: 96, def: 32, exp: 210, gold: 50, scale: 1.05 },
+      ],
+    },
+    zone_swamp: {
+      count: 18,
+      types: [
+        { type: 'slime', name: 'Cieno Ponzoñoso Ácido', color: '#166534', level: 16, hp: 720, atk: 105, def: 48, exp: 260, gold: 60, scale: 1.1 },
+        { type: 'wolf', name: 'Serpiente del Fango Gigante', color: '#047857', level: 18, hp: 880, atk: 122, def: 54, exp: 320, gold: 75, scale: 1.15 },
+        { type: 'wolf', name: 'Bestia Cazadora del Pantano', color: '#334155', level: 20, hp: 1050, atk: 140, def: 60, exp: 400, gold: 90, scale: 1.2 },
+      ],
+    },
+    subzone_smugglers_cave: {
+      count: 18,
+      types: [
+        { type: 'bandit', name: 'Corsario Renegado', color: '#b45309', level: 21, hp: 1200, atk: 155, def: 70, exp: 480, gold: 110, scale: 1.1 },
+        { type: 'golem', name: 'Gólem de Coral y Mareas', color: '#0284c7', level: 23, hp: 1450, atk: 175, def: 90, exp: 580, gold: 130, scale: 1.25 },
+        { type: 'elemental', name: 'Hechicera de las Olas', color: '#38bdf8', level: 25, hp: 1600, atk: 195, def: 78, exp: 700, gold: 160, scale: 1.1 },
       ],
     },
     zone_volcano: {
       count: 20,
       types: [
-        { type: 'skeleton', name: 'Guerrero Calcinado', color: '#451a03', level: 24, hp: 750, atk: 130, def: 52, exp: 340, gold: 240, scale: 1.05 },
-        { type: 'elemental', name: 'Elemental de Magma', color: '#ea580c', level: 26, hp: 900, atk: 155, def: 60, exp: 440, gold: 300, scale: 1.1 },
-        { type: 'dragon', name: 'Draco de Fuego', color: '#b91c1c', level: 28, hp: 1350, atk: 185, def: 75, exp: 650, gold: 480, scale: 1.4 },
+        { type: 'skeleton', name: 'Guerrero Calcinado de Lava', color: '#7c2d12', level: 26, hp: 1800, atk: 215, def: 100, exp: 820, gold: 180, scale: 1.1 },
+        { type: 'elemental', name: 'Elemental de Magma Supremo', color: '#ea580c', level: 28, hp: 2200, atk: 245, def: 110, exp: 960, gold: 220, scale: 1.2 },
+        { type: 'dragon', name: 'Gárgola de Obsidiana Volcánica', color: '#991b1b', level: 30, hp: 2600, atk: 275, def: 130, exp: 1150, gold: 260, scale: 1.35 },
       ],
     },
     zone_castle: {
@@ -849,13 +873,6 @@ export function generateZoneOverworldEnemies(
         { type: 'knight', name: 'Caballero Corrupto', color: '#334155', level: 35, hp: 1500, atk: 230, def: 100, exp: 850, gold: 650, scale: 1.15 },
         { type: 'elemental', name: 'Espectro de las Sombras', color: '#a855f7', level: 37, hp: 1750, atk: 270, def: 85, exp: 1050, gold: 800, scale: 1.1 },
         { type: 'golem', name: 'Gárgola Imperial', color: '#6366f1', level: 40, hp: 2300, atk: 310, def: 130, exp: 1400, gold: 1100, scale: 1.2 },
-      ],
-    },
-    zone_swamp: {
-      count: 18,
-      types: [
-        { type: 'slime', name: 'Cieno Ponzoñoso', color: '#166534', level: 18, hp: 520, atk: 95, def: 38, exp: 260, gold: 180, scale: 1.1 },
-        { type: 'wolf', name: 'Bestia del Pantano', color: '#334155', level: 20, hp: 620, atk: 110, def: 44, exp: 310, gold: 220, scale: 1.15 },
       ],
     },
     zone_tundra: {

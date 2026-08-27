@@ -513,3 +513,54 @@ export function generateSmugglersCaveDungeon(): SubZoneMapResult {
 
   return { width, height, tileData: map };
 }
+
+/**
+ * 7. ⛏️ MAZMORRA INSTANCIADA: LAS PROFUNDIDADES DE ERIDU (26x26)
+ * Caverna subterránea de farmeo (Nv. 6 a 10) con galerías, vías de vagoneta,
+ * filones de mineral, oleadas de esqueletos mineros, murciélagos y cofre del tesoro.
+ */
+export function generateEriduDepthsDungeon(): SubZoneMapResult {
+  const width = 26;
+  const height = 26;
+  const map: number[][] = [];
+
+  for (let y = 0; y < height; y++) {
+    const row: number[] = [];
+    for (let x = 0; x < width; x++) {
+      if (y === 0 || y === height - 1 || x === 0 || x === width - 1) {
+        row.push(1); // Muros de piedra sólida
+      } else {
+        row.push(0); // Suelo de roca
+      }
+    }
+    map.push(row);
+  }
+
+  // Galerías y Pilares de roca
+  for (let y = 4; y <= 20; y += 5) {
+    for (let x = 4; x <= 20; x += 5) {
+      map[y][x] = 18; // Columnas de roca
+    }
+  }
+
+  // Vías de vagoneta centrales
+  for (let y = 4; y <= 22; y++) {
+    map[y][13] = 15;
+  }
+  for (let x = 4; x <= 22; x++) {
+    map[13][x] = 15;
+  }
+
+  // Filones de mineral de hierro y gemas
+  map[4][4] = 5; map[4][21] = 5; map[21][4] = 5; map[21][21] = 5;
+  map[8][8] = 5; map[8][17] = 5; map[17][8] = 5; map[17][17] = 5;
+
+  // Gran Cámara del Tesoro de la Mazmorra (Norte)
+  map[3][13] = 7; // Cofre legendario de mazmorra
+  map[3][11] = 19; map[3][15] = 19; // Braseros
+
+  // Entrada/Salida al sur
+  map[24][13] = 28;
+
+  return { width, height, tileData: map };
+}

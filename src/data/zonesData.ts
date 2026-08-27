@@ -3,7 +3,9 @@ import { ALL_GAME_QUESTS } from './questsData';
 import {
   generateForest400,
   generateCave400,
+  generateCrypt400,
   generateSwamp400,
+  generateCoast400,
   generateVolcano400,
   generateTundra400,
   generateCastle400,
@@ -18,6 +20,7 @@ import {
   generateCastleInterior,
   generateCryptDungeon,
   generateSmugglersCaveDungeon,
+  generateEriduDepthsDungeon,
 } from './subzonesGenerator';
 
 // ==============================================================================
@@ -26,20 +29,21 @@ import {
 
 const forestWorld = generateForest400();
 const caveWorld = generateCave400();
+const cryptWorld = generateCrypt400();
 const swampWorld = generateSwamp400();
+const coastWorld = generateCoast400();
 const volcanoWorld = generateVolcano400();
 const tundraWorld = generateTundra400();
 const castleWorld = generateCastle400();
 const voidWorld = generateVoid400();
 const pantheonWorld = generatePantheon400();
 
-// 🏰 Subzonas de Interiores e Instancias
+// 🏰 Subzonas de Interiores y Mazmorras Instanciadas
 const tavernWorld = generateTavernInterior();
 const forgeWorld = generateForgeInterior();
 const boticaWorld = generateBoticaInterior();
 const castleInteriorWorld = generateCastleInterior();
-const cryptWorld = generateCryptDungeon();
-const smugglersCaveWorld = generateSmugglersCaveDungeon();
+const eriduDepthsWorld = generateEriduDepthsDungeon();
 
 // ==============================================================================
 // 🌟 CONFIGURACIÓN COMPLETA DE LAS 8 REGIONES DE AETHELGARD (88 MISIONES)
@@ -445,6 +449,9 @@ export const ZONES: Zone[] = [
       },
     ],
     portals: [
+      // ==========================================
+      // EDIFICIOS INTERIORES DE LA ALDEA (Puertas físicas)
+      // ==========================================
       {
         x: 31,
         y: 52,
@@ -477,23 +484,54 @@ export const ZONES: Zone[] = [
         label: 'Gran Salón del Trono de Aethelgard',
         isDoor: true,
       },
+
+      // ==========================================
+      // 5 ACCESOS PERIMETRALES POR NIVEL (1 A 5)
+      // ==========================================
       {
-        x: 58,
-        y: 25,
-        targetZoneId: 'subzone_crypt',
-        targetPos: { x: 14, y: 24 },
-        label: 'Catacumbas del Monasterio Caído',
-        minLevel: 3,
-        isDoor: true,
+        x: 15,
+        y: 12,
+        targetZoneId: 'zone_cave',
+        targetPos: { x: 15, y: 108 },
+        label: '⛰️ Acceso 1: Cañón Rocoso y Minas de Eridu',
+        minLevel: 6,
+        isDoor: false,
       },
       {
         x: 58,
-        y: 87,
+        y: 12,
+        targetZoneId: 'subzone_crypt',
+        targetPos: { x: 58, y: 110 },
+        label: '🪦 Acceso 2: Cripta y Monasterio Caído',
+        minLevel: 10,
+        isDoor: false,
+      },
+      {
+        x: 3,
+        y: 60,
+        targetZoneId: 'zone_swamp',
+        targetPos: { x: 68, y: 60 },
+        label: '🌫️ Acceso 3: Pantano Sombrío de Vael',
+        minLevel: 15,
+        isDoor: false,
+      },
+      {
+        x: 15,
+        y: 106,
         targetZoneId: 'subzone_smugglers_cave',
-        targetPos: { x: 11, y: 22 },
-        label: 'Cueva Secreta de los Contrabandistas',
-        minLevel: 4,
-        isDoor: true,
+        targetPos: { x: 15, y: 6 },
+        label: '🌊 Acceso 4: Costa y Caleta de Contrabandistas',
+        minLevel: 20,
+        isDoor: false,
+      },
+      {
+        x: 58,
+        y: 106,
+        targetZoneId: 'zone_volcano',
+        targetPos: { x: 58, y: 6 },
+        label: '🌋 Acceso 5: Garganta del Volcán Ignis',
+        minLevel: 25,
+        isDoor: false,
       },
     ],
   },
@@ -507,9 +545,9 @@ export const ZONES: Zone[] = [
     description: 'Minas subterráneas enanas con vetas de cristal y lagos subterráneos.',
     themeColor: '#6366f1',
     bgMusicTheme: 'cave',
-    requiredLevel: 10,
-    mapWidth: MAP_SIZE,
-    mapHeight: MAP_SIZE,
+    requiredLevel: 6,
+    mapWidth: caveWorld.width,
+    mapHeight: caveWorld.height,
     tileData: caveWorld.tileData,
     enemies: [
       {
@@ -562,7 +600,7 @@ export const ZONES: Zone[] = [
       name: 'Gólem de Obsidiana',
       isBoss: true,
       level: 18,
-      spawnPos: { x: 30, y: 8 },
+      spawnPos: { x: 36, y: 10 },
       hp: 950,
       maxHp: 950,
       attack: 52,
@@ -718,14 +756,14 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_cave_2',
         zoneId: 'zone_cave',
-        x: 28,
-        y: 30,
+        x: 34,
+        y: 74,
         name: 'Minero Thror',
         title: 'Vigilante del Filón Central',
         avatarStyle: 'blacksmith',
         dialogue: [
-          '¡Las grietas de la cueva esconden cristales de maná puro!',
-          'Extrae minerales con paciencia para forjar armaduras impenetrables.'
+          '¡Bienvenido al Campamento de Eridu! Aquí extraemos el hierro más puro del reino.',
+          'Hacia el este encontrarás la entrada a las Profundidades de Eridu, donde abundan las gemas y esqueletos.'
         ],
         tip: '💡 CONSEJO: Los murciélagos gigantes son vulnerables a ataques de rayo.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_cave_2'),
@@ -733,17 +771,35 @@ export const ZONES: Zone[] = [
       {
         id: 'npc_cave_3',
         zoneId: 'zone_cave',
-        x: 32,
-        y: 30,
+        x: 38,
+        y: 74,
         name: 'Sabio de la Gema',
         title: 'Erudito de la Piedra Filosofal',
         avatarStyle: 'elder',
         dialogue: [
           'El corazón de Eridu late con el poder de la tierra primordial.',
-          'Vence al Gólem ancestral para restablecer el equilibrio de las profundidades.'
+          'Al norte de estas galerías descansa el ancestral Gólem de Obsidiana.'
         ],
         tip: '💡 CONSEJO: El Gólem entra en frenesí cuando le queda menos del 30% de salud.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_main_cave_3'),
+      },
+    ],
+    portals: [
+      {
+        x: 15,
+        y: 112,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 15, y: 15 },
+        label: '🔙 Regresar al Bosque de Aethelgard',
+        isDoor: false,
+      },
+      {
+        x: 62,
+        y: 31,
+        targetZoneId: 'subzone_eridu_depths',
+        targetPos: { x: 13, y: 23 },
+        label: '⛏️ Profundidades de Eridu (Mazmorra Nv. 6-10)',
+        isDoor: true,
       },
     ],
   },
@@ -757,9 +813,9 @@ export const ZONES: Zone[] = [
     description: 'Tierras pantanosas envueltas en brumas espectrales y aguas estancadas.',
     themeColor: '#10b981',
     bgMusicTheme: 'swamp',
-    requiredLevel: 20,
-    mapWidth: MAP_SIZE,
-    mapHeight: MAP_SIZE,
+    requiredLevel: 15,
+    mapWidth: swampWorld.width,
+    mapHeight: swampWorld.height,
     tileData: swampWorld.tileData,
     enemies: [
       {
@@ -970,6 +1026,15 @@ export const ZONES: Zone[] = [
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_side_swamp_8'),
       },
     ],
+    portals: [
+      {
+        x: 70,
+        y: 60,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 5, y: 60 },
+        label: '🔙 Regresar al Bosque de Aethelgard',
+      },
+    ],
   },
 
   // =========================================================================
@@ -981,9 +1046,9 @@ export const ZONES: Zone[] = [
     description: 'Llanuras volcánicas de roca basáltica con ríos de magma ardiente.',
     themeColor: '#ef4444',
     bgMusicTheme: 'volcano',
-    requiredLevel: 30,
-    mapWidth: MAP_SIZE,
-    mapHeight: MAP_SIZE,
+    requiredLevel: 25,
+    mapWidth: volcanoWorld.width,
+    mapHeight: volcanoWorld.height,
     tileData: volcanoWorld.tileData,
     enemies: [
       {
@@ -1186,6 +1251,15 @@ export const ZONES: Zone[] = [
         dialogue: ['Solo aquellos con corazón de acero pueden soportar el calor del juicio.'],
         tip: '💡 CONSEJO: La victoria sobre el Dragón desbloquea el acceso al reino helado.',
         quest: ALL_GAME_QUESTS.find((q) => q.id === 'q_side_volcano_8'),
+      },
+    ],
+    portals: [
+      {
+        x: 58,
+        y: 2,
+        targetZoneId: 'zone_forest',
+        targetPos: { x: 58, y: 98 },
+        label: '🔙 Regresar al Bosque de Aethelgard',
       },
     ],
   },
@@ -2421,30 +2495,21 @@ export const ZONES: Zone[] = [
     description: 'Laberinto subterráneo de piedra oscura, sepulcros antiguos, esqueletos y reliquias sagradas.',
     themeColor: '#8b5cf6',
     bgMusicTheme: 'cave',
-    requiredLevel: 3,
-    isInterior: true,
+    requiredLevel: 10,
+    isInterior: false,
     interiorType: 'crypt',
     parentZoneId: 'zone_forest',
-    exitPosition: { x: 58, y: 26 },
+    exitPosition: { x: 58, y: 18 },
     mapWidth: cryptWorld.width,
     mapHeight: cryptWorld.height,
     tileData: cryptWorld.tileData,
     portals: [
       {
-        x: 13,
-        y: 25,
+        x: 58,
+        y: 114,
         targetZoneId: 'zone_forest',
-        targetPos: { x: 58, y: 26 },
-        label: 'Subir a las Ruinas del Monasterio',
-        isDoor: true,
-      },
-      {
-        x: 14,
-        y: 25,
-        targetZoneId: 'zone_forest',
-        targetPos: { x: 58, y: 26 },
-        label: 'Subir a las Ruinas del Monasterio',
-        isDoor: true,
+        targetPos: { x: 58, y: 18 },
+        label: '🔙 Regresar al Bosque de Aethelgard',
       },
     ],
     enemies: [
@@ -2519,30 +2584,21 @@ export const ZONES: Zone[] = [
     description: 'Gruta costera excavada por el mar con pasarelas de madera, corsarios y botines clandestinos.',
     themeColor: '#0ea5e9',
     bgMusicTheme: 'swamp',
-    requiredLevel: 4,
-    isInterior: true,
+    requiredLevel: 20,
+    isInterior: false,
     interiorType: 'smugglers_cave',
     parentZoneId: 'zone_forest',
-    exitPosition: { x: 58, y: 88 },
-    mapWidth: smugglersCaveWorld.width,
-    mapHeight: smugglersCaveWorld.height,
-    tileData: smugglersCaveWorld.tileData,
+    exitPosition: { x: 15, y: 98 },
+    mapWidth: coastWorld.width,
+    mapHeight: coastWorld.height,
+    tileData: coastWorld.tileData,
     portals: [
       {
-        x: 11,
-        y: 23,
+        x: 15,
+        y: 2,
         targetZoneId: 'zone_forest',
-        targetPos: { x: 58, y: 88 },
-        label: 'Salir al Muelle Secreto de la Ensenada',
-        isDoor: true,
-      },
-      {
-        x: 12,
-        y: 23,
-        targetZoneId: 'zone_forest',
-        targetPos: { x: 58, y: 88 },
-        label: 'Salir al Muelle Secreto de la Ensenada',
-        isDoor: true,
+        targetPos: { x: 15, y: 98 },
+        label: '🔙 Regresar al Bosque de Aethelgard',
       },
     ],
     enemies: [
@@ -2606,6 +2662,111 @@ export const ZONES: Zone[] = [
           'Si cruzas la pasarela noreste encontrarás el Gran Cofre del Botín Pirata.'
         ],
         tip: '💡 BOTÍN PIRATA: Los cofres de contrabando contienen abundante oro y gemas preciosas.',
+      },
+    ],
+  },
+
+  // 7. ⛏️ MAZMORRA INSTANCIADA: LAS PROFUNDIDADES DE ERIDU (Farmeo Nv. 6 a 10)
+  {
+    id: 'subzone_eridu_depths',
+    name: 'Mazmorra: Las Profundidades de Eridu',
+    description: 'Caverna subterránea de farmeo intensivo con vetas de mineral, esqueletos mineros, murciélagos y cofres del tesoro.',
+    themeColor: '#6366f1',
+    bgMusicTheme: 'cave',
+    requiredLevel: 6,
+    isInterior: true,
+    interiorType: 'cave',
+    parentZoneId: 'zone_cave',
+    exitPosition: { x: 60, y: 31 },
+    mapWidth: eriduDepthsWorld.width,
+    mapHeight: eriduDepthsWorld.height,
+    tileData: eriduDepthsWorld.tileData,
+    portals: [
+      {
+        x: 13,
+        y: 24,
+        targetZoneId: 'zone_cave',
+        targetPos: { x: 60, y: 31 },
+        label: 'Salir a las Minas de Eridu',
+        isDoor: true,
+      },
+    ],
+    enemies: [
+      {
+        name: 'Murciélago Espeleólogo',
+        isBoss: false,
+        hp: 140,
+        maxHp: 140,
+        attack: 28,
+        defense: 10,
+        speed: 16,
+        expReward: 45,
+        goldReward: 12,
+        spriteType: 'bat',
+        color: '#64748b',
+        zoneId: 'subzone_eridu_depths',
+        description: 'Criatura alada de las profundidades de la cueva.',
+      },
+      {
+        name: 'Esqueleto Minero Rebelde',
+        isBoss: false,
+        hp: 220,
+        maxHp: 220,
+        attack: 38,
+        defense: 16,
+        speed: 9,
+        expReward: 65,
+        goldReward: 18,
+        spriteType: 'skeleton',
+        color: '#e2e8f0',
+        zoneId: 'subzone_eridu_depths',
+        description: 'Antiguo trabajador de las minas armado con pico.',
+      },
+      {
+        name: 'Ladrón de Gemas de Eridu',
+        isBoss: false,
+        hp: 280,
+        maxHp: 280,
+        attack: 46,
+        defense: 20,
+        speed: 12,
+        expReward: 90,
+        goldReward: 24,
+        spriteType: 'bandit',
+        color: '#7c3aed',
+        zoneId: 'subzone_eridu_depths',
+        description: 'Saqueador que embosca a los mineros para robar sus tesoros.',
+      },
+    ],
+    boss: {
+      name: 'Capataz Espectral Malakor',
+      isBoss: true,
+      hp: 650,
+      maxHp: 650,
+      attack: 54,
+      defense: 22,
+      speed: 10,
+      expReward: 400,
+      goldReward: 180,
+      spriteType: 'golem',
+      color: '#38bdf8',
+      zoneId: 'subzone_eridu_depths',
+      description: 'Líder no-muerto que custodia el gran cofre de las profundidades.',
+    },
+    npcs: [
+      {
+        id: 'npc_depths_prospector',
+        zoneId: 'subzone_eridu_depths',
+        x: 13,
+        y: 20,
+        name: 'Prospector Grim',
+        title: 'Explorador de Vetras Profundas',
+        avatarStyle: 'blacksmith',
+        dialogue: [
+          '¡Cuidado con los esqueletos armados con picos! No tienen piedad.',
+          'Al fondo de esta cámara se encuentra el Gran Cofre de Eridu con gemas y equipamiento minero.'
+        ],
+        tip: '💡 FARMEANDO EN LA MAZMORRA: Los monstruos de esta cueva reaparecen y sueltan valiosas gemas y hierro.',
       },
     ],
   },

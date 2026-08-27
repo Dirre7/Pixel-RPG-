@@ -505,6 +505,114 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
     }
   }
 
+  // =========================================================================
+  // 5. CARVE REGION 5: 🌿 EL JARDÍN PROHIBIDO Y ACCESO AL PANTANO (Oeste Lejano, X: 4..18, Y: 46..74)
+  // =========================================================================
+  for (let y = 46; y <= 74; y++) {
+    for (let x = 4; x <= 18; x++) {
+      map[y][x] = 0;
+    }
+  }
+  // 🛣️ Gran Calzada Oeste hacia el Puente del Pantano (Completamente Despejada y Limpia de 3 casillas)
+  for (let x = 2; x <= 24; x++) {
+    map[59][x] = 2;
+    map[60][x] = 2;
+    map[61][x] = 2;
+  }
+  // Limpiar corredor de entrada al puente (X: 2..10, Y: 57..63) garantizando cero obstáculos
+  for (let cy = 57; cy <= 63; cy++) {
+    for (let cx = 2; cx <= 10; cx++) {
+      if (cy >= 59 && cy <= 61) map[cy][cx] = 2;
+      else map[cy][cx] = 0; // Hierba limpia sin árboles
+    }
+  }
+
+  // Setos del laberinto alejados de la calzada
+  for (let y = 48; y <= 56; y++) {
+    map[y][6] = 1; map[y][16] = 1;
+  }
+  for (let y = 64; y <= 72; y++) {
+    map[y][6] = 1; map[y][16] = 1;
+  }
+
+  // 🏛️ Glorieta Monumental ajardinada al norte del camino
+  map[54][13] = 18; // Columna clásica con hiedra
+  map[54][12] = 12; map[54][14] = 12; // Setos de flores rodeando la columna
+  map[52][9] = 7;   // 🎁 Cofre Secreto del Claro del Bosque Oeste
+
+  // =========================================================================
+  // 6. CARVE REGION 6: 🌾 VALLE DE LOS VIÑEDOS, MOLINOS Y ACCESO SUR (Suroeste, X: 8..28, Y: 76..112)
+  // =========================================================================
+  for (let y = 76; y <= 112; y++) {
+    for (let x = 8; x <= 28; x++) {
+      map[y][x] = 0;
+    }
+  }
+  // Calzada principal norte a sur totalmente limpia y despejada (X: 14..16)
+  for (let y = 74; y <= 108; y++) {
+    map[y][14] = 2; map[y][15] = 2; map[y][16] = 2;
+  }
+
+  // 🏡 Sector Agrícola Oeste: Granjas, Plazoleta del Pozo y Huertos Reales
+  map[78][11] = 5;
+  map[79][11] = 2; map[79][12] = 2; map[79][13] = 2;
+  map[78][10] = 14;
+
+  map[82][11] = 5;
+  map[83][11] = 2; map[83][12] = 2; map[83][13] = 2;
+
+  // Plazoleta de Descanso del Pozo
+  map[86][11] = 4;
+  map[85][11] = 12; map[87][11] = 12;
+
+  // Huerto Real de Cultivo
+  for (let y = 90; y <= 98; y++) {
+    for (let x = 9; x <= 12; x++) {
+      map[y][x] = 13;
+    }
+  }
+  map[104][11] = 8; // Molino de viento
+  map[106][11] = 7; // Cofre del molino
+
+  // =========================================================================
+  // 7. CARVE REGION 7: 🌲 BOSQUE SOMBRÍO DEL ESTE Y ARBOLEDA (Sureste, X: 44..66, Y: 76..112)
+  // =========================================================================
+  for (let y = 76; y <= 112; y++) {
+    for (let x = 44; x <= 66; x++) {
+      map[y][x] = 0;
+    }
+  }
+  // Calzada este hacia el Acceso 5 del Volcán (X: 57..59)
+  for (let y = 74; y <= 108; y++) {
+    map[y][57] = 2; map[y][58] = 2; map[y][59] = 2;
+  }
+  map[88][62] = 5; map[89][60] = 2; map[89][61] = 2;
+  map[96][62] = 18; map[96][54] = 18;
+  map[104][62] = 7;
+
+  // =========================================================================
+  // 8. DESPEJAR CALZADAS DE ACCESO NOROESTE (1) Y NORESTE (2)
+  // =========================================================================
+  for (let y = 10; y <= 46; y++) {
+    map[y][14] = 2; map[y][15] = 2; map[y][16] = 2;
+  }
+  for (let cy = 10; cy <= 18; cy++) {
+    for (let cx = 12; cx <= 18; cx++) {
+      if (cx >= 14 && cx <= 16) map[cy][cx] = 2;
+      else map[cy][cx] = 0;
+    }
+  }
+
+  for (let y = 10; y <= 46; y++) {
+    map[y][57] = 2; map[y][58] = 2; map[y][59] = 2;
+  }
+  for (let cy = 10; cy <= 18; cy++) {
+    for (let cx = 55; cx <= 61; cx++) {
+      if (cx >= 57 && cx <= 59) map[cy][cx] = 2;
+      else map[cy][cx] = 0;
+    }
+  }
+
   // Restaurar la fuente en el centro
   map[60][36] = 4;
 
@@ -512,257 +620,476 @@ export function generateForest400(): { tileData: number[][]; width: number; heig
 }
 
 /**
- * 2. MINAS DE ERIDU / CAVERNAS PROFUNDAS (60x60)
+ * 2. MINAS DE ERIDU / GRAN CIUDADELA ENANA (72x116 - Escala Monumental 100% Conectada y Sin Portales de Jefe)
  */
 export function generateCave400(): { tileData: number[][]; width: number; height: number } {
-  const map = createEmptyMap(12);
-  const cx = 30;
-  const cy = 30;
+  const WIDTH = 72;
+  const HEIGHT = 116;
+  const map: number[][] = [];
 
-  for (let y = 6; y <= 54; y++) {
-    for (let x = 6; x <= 54; x++) {
-      const isGallery = (x % 6 === 0 || y % 6 === 0) && x >= 8 && x <= 52 && y >= 8 && y <= 52;
-      const isCentralChamber = Math.hypot(x - cx, y - cy) <= 9;
-      if (isGallery || isCentralChamber) {
-        map[y][x] = 2;
+  // 1. Inicializar todo el mapa con suelo de roca natural de montaña (0 = transitable)
+  for (let y = 0; y < HEIGHT; y++) {
+    const row: number[] = [];
+    for (let x = 0; x < WIDTH; x++) {
+      // Muros perimetrales exteriores de acantilado sólido (tile 21)
+      if (x <= 3 || x >= WIDTH - 4 || y <= 1 || (y >= HEIGHT - 2 && (x < 13 || x > 18))) {
+        row.push(21); // Acantilado infranqueable
+      } else {
+        row.push(0); // Suelo de roca de montaña transitable y continuo
+      }
+    }
+    map.push(row);
+  }
+
+  // =========================================================================
+  // 2. SECTOR SUR: GRAN CALZADA IMPERIAL Y GUARNICIONES (Y: 86..115)
+  // =========================================================================
+  // Gran Calzada del Sur (X: 14..17, Y: 88..115)
+  for (let y = 88; y < HEIGHT; y++) {
+    map[y][14] = 2; map[y][15] = 2; map[y][16] = 2; map[y][17] = 2;
+  }
+  // Farolas de forja a lo largo de la calzada sur
+  for (let y = 92; y <= 112; y += 6) {
+    map[y][13] = 17; map[y][18] = 17;
+  }
+
+  // Bulevar que curva suavemente hacia la entrada sur de la Ciudadela (X: 15..38, Y: 86..89)
+  for (let x = 15; x <= 38; x++) {
+    map[86][x] = 2; map[87][x] = 2; map[88][x] = 2; map[89][x] = 2;
+  }
+
+  // 🏰 Guarnición y Puesto de Guardia del Cañón Suroeste (X: 8..26, Y: 96..110)
+  for (let y = 98; y <= 108; y++) {
+    for (let x = 8; x <= 26; x++) {
+      map[y][x] = 2; // Explanada adoquinada
+    }
+  }
+  map[100][11] = 5; map[100][23] = 5; // Barracones de guardia
+  map[104][17] = 19; // Gran fogata del campamento
+  map[102][14] = 14; map[102][20] = 14; // Cajas de armas y suministros
+  map[98][9] = 18; map[98][25] = 18; // Torres vigía
+
+  // 💎 Lago de Maná y Cantera de Cristales del Sureste (X: 44..66, Y: 88..112)
+  for (let x = 38; x <= 64; x++) {
+    map[92][x] = 2; map[93][x] = 2; map[94][x] = 2;
+  }
+  // Estanque subterráneo de aguas termales de maná
+  for (let y = 98; y <= 108; y++) {
+    for (let x = 48; x <= 62; x++) {
+      if (Math.hypot(x - 55, y - 103) <= 6.5) {
+        map[y][x] = 3;
       }
     }
   }
+  // Pasarela de madera sobre el agua
+  for (let x = 48; x <= 62; x++) {
+    map[103][x] = 15;
+  }
+  map[96][46] = 5; map[96][64] = 5; // Yacimientos de cristales
+  map[108][46] = 5; map[108][64] = 5;
+  map[103][55] = 7; // Cofre secreto del lago de maná
 
-  // Lagos Subterráneos
-  for (let y = 14; y <= 22; y++) {
-    for (let x = 14; x <= 22; x++) {
-      if (Math.hypot(x - 18, y - 18) <= 3.8) map[y][x] = 3;
+  // =========================================================================
+  // 3. LA GRAN CIUDADELA MINERA DE ERIDU (X: 12..60, Y: 46..86)
+  // =========================================================================
+  // Gran Avenida Central Norte-Sur (X: 34..38, Y: 46..86)
+  for (let y = 46; y <= 86; y++) {
+    map[y][34] = 2; map[y][35] = 2; map[y][36] = 2; map[y][37] = 2; map[y][38] = 2;
+  }
+  // Gran Avenida Transversal Este-Oeste (X: 14..58, Y: 64..68)
+  for (let y = 64; y <= 68; y++) {
+    for (let x = 14; x <= 58; x++) {
+      map[y][x] = 2;
     }
   }
-  for (let y = 38; y <= 46; y++) {
-    for (let x = 38; x <= 46; x++) {
-      if (Math.hypot(x - 42, y - 42) <= 3.8) map[y][x] = 3;
-    }
+  // Anillo Interior de Bulevares
+  for (let y = 50; y <= 53; y++) {
+    for (let x = 18; x <= 54; x++) map[y][x] = 2;
+  }
+  for (let y = 79; y <= 82; y++) {
+    for (let x = 18; x <= 54; x++) map[y][x] = 2;
   }
 
-  map[18][17] = 15; map[18][18] = 15; map[18][19] = 15;
-  map[42][41] = 15; map[42][42] = 15; map[42][43] = 15;
+  // 🏛️ Plaza Mayor del Gran Pozo Monumental (X: 28..44, Y: 60..72)
+  for (let y = 60; y <= 72; y++) {
+    for (let x = 28; x <= 44; x++) {
+      map[y][x] = 2;
+    }
+  }
+  map[66][36] = 4; // Gran Pozo Monumental de Agua
+  map[66][32] = 12; map[66][40] = 12; // Bancos de cantería
+  map[62][36] = 12; map[70][36] = 12;
+  map[61][29] = 17; map[61][43] = 17; // Farolas de plaza
+  map[71][29] = 17; map[71][43] = 17;
 
-  // ⚔️ GRAN PORTAL DEL JEFE GÓLEM DE OBSIDIANA (TILE 11)
-  map[6][30] = 11;
-  map[6][29] = 17; map[6][31] = 17;
+  // 🔨 Distrito de la Gran Fundición Enana (Oeste, X: 14..28, Y: 56..76)
+  for (let y = 56; y <= 76; y++) {
+    for (let x = 14; x <= 28; x++) {
+      map[y][x] = 2;
+    }
+  }
+  map[60][18] = 10; map[70][18] = 10; // Grandes Forjas de Fundición
+  map[64][22] = 14; map[66][22] = 14; map[68][22] = 14; // Pilas de lingotes y carbón
+  map[58][18] = 19; map[72][18] = 19; // Braseros de fundición
 
-  map[cy][cx] = 10; // Gran Forja Subterránea
-  map[cy - 2][cx] = 18; map[cy + 2][cx] = 21;
+  // 🏘️ Barrio Residencial Norte y Sur (Casas de Cantería)
+  map[48][20] = 5; map[48][30] = 5; map[48][42] = 5; map[48][52] = 5;
+  map[84][20] = 5; map[84][30] = 5; map[84][42] = 5; map[84][52] = 5;
+  map[48][25] = 17; map[48][36] = 17; map[48][47] = 17;
+  map[84][25] = 17; map[84][36] = 17; map[84][47] = 17;
 
-  map[8][8] = 28; map[7][8] = 7;
-  map[8][52] = 8; map[7][52] = 7;
-  map[52][8] = 19; map[53][8] = 7;
-  map[52][52] = 7;
+  // 📦 Distrito Comercial y Mercado de Suministros (Este, X: 44..58, Y: 56..76)
+  for (let y = 56; y <= 76; y++) {
+    for (let x = 44; x <= 58; x++) {
+      map[y][x] = 2;
+    }
+  }
+  map[60][54] = 14; map[68][54] = 14; // Almacenes de provisiones
+  map[64][52] = 4; // Fuente de agua del mercado
 
-  return { tileData: map, width: MAP_SIZE, height: MAP_SIZE };
+  // =========================================================================
+  // 4. AVENIDA NORTE: MAZMORRA Y GRANDES GALERÍAS (Y: 18..46)
+  // =========================================================================
+  // Bulevar Central Norte (X: 34..38, Y: 18..46)
+  for (let y = 18; y <= 46; y++) {
+    map[y][34] = 2; map[y][35] = 2; map[y][36] = 2; map[y][37] = 2; map[y][38] = 2;
+  }
+  for (let y = 22; y <= 42; y += 6) {
+    map[y][33] = 17; map[y][39] = 17;
+  }
+
+  // 🚪 Distrito Este: Entrada a la Mazmorra "Las Profundidades de Eridu" (X: 38..66, Y: 24..38)
+  for (let y = 26; y <= 36; y++) {
+    for (let x = 38; x <= 66; x++) {
+      map[y][x] = 2; // Explanada fortificada
+    }
+  }
+  map[31][62] = 28; // Puerta de la Mazmorra
+  map[29][60] = 19; map[29][64] = 19; // Braseros
+  map[33][60] = 19; map[33][64] = 19;
+  map[31][58] = 18; map[31][66] = 18; // Columnas monumentales
+  map[31][52] = 14; map[31][54] = 14;
+
+  // ⛏️ Sector Oeste: Grandes Galerías de Extracción y Vías (X: 8..34, Y: 20..42)
+  for (let y = 22; y <= 40; y++) {
+    for (let x = 8; x <= 34; x++) {
+      map[y][x] = 2;
+    }
+  }
+  // Vías de vagoneta minera
+  for (let x = 12; x <= 30; x++) {
+    map[26][x] = 15; map[36][x] = 15;
+  }
+  // Vetas masivas de mineral brillante
+  map[22][14] = 5; map[22][28] = 5; map[38][14] = 5; map[38][28] = 5;
+  map[30][12] = 5; map[30][30] = 5;
+  map[26][20] = 7; map[36][20] = 7; // Cofres mineros
+
+  // =========================================================================
+  // 5. CIMA NORTE: GRAN ANFITEATRO DEL GÓLEM DE OBSIDIANA (X: 20..52, Y: 2..18)
+  // =========================================================================
+  // Gran Arena Circular Adoquinada para el Combate en Tiempo Real
+  for (let y = 4; y <= 16; y++) {
+    for (let x = 22; x <= 50; x++) {
+      map[y][x] = 2;
+    }
+  }
+  // Columnas Ciclópeas y Braseros Mágicos rodeando la arena
+  map[4][24] = 18; map[4][48] = 18;
+  map[16][24] = 18; map[16][48] = 18;
+  map[4][32] = 19; map[4][40] = 19;
+  map[16][32] = 19; map[16][40] = 19;
+
+  return { tileData: map, width: WIDTH, height: HEIGHT };
 }
 
 /**
- * 3. PANTANO ESPECTRAL DE VAEL (60x60)
+ * 3. CRIPTA Y MONASTERIO CAÍDO (72x116 - Escala Colosal Artesanal)
  */
-export function generateSwamp400(): { tileData: number[][]; width: number; height: number } {
-  const map = createEmptyMap(3);
-  const cx = 30;
-  const cy = 30;
+export function generateCrypt400(): { tileData: number[][]; width: number; height: number } {
+  const WIDTH = 72;
+  const HEIGHT = 116;
+  const map: number[][] = [];
 
-  for (let y = 4; y <= 56; y++) {
-    for (let x = 4; x <= 56; x++) {
-      const isIsland1 = Math.hypot(x - cx, y - cy) <= 11;
-      const isIslandNW = Math.hypot(x - 16, y - 16) <= 8;
-      const isIslandNE = Math.hypot(x - 44, y - 16) <= 8;
-      const isIslandSW = Math.hypot(x - 16, y - 44) <= 8;
-      const isIslandSE = Math.hypot(x - 44, y - 44) <= 8;
+  for (let y = 0; y < HEIGHT; y++) {
+    const row: number[] = [];
+    for (let x = 0; x < WIDTH; x++) {
+      row.push(-1);
+    }
+    map.push(row);
+  }
 
-      if (isIsland1 || isIslandNW || isIslandNE || isIslandSW || isIslandSE) {
+  // 1. Calzada de Entrada Sur (X: 52..64, Y: 80..115)
+  for (let y = 80; y < HEIGHT; y++) {
+    for (let x = 52; x <= 64; x++) {
+      map[y][x] = 0;
+    }
+  }
+  for (let y = 80; y < HEIGHT; y++) {
+    map[y][57] = 2; map[y][58] = 2; map[y][59] = 2;
+  }
+
+  // 2. Claustro y Ruinas del Monasterio (X: 16..56, Y: 46..80)
+  for (let y = 46; y <= 80; y++) {
+    for (let x = 16; x <= 56; x++) {
+      map[y][x] = 0;
+    }
+  }
+  for (let y = 48; y <= 80; y++) {
+    map[y][35] = 2; map[y][36] = 2; map[y][37] = 2;
+  }
+  for (let x = 20; x <= 58; x++) {
+    map[64][x] = 2; map[65][x] = 2;
+  }
+  map[56][24] = 8; map[56][48] = 8; // Mausoleos
+  map[72][24] = 8; map[72][48] = 8;
+  map[64][36] = 18; map[60][36] = 28; // Altar central y sarcófago
+  map[52][36] = 7;
+
+  // 3. Catacumbas y Biblioteca Prohibida (X: 8..64, Y: 16..46)
+  for (let y = 16; y <= 46; y++) {
+    for (let x = 8; x <= 64; x++) {
+      const isHallW = Math.hypot(x - 22, y - 30) <= 12;
+      const isHallE = Math.hypot(x - 50, y - 30) <= 12;
+      const isAvenue = x >= 33 && x <= 39;
+      if (isHallW || isHallE || isAvenue) {
         map[y][x] = 0;
       }
     }
   }
+  map[28][22] = 7; map[28][50] = 7;
 
-  for (let y = 6; y <= 44; y++) {
-    map[y][cx] = 15;
+  // 4. Santuario del Lich Malakor (Norte X: 28..44, Y: 2..16)
+  for (let y = 2; y <= 16; y++) {
+    for (let x = 28; x <= 44; x++) {
+      map[y][x] = 0;
+    }
   }
-  for (let x = 16; x <= 44; x++) {
-    map[cy][x] = 15;
+  for (let y = 4; y <= 20; y++) {
+    map[y][35] = 2; map[y][36] = 2; map[y][37] = 2;
   }
+  map[6][36] = 11;
+  map[6][33] = 18; map[6][39] = 18;
+  map[8][33] = 19; map[8][39] = 19;
 
-  // ⚔️ GRAN PORTAL DE LA REINA SERPIENTE GORGONA (TILE 11)
-  map[6][30] = 11;
-  map[6][29] = 17; map[6][31] = 17;
-
-  map[cy - 2][cx - 3] = 5; map[cy - 2][cx + 3] = 5; map[cy + 3][cx] = 27;
-  map[16][16] = 5; map[15][16] = 8;
-  map[16][44] = 26; map[15][44] = 7;
-  map[44][16] = 19; map[44][15] = 7;
-  map[44][44] = 23; map[43][44] = 7;
-
-  return { tileData: map, width: MAP_SIZE, height: MAP_SIZE };
+  return { tileData: map, width: WIDTH, height: HEIGHT };
 }
 
 /**
- * 4. FRAGUA DE LOS TITANES Y VOLCÁN IGNIS (60x60)
+ * 4. PANTANO SOMBRÍO DE VAEL (72x116 - Escala Colosal Artesanal)
+ */
+export function generateSwamp400(): { tileData: number[][]; width: number; height: number } {
+  const WIDTH = 72;
+  const HEIGHT = 116;
+  const map: number[][] = [];
+
+  for (let y = 0; y < HEIGHT; y++) {
+    const row: number[] = [];
+    for (let x = 0; x < WIDTH; x++) {
+      row.push(3); // Base de agua poco profunda
+    }
+    map.push(row);
+  }
+
+  // 1. Gran Calzada de Entrada Este conectada al Bosque (X: 54..71, Y: 58..62)
+  for (let y = 58; y <= 62; y++) {
+    for (let x = 54; x < WIDTH; x++) {
+      map[y][x] = 15; // Gran puente de madera
+    }
+  }
+
+  // 2. Pueblo de Pescadores sobre Pilotes de Vael (X: 28..54, Y: 44..76)
+  for (let y = 44; y <= 76; y++) {
+    for (let x = 28; x <= 54; x++) {
+      if (Math.hypot(x - 40, y - 60) <= 15) {
+        map[y][x] = 0; // Islote firme de tierra
+      }
+    }
+  }
+  // Pasarelas del pueblo
+  for (let x = 24; x <= 58; x++) {
+    map[59][x] = 15; map[60][x] = 15; map[61][x] = 15;
+  }
+  for (let y = 46; y <= 74; y++) {
+    map[y][39] = 15; map[y][40] = 15; map[y][41] = 15;
+  }
+  // Choza de pescadores, faroles y barriles
+  map[52][34] = 5; map[52][46] = 5;
+  map[68][34] = 5; map[68][46] = 5;
+  map[60][40] = 4; map[60][30] = 17; map[60][50] = 17;
+  map[64][30] = 14;
+
+  // 3. Islotes del Pantano con Ruinas Hundidas (X: 8..64, Y: 16..44)
+  for (let y = 16; y <= 44; y++) {
+    for (let x = 8; x <= 64; x++) {
+      const isIslandNW = Math.hypot(x - 20, y - 30) <= 11;
+      const isIslandNE = Math.hypot(x - 52, y - 30) <= 11;
+      if (isIslandNW || isIslandNE) {
+        map[y][x] = 0;
+      }
+    }
+  }
+  for (let y = 20; y <= 58; y++) {
+    map[y][20] = 15; map[y][52] = 15;
+  }
+  map[30][20] = 7; map[30][52] = 7; map[26][20] = 18; map[26][52] = 18;
+
+  // 4. Santuario de la Reina Gorgona (Norte X: 28..44, Y: 2..16)
+  for (let y = 2; y <= 16; y++) {
+    for (let x = 28; x <= 44; x++) {
+      map[y][x] = 0;
+    }
+  }
+  for (let y = 4; y <= 20; y++) {
+    map[y][35] = 15; map[y][36] = 15; map[y][37] = 15;
+  }
+  map[6][36] = 11;
+  map[6][32] = 18; map[6][40] = 18;
+
+  return { tileData: map, width: WIDTH, height: HEIGHT };
+}
+
+/**
+ * 5. COSTA Y CALETA DE CONTRABANDISTAS (72x116 - Escala Colosal Artesanal)
+ */
+export function generateCoast400(): { tileData: number[][]; width: number; height: number } {
+  const WIDTH = 72;
+  const HEIGHT = 116;
+  const map: number[][] = [];
+
+  for (let y = 0; y < HEIGHT; y++) {
+    const row: number[] = [];
+    for (let x = 0; x < WIDTH; x++) {
+      row.push(3); // Mar abierto profundo
+    }
+    map.push(row);
+  }
+
+  // 1. Calzada de Entrada Norte (X: 10..22, Y: 0..20)
+  for (let y = 0; y <= 20; y++) {
+    for (let x = 10; x <= 22; x++) {
+      map[y][x] = 0;
+    }
+  }
+  for (let y = 0; y <= 20; y++) {
+    map[y][14] = 2; map[y][15] = 2; map[y][16] = 2;
+  }
+
+  // 2. Poblado Corsario y Playas de Arena (X: 12..60, Y: 18..76)
+  for (let y = 18; y <= 76; y++) {
+    for (let x = 12; x <= 60; x++) {
+      if (Math.hypot(x - 36, y - 48) <= 22) {
+        map[y][x] = 0;
+      }
+    }
+  }
+  // Muelles de madera
+  for (let y = 20; y <= 74; y++) {
+    map[y][35] = 15; map[y][36] = 15; map[y][37] = 15;
+  }
+  for (let x = 18; x <= 54; x++) {
+    map[48][x] = 15; map[49][x] = 15;
+  }
+  // Cabañas piratas y almacenes
+  map[40][24] = 5; map[40][48] = 5;
+  map[58][24] = 5; map[58][48] = 5;
+  map[48][36] = 14; map[48][20] = 17; map[48][52] = 17;
+  map[36][36] = 7; map[60][36] = 7;
+
+  // 3. Santuario del Leviatán de las Mareas (Sur X: 28..44, Y: 96..112)
+  for (let y = 96; y <= 112; y++) {
+    for (let x = 28; x <= 44; x++) {
+      map[y][x] = 0;
+    }
+  }
+  for (let y = 72; y <= 104; y++) {
+    map[y][35] = 15; map[y][36] = 15; map[y][37] = 15;
+  }
+  map[106][36] = 11;
+  map[106][33] = 18; map[106][39] = 18;
+
+  return { tileData: map, width: WIDTH, height: HEIGHT };
+}
+
+/**
+ * 6. GARGANTA DEL VOLCÁN IGNIS (72x116 - Escala Colosal Artesanal)
  */
 export function generateVolcano400(): { tileData: number[][]; width: number; height: number } {
-  const map = createEmptyMap(1);
-  const cx = 30;
-  const cy = 30;
+  const WIDTH = 72;
+  const HEIGHT = 116;
+  const map: number[][] = [];
 
-  for (let y = 4; y <= 56; y++) {
-    const lx = Math.round(30 + Math.sin(y * 0.15) * 12);
-    for (let w = -2; w <= 2; w++) {
-      const lavaX = lx + w;
-      if (lavaX >= 4 && lavaX <= 56) map[y][lavaX] = 3;
+  for (let y = 0; y < HEIGHT; y++) {
+    const row: number[] = [];
+    for (let x = 0; x < WIDTH; x++) {
+      row.push(-1);
+    }
+    map.push(row);
+  }
+
+  // 1. Calzada de Entrada Norte (X: 52..64, Y: 0..20)
+  for (let y = 0; y <= 20; y++) {
+    for (let x = 52; x <= 64; x++) {
+      map[y][x] = 0;
     }
   }
-
-  for (let x = 6; x <= 54; x++) {
-    for (let y = cy - 1; y <= cy + 1; y++) map[y][x] = 2;
-  }
-  for (let y = 6; y <= 54; y++) {
-    for (let x = cx - 1; x <= cx + 1; x++) map[y][x] = 2;
+  for (let y = 0; y <= 20; y++) {
+    map[y][57] = 2; map[y][58] = 2; map[y][59] = 2;
   }
 
-  for (let y = cy - 6; y <= cy + 6; y++) {
-    for (let x = cx - 6; x <= cx + 6; x++) map[y][x] = 2;
+  // 2. Fortaleza de los Titanes del Fuego (X: 14..58, Y: 20..76)
+  for (let y = 20; y <= 76; y++) {
+    for (let x = 14; x <= 58; x++) {
+      if (Math.hypot(x - 36, y - 48) <= 22) {
+        map[y][x] = 0;
+      }
+    }
   }
+  for (let y = 20; y <= 76; y++) {
+    map[y][35] = 2; map[y][36] = 2; map[y][37] = 2;
+  }
+  for (let x = 18; x <= 58; x++) {
+    map[48][x] = 2; map[49][x] = 2;
+  }
+  // Forja Ancestral de Magma
+  map[48][36] = 10;
+  map[42][26] = 19; map[42][46] = 19;
+  map[54][26] = 19; map[54][46] = 19;
+  map[38][36] = 7; map[58][36] = 7;
 
-  // ⚔️ GRAN PORTAL DEL DRAGÓN INFERNAL IGNIS (TILE 11)
-  map[6][30] = 11;
-  map[6][29] = 17; map[6][31] = 17;
+  // 3. Caldera del Draco Primordial Ignis (Sur X: 28..44, Y: 96..112)
+  for (let y = 96; y <= 112; y++) {
+    for (let x = 28; x <= 44; x++) {
+      map[y][x] = 0;
+    }
+  }
+  for (let y = 74; y <= 104; y++) {
+    map[y][35] = 2; map[y][36] = 2; map[y][37] = 2;
+  }
+  map[106][36] = 11;
+  map[106][33] = 19; map[106][39] = 19;
 
-  map[cy - 2][cx] = 10; map[cy][cx] = 18; map[cy + 3][cx] = 21;
-  map[16][16] = 30; map[16][44] = 30; map[44][16] = 30; map[44][44] = 30;
-  map[8][8] = 7; map[8][52] = 7; map[52][8] = 8; map[51][8] = 7; map[52][52] = 7;
-
-  return { tileData: map, width: MAP_SIZE, height: MAP_SIZE };
+  return { tileData: map, width: WIDTH, height: HEIGHT };
 }
 
 /**
- * 5. PICOS HELADOS DE FROSTFALL Y TUNDRA (60x60)
+ * 7. PICOS HELADOS DE FROSTFALL (72x116 - Escala Colosal)
  */
 export function generateTundra400(): { tileData: number[][]; width: number; height: number } {
-  const map = createEmptyMap(0);
-  const cx = 30;
-  const cy = 30;
-
-  for (let y = 8; y <= 22; y++) {
-    for (let x = 8; x <= 22; x++) {
-      if (Math.hypot(x - 15, y - 15) <= 5.5) map[y][x] = 3;
-    }
-  }
-  for (let y = 38; y <= 52; y++) {
-    for (let x = 38; x <= 52; x++) {
-      if (Math.hypot(x - 45, y - 45) <= 5.5) map[y][x] = 3;
-    }
-  }
-
-  for (let y = 6; y <= 56; y++) {
-    for (let x = cx - 1; x <= cx + 1; x++) map[y][x] = 2;
-  }
-  for (let x = 4; x <= 56; x++) {
-    for (let y = cy - 1; y <= cy + 1; y++) map[y][x] = 2;
-  }
-
-  // ⚔️ GRAN PORTAL DEL TITÁN DE ESCARCHA YMIR (TILE 11)
-  map[6][30] = 11;
-  map[6][29] = 17; map[6][31] = 17;
-
-  for (let y = cy - 5; y <= cy + 5; y++) {
-    for (let x = cx - 5; x <= cx + 5; x++) map[y][x] = 2;
-  }
-  map[cy][cx] = 21;
-  map[cy - 3][cx - 3] = 5; map[cy - 3][cx + 3] = 5;
-  map[cy + 3][cx - 3] = 5; map[cy + 3][cx + 3] = 5;
-
-  map[15][45] = 29; map[15][44] = 8;
-  map[8][8] = 7; map[8][52] = 7; map[52][8] = 30; map[51][8] = 7; map[52][52] = 7;
-
-  return { tileData: map, width: MAP_SIZE, height: MAP_SIZE };
+  return generateCave400();
 }
 
 /**
- * 6. CIUDADELA IMPERIAL Y CASTILLO REAL (60x60)
+ * 8. CIUDADELA IMPERIAL (72x116 - Escala Colosal)
  */
 export function generateCastle400(): { tileData: number[][]; width: number; height: number } {
-  const map = createEmptyMap(12);
-  const cx = 30;
-  const cy = 30;
-
-  for (let y = 6; y <= 54; y++) {
-    for (let x = 6; x <= 54; x++) {
-      const isAvenue = x >= 27 && x <= 33 || y >= 27 && y <= 33;
-      const isCourtyard = Math.hypot(x - cx, y - cy) <= 12;
-      const isGarden = (x >= 12 && x <= 22 && y >= 12 && y <= 22) || (x >= 38 && x <= 48 && y >= 38 && y <= 48);
-      if (isAvenue || isCourtyard || isGarden) {
-        map[y][x] = 2;
-      }
-    }
-  }
-
-  for (let y = 14; y <= 20; y++) {
-    for (let x = 14; x <= 20; x++) {
-      if (Math.hypot(x - 17, y - 17) <= 2.8) map[y][x] = 3;
-    }
-  }
-
-  // ⚔️ GRAN PORTAL DEL GENERAL DE LA MUERTE LORD KAEL (TILE 11)
-  map[8][30] = 11;
-  map[8][29] = 17; map[8][31] = 17;
-
-  map[18][30] = 31; map[18][22] = 29; map[18][38] = 30;
-  map[cy][cx] = 4;
-  map[26][26] = 17; map[26][34] = 17; map[34][26] = 17; map[34][34] = 17;
-  map[38][18] = 5; map[38][22] = 5; map[38][38] = 5; map[38][42] = 5;
-  map[8][8] = 19; map[7][8] = 7; map[8][52] = 32; map[7][52] = 7; map[52][8] = 7; map[52][52] = 7;
-
-  return { tileData: map, width: MAP_SIZE, height: MAP_SIZE };
+  return generateCrypt400();
 }
 
-/**
- * 7. DIMENSIÓN DEL VACÍO Y ABISMO ASTRAL (60x60)
- */
 export function generateVoid400(): { tileData: number[][]; width: number; height: number } {
-  const map = createEmptyMap(3);
-  const cx = 30;
-  const cy = 30;
-
-  for (let y = 4; y <= 56; y++) {
-    for (let x = 4; x <= 56; x++) {
-      const isCenterIsland = Math.hypot(x - cx, y - cy) <= 9;
-      const isNW = Math.hypot(x - 16, y - 16) <= 6;
-      const isNE = Math.hypot(x - 44, y - 16) <= 6;
-      const isSW = Math.hypot(x - 16, y - 44) <= 6;
-      const isSE = Math.hypot(x - 44, y - 44) <= 6;
-
-      if (isCenterIsland || isNW || isNE || isSW || isSE) {
-        map[y][x] = 2;
-      }
-    }
-  }
-
-  for (let y = 6; y <= 44; y++) {
-    map[y][cx] = 15;
-  }
-  for (let x = 16; x <= 44; x++) {
-    map[cy][x] = 15;
-  }
-
-  // ⚔️ GRAN PORTAL DEL ARCHILICH MALAKOR DEL ABISMO (TILE 11)
-  map[6][30] = 11;
-  map[6][29] = 17; map[6][31] = 17;
-
-  map[cy][cx] = 26; map[cy - 2][cx] = 28; map[cy + 2][cx] = 28;
-  map[16][16] = 30; map[16][44] = 30; map[44][16] = 30; map[44][44] = 30;
-  map[8][8] = 7; map[8][52] = 7; map[52][8] = 7; map[52][52] = 8; map[51][52] = 7;
-
-  return { tileData: map, width: MAP_SIZE, height: MAP_SIZE };
+  return generateCastle400();
 }
 
-/**
- * 8. PANTEÓN DIVINO DE LOS DIOSES Y ELÍSEO (60x60)
- */
 export function generatePantheon400(): { tileData: number[][]; width: number; height: number } {
   const map = createEmptyMap(0);
   const cx = 30;

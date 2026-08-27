@@ -719,12 +719,16 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
     soundEngine.playSfx('select');
     onMove({ x: newX, y: newY });
 
-    // 🚪 AUTOMATIC STEP-ON PORTAL TRIGGER (Doors, Stairs, Dungeons)
-    const stepPortal = currentZone.portals?.find((p) => p.x === newX && p.y === newY);
+    // 🚪 AUTOMATIC STEP-ON PORTAL TRIGGER (Doors, Stairs, Dungeons, Road Border Arches)
+    const stepPortal = currentZone.portals?.find((p) => {
+      if (p.x === newX && p.y === newY) return true;
+      if (!p.isDoor && Math.abs(p.x - newX) <= 1 && Math.abs(p.y - newY) <= 1) return true;
+      return false;
+    });
     if (stepPortal) {
       if (stepPortal.minLevel && player.level < stepPortal.minLevel) {
         soundEngine.playSfx('error');
-        showToast(`🔒 Requiere Nivel ${stepPortal.minLevel} para entrar a ${stepPortal.label}`);
+        showToast(`🔒 Requiere Nivel ${stepPortal.minLevel} para cruzar a ${stepPortal.label}`);
         return;
       }
       soundEngine.playSfx('levelup');
@@ -1561,7 +1565,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-amber-500/50">
-              {ZONES.map((z) => {
+              {ZONES.filter((z) => !z.isInterior && !z.id.startsWith('subzone_')).map((z) => {
                 const unlocked = isZoneUnlocked(z.id, defeatedBosses);
                 const requirementMsg = getZoneRequirementMessage(z.id);
                 const isCurrent = z.id === currentZone.id;

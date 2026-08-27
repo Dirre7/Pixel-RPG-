@@ -262,23 +262,23 @@ export function isZoneUnlocked(zoneId: string, defeatedBosses: string[] = []): b
   if (zoneId === 'zone_cave') {
     return defeatedBosses.some((b) => b.toLowerCase().includes('slime'));
   }
+  if (zoneId === 'subzone_crypt') {
+    return true; // Controlado por nivel (10+) en el portón
+  }
   if (zoneId === 'zone_swamp') {
-    return defeatedBosses.some((b) => b.toLowerCase().includes('golem') || b.toLowerCase().includes('gólem'));
+    return defeatedBosses.some((b) => b.toLowerCase().includes('golem') || b.toLowerCase().includes('gólem') || b.toLowerCase().includes('slime'));
+  }
+  if (zoneId === 'subzone_smugglers_cave') {
+    return true; // Controlado por nivel (20+) en el portón
   }
   if (zoneId === 'zone_volcano') {
-    return defeatedBosses.some((b) => b.toLowerCase().includes('serpiente') || b.toLowerCase().includes('gorgona'));
+    return defeatedBosses.some((b) => b.toLowerCase().includes('gorgona') || b.toLowerCase().includes('serpiente') || b.toLowerCase().includes('golem'));
   }
   if (zoneId === 'zone_tundra') {
-    return defeatedBosses.some((b) => b.toLowerCase().includes('dragón') || b.toLowerCase().includes('dragon') || b.toLowerCase().includes('ignis'));
+    return defeatedBosses.some((b) => b.toLowerCase().includes('dragón') || b.toLowerCase().includes('ignis'));
   }
   if (zoneId === 'zone_castle') {
-    return defeatedBosses.some((b) => b.toLowerCase().includes('ymir') || b.toLowerCase().includes('escarcha') || b.toLowerCase().includes('frost'));
-  }
-  if (zoneId === 'zone_void') {
-    return defeatedBosses.some((b) => b.toLowerCase().includes('kael') || b.toLowerCase().includes('general'));
-  }
-  if (zoneId === 'zone_sanctuary') {
-    return defeatedBosses.some((b) => b.toLowerCase().includes('malakor') || b.toLowerCase().includes('lich'));
+    return true; // Se accede desde la plaza
   }
   return false;
 }
@@ -286,19 +286,17 @@ export function isZoneUnlocked(zoneId: string, defeatedBosses: string[] = []): b
 export function getZoneRequirementMessage(zoneId: string): string {
   switch (zoneId) {
     case 'zone_cave':
-      return '🔒 Derrota al Gran Rey Slime en el Bosque Verde';
+      return '🔒 Requiere Nivel 6 y derrotar al Gran Rey Slime';
+    case 'subzone_crypt':
+      return '🔒 Requiere Nivel 10 para entrar a la Cripta';
     case 'zone_swamp':
-      return '🔒 Derrota al Gólem de Obsidiana en las Minas de Eridu';
+      return '🔒 Requiere Nivel 15 y derrotar al Gólem de Obsidiana';
+    case 'subzone_smugglers_cave':
+      return '🔒 Requiere Nivel 20 para entrar a la Costa y Caleta';
     case 'zone_volcano':
-      return '🔒 Derrota a la Reina Serpiente Gorgona en el Pantano de Vael';
+      return '🔒 Requiere Nivel 25 y derrotar a la Reina Gorgona';
     case 'zone_tundra':
-      return '🔒 Derrota al Dragón Infernal Ignis en el Volcán Ancestral';
-    case 'zone_castle':
-      return '🔒 Derrota al Titán de Escarcha Ymir en los Picos de Frostfall';
-    case 'zone_void':
-      return '🔒 Derrota al General Lord Kael en la Ciudadela Imperial';
-    case 'zone_sanctuary':
-      return '🔒 Derrota al Archilich Malakor en el Vórtice del Vacío (100%)';
+      return '🔒 Requiere Nivel 28 y derrotar al Draco Ignis';
     default:
       return '';
   }
