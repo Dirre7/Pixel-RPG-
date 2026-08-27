@@ -678,3 +678,59 @@ export function generateSmugglersGrottoDungeon(): SubZoneMapResult {
 
   return { width, height, tileData: map };
 }
+
+/**
+ * 10. 🌋 MAZMORRA INSTANCIADA: EL CORAZÓN DE LA CALDERA (26x26)
+ * Caverna magmática en las profundidades del volcán con canales de lava ardiente,
+ * puentes de basalto, elementales ígneos, salamandras de fuego y el Cofre de los Titanes.
+ */
+export function generateVolcanoCalderaDungeon(): SubZoneMapResult {
+  const width = 26;
+  const height = 26;
+  const map: number[][] = [];
+
+  for (let y = 0; y < height; y++) {
+    const row: number[] = [];
+    for (let x = 0; x < width; x++) {
+      if (y === 0 || y === height - 1 || x === 0 || x === width - 1) {
+        row.push(1); // Muros de basalto volcánico
+      } else {
+        row.push(0); // Suelo de ceniza y roca negra
+      }
+    }
+    map.push(row);
+  }
+
+  // Ríos de lava ardiente en el interior
+  for (let y = 6; y <= 20; y++) {
+    map[y][7] = 3; map[y][18] = 3;
+  }
+  for (let x = 6; x <= 19; x++) {
+    map[14][x] = 3;
+  }
+
+  // Puentes de piedra volcánica reforzada
+  for (let y = 4; y <= 22; y++) {
+    map[y][12] = 2; map[y][13] = 2;
+  }
+  for (let x = 4; x <= 22; x++) {
+    map[8][x] = 2; map[18][x] = 2;
+  }
+
+  // Filones de mineral de fuego y crisoles
+  map[6][4] = 5; map[6][5] = 5; map[6][20] = 5; map[6][21] = 5;
+  map[16][4] = 5; map[16][5] = 5; map[16][20] = 5; map[16][21] = 5;
+
+  // Braseros de fuego y columnas de basalto
+  map[4][10] = 19; map[4][15] = 19;
+  map[12][6] = 19; map[12][19] = 19;
+
+  // Gran Cámara del Tesoro de los Titanes (Norte)
+  map[3][13] = 7; // Cofre de los Titanes
+  map[3][11] = 18; map[3][15] = 18; // Columnas de basalto
+
+  // Entrada/Salida al sur
+  map[24][13] = 28;
+
+  return { width, height, tileData: map };
+}

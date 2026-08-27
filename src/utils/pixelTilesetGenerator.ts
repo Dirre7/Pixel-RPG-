@@ -249,6 +249,7 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
       ctx.fill();
       ctx.fillStyle = '#fef08a';
       ctx.fillRect(15, 15, 2, 2);
+      tileCache.set(cacheKey, canvas);
       return canvas;
     } else if (zoneId === 'subzone_botica' || zoneId.includes('botica')) {
       // 🌿 Alfombra Arcana Esmeralda y Violeta con Runa Alquímica
@@ -274,6 +275,7 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
 
       ctx.fillStyle = '#fef08a';
       ctx.fillRect(15, 15, 2, 2);
+      tileCache.set(cacheKey, canvas);
       return canvas;
     } else if (zoneId === 'subzone_crypt' || zoneId.includes('crypt')) {
       // 🪦 Alfombra Ritual Púrpura Profanada con Calaveras y Runas de Muerte
@@ -301,6 +303,7 @@ export function getTileCanvas(tileType: number, zoneId: string, animPhase: numbe
       ctx.fillStyle = '#c084fc';
       ctx.fillRect(14, 13, 1, 1);
       ctx.fillRect(17, 13, 1, 1);
+      tileCache.set(cacheKey, canvas);
       return canvas;
     }
 
@@ -825,10 +828,8 @@ export function getRecoloredCuteHouseCanvas(
   variant: 'blue' | 'red' | 'stone' | 'purple'
 ): HTMLCanvasElement {
   if (cuteHouseCache.has(variant)) return cuteHouseCache.get(variant)!;
-  if (!baseImg.complete || baseImg.naturalWidth === 0) {
-    const dummy = document.createElement('canvas');
-    dummy.width = 96; dummy.height = 128;
-    return dummy;
+  if (!baseImg || !baseImg.complete || baseImg.naturalWidth === 0) {
+    return getCottageCanvas(variant === 'purple' ? 'red' : variant);
   }
 
   const canvas = document.createElement('canvas');
@@ -898,29 +899,28 @@ export function getRecoloredCuteHouseCanvas(
           const t = (lum - 0.8) / 0.2;
           data[i] = Math.round(115 + (165 - 115) * t);
           data[i + 1] = Math.round(130 + (180 - 130) * t);
-          data[i + 2] = Math.round(150 + (205 - 150) * t);
+          data[i + 2] = Math.round(150 + (195 - 150) * t);
         }
       } else if (variant === 'purple') {
         // Paleta Tejado Amatista Mística 2.5D
         if (lum < 0.3) {
-          data[i] = Math.min(255, Math.round(75 * (lum / 0.3)));
-          data[i + 1] = Math.min(255, Math.round(20 * (lum / 0.3)));
-          data[i + 2] = Math.min(255, Math.round(110 * (lum / 0.3)));
+          const v = Math.round(45 * (lum / 0.3));
+          data[i] = Math.round(v * 1.1); data[i + 1] = Math.round(v * 0.4); data[i + 2] = Math.round(v * 1.3);
         } else if (lum < 0.55) {
           const t = (lum - 0.3) / 0.25;
-          data[i] = Math.round(75 + (125 - 75) * t);
-          data[i + 1] = Math.round(20 + (38 - 20) * t);
-          data[i + 2] = Math.round(110 + (180 - 110) * t);
+          data[i] = Math.round(50 + (95 - 50) * t);
+          data[i + 1] = Math.round(20 + (35 - 20) * t);
+          data[i + 2] = Math.round(60 + (125 - 60) * t);
         } else if (lum < 0.8) {
           const t = (lum - 0.55) / 0.25;
-          data[i] = Math.round(125 + (170 - 125) * t);
-          data[i + 1] = Math.round(38 + (75 - 38) * t);
-          data[i + 2] = Math.round(180 + (230 - 180) * t);
+          data[i] = Math.round(95 + (155 - 95) * t);
+          data[i + 1] = Math.round(35 + (60 - 35) * t);
+          data[i + 2] = Math.round(125 + (195 - 125) * t);
         } else {
           const t = (lum - 0.8) / 0.2;
-          data[i] = Math.round(170 + (210 - 170) * t);
-          data[i + 1] = Math.round(75 + (130 - 75) * t);
-          data[i + 2] = Math.round(230 + (250 - 230) * t);
+          data[i] = Math.round(155 + (205 - 155) * t);
+          data[i + 1] = Math.round(60 + (95 - 60) * t);
+          data[i + 2] = Math.round(195 + (235 - 195) * t);
         }
       }
     }
@@ -940,6 +940,13 @@ export function getBlacksmithCuteHouseCanvas(
   baseImg: HTMLImageElement,
   time: number = 0
 ): HTMLCanvasElement {
+  if (!baseImg || !baseImg.complete || baseImg.naturalWidth === 0) {
+    return getCottageCanvas('stone');
+  }
+  const frame = Math.floor(time * 6) % 4;
+  const cacheKey = `blacksmith_cute_house_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const baseHouse = getRecoloredCuteHouseCanvas(baseImg, 'stone');
   const canvas = document.createElement('canvas');
   canvas.width = 96;
@@ -1021,6 +1028,7 @@ export function getBlacksmithCuteHouseCanvas(
   ctx.fillRect(14, 88, 5, 2);
   ctx.fillRect(14, 91, 5, 2);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -1033,6 +1041,13 @@ export function getTavernCuteHouseCanvas(
   baseImg: HTMLImageElement,
   time: number = 0
 ): HTMLCanvasElement {
+  if (!baseImg || !baseImg.complete || baseImg.naturalWidth === 0) {
+    return getCottageCanvas('red');
+  }
+  const frame = Math.floor(time * 6) % 4;
+  const cacheKey = `tavern_cute_house_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const baseHouse = getRecoloredCuteHouseCanvas(baseImg, 'red');
   const canvas = document.createElement('canvas');
   canvas.width = 96;
@@ -1112,6 +1127,7 @@ export function getTavernCuteHouseCanvas(
   ctx.fillStyle = '#ea580c';
   ctx.fillRect(74, 85, 6, 3); // Manzanas
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -1478,6 +1494,13 @@ export function getApothecaryCuteHouseCanvas(
   baseImg: HTMLImageElement,
   time: number = 0
 ): HTMLCanvasElement {
+  if (!baseImg || !baseImg.complete || baseImg.naturalWidth === 0) {
+    return getCottageCanvas('purple' as any);
+  }
+  const frame = Math.floor(time * 6) % 4;
+  const cacheKey = `apothecary_cute_house_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const baseHouse = getRecoloredCuteHouseCanvas(baseImg, 'purple');
   const canvas = document.createElement('canvas');
   canvas.width = 96;
@@ -1570,6 +1593,7 @@ export function getApothecaryCuteHouseCanvas(
   ctx.fillStyle = '#3b82f6';
   ctx.fillRect(77, 85, 3, 4);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -1577,6 +1601,10 @@ export function getApothecaryCuteHouseCanvas(
  * 🧙 GRAN CALDERO DE ALQUIMIA BURBUJEANTE (48x48 px)
  */
 export function getAlchemyCauldronCanvas(time: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(time * 6) % 4;
+  const cacheKey = `alchemy_cauldron_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 48;
   canvas.height = 48;
@@ -1641,6 +1669,7 @@ export function getAlchemyCauldronCanvas(time: number = 0): HTMLCanvasElement {
   ctx.arc(28 + Math.cos(time * 3) * 4, 14 - bRise2, 2.5 + (bRise2 / 7), 0, Math.PI * 2);
   ctx.fill();
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -1756,6 +1785,13 @@ export function getCryptMausoleumCanvas(
   baseImg: HTMLImageElement,
   time: number = 0
 ): HTMLCanvasElement {
+  if (!baseImg || !baseImg.complete || baseImg.naturalWidth === 0) {
+    return getCottageCanvas('stone');
+  }
+  const frame = Math.floor(time * 6) % 8;
+  const cacheKey = `mausoleum_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const baseHouse = getRecoloredCuteHouseCanvas(baseImg, 'stone');
   const canvas = document.createElement('canvas');
   canvas.width = 96;
@@ -1874,6 +1910,7 @@ export function getCryptMausoleumCanvas(
   ctx.ellipse(54 + mist2, 108, 30, 7, 0, 0, Math.PI * 2);
   ctx.fill();
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -1881,6 +1918,9 @@ export function getCryptMausoleumCanvas(
  * ⚰️ SARCÓFAGO DE PIEDRA CON EFIGIE TALLADA (32x48 px)
  */
 export function getStoneSarcophagusCanvas(): HTMLCanvasElement {
+  const cacheKey = 'stone_sarcophagus_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 32;
   canvas.height = 48;
@@ -1930,6 +1970,7 @@ export function getStoneSarcophagusCanvas(): HTMLCanvasElement {
   ctx.fillRect(4, 38, 4, 4);
   ctx.fillRect(23, 40, 5, 3);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -1937,6 +1978,10 @@ export function getStoneSarcophagusCanvas(): HTMLCanvasElement {
  * 🔥 BRASERO ESPECTRAL CON FUEGO FATUO VIOLETA (32x32 px)
  */
 export function getSpectralBrazierCanvas(time: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(time * 6) % 8;
+  const cacheKey = `spectral_brazier_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 32;
   canvas.height = 32;
@@ -1991,6 +2036,7 @@ export function getSpectralBrazierCanvas(time: number = 0): HTMLCanvasElement {
   ctx.fillStyle = 'rgba(192, 132, 252, 0.5)';
   ctx.fillRect(15 + Math.sin(time * 4) * 3, 8 - sRise, 2, 2);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -1998,6 +2044,9 @@ export function getSpectralBrazierCanvas(time: number = 0): HTMLCanvasElement {
  * 💀 PILA DE URNAS FUNERARIAS Y CRÁNEOS CON CIRIOS (32x32 px)
  */
 export function getBoneUrnStackCanvas(): HTMLCanvasElement {
+  const cacheKey = 'bone_urn_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 32;
   canvas.height = 32;
@@ -2046,6 +2095,7 @@ export function getBoneUrnStackCanvas(): HTMLCanvasElement {
   ctx.fillRect(4, 25, 8, 2);
   ctx.fillRect(20, 26, 9, 2);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -2055,6 +2105,10 @@ export function getBoneUrnStackCanvas(): HTMLCanvasElement {
  * farol náutico de latón colgante, redes de pesca, barriles de ron y rótulo marítimo.
  */
 export function getCaveEntranceCanvas(time: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(time * 6) % 8;
+  const cacheKey = `cave_entrance_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 96;
   canvas.height = 128;
@@ -2201,6 +2255,9 @@ export function getCaveEntranceCanvas(time: number = 0): HTMLCanvasElement {
  * 📦 PILA DE CAJAS DE BOTÍN PIRATA Y BARRILES DE RON (32x32 px)
  */
 export function getPirateCrateStackCanvas(): HTMLCanvasElement {
+  const cacheKey = 'pirate_crate_stack_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 32;
   canvas.height = 32;
@@ -2239,6 +2296,7 @@ export function getPirateCrateStackCanvas(): HTMLCanvasElement {
   ctx.fillRect(12, 4, 3, 12);
   ctx.fillRect(8, 12, 11, 2);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -2246,6 +2304,9 @@ export function getPirateCrateStackCanvas(): HTMLCanvasElement {
  * 🚣 BOTE DE REMOS / CHALUPA AMARRADA (32x32 px)
  */
 export function getDockRowboatCanvas(): HTMLCanvasElement {
+  const cacheKey = 'dock_rowboat_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 32;
   canvas.height = 32;
@@ -3003,6 +3064,10 @@ export function getShrineCanvas(isBoss: boolean = false, time: number = 0): HTML
  * 🏮 FAROLA RÚNICA DE FORJA (24x36 px)
  */
 export function getStreetLampCanvas(time: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(time * 4) % 4;
+  const cacheKey = `street_lamp_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 48;
   canvas.height = 56;
@@ -3058,6 +3123,7 @@ export function getStreetLampCanvas(time: number = 0): HTMLCanvasElement {
   ctx.fillRect(18, 4, 12, 2);
   ctx.fillRect(23, 2, 2, 2);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -3281,6 +3347,9 @@ export function getWoodenBenchCanvas(): HTMLCanvasElement {
  * 🪦 LÁPIDA DE CEMENTERIO (24x28 px)
  */
 export function getGraveyardCanvas(): HTMLCanvasElement {
+  const cacheKey = 'graveyard_tombstone_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 24;
   canvas.height = 28;
@@ -3303,6 +3372,7 @@ export function getGraveyardCanvas(): HTMLCanvasElement {
   ctx.fillRect(11, 8, 2, 8);
   ctx.fillRect(9, 10, 6, 2);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -3385,6 +3455,10 @@ export function getRuinedPillarCanvas(): HTMLCanvasElement {
  * 🔥 HOGUERA / CAMPFIRE (28x28 px)
  */
 export function getCampfireCanvas(time: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(time * 6) % 4;
+  const cacheKey = `campfire_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 28;
   canvas.height = 28;
@@ -3408,6 +3482,7 @@ export function getCampfireCanvas(time: number = 0): HTMLCanvasElement {
   ctx.fillStyle = '#fef08a';
   ctx.fillRect(13, 12 + flick, 2, 3);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -3607,6 +3682,9 @@ export function getEnchantedMushroomCanvas(): HTMLCanvasElement {
  * 🌿 SETO VERDE DEL LABERINTO ENCANTADO (32x32 px - ESTILO OAK TREE)
  */
 export function getLabyrinthHedgeCanvas(): HTMLCanvasElement {
+  const cacheKey = 'labyrinth_hedge_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 32; canvas.height = 32;
   const ctx = canvas.getContext('2d')!;
@@ -3654,6 +3732,7 @@ export function getLabyrinthHedgeCanvas(): HTMLCanvasElement {
   ctx.fillRect(21, 10, 3, 1);
   ctx.fillRect(14, 6, 4, 1);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -3661,6 +3740,10 @@ export function getLabyrinthHedgeCanvas(): HTMLCanvasElement {
  * 💎 GEODA DE CRISTALES DE MANÁ ARCANO (28x40 px)
  */
 export function getManaCrystalCanvas(time: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(time * 4) % 4;
+  const cacheKey = `mana_crystal_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 28; canvas.height = 40;
   const ctx = canvas.getContext('2d')!;
@@ -3692,27 +3775,27 @@ export function getManaCrystalCanvas(time: number = 0): HTMLCanvasElement {
   ctx.fillRect(7, 29, 6, 3);
 
   // Cristal Central Alto
-  ctx.fillStyle = '#0369a1'; // Sombra posterior
+  ctx.fillStyle = '#0369a1';
   ctx.beginPath();
   ctx.moveTo(14, 6); ctx.lineTo(19, 22); ctx.lineTo(14, 32); ctx.lineTo(9, 22);
   ctx.fill();
 
-  ctx.fillStyle = '#0284c7'; // Cara izquierda oscura
+  ctx.fillStyle = '#0284c7';
   ctx.beginPath();
   ctx.moveTo(14, 6); ctx.lineTo(9, 22); ctx.lineTo(14, 32);
   ctx.fill();
 
-  ctx.fillStyle = '#38bdf8'; // Cara derecha iluminada
+  ctx.fillStyle = '#38bdf8';
   ctx.beginPath();
   ctx.moveTo(14, 6); ctx.lineTo(19, 22); ctx.lineTo(14, 32);
   ctx.fill();
 
-  ctx.fillStyle = '#7dd3fc'; // Faceta frontal biselada
+  ctx.fillStyle = '#7dd3fc';
   ctx.beginPath();
   ctx.moveTo(14, 8); ctx.lineTo(16, 22); ctx.lineTo(14, 30); ctx.lineTo(12, 22);
   ctx.fill();
 
-  ctx.fillStyle = '#ffffff'; // Destello blanco en la arista
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(13, 8, 2, 6);
   ctx.fillRect(14, 14, 1, 8);
 
@@ -3740,6 +3823,7 @@ export function getManaCrystalCanvas(time: number = 0): HTMLCanvasElement {
   ctx.fillStyle = '#e0f2fe';
   ctx.fillRect(21, 18, 1, 4);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -3747,6 +3831,9 @@ export function getManaCrystalCanvas(time: number = 0): HTMLCanvasElement {
  * 🏴‍☠️ GALEÓN NAUFRAGADO EN LA ARENA (64x54 px)
  */
 export function getShipwreckCanvas(): HTMLCanvasElement {
+  const cacheKey = 'shipwreck_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 64; canvas.height = 54;
   const ctx = canvas.getContext('2d')!;
@@ -3779,6 +3866,7 @@ export function getShipwreckCanvas(): HTMLCanvasElement {
   ctx.moveTo(24, 10); ctx.lineTo(12, 22); ctx.lineTo(24, 20);
   ctx.fill();
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -3786,6 +3874,9 @@ export function getShipwreckCanvas(): HTMLCanvasElement {
  * 🍇 VIÑEDO DE ESPALDERA CON UVAS (32x32 px)
  */
 export function getVineyardCanvas(): HTMLCanvasElement {
+  const cacheKey = 'vineyard_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 32; canvas.height = 32;
   const ctx = canvas.getContext('2d')!;
@@ -3795,7 +3886,7 @@ export function getVineyardCanvas(): HTMLCanvasElement {
   ctx.fillStyle = '#78350f';
   ctx.fillRect(2, 6, 3, 24);
   ctx.fillRect(27, 6, 3, 24);
-  ctx.fillStyle = '#94a3b8'; // Alambres
+  ctx.fillStyle = '#94a3b8';
   ctx.fillRect(5, 10, 22, 1);
   ctx.fillRect(5, 20, 22, 1);
 
@@ -3811,6 +3902,7 @@ export function getVineyardCanvas(): HTMLCanvasElement {
   ctx.fillStyle = '#a855f7';
   ctx.fillRect(9, 19, 2, 3); ctx.fillRect(17, 19, 2, 3); ctx.fillRect(25, 19, 2, 3);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -3818,6 +3910,9 @@ export function getVineyardCanvas(): HTMLCanvasElement {
  * 🔭 OBSERVATORIO ASTRONÓMICO (48x54 px)
  */
 export function getObservatoryCanvas(): HTMLCanvasElement {
+  const cacheKey = 'observatory_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 48; canvas.height = 54;
   const ctx = canvas.getContext('2d')!;
@@ -3844,6 +3939,7 @@ export function getObservatoryCanvas(): HTMLCanvasElement {
   ctx.moveTo(24, 18); ctx.lineTo(42, 6); ctx.lineTo(44, 9); ctx.lineTo(26, 21);
   ctx.fill();
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -3851,6 +3947,9 @@ export function getObservatoryCanvas(): HTMLCanvasElement {
  * 🌊 FARO COSTERO BLANCO Y ROJO (36x64 px)
  */
 export function getLighthouseCanvas(time: number = 0): HTMLCanvasElement {
+  const cacheKey = 'lighthouse_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 36; canvas.height = 64;
   const ctx = canvas.getContext('2d')!;
@@ -3865,13 +3964,13 @@ export function getLighthouseCanvas(time: number = 0): HTMLCanvasElement {
   ctx.moveTo(10, 20); ctx.lineTo(26, 20); ctx.lineTo(30, 58); ctx.lineTo(6, 58);
   ctx.fill();
 
-  ctx.fillStyle = '#f8fafc'; // Franja blanca media
+  ctx.fillStyle = '#f8fafc';
   ctx.fillRect(8, 30, 20, 14);
 
   // Linterna superior
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(10, 14, 16, 6);
-  ctx.fillStyle = '#fef08a'; // Foco luminoso
+  ctx.fillStyle = '#fef08a';
   ctx.fillRect(12, 8, 12, 8);
 
   // Tejado cónico
@@ -3880,6 +3979,7 @@ export function getLighthouseCanvas(time: number = 0): HTMLCanvasElement {
   ctx.moveTo(8, 8); ctx.lineTo(18, 0); ctx.lineTo(28, 8);
   ctx.fill();
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -3887,6 +3987,9 @@ export function getLighthouseCanvas(time: number = 0): HTMLCanvasElement {
  * ⛪ IGLESIA / CAPILLA GÓTICA DE PIEDRA (64x64 px)
  */
 export function getChurchCanvas(): HTMLCanvasElement {
+  const cacheKey = 'church_gothic_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 64; canvas.height = 64;
   const ctx = canvas.getContext('2d')!;
@@ -3910,7 +4013,7 @@ export function getChurchCanvas(): HTMLCanvasElement {
   // Campanario
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(26, 0, 12, 16);
-  ctx.fillStyle = '#eab308'; // Campana de bronce
+  ctx.fillStyle = '#eab308';
   ctx.fillRect(30, 8, 4, 6);
 
   // Cruz dorada
@@ -3922,6 +4025,7 @@ export function getChurchCanvas(): HTMLCanvasElement {
   ctx.beginPath(); ctx.arc(32, 36, 6, Math.PI, 0); ctx.fill();
   ctx.fillRect(26, 36, 12, 8);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -3929,6 +4033,9 @@ export function getChurchCanvas(): HTMLCanvasElement {
  * 🧪 BOTICA DE POCIONES Y ALQUIMIA (56x56 px)
  */
 export function getApothecaryCanvas(): HTMLCanvasElement {
+  const cacheKey = 'apothecary_shop_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 56; canvas.height = 56;
   const ctx = canvas.getContext('2d')!;
@@ -3959,6 +4066,7 @@ export function getApothecaryCanvas(): HTMLCanvasElement {
   ctx.fillStyle = '#78350f';
   ctx.fillRect(22, 32, 12, 16);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -3967,6 +4075,9 @@ export function getApothecaryCanvas(): HTMLCanvasElement {
  * Gran fachada gótica con vidrieras de rosetón, tejado azul pizarra y estatuas
  */
 export function getTempleOfSunCanvas(): HTMLCanvasElement {
+  const cacheKey = 'temple_of_sun_hd';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 64; canvas.height = 80;
   const ctx = canvas.getContext('2d')!;
@@ -4016,6 +4127,7 @@ export function getTempleOfSunCanvas(): HTMLCanvasElement {
   ctx.fillRect(16, 44, 4, 12);
   ctx.fillRect(44, 44, 4, 12);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -4024,6 +4136,10 @@ export function getTempleOfSunCanvas(): HTMLCanvasElement {
  * Torreón cilíndrico de piedra con tejado cónico púrpura y orbe mágico giratorio
  */
 export function getMageTowerCanvas(animPhase: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(animPhase * 4) % 4;
+  const cacheKey = `mage_tower_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 48; canvas.height = 80;
   const ctx = canvas.getContext('2d')!;
@@ -4061,6 +4177,7 @@ export function getMageTowerCanvas(animPhase: number = 0): HTMLCanvasElement {
   ctx.fillStyle = '#e0f2fe';
   ctx.beginPath(); ctx.arc(23, 2, 2, 0, Math.PI * 2); ctx.fill();
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -4069,6 +4186,9 @@ export function getMageTowerCanvas(animPhase: number = 0): HTMLCanvasElement {
  * Edificio monumental de dos plantas con vigas entramadas, estandartes y chimeneas
  */
 export function getGreatHallCanvas(): HTMLCanvasElement {
+  const cacheKey = 'great_hall_hd';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 80; canvas.height = 64;
   const ctx = canvas.getContext('2d')!;
@@ -4086,7 +4206,7 @@ export function getGreatHallCanvas(): HTMLCanvasElement {
   // Segunda Planta: Entramado de madera noble
   ctx.fillStyle = '#f8fafc';
   ctx.fillRect(6, 16, 68, 18);
-  ctx.fillStyle = '#451a03'; // Vigas de madera
+  ctx.fillStyle = '#451a03';
   ctx.fillRect(6, 16, 68, 3);
   ctx.fillRect(6, 31, 68, 3);
   ctx.fillRect(6, 16, 4, 18);
@@ -4112,6 +4232,7 @@ export function getGreatHallCanvas(): HTMLCanvasElement {
   ctx.fillStyle = '#fef08a';
   ctx.fillRect(36, 50, 2, 2); ctx.fillRect(42, 50, 2, 2);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -4119,6 +4240,10 @@ export function getGreatHallCanvas(): HTMLCanvasElement {
  * ⛲ GRAN ESTANQUE CON FUENTE DE GÁRGOLA (64x64 px)
  */
 export function getGargoyleFountainCanvas(time: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(time * 4) % 4;
+  const cacheKey = `gargoyle_fountain_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 64; canvas.height = 64;
   const ctx = canvas.getContext('2d')!;
@@ -4149,6 +4274,7 @@ export function getGargoyleFountainCanvas(time: number = 0): HTMLCanvasElement {
   ctx.fillRect(30, 36, 4, 12);
   ctx.fillRect(28, 44, 8, 4);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -4157,6 +4283,10 @@ export function getGargoyleFountainCanvas(time: number = 0): HTMLCanvasElement {
  * Réplica exacta de la plaza central con brocal de sillar, estanque azul y surtidor de piedra
  */
 export function getSquarePlazaFountainCanvas(time: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(time * 6) % 4;
+  const cacheKey = `square_plaza_fountain_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 56;
   canvas.height = 56;
@@ -4169,23 +4299,23 @@ export function getSquarePlazaFountainCanvas(time: number = 0): HTMLCanvasElemen
   ctx.ellipse(28, 50, 24, 6, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Brocal exterior de sillares de piedra gris clara (con esquinas achaflanadas)
-  ctx.fillStyle = '#334155'; // Sombra exterior
+  // Brocal exterior de sillares de piedra gris clara
+  ctx.fillStyle = '#334155';
   ctx.beginPath();
   ctx.roundRect(4, 8, 48, 42, 8);
   ctx.fill();
 
-  ctx.fillStyle = '#64748b'; // Cuerpo del brocal
+  ctx.fillStyle = '#64748b';
   ctx.beginPath();
   ctx.roundRect(5, 9, 46, 40, 7);
   ctx.fill();
 
-  ctx.fillStyle = '#94a3b8'; // Bisel superior
+  ctx.fillStyle = '#94a3b8';
   ctx.beginPath();
   ctx.roundRect(6, 10, 44, 38, 6);
   ctx.fill();
 
-  ctx.fillStyle = '#cbd5e1'; // Luz en la coronación
+  ctx.fillStyle = '#cbd5e1';
   ctx.beginPath();
   ctx.roundRect(7, 10, 42, 4, 2);
   ctx.fill();
@@ -4231,6 +4361,7 @@ export function getSquarePlazaFountainCanvas(time: number = 0): HTMLCanvasElemen
   ctx.fillRect(25, 13, 6, 2);
   ctx.fillRect(24, 15, 8, 2);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -4238,6 +4369,9 @@ export function getSquarePlazaFountainCanvas(time: number = 0): HTMLCanvasElemen
  * 🌉 PASARELA ELEVADA / ACUEDUCTO DE MADERA (64x32 px)
  */
 export function getSkybridgeCanvas(): HTMLCanvasElement {
+  const cacheKey = 'skybridge_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 64; canvas.height = 32;
   const ctx = canvas.getContext('2d')!;
@@ -4266,6 +4400,7 @@ export function getSkybridgeCanvas(): HTMLCanvasElement {
     ctx.fillRect(x, 2, 2, 6);
   }
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -4273,6 +4408,9 @@ export function getSkybridgeCanvas(): HTMLCanvasElement {
  * 🛡️ GREMIO DE CURTIDORES / SASTRERÍA (64x64 px)
  */
 export function getLeatherworkersGuildCanvas(): HTMLCanvasElement {
+  const cacheKey = 'leatherworkers_guild_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 64; canvas.height = 64;
   const ctx = canvas.getContext('2d')!;
@@ -4302,6 +4440,7 @@ export function getLeatherworkersGuildCanvas(): HTMLCanvasElement {
   ctx.fillStyle = '#451a03';
   ctx.fillRect(42, 38, 10, 16);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -4311,6 +4450,10 @@ export function getLeatherworkersGuildCanvas(): HTMLCanvasElement {
  * gran portón levadizo con rastrillo de hierro, estandartes dorados/azules y escudo real.
  */
 export function getGrandCastleBuildingCanvas(time: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(time * 4) % 4;
+  const cacheKey = `grand_castle_building_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 160;
   canvas.height = 160;
@@ -4531,6 +4674,7 @@ export function getGrandCastleBuildingCanvas(time: number = 0): HTMLCanvasElemen
   drawTorch(52);
   drawTorch(104);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -4540,6 +4684,10 @@ export function getGrandCastleBuildingCanvas(time: number = 0): HTMLCanvasElemen
  * respaldo alto con remates dorados y corona esculpida.
  */
 export function getRoyalThroneCanvas(time: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(time * 4) % 4;
+  const cacheKey = `royal_throne_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 64;
   canvas.height = 64;
@@ -4569,7 +4717,6 @@ export function getRoyalThroneCanvas(time: number = 0): HTMLCanvasElement {
   ctx.fillRect(12, 40, 40, 1);
 
   // 3. Gran Trono de Oro Macizo
-  // Base y patas del trono
   ctx.fillStyle = '#b45309';
   ctx.fillRect(18, 30, 28, 12);
   ctx.fillStyle = '#f59e0b';
@@ -4631,6 +4778,7 @@ export function getRoyalThroneCanvas(time: number = 0): HTMLCanvasElement {
   ctx.arc(32, 4, 2, 0, Math.PI * 2);
   ctx.fill();
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -4639,6 +4787,10 @@ export function getRoyalThroneCanvas(time: number = 0): HTMLCanvasElement {
  * Ventanal ojival con vidrieras azul real, rubí y oro, con haz de luz celestial.
  */
 export function getRoyalStainedGlassCanvas(time: number = 0): HTMLCanvasElement {
+  const frame = Math.floor(time * 4) % 4;
+  const cacheKey = `royal_stained_glass_${frame}`;
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 32;
   canvas.height = 48;
@@ -4680,6 +4832,7 @@ export function getRoyalStainedGlassCanvas(time: number = 0): HTMLCanvasElement 
   ctx.arc(16, 14, 5, 0, Math.PI * 2);
   ctx.stroke();
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 
@@ -4688,6 +4841,9 @@ export function getRoyalStainedGlassCanvas(time: number = 0): HTMLCanvasElement 
  * Gran mesa de caoba tallada con mapas de campaña desplegados, candelas y decretos sellados con cera.
  */
 export function getRoyalCouncilTableCanvas(): HTMLCanvasElement {
+  const cacheKey = 'royal_council_table_static';
+  if (tileCache.has(cacheKey)) return tileCache.get(cacheKey)!;
+
   const canvas = document.createElement('canvas');
   canvas.width = 64;
   canvas.height = 32;
@@ -4706,7 +4862,6 @@ export function getRoyalCouncilTableCanvas(): HTMLCanvasElement {
   ctx.fillRect(50, 16, 6, 12);
 
   // Tablero de caoba noble
-  ctx.fillStyle = '#581c87';
   ctx.fillStyle = '#78350f';
   ctx.fillRect(4, 8, 56, 12);
   ctx.fillStyle = '#92400e';
@@ -4733,6 +4888,7 @@ export function getRoyalCouncilTableCanvas(): HTMLCanvasElement {
   ctx.fillStyle = '#f97316';
   ctx.fillRect(10, 5, 2, 2);
 
+  tileCache.set(cacheKey, canvas);
   return canvas;
 }
 

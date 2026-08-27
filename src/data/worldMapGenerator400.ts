@@ -804,73 +804,143 @@ export function generateCave400(): { tileData: number[][]; width: number; height
 }
 
 /**
- * 3. CRIPTA Y MONASTERIO CAÍDO (72x116 - Escala Colosal Artesanal)
+ * 3. CRIPTA Y MONASTERIO CAÍDO DE SAN ELDON (72x116 - Escala Monumental con Gran Claustro Gótico)
  */
 export function generateCrypt400(): { tileData: number[][]; width: number; height: number } {
   const WIDTH = 72;
   const HEIGHT = 116;
   const map: number[][] = [];
 
+  // 1. Inicializar con tierra oscura de cementerio y muros de roca gótica
   for (let y = 0; y < HEIGHT; y++) {
     const row: number[] = [];
     for (let x = 0; x < WIDTH; x++) {
-      row.push(-1);
+      if (x <= 3 || x >= WIDTH - 4 || y <= 1 || (y >= HEIGHT - 2 && (x < 55 || x > 61))) {
+        row.push(21); // Muros de piedra gótica infranqueables
+      } else {
+        row.push(0); // Tierra oscura de cementerio
+      }
     }
     map.push(row);
   }
 
-  // 1. Calzada de Entrada Sur (X: 52..64, Y: 80..115)
-  for (let y = 80; y < HEIGHT; y++) {
-    for (let x = 52; x <= 64; x++) {
-      map[y][x] = 0;
+  // =========================================================================
+  // 2. ENTRADA SUR: GRAN AVENIDA DE CANTERÍA GÓTICA (Y: 88..115, X: 56..60)
+  // =========================================================================
+  for (let y = 88; y < HEIGHT; y++) {
+    for (let x = 56; x <= 60; x++) {
+      map[y][x] = 2; // Calzada de cantería
     }
   }
-  for (let y = 80; y < HEIGHT; y++) {
-    map[y][57] = 2; map[y][58] = 2; map[y][59] = 2;
+  for (let y = 92; y <= 112; y += 4) {
+    map[y][55] = 17; map[y][61] = 17; // Farolas góticas
+  }
+  // Curva hacia el centro del Gran Claustro
+  for (let x = 36; x <= 58; x++) {
+    map[86][x] = 2; map[87][x] = 2; map[88][x] = 2;
   }
 
-  // 2. Claustro y Ruinas del Monasterio (X: 16..56, Y: 46..80)
-  for (let y = 46; y <= 80; y++) {
-    for (let x = 16; x <= 56; x++) {
-      map[y][x] = 0;
+  // =========================================================================
+  // 3. EL GRAN CLAUSTRO DEL MONASTERIO CAÍDO (X: 14..58, Y: 44..88)
+  // =========================================================================
+  // Gran Bulevar Central y Explanada (Tile 2)
+  for (let y = 44; y <= 88; y++) {
+    map[y][34] = 2; map[y][35] = 2; map[y][36] = 2; map[y][37] = 2; map[y][38] = 2;
+  }
+  for (let y = 64; y <= 68; y++) {
+    for (let x = 14; x <= 58; x++) map[y][x] = 2;
+  }
+  // Anillo de Galerías y Claustros
+  for (let y = 52; y <= 55; y++) {
+    for (let x = 18; x <= 54; x++) map[y][x] = 2;
+  }
+  for (let y = 78; y <= 81; y++) {
+    for (let x = 18; x <= 54; x++) map[y][x] = 2;
+  }
+
+  // ⚰️ Plaza Mayor del Gran Sarcófago Real (X: 28..44, Y: 60..72)
+  for (let y = 60; y <= 72; y++) {
+    for (let x = 28; x <= 44; x++) map[y][x] = 2;
+  }
+  map[66][36] = 18; // Gran Sarcófago de Mármol Real
+  map[66][32] = 4;  // Fuente de Agua Bendita
+  map[66][40] = 12; map[62][36] = 12; map[70][36] = 12; // Bancos de piedra
+  map[61][29] = 19; map[61][43] = 19; // Braseros espectrales
+  map[71][29] = 19; map[71][43] = 19;
+
+  // ⛪ Claustro de los Monjes y Capillas de Rezo (Oeste, X: 14..28, Y: 56..80)
+  for (let y = 56; y <= 80; y++) {
+    for (let x = 14; x <= 28; x++) map[y][x] = 2;
+  }
+  map[60][20] = 5; map[76][20] = 5; // Capillas y celdas
+  map[68][20] = 8; map[68][24] = 8; // Mausoleos
+
+  // 🪦 Distrito de los Sepultureros y Panteones Nobles (Este, X: 44..58, Y: 56..80)
+  for (let y = 56; y <= 80; y++) {
+    for (let x = 44; x <= 58; x++) map[y][x] = 2;
+  }
+  map[60][52] = 5; map[76][52] = 5; // Panteones
+  map[68][52] = 8; map[68][48] = 8;
+
+  // 🏘️ Celdas Monacales Norte y Sur
+  map[50][20] = 5; map[50][30] = 5; map[50][42] = 5; map[50][52] = 5;
+  map[84][20] = 5; map[84][30] = 5; map[84][42] = 5; map[84][52] = 5;
+  map[50][25] = 17; map[50][36] = 17; map[50][47] = 17;
+  map[84][25] = 17; map[84][36] = 17; map[84][47] = 17;
+
+  // =========================================================================
+  // 4. RUTAS SECUNDARIAS DEL CEMENTERIO (72x116)
+  // =========================================================================
+  // 🌲 Este: Jardines del Cementerio y Tumbas de Héroes (X: 44..66, Y: 20..44)
+  for (let y = 22; y <= 42; y++) {
+    for (let x = 46; x <= 62; x++) {
+      if (y >= 26 && y <= 30) map[y][x] = 2; // Calzada del jardín
     }
   }
-  for (let y = 48; y <= 80; y++) {
-    map[y][35] = 2; map[y][36] = 2; map[y][37] = 2;
-  }
-  for (let x = 20; x <= 58; x++) {
-    map[64][x] = 2; map[65][x] = 2;
-  }
-  map[56][24] = 8; map[56][48] = 8; // Mausoleos
-  map[72][24] = 8; map[72][48] = 8;
-  map[64][36] = 18; map[60][36] = 28; // Altar central y sarcófago
-  map[52][36] = 7;
+  map[26][48] = 16; map[30][48] = 16; // Lápidas góticas decorativas
+  map[26][60] = 16; map[30][60] = 16;
+  map[32][56] = 19; // Fogata espectral
+  map[28][60] = 7; map[36][52] = 7; // Cofres de reliquias
 
-  // 3. Catacumbas y Biblioteca Prohibida (X: 8..64, Y: 16..46)
+  // 🪦 Sudoeste: Catacumbas Exteriores y Cripta de los Reyes (X: 8..34, Y: 20..44)
+  for (let y = 22; y <= 42; y++) {
+    for (let x = 12; x <= 32; x++) {
+      if (x >= 20 && x <= 24) map[y][x] = 2;
+    }
+  }
+  map[32][18] = 19; // Fogata de expedición
+  map[28][14] = 7; map[38][26] = 7; // Cofres antiguos
+
+  // 🚪 Noroeste: Distrito de la Mazmorra "Las Catacumbas de San Eldon" (X: 8..34, Y: 10..32)
+  for (let y = 14; y <= 22; y++) {
+    for (let x = 10; x <= 34; x++) map[y][x] = 2;
+  }
+  for (let y = 12; y <= 24; y++) {
+    for (let x = 10; x <= 20; x++) map[y][x] = 2; // Explanada de la Cripta
+  }
+  map[18][12] = 28; // Entrada a la Mazmorra Instanciada
+  map[16][10] = 19; map[16][14] = 19;
+  map[20][10] = 19; map[20][14] = 19;
+  map[18][8] = 18; map[18][16] = 18;
+
+  // =========================================================================
+  // 5. CIMA NORTE: PANTEÓN DEL LICH MALAKOR EL ETERNO (X: 20..52, Y: 2..18)
+  // =========================================================================
+  // Gran Calzada Ceremonial hacia el Altar
   for (let y = 16; y <= 46; y++) {
-    for (let x = 8; x <= 64; x++) {
-      const isHallW = Math.hypot(x - 22, y - 30) <= 12;
-      const isHallE = Math.hypot(x - 50, y - 30) <= 12;
-      const isAvenue = x >= 33 && x <= 39;
-      if (isHallW || isHallE || isAvenue) {
-        map[y][x] = 0;
-      }
+    map[y][34] = 2; map[y][35] = 2; map[y][36] = 2; map[y][37] = 2; map[y][38] = 2;
+  }
+  // Gran Arena Circular de Piedra para el Combate en Tiempo Real
+  for (let y = 4; y <= 16; y++) {
+    for (let x = 22; x <= 50; x++) {
+      map[y][x] = 2;
     }
   }
-  map[28][22] = 7; map[28][50] = 7;
-
-  // 4. Santuario del Lich Malakor (Norte X: 28..44, Y: 2..16)
-  for (let y = 2; y <= 16; y++) {
-    for (let x = 28; x <= 44; x++) {
-      map[y][x] = 0;
-    }
-  }
-  for (let y = 4; y <= 20; y++) {
-    map[y][35] = 2; map[y][36] = 2; map[y][37] = 2;
-  }
-  map[6][36] = 11;
-  map[6][33] = 18; map[6][39] = 18;
-  map[8][33] = 19; map[8][39] = 19;
+  // Columnas Góticas y Braseros de Fuego Espectral
+  map[4][24] = 18; map[4][48] = 18;
+  map[16][24] = 18; map[16][48] = 18;
+  map[4][32] = 19; map[4][40] = 19;
+  map[16][32] = 19; map[16][40] = 19;
 
   return { tileData: map, width: WIDTH, height: HEIGHT };
 }
@@ -1168,62 +1238,148 @@ export function generateCoast400(): { tileData: number[][]; width: number; heigh
 }
 
 /**
- * 6. GARGANTA DEL VOLCÁN IGNIS (72x116 - Escala Colosal Artesanal)
+ * 6. GARGANTA DEL VOLCÁN IGNIS (72x116 - Escala Monumental con Fortaleza de Obsidiana)
  */
 export function generateVolcano400(): { tileData: number[][]; width: number; height: number } {
   const WIDTH = 72;
   const HEIGHT = 116;
   const map: number[][] = [];
 
+  // 1. Inicializar con ríos de magma y acantilados exteriores
   for (let y = 0; y < HEIGHT; y++) {
     const row: number[] = [];
     for (let x = 0; x < WIDTH; x++) {
-      row.push(-1);
+      if (x <= 3 || x >= WIDTH - 4 || y >= HEIGHT - 2 || (y <= 1 && (x < 55 || x > 61))) {
+        row.push(21); // Acantilado volcánico infranqueable
+      } else {
+        row.push(3); // Ríos y mar de magma fundido
+      }
     }
     map.push(row);
   }
 
-  // 1. Calzada de Entrada Norte (X: 52..64, Y: 0..20)
-  for (let y = 0; y <= 20; y++) {
-    for (let x = 52; x <= 64; x++) {
-      map[y][x] = 0;
+  // =========================================================================
+  // 2. ENTRADA NORTE: GRAN RAMPA DE BASALTO (Y: 0..24, X: 56..60)
+  // =========================================================================
+  for (let y = 0; y <= 22; y++) {
+    for (let x = 56; x <= 60; x++) {
+      map[y][x] = 2; // Calzada de piedra basáltica
     }
   }
-  for (let y = 0; y <= 20; y++) {
-    map[y][57] = 2; map[y][58] = 2; map[y][59] = 2;
+  for (let y = 4; y <= 20; y += 4) {
+    map[y][55] = 19; map[y][61] = 19; // Braseros de fuego
+  }
+  // Curva hacia el centro de la Fortaleza de Obsidiana
+  for (let x = 36; x <= 58; x++) {
+    map[22][x] = 2; map[23][x] = 2; map[24][x] = 2;
   }
 
-  // 2. Fortaleza de los Titanes del Fuego (X: 14..58, Y: 20..76)
-  for (let y = 20; y <= 76; y++) {
-    for (let x = 14; x <= 58; x++) {
-      if (Math.hypot(x - 36, y - 48) <= 22) {
-        map[y][x] = 0;
+  // =========================================================================
+  // 3. LA GRAN FORTALEZA DE OBSIDIANA Y FORJA DE TITANES (X: 14..58, Y: 24..72)
+  // =========================================================================
+  // Gran Bulevar Central y Explanada (Tile 2)
+  for (let y = 24; y <= 72; y++) {
+    map[y][34] = 2; map[y][35] = 2; map[y][36] = 2; map[y][37] = 2; map[y][38] = 2;
+  }
+  for (let y = 44; y <= 48; y++) {
+    for (let x = 14; x <= 58; x++) map[y][x] = 2;
+  }
+  // Anillo de Pasarelas Fortificadas
+  for (let y = 32; y <= 35; y++) {
+    for (let x = 18; x <= 54; x++) map[y][x] = 2;
+  }
+  for (let y = 62; y <= 65; y++) {
+    for (let x = 18; x <= 54; x++) map[y][x] = 2;
+  }
+
+  // 🔨 Plaza del Gran Yunque de los Titanes (X: 28..44, Y: 42..54)
+  for (let y = 42; y <= 54; y++) {
+    for (let x = 28; x <= 44; x++) map[y][x] = 2;
+  }
+  map[48][36] = 18; // El Gran Yunque Rúnico de los Titanes
+  map[48][32] = 4;  // Pozo de agua y templado de metal
+  map[48][40] = 12; map[44][36] = 12; map[52][36] = 12; // Bancos de basalto
+  map[43][29] = 19; map[43][43] = 19; // Braseros de plaza
+  map[53][29] = 19; map[53][43] = 19;
+
+  // 🔥 Distrito de Crisoles y Fundición Magmática (Este, X: 44..58, Y: 36..60)
+  for (let y = 36; y <= 60; y++) {
+    for (let x = 44; x <= 58; x++) map[y][x] = 2;
+  }
+  map[40][52] = 5; map[56][52] = 5; // Hornos de fundición
+  map[48][52] = 10; // Forja y templado
+  map[44][48] = 14; map[48][48] = 14; map[52][48] = 14; // Cajas de lingotes y adamantio
+
+  // 🛡️ Bastión de los Cazadragones (Oeste, X: 14..28, Y: 36..60)
+  for (let y = 36; y <= 60; y++) {
+    for (let x = 14; x <= 28; x++) map[y][x] = 2;
+  }
+  map[40][20] = 5; map[56][20] = 5; // Fortines de basalto
+  map[48][20] = 16; map[44][24] = 16; map[52][24] = 16; // Armeros de armas de dragón
+
+  // 🏘️ Barrios Residenciales Norte y Sur
+  map[30][20] = 5; map[30][30] = 5; map[30][42] = 5; map[30][52] = 5;
+  map[68][20] = 5; map[68][30] = 5; map[68][42] = 5; map[68][52] = 5;
+  map[30][25] = 17; map[30][36] = 17; map[30][47] = 17;
+  map[68][25] = 17; map[68][36] = 17; map[68][47] = 17;
+
+  // =========================================================================
+  // 4. RUTAS SECUNDARIAS DEL VOLCÁN (72x116)
+  // =========================================================================
+  // 🌋 Este: Cañón de Magma y Risco de Obsidiana (X: 44..66, Y: 72..96)
+  for (let y = 74; y <= 94; y++) {
+    for (let x = 46; x <= 62; x++) {
+      if (y >= 78 && y <= 82) map[y][x] = 2; // Puente de basalto
+      else if (Math.hypot(x - 56, y - 84) <= 8) map[y][x] = 0; // Roca de basalto
+    }
+  }
+  map[84][56] = 19; // Fogata volcánica
+  map[80][60] = 7; map[88][52] = 7; // Cofres de lingotes de fuego
+  map[82][54] = 14; map[86][54] = 14;
+
+  // ♨️ Sudoeste: Campos de Géiseres y Espiras de Fuego (X: 8..34, Y: 72..96)
+  for (let y = 74; y <= 94; y++) {
+    for (let x = 12; x <= 32; x++) {
+      if (x >= 20 && x <= 24) map[y][x] = 2;
+      else if (Math.hypot(x - 18, y - 84) <= 8 || Math.hypot(x - 28, y - 88) <= 7) {
+        map[y][x] = 0; // Ceniza volcánica sólida
       }
     }
   }
-  for (let y = 20; y <= 76; y++) {
-    map[y][35] = 2; map[y][36] = 2; map[y][37] = 2;
-  }
-  for (let x = 18; x <= 58; x++) {
-    map[48][x] = 2; map[49][x] = 2;
-  }
-  // Forja Ancestral de Magma
-  map[48][36] = 10;
-  map[42][26] = 19; map[42][46] = 19;
-  map[54][26] = 19; map[54][46] = 19;
-  map[38][36] = 7; map[58][36] = 7;
+  map[84][18] = 19; // Fogata de expedición
+  map[80][14] = 7; map[90][26] = 7; // Cofres de gemas ígneas
+  map[82][18] = 5; map[88][22] = 5; // Vetas de mineral
 
-  // 3. Caldera del Draco Primordial Ignis (Sur X: 28..44, Y: 96..112)
-  for (let y = 96; y <= 112; y++) {
-    for (let x = 28; x <= 44; x++) {
-      map[y][x] = 0;
+  // 🚪 Noroeste: Distrito de la Mazmorra "El Corazón de la Caldera" (X: 8..34, Y: 10..32)
+  for (let y = 14; y <= 22; y++) {
+    for (let x = 10; x <= 34; x++) map[y][x] = 2;
+  }
+  for (let y = 12; y <= 24; y++) {
+    for (let x = 10; x <= 20; x++) map[y][x] = 2; // Explanada de la Caldera
+  }
+  map[18][12] = 28; // Entrada a la Mazmorra Instanciada
+  map[16][10] = 19; map[16][14] = 19;
+  map[20][10] = 19; map[20][14] = 19;
+  map[18][8] = 18; map[18][16] = 18;
+
+  // =========================================================================
+  // 5. CALDERA SUR: CRÁTER DEL DRAGÓN DE MAGMA PYROCLASTO (X: 20..52, Y: 96..114)
+  // =========================================================================
+  // Gran Calzada Ceremonial de Basalto
+  for (let y = 72; y <= 100; y++) {
+    map[y][34] = 2; map[y][35] = 2; map[y][36] = 2; map[y][37] = 2; map[y][38] = 2;
+  }
+  // Gran Arena Circular de Basalto para el Combate en Tiempo Real
+  for (let y = 100; y <= 112; y++) {
+    for (let x = 22; x <= 50; x++) {
+      map[y][x] = 2;
     }
   }
-  for (let y = 74; y <= 104; y++) {
-    map[y][35] = 2; map[y][36] = 2; map[y][37] = 2;
-  }
-  map[106][36] = 11;
-  map[106][33] = 19; map[106][39] = 19;
+  // Columnas de Basalto y Braseros Llameantes
+  map[100][24] = 18; map[100][48] = 18;
+  map[112][24] = 18; map[112][48] = 18;
+  map[100][32] = 19; map[100][40] = 19;
+  map[112][32] = 19; map[112][40] = 19;
 
   return { tileData: map, width: WIDTH, height: HEIGHT };
 }

@@ -128,6 +128,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
   const directionRef = useRef(direction);
   const openedChestsRef = useRef(openedChests);
   const equipmentRef = useRef(equipment);
+  const lastBossIdRef = useRef<string | null>(null);
 
   useEffect(() => { playerRef.current = player; }, [player]);
   useEffect(() => {
@@ -707,22 +708,37 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-      ctx.imageSmoothingEnabled = false;
+        if (canvas.parentElement) {
+          const rect = canvas.parentElement.getBoundingClientRect();
+          const pW = Math.round(rect.width);
+          const pH = Math.round(rect.height);
+          if (pW > 0 && pH > 0 && (canvas.width !== pW || canvas.height !== pH)) {
+            canvas.width = pW;
+            canvas.height = pH;
+          }
+        }
 
-      // Interpolación suave del jugador hacia la casilla destino
-      const lerpSpeed = 0.22;
-      currentPosRef.current.x += (targetPosRef.current.x - currentPosRef.current.x) * lerpSpeed;
-      currentPosRef.current.y += (targetPosRef.current.y - currentPosRef.current.y) * lerpSpeed;
+        ctx.imageSmoothingEnabled = false;
 
-      const dist = Math.hypot(
-        targetPosRef.current.x - currentPosRef.current.x,
-        targetPosRef.current.y - currentPosRef.current.y
-      );
-      const moving = dist > 0.05;
-      if (isMovingRef.current !== moving) {
+        // Protección absoluta anti-NaN para la posición del jugador
+        if (isNaN(currentPosRef.current.x) || isNaN(currentPosRef.current.y) || typeof currentPosRef.current.x !== 'number') {
+          currentPosRef.current = { x: playerPos?.x ?? 36, y: playerPos?.y ?? 56 };
+        }
+        if (isNaN(targetPosRef.current.x) || isNaN(targetPosRef.current.y) || typeof targetPosRef.current.x !== 'number') {
+          targetPosRef.current = { x: playerPos?.x ?? 36, y: playerPos?.y ?? 56 };
+        }
+
+        // Interpolación suave del jugador hacia la casilla destino
+        const lerpSpeed = 0.22;
+        currentPosRef.current.x += (targetPosRef.current.x - currentPosRef.current.x) * lerpSpeed;
+        currentPosRef.current.y += (targetPosRef.current.y - currentPosRef.current.y) * lerpSpeed;
+
+        const dist = Math.hypot(
+          targetPosRef.current.x - currentPosRef.current.x,
+          targetPosRef.current.y - currentPosRef.current.y
+        );
+        const moving = dist > 0.05;
         isMovingRef.current = moving;
-        setIsMoving(moving);
-      }
 
       // Limpiar lienzo
       ctx.fillStyle = '#0f172a';
@@ -757,15 +773,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
         // Para objetos colocados en la calle (farolas 17, pilares 18, cofres 7, puestos 9, etc.)
         let pathNeighbors = 0;
-        const offsets = [[0, -1], [0, 1], [-1, 0], [1, 0]];
-        for (const [ox, oy] of offsets) {
-          const nx = gx + ox;
-          const ny = gy + oy;
-          if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
-            const nType = currentZone.tileData[ny][nx];
-            if (nType === 2 || nType === 9 || nType === 33) pathNeighbors++;
-          }
-        }
+        if (gy > 0 && (currentZone.tileData[gy - 1][gx] === 2 || currentZone.tileData[gy - 1][gx] === 9 || currentZone.tileData[gy - 1][gx] === 33)) pathNeighbors++;
+        if (gy < rows - 1 && (currentZone.tileData[gy + 1][gx] === 2 || currentZone.tileData[gy + 1][gx] === 9 || currentZone.tileData[gy + 1][gx] === 33)) pathNeighbors++;
+        if (gx > 0 && (currentZone.tileData[gy][gx - 1] === 2 || currentZone.tileData[gy][gx - 1] === 9 || currentZone.tileData[gy][gx - 1] === 33)) pathNeighbors++;
+        if (gx < cols - 1 && (currentZone.tileData[gy][gx + 1] === 2 || currentZone.tileData[gy][gx + 1] === 9 || currentZone.tileData[gy][gx + 1] === 33)) pathNeighbors++;
         return pathNeighbors >= 2 ? 2 : 0;
       };
 
@@ -857,20 +868,17 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               ctx.fillRect(drawPosX + 18, drawPosY + 15, 1, 1);
             }
           } else if (currentZone.id === 'zone_forest') {
-            // Suelo Base: Dibujar siempre la auténtica hierba pastel de Cute Fantasy
-            if (gameAssets.grassMiddle.complete && gameAssets.grassMiddle.naturalWidth > 0) {
-              ctx.drawImage(gameAssets.grassMiddle, 0, 0, 16, 16, drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
-            } else if (hasFloorTiles) {
-              ctx.drawImage(gameAssets.floorTiles, 16, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
+            if (groundType === 2) {
+              // 🛣️ Caminos y Plazas de Adoquines Medievales Cálidos (2.5D HD)
+              const pathTile = getTileCanvas(2, currentZone.id, (x * 3 + y * 7) % 8);
+              ctx.drawImage(pathTile, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
+            } else {
+              // 🌿 Césped con Flores Silvestres y Textura Pixel Art Rica
+              const grassTile = getTileCanvas(0, currentZone.id, (x * 3 + y * 7) % 8);
+              ctx.drawImage(grassTile, drawPosX, drawPosY, TILE_SIZE, TILE_SIZE);
             }
 
             if (groundType === 2) {
-              // 🛣️ Caminos Orgánicos de Tierra y Arena Cálida (Estilo Cute Fantasy)
-              if (gameAssets.pathMiddle.complete && gameAssets.pathMiddle.naturalWidth > 0) {
-                ctx.drawImage(gameAssets.pathMiddle, 0, 0, 16, 16, drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
-              } else if (hasFloorTiles) {
-                ctx.drawImage(gameAssets.floorTiles, 96, 160, 16, 16, drawPosX, drawPosY, TILE_SIZE + 0.5, TILE_SIZE + 0.5);
-              }
 
               // 🛣️ Bordillos de Piedra y Adoquines Pulidos en los Márgenes (Estilo RPG Retro HD)
               const isPath = (tx: number, ty: number) => {
@@ -1023,7 +1031,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
 
       const entities: RenderableEntity[] = [];
 
-      // 1. Árboles, Estructuras y Props según tileData (dentro del viewport)
+      // 1. Árboles, Estructuras y Props según tileData (dentro del viewport) - CACHED PER FRAME
       const { trunk: treeTrunk, canopy: treeCanopy } = getTreeCanvas(currentZone.id);
       const stoneWall = getStoneWallCanvas();
       const weaponRack = getWeaponRackCanvas();
@@ -1032,6 +1040,25 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
       const forge = getForgeCanvas(time);
       const shrine = getShrineCanvas(false, time);
       const bossPortal = getShrineCanvas(true, time);
+      const cryptMausoleum = getCryptMausoleumCanvas(gameAssets.house, time);
+      const boneUrns = getBoneUrnStackCanvas();
+      const pirateCrates = getPirateCrateStackCanvas();
+      const barrelStack = getTavernBarrelStackCanvas();
+      const spectralBrazier = getSpectralBrazierCanvas(time);
+      const stoneSarcophagus = getStoneSarcophagusCanvas();
+      const graveyardTombstone = getGraveyardCanvas();
+      const campfire = getCampfireCanvas(time);
+      const ruinedPillar = getRuinedPillarCanvas();
+      const mossyBoulder = getMossyBoulderCanvas();
+      const orePile = getOrePileCanvas();
+      const streetLamp = getStreetLampCanvas(time);
+      const wallTorchFront = getWallTorchCanvas(time, 'front');
+      const wallTorchLeft = getWallTorchCanvas(time, 'left');
+      const wallTorchRight = getWallTorchCanvas(time, 'right');
+      const woodenBench = getWoodenBenchCanvas();
+      const dockRowboat = getDockRowboatCanvas();
+      const alchemyCauldron = getAlchemyCauldronCanvas(time);
+      const blastFurnace = getBlastFurnaceCanvas(time);
 
       for (let y = startRow; y <= endRow; y++) {
         for (let x = startCol; x <= endCol; x++) {
@@ -1172,11 +1199,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               ySort: posY + TILE_SIZE + 20,
               draw: (c) => {
                 // Sombra de contacto
-                const hShadow = c.createRadialGradient(posX + 16, posY + 24, 6, posX + 16, posY + 24, 48);
-                hShadow.addColorStop(0, 'rgba(15, 23, 42, 0.7)');
-                hShadow.addColorStop(0.5, 'rgba(15, 23, 42, 0.35)');
-                hShadow.addColorStop(1, 'rgba(15, 23, 42, 0)');
-                c.fillStyle = hShadow;
+                c.fillStyle = 'rgba(15, 23, 42, 0.45)';
                 c.beginPath();
                 c.ellipse(posX + 16, posY + 24, 48, 8, 0, 0, Math.PI * 2);
                 c.fill();
@@ -1197,11 +1220,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               ySort: posY + TILE_SIZE + 20,
               draw: (c) => {
                 // Sombra de contacto
-                const hShadow = c.createRadialGradient(posX + 16, posY + 24, 6, posX + 16, posY + 24, 48);
-                hShadow.addColorStop(0, 'rgba(15, 23, 42, 0.7)');
-                hShadow.addColorStop(0.5, 'rgba(15, 23, 42, 0.35)');
-                hShadow.addColorStop(1, 'rgba(15, 23, 42, 0)');
-                c.fillStyle = hShadow;
+                c.fillStyle = 'rgba(15, 23, 42, 0.45)';
                 c.beginPath();
                 c.ellipse(posX + 16, posY + 24, 48, 8, 0, 0, Math.PI * 2);
                 c.fill();
@@ -1342,7 +1361,6 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           } else if (tileType === 14) {
             // 🍷 Bodega en Taberna, 💀 Urnas y Huesos en Cripta, o Barriles/Cajas en Aldea
             if (currentZone.interiorType === 'tavern' || currentZone.id === 'subzone_tavern') {
-              const barrelStack = getTavernBarrelStackCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
@@ -1350,7 +1368,6 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             } else if (currentZone.interiorType === 'crypt' || currentZone.id === 'subzone_crypt') {
-              const boneUrns = getBoneUrnStackCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
@@ -1358,7 +1375,6 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             } else if (currentZone.interiorType === 'smugglers_cave' || currentZone.id === 'subzone_smugglers_cave') {
-              const pirateCrates = getPirateCrateStackCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
@@ -1429,8 +1445,7 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
               entities.push({
                 ySort: posY + TILE_SIZE + 24,
                 draw: (c) => {
-                  const mausoleum = getCryptMausoleumCanvas(gameAssets.house, time);
-                  c.drawImage(mausoleum, 0, 0, 96, 128, posX - 32, posY - 76, 96, 128);
+                  c.drawImage(cryptMausoleum, 0, 0, 96, 128, posX - 32, posY - 76, 96, 128);
                 },
               });
             } else {
@@ -1675,19 +1690,17 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             } else {
-              const tombstone = getGraveyardCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
-                  c.drawImage(tombstone, posX + 4, posY + 4, 24, 28);
+                  c.drawImage(graveyardTombstone, posX + 4, posY + 4, 24, 28);
                 },
               });
             }
           } else if (tileType === 17) {
             // 🔥 Antorchas de Pared en Interiores / 🏮 Farolas de Calle en Exteriores
             if (currentZone.isInterior || currentZone.id.includes('subzone')) {
-              const side = x <= 2 ? 'left' : x >= (currentZone.mapWidth || 18) - 2 ? 'right' : 'front';
-              const torch = getWallTorchCanvas(time, side);
+              const torch = x <= 2 ? wallTorchLeft : x >= (currentZone.mapWidth || 18) - 2 ? wallTorchRight : wallTorchFront;
               entities.push({
                 ySort: posY + TILE_SIZE + 4,
                 draw: (c) => {
@@ -1695,11 +1708,10 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             } else {
-              const lamp = getStreetLampCanvas(time);
               entities.push({
                 ySort: posY + TILE_SIZE + 4,
                 draw: (c) => {
-                  c.drawImage(lamp, posX - 8, posY - 20, 48, 56);
+                  c.drawImage(streetLamp, posX - 8, posY - 20, 48, 56);
                 },
               });
             }
@@ -1707,26 +1719,23 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             // Rocas Redondeadas con Musgo (Estilo Cute Fantasy) o Columnas de Mármol con Hiedra
             const isBoulder = currentZone.id === 'zone_forest' && ((x * 13 + y * 7) % 2 === 0);
             if (isBoulder) {
-              const boulder = getMossyBoulderCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
-                  c.drawImage(boulder, posX - 2, posY, 36, 32);
+                  c.drawImage(mossyBoulder, posX - 2, posY, 36, 32);
                 },
               });
             } else {
-              const pillar = getRuinedPillarCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE + 4,
                 draw: (c) => {
-                  c.drawImage(pillar, posX + 2, posY - 10, 28, 44);
+                  c.drawImage(ruinedPillar, posX + 2, posY - 10, 28, 44);
                 },
               });
             }
           } else if (tileType === 22) {
             // Pila de Mineral y Carbón en Forja, o Tablón de Misiones en Aldea
             if (currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge') {
-              const orePile = getOrePileCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
@@ -1734,7 +1743,6 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             } else {
-              const noticeBoard = getNoticeBoardCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE + 4,
                 draw: (c) => {
@@ -1744,7 +1752,6 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             }
           } else if (tileType === 29) {
             // 🔨 Yunque de Herrero con Martillo y Chispas
-            const anvil = getAnvilWorkstationCanvas(time);
             entities.push({
               ySort: posY + TILE_SIZE,
               draw: (c) => {
@@ -1754,7 +1761,6 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           } else if (tileType === 19) {
             // Gran Horno de Fundición en la Forja, Chimenea en Taberna, Caldero en Botica, o Hoguera en exteriores
             if (currentZone.interiorType === 'forge' || currentZone.id === 'subzone_forge') {
-              const blastFurnace = getBlastFurnaceCanvas(time);
               entities.push({
                 ySort: posY + TILE_SIZE + 10,
                 draw: (c) => {
@@ -1762,7 +1768,6 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             } else if (currentZone.interiorType === 'tavern' || currentZone.id === 'subzone_tavern') {
-              const tavernFireplace = getTavernFireplaceCanvas(time);
               entities.push({
                 ySort: posY + TILE_SIZE + 8,
                 draw: (c) => {
@@ -1770,19 +1775,17 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             } else if (currentZone.interiorType === 'botica' || currentZone.id === 'subzone_botica') {
-              const cauldron = getAlchemyCauldronCanvas(time);
               entities.push({
                 ySort: posY + TILE_SIZE + 8,
                 draw: (c) => {
-                  c.drawImage(cauldron, posX - 8, posY - 14, 48, 48);
+                  c.drawImage(alchemyCauldron, posX - 8, posY - 14, 48, 48);
                 },
               });
             } else if (currentZone.interiorType === 'crypt' || currentZone.id === 'subzone_crypt') {
-              const brazier = getSpectralBrazierCanvas(time);
               entities.push({
                 ySort: posY + TILE_SIZE + 4,
                 draw: (c) => {
-                  c.drawImage(brazier, posX, posY, 32, 32);
+                  c.drawImage(spectralBrazier, posX, posY, 32, 32);
                 },
               });
             } else if (gameAssets.bonfire.complete && gameAssets.bonfire.naturalWidth > 0) {
@@ -1794,7 +1797,6 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 },
               });
             } else {
-              const campfire = getCampfireCanvas(time);
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
@@ -1805,19 +1807,17 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
           } else if (tileType === 30) {
             // 🪑 Mesas de Taberna, Estantes en Botica, ⚰️ Sarcófagos en Cripta, o 🚣 Botes en Cueva
             if (currentZone.interiorType === 'crypt' || currentZone.id === 'subzone_crypt') {
-              const sarcophagus = getStoneSarcophagusCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE + 8,
                 draw: (c) => {
-                  c.drawImage(sarcophagus, posX, posY - 16, 32, 48);
+                  c.drawImage(stoneSarcophagus, posX, posY - 16, 32, 48);
                 },
               });
             } else if (currentZone.interiorType === 'smugglers_cave' || currentZone.id === 'subzone_smugglers_cave') {
-              const rowboat = getDockRowboatCanvas();
               entities.push({
                 ySort: posY + TILE_SIZE,
                 draw: (c) => {
-                  c.drawImage(rowboat, posX, posY, 32, 32);
+                  c.drawImage(dockRowboat, posX, posY, 32, 32);
                 },
               });
             } else {
@@ -2197,19 +2197,15 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
             entities.push({
               ySort: y * TILE_SIZE - 50,
               draw: (c) => {
-                const grad = c.createRadialGradient(
-                  x * TILE_SIZE + 16,
-                  y * TILE_SIZE + 16,
-                  4,
-                  x * TILE_SIZE + 16,
-                  y * TILE_SIZE + 16,
-                  radius + flicker
-                );
-                grad.addColorStop(0, color);
-                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                c.fillStyle = grad;
+                const cx = x * TILE_SIZE + 16;
+                const cy = y * TILE_SIZE + 16;
+                const r = radius + flicker;
+                c.fillStyle = color;
                 c.beginPath();
-                c.arc(x * TILE_SIZE + 16, y * TILE_SIZE + 16, radius + flicker, 0, Math.PI * 2);
+                c.arc(cx, cy, r * 0.5, 0, Math.PI * 2);
+                c.fill();
+                c.beginPath();
+                c.arc(cx, cy, r, 0, Math.PI * 2);
                 c.fill();
               },
             });
@@ -2394,6 +2390,8 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
                 else if (portal.targetZoneId.includes('eridu')) badgeIcon = '⛏️ PROFUNDIDADES DE ERIDU (Nv.6-10)';
                 else if (portal.targetZoneId.includes('swamp_crypt')) badgeIcon = '🌫️ CRIPTA SUMERGIDA (Nv.15-20)';
                 else if (portal.targetZoneId.includes('smugglers_grotto') || portal.targetZoneId.includes('grotto')) badgeIcon = '🌊 GRUTA PIRATA (Nv.20-25)';
+                else if (portal.targetZoneId.includes('volcano_caldera') || portal.targetZoneId.includes('caldera')) badgeIcon = '🌋 CORAZÓN DE LA CALDERA (Nv.25-30)';
+                else if (portal.targetZoneId.includes('crypt_dungeon') || portal.targetZoneId.includes('catacomb')) badgeIcon = '🪦 CATACUMBAS (Nv.10-15)';
 
                 c.font = 'bold 9px monospace';
                 const textW = c.measureText(badgeIcon).width;
@@ -2829,7 +2827,11 @@ export const PixelMapCanvas: React.FC<PixelMapCanvasProps> = ({
         });
       });
 
-      onBossStateChange?.(nearestBoss);
+      const currentBossId = nearestBoss ? (nearestBoss.id || nearestBoss.name) : null;
+      if (currentBossId !== lastBossIdRef.current) {
+        lastBossIdRef.current = currentBossId;
+        onBossStateChange?.(nearestBoss);
+      }
 
       // 5. BOTÍN MAGNÉTICO EN EL SUELO (Monedas, EXP, Pociones)
       for (let dIdx = groundDropEntities.length - 1; dIdx >= 0; dIdx--) {

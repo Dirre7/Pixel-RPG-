@@ -121,6 +121,13 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
   const portalCooldownRef = useRef(0);
   const [depletedNodes, setDepletedNodes] = useState<string[]>([]);
   const [activeBoss, setActiveBoss] = useState<OverworldEnemy | null>(null);
+  const handleBossStateChange = useCallback((boss: OverworldEnemy | null) => {
+    setActiveBoss((prev) => {
+      if (prev === null && boss === null) return prev;
+      if (prev?.id === boss?.id && prev?.hp === boss?.hp) return prev;
+      return boss;
+    });
+  }, []);
   const combatActionRef = useRef<{
     triggerBasicAttack: () => void;
     triggerSkill: (skill: HeroCombatSkill) => boolean;
@@ -903,7 +910,7 @@ export const OverworldMap: React.FC<OverworldMapProps> = ({
           onEnemyKilled={handleEnemyKilled}
           onPlayerDamaged={handlePlayerDamaged}
           onLootCollected={handleLootCollected}
-          onBossStateChange={setActiveBoss}
+          onBossStateChange={handleBossStateChange}
           combatActionRef={combatActionRef}
         />
       </div>
